@@ -12,7 +12,7 @@ exports.BattleStatuses = {
 				this.add('-status', target, 'brn');
 			}
 		},
-		// Damage reduction is handled directly in the battle-engine.js damage function
+		// Damage reduction is handled directly in the sim/battle.js damage function
 		onResidualOrder: 9,
 		onResidual: function (pokemon) {
 			this.damage(pokemon.maxhp / 16);
@@ -171,6 +171,7 @@ exports.BattleStatuses = {
 			if (this.random(3) > 0) {
 				return;
 			}
+			this.activeTarget = pokemon;
 			this.damage(this.getDamage(pokemon, pokemon, 40), pokemon, pokemon, {
 				id: 'confused',
 				effectType: 'Move',
@@ -414,19 +415,6 @@ exports.BattleStatuses = {
 		onBasePower: function (basePower, user, target, move) {
 			this.debug('Gem Boost');
 			return this.chainModify([0x14CD, 0x1000]);
-		},
-	},
-	aura: {
-		duration: 1,
-		onBasePowerPriority: 8,
-		onBasePower: function (basePower, user, target, move) {
-			let modifier = 0x1547;
-			this.debug('Aura Boost');
-			if (user.volatiles['aurabreak']) {
-				modifier = 0x0C00;
-				this.debug('Aura Boost reverted by Aura Break');
-			}
-			return this.chainModify([modifier, 0x1000]);
 		},
 	},
 

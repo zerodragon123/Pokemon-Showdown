@@ -34,11 +34,11 @@ Object.setPrototypeOf(SCORE_CAPS, null);
 const SIGNUP_PHASE = 'signups';
 const QUESTION_PHASE = 'question';
 const INTERMISSION_PHASE = 'intermission';
+const LIMBO_PHASE = 'limbo';
 
 const MINIMUM_PLAYERS = 3;
 
 const START_TIMEOUT = 30 * 1000;
-const QUESTION_INTERVAL = 12 * 1000 + 500;
 const INTERMISSION_INTERVAL = 30 * 1000;
 
 const MAX_QUESTION_LENGTH = 252;
@@ -146,6 +146,7 @@ class TriviaPlayer extends Rooms.RoomGamePlayer {
 		this.answer = '';
 		this.answeredAt = [];
 		this.isCorrect = false;
+		this.isAbsent = false;
 	}
 
 	setAnswer(answer, isCorrect) {
@@ -154,7 +155,7 @@ class TriviaPlayer extends Rooms.RoomGamePlayer {
 		this.isCorrect = !!isCorrect;
 	}
 
-	incrementPoints(points) {
+	incrementPoints(points = 0) {
 		this.points += points;
 		this.correctAnswers++;
 	}
@@ -162,6 +163,10 @@ class TriviaPlayer extends Rooms.RoomGamePlayer {
 	clearAnswer() {
 		this.answer = '';
 		this.isCorrect = false;
+	}
+
+	toggleAbsence() {
+		this.isAbsent = !this.isAbsent;
 	}
 }
 
@@ -172,6 +177,8 @@ class Trivia extends Rooms.RoomGame {
 		this.title = 'Trivia';
 		this.allowRenames = true;
 		this.playerCap = Number.MAX_SAFE_INTEGER;
+
+		this.kickedUsers = new Set();
 
 		this.mode = MODES[mode];
 		this.cap = SCORE_CAPS[length];
@@ -186,49 +193,46 @@ class Trivia extends Rooms.RoomGame {
 			this.category = CATEGORIES[category];
 		}
 
-		// Awards 3 leaderboard points to the winner of short games, 4 for
-		// medium ones, and 5 for long ones.
-		this.prize = (this.cap - 5) / 15 + 2;
-
 		this.phase = SIGNUP_PHASE;
+		this.phaseTimeout = null;
+
 		this.questions = questions;
 		this.curQuestion = '';
 		this.curAnswers = [];
 		this.askedAt = [];
 
-		this.kickedUsers = new Set();
+		this.init();
+	}
 
-		this.broadcast(
-			'Signups for a new trivia game have begun!',
-			'Mode: ' + this.mode + ' | Category: ' + this.category + ' | Score cap: ' + this.cap + '<br />' +
-			'Enter /trivia join to sign up for the trivia game.'
-		);
+	// How long the players should have to answer a question.
+	get roundLength() {
+		return 12 * 1000 + 500;
 	}
 
 	// Overwrite some RoomGame prototype methods...
 	addPlayer(user) {
-		if (this.players[user.userid]) return 'You have already signed up for this trivia game.';
+		if (this.players[user.userid]) return 'You have already signed up for this game.';
 		if (this.kickedUsers.has(user.userid)) {
-			return 'You were kicked from the trivia game and thus cannot join until the next one.';
+			return 'You were kicked from the game and thus cannot join it again.';
 		}
 
 		for (let id in user.prevNames) {
-			if (this.players[id]) return 'You have already signed up for this trivia game.';
-			if (this.kickedUsers.has(id)) return 'You were kicked from the trivia game and cannot join until the next game.';
+			if (this.players[id]) return 'You have already signed up for this game.';
+			if (this.kickedUsers.has(id)) return 'You were kicked from the game and cannot join until the next game.';
 		}
 
 		for (let id in this.players) {
 			let tarUser = Users.get(id);
 			if (tarUser) {
-				if (tarUser.prevNames[user.userid]) return 'You have already signed up for this trivia game.';
+				if (tarUser.prevNames[user.userid]) return 'You have already signed up for this game.';
 
 				let tarPrevNames = Object.keys(tarUser.prevNames);
 				let prevNameMatch = tarPrevNames.some(tarId => (tarId in user.prevNames));
-				if (prevNameMatch) return 'You have already signed up for this trivia game.';
+				if (prevNameMatch) return 'You have already signed up for this game.';
 
 				let tarIps = Object.keys(tarUser.ips);
 				let ipMatch = tarIps.some(ip => (ip in user.ips));
-				if (ipMatch) return 'You have already signed up for this trivia game.';
+				if (ipMatch) return 'You have already signed up for this game.';
 			}
 		}
 
@@ -236,7 +240,7 @@ class Trivia extends Rooms.RoomGame {
 		this.players[user.userid] = player;
 		this.playerCount++;
 
-		return 'You have signed up for the game of trivia.';
+		return 'You are now signed up for this game!';
 	}
 
 	makePlayer(user) {
@@ -245,14 +249,59 @@ class Trivia extends Rooms.RoomGame {
 
 	destroy() {
 		this.kickedUsers.clear();
+		super.destroy();
+	}
 
-		let room = this.room;
-		this.room = null;
+	onConnect(user) {
+		let player = this.players[user.userid];
+		if (!player || !player.isAbsent) return false;
+
+		player.toggleAbsence();
+		if (++this.playerCount < MINIMUM_PLAYERS) return false;
+		if (this.phase !== LIMBO_PHASE) return false;
+
+		// At least let the game start first!!
+		if (this.phase === SIGNUP_PHASE) return false;
+
 		for (let i in this.players) {
-			this.players[i].destroy();
+			this.players[i].clearAnswer();
 		}
 
-		delete room.game;
+		this.broadcast(
+			'Enough players have returned to continue the game!',
+			'The game will continue with the next question.'
+		);
+		this.askQuestion();
+	}
+
+	onLeave(user) {
+		// The user cannot participate, but their score should be kept
+		// regardless in cases of disconnects.
+		let player = this.players[user.userid];
+		if (!player || player.isAbsent) return false;
+
+		player.toggleAbsence();
+		if (--this.playerCount >= MINIMUM_PLAYERS) return false;
+
+		// At least let the game start first!!
+		if (this.phase === SIGNUP_PHASE) return false;
+
+		clearTimeout(this.phaseTimeout);
+		this.phaseTimeout = null;
+		this.phase = LIMBO_PHASE;
+		this.broadcast(
+			'Not enough players are participating to continue the game!',
+			`Until there are ${MINIMUM_PLAYERS} players participating and present, the game will be paused.`
+		);
+	}
+
+	// Handles setup that shouldn't be done from the constructor.
+	init() {
+		this.broadcast(
+			'Signups for a new trivia game have begun!',
+			'Mode: ' + this.mode + ' | Category: ' + this.category + ' | Score cap: ' + this.cap + '<br />' +
+			'Enter /trivia join to sign up for the trivia game.'
+		);
 	}
 
 	// Generates and broadcasts the HTML for a generic announcement containing
@@ -268,50 +317,65 @@ class Trivia extends Rooms.RoomGame {
 		let tarRoom = this.room;
 		if (!tarRoom) {
 			for (let [roomid, room] of Rooms.rooms) { // eslint-disable-line no-unused-vars
-				if (room.game === this)	return room.addRaw(buffer).update();
+				if (room.game === this)	{
+					return room.addRaw(buffer).update();
+				}
 			}
 
-			Monitor.debug(`
-				Trivia is FUBAR! Game instance tried to broadcast after having destroyed itself\n
+			Monitor.debug(
+				`${this.title} is FUBAR! Game instance tried to broadcast after having destroyed itself\n
 				Mode: ${this.mode}\n
 				Category: ${this.category}\n
 				Length: ${SCORE_CAPS[this.cap]}\n
-				UGM: ${triviaData.ugm ? 'enabled' : 'disabled'}
-			`);
+				UGM: ${triviaData.ugm ? 'enabled' : 'disabled'}`
+			);
+
 			return tarRoom;
 		}
 
 		return tarRoom.addRaw(buffer).update();
 	}
 
+	// Formats the player list for display when using /trivia players.
+	formatPlayerList() {
+		return Object.keys(this.players)
+			.map(userid => {
+				let player = this.players[userid];
+				let username = player.name;
+				if (player.isAbsent) return '<span style="color: #444444">' + username + '</span>';
+				return username;
+			})
+			.join(', ');
+	}
+
 	// Kicks a player from the game, preventing them from joining it again
 	// until the next game begins.
 	kick(tarUser, user) {
 		if (!this.players[tarUser.userid]) {
-			if (this.kickedUsers.has(tarUser.userid)) return 'User ' + tarUser.name + ' has already been kicked from the trivia game.';
+			if (this.kickedUsers.has(tarUser.userid)) return 'User ' + tarUser.name + ' has already been kicked from the game.';
 
 			for (let id in tarUser.prevNames) {
-				if (this.kickedUsers.has(id)) return 'User ' + tarUser.name + ' has already been kicked from the trivia game.';
+				if (this.kickedUsers.has(id)) return 'User ' + tarUser.name + ' has already been kicked from the game.';
 			}
 
 			for (let kickedUserid of this.kickedUsers) {
 				let kickedUser = Users.get(kickedUserid);
 				if (kickedUser) {
 					if (kickedUser.prevNames[tarUser.userid]) {
-						return 'User ' + tarUser.name + ' has already been kicked from the trivia game.';
+						return 'User ' + tarUser.name + ' has already been kicked from the game.';
 					}
 
 					let prevNames = Object.keys(kickedUser.prevNames);
 					let nameMatch = prevNames.some(id => tarUser.prevNames[id]);
-					if (nameMatch) return 'User ' + tarUser.name + ' has already been kicked from the trivia game.';
+					if (nameMatch) return 'User ' + tarUser.name + ' has already been kicked from the game.';
 
 					let ips = Object.keys(kickedUser.ips);
 					let ipMatch = ips.some(ip => tarUser.ips[ip]);
-					if (ipMatch) return 'User ' + tarUser.name + ' has already been kicked from the trivia game.';
+					if (ipMatch) return 'User ' + tarUser.name + ' has already been kicked from the game.';
 				}
 			}
 
-			return 'User ' + tarUser.name + ' is not a player in the current trivia game.';
+			return 'User ' + tarUser.name + ' is not a player in the game.';
 		}
 
 		this.kickedUsers.add(tarUser.userid);
@@ -324,7 +388,7 @@ class Trivia extends Rooms.RoomGame {
 
 	leave(user) {
 		if (!this.players[user.userid]) {
-			return 'You are not a player in the current trivia game.';
+			return 'You are not a player in the current game.';
 		}
 
 		super.removePlayer(user);
@@ -334,10 +398,10 @@ class Trivia extends Rooms.RoomGame {
 	start() {
 		if (this.phase !== SIGNUP_PHASE) return 'The game has already been started.';
 		if (this.playerCount < MINIMUM_PLAYERS) {
-			return 'Not enough players have signed up yet! Trivia games require at least ' + MINIMUM_PLAYERS + ' players to begin.';
+			return 'Not enough players have signed up yet! At least ' + MINIMUM_PLAYERS + ' players are required to begin.';
 		}
 
-		this.broadcast('The trivia game will begin in ' + (START_TIMEOUT / 1000) + ' seconds...');
+		this.broadcast('The game will begin in ' + (START_TIMEOUT / 1000) + ' seconds...');
 		this.phaseTimeout = setTimeout(() => this.askQuestion(), START_TIMEOUT);
 	}
 
@@ -349,7 +413,7 @@ class Trivia extends Rooms.RoomGame {
 			this.phaseTimeout = null;
 			this.broadcast(
 				'No questions are left!',
-				'The game has reached a stalemate. Nobody gained any points on the leaderboard.'
+				'The game has ended in a stalemate.'
 			);
 			return this.destroy();
 		}
@@ -357,16 +421,20 @@ class Trivia extends Rooms.RoomGame {
 		this.phase = QUESTION_PHASE;
 		this.askedAt = process.hrtime();
 
-		let questionObj = this.questions.pop();
-		this.curQuestion = questionObj.question;
-		this.curAnswers = questionObj.answers;
+		let question = this.questions.pop();
+		this.curQuestion = question.question;
+		this.curAnswers = question.answers;
+		this.sendQuestion(question);
 
+		this.phaseTimeout = setTimeout(() => this.tallyAnswers(), this.roundLength);
+	}
+
+	// Broadcasts to the room what the next question is.
+	sendQuestion(question) {
 		this.broadcast(
-			'Question: ' + this.curQuestion,
-			'Category: ' + CATEGORIES[questionObj.category]
+			'Question: ' + question.question,
+			'Category: ' + CATEGORIES[question.category]
 		);
-
-		this.phaseTimeout = setTimeout(() => this.tallyAnswers(), QUESTION_INTERVAL);
 	}
 
 	// This is a noop here since it'd defined properly by subclasses later on.
@@ -378,7 +446,7 @@ class Trivia extends Rooms.RoomGame {
 	// typos can be made and still have the answer be considered correct.
 	verifyAnswer(tarAnswer) {
 		return this.curAnswers.some(answer => (
-			(answer === tarAnswer) || (answer.length > 5 && Tools.levenshtein(tarAnswer, answer) < 3)
+			(answer === tarAnswer) || (answer.length > 5 && Dex.levenshtein(tarAnswer, answer) < 3)
 		));
 	}
 
@@ -399,8 +467,9 @@ class Trivia extends Rooms.RoomGame {
 		clearTimeout(this.phaseTimeout);
 		this.phaseTimeout = null;
 
+		let prize = (this.cap - 5) / 15 + 2;
 		buffer += Chat.escapeHTML(winner.name) + ' won the game with a final score of <strong>' + winner.points + '</strong>, ' +
-			'and their leaderboard score has increased by <strong>' + this.prize + '</strong> points!';
+			'and their leaderboard score has increased by <strong>' + prize + '</strong> points!';
 		this.broadcast('The answering period has ended!', buffer);
 
 		let leaderboard = triviaData.leaderboard;
@@ -423,7 +492,7 @@ class Trivia extends Rooms.RoomGame {
 			}
 		}
 
-		if (winner) leaderboard[winner.userid][0] += this.prize;
+		if (winner) leaderboard[winner.userid][0] += prize;
 
 		let leaders = Object.keys(leaderboard);
 		let ladder = triviaData.ladder = [];
@@ -479,7 +548,7 @@ class Trivia extends Rooms.RoomGame {
 	end(user) {
 		clearTimeout(this.phaseTimeout);
 		this.phaseTimeout = null;
-		this.broadcast('The trivia game was forcibly ended by ' + Chat.escapeHTML(user.name) + '.');
+		this.broadcast('The game was forcibly ended by ' + Chat.escapeHTML(user.name) + '.');
 		this.destroy();
 	}
 }
@@ -776,7 +845,7 @@ const commands = {
 		// This prevents trivia games from modifying the trivia database.
 		questions = Object.assign([], questions);
 		// Randomizes the order of the questions.
-		questions = Tools.shuffle(questions);
+		questions = Dex.shuffle(questions);
 
 		let _Trivia;
 		if (mode === 'first') {
@@ -908,9 +977,7 @@ const commands = {
 			return this.errorReply("User " + tarUser.name + " is not a player in the current trivia game.");
 		}
 
-		buffer += '<br />Players: ' + Object.keys(game.players)
-			.map(id => Chat.escapeHTML(game.players[id].name))
-			.join(', ');
+		buffer += '<br />Players: ' + room.game.formatPlayerList();
 
 		this.sendReplyBox(buffer);
 	},
