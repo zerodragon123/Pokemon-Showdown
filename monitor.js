@@ -132,7 +132,7 @@ const Monitor = module.exports = {
 	activeIp: null,
 	networkUse: {},
 	networkCount: {},
-	hotpatchLock: {},
+	hotpatchLock: false,
 
 	/**
 	 * Counts a connection. Returns true if the connection should be terminated for abuse.

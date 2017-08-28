@@ -2130,7 +2130,7 @@ exports.commands = {
 			return this.errorReply(`User '${this.targetUsername}' not found.`);
 		}
 		if (!this.can('forcerename', targetUser)) return false;
-		if (targetUser.namelocked) return this.errorReply(`User '${targetUser.name}' is already namelocked.`);
+		if (targetUser.namelocked) return this.errorReply(`User '${target}' is already namelocked.`);
 
 		let reasonText = reason ? ` (${reason})` : `.`;
 		let lockMessage = `${targetUser.name} was namelocked by ${user.name}${reasonText}`;
@@ -2443,22 +2443,14 @@ exports.commands = {
 
 	hotpatch: function (target, room, user) {
 		if (!target) return this.parse('/help hotpatch');
-		if (!this.can('hotpatch')) return;
+		if (!this.can('hotpatch')) return false;
+		if (Monitor.hotpatchLock) return this.errorReply("Hotpatch is currently been disabled. (" + Monitor.hotpatchLock + ")");
 
-		const lock = Monitor.hotpatchLock;
-		const hotpatches = ['chat', 'tournaments', 'formats', 'loginserver', 'punishments', 'dnsbl'];
+		Rooms.global.notifyRooms(['development', 'staff', 'upperstaff'], `|c|${user.getIdentity()}|/log ${user.name} used /hotpatch ${target}`);
 
 		try {
-			if (target === 'all') {
-				if (lock['all']) return this.errorReply(`Hot-patching all has been disabled by ${lock['all'].by} (${lock['all'].reason})`);
-				if (Config.disablehotpatchall) return this.errorReply("This server does not allow for the use of /hotpatch all");
-
-				for (let i = 0; i < hotpatches.length; i++) {
-					this.parse(`/hotpatch ${hotpatches[i]}`);
-				}
-			} else if (target === 'chat' || target === 'commands') {
-				if (lock['chat']) return this.errorReply(`Hot-patching chat has been disabled by ${lock['chat'].by} (${lock['chat'].reason})`);
-
+			if (target === 'chat' || target === 'commands') {
+				if (Monitor.hotpatchLockChat) return this.errorReply("Hotpatch has been disabled for chat. (" + Monitor.hotpatchLockChat + ")");
 				const ProcessManagers = require('./process-manager').cache;
 				for (let PM of ProcessManagers.keys()) {
 					if (PM.isChatBased) {
@@ -2476,30 +2468,32 @@ exports.commands = {
 				Chat.uncacheTree('./tournaments');
 				global.Tournaments = require('./tournaments');
 				Tournaments.tournaments = runningTournaments;
-				this.sendReply("Chat commands have been hot-patched.");
-			} else if (target === 'tournaments') {
-				if (lock['tournaments']) return this.errorReply(`Hot-patching tournaments has been disabled by ${lock['tournaments'].by} (${lock['tournaments'].reason})`);
 
+				return this.sendReply("Chat commands have been hot-patched.");
+			} else if (target === 'tournaments') {
 				let runningTournaments = Tournaments.tournaments;
 				Chat.uncacheTree('./tournaments');
 				global.Tournaments = require('./tournaments');
 				Tournaments.tournaments = runningTournaments;
-				this.sendReply("Tournaments have been hot-patched.");
+				return this.sendReply("Tournaments have been hot-patched.");
 			} else if (target === 'battles') {
-				if (lock['battles']) return this.errorReply(`Hot-patching battles has been disabled by ${lock['battles'].by} (${lock['battles'].reason})`);
-				if (lock['formats']) return this.errorReply(`Hot-patching formats has been disabled by ${lock['formats'].by} (${lock['formats'].reason})`);
-
 				Rooms.SimulatorProcess.respawn();
-				this.sendReply("Battles have been hot-patched. Any battles started after now will use the new code; however, in-progress battles will continue to use the old code.");
+				return this.sendReply("Battles have been hotpatched. Any battles started after now will use the new code; however, in-progress battles will continue to use the old code.");
 			} else if (target === 'formats') {
-				if (lock['formats']) return this.errorReply(`Hot-patching formats has been disabled by ${lock['formats'].by} (${lock['formats'].reason})`);
-				if (lock['battles']) return this.errorReply(`Hot-patching battles has been disabled by ${lock['battles'].by} (${lock['battles'].reason})`);
-				if (lock['validator']) return this.errorReply(`Hot-patching the validator has been disabled by ${lock['validator'].by} (${lock['validator'].reason})`);
-
+				// store custom formats
+				let customFormats = {};
+				for (let i in Dex.data.Formats) {
+					if (!Dex.data.Formats[i].customBanlist) continue;
+					customFormats[i] = {name: Dex.data.Formats[i].name, customBanlist: Dex.data.Formats[i].customBanlist};
+				}
 				// uncache the sim/dex.js dependency tree
 				Chat.uncacheTree('./sim/dex');
 				// reload sim/dex.js
 				global.Dex = require('./sim/dex'); // note: this will lock up the server for a few seconds
+				// rebuild custom formats
+				for (let i in customFormats) {
+					Dex.getFormat(customFormats[i].name, customFormats[i].customBanlist, i);
+				}
 				// rebuild the formats list
 				delete Rooms.global.formatList;
 				// respawn validator processes
@@ -2509,80 +2503,47 @@ exports.commands = {
 				// broadcast the new formats list to clients
 				Rooms.global.send(Rooms.global.formatListText);
 
-				this.sendReply("Formats have been hot-patched.");
+				return this.sendReply("Formats have been hotpatched.");
 			} else if (target === 'loginserver') {
 				FS('config/custom.css').unwatch();
 				Chat.uncacheTree('./loginserver');
 				global.LoginServer = require('./loginserver');
-				this.sendReply("The login server has been hot-patched. New login server requests will use the new code.");
+				return this.sendReply("The login server has been hotpatched. New login server requests will use the new code.");
 			} else if (target === 'learnsets' || target === 'validator') {
-				if (lock['validator']) return this.errorReply(`Hot-patching the validator has been disabled by ${lock['validator'].by} (${lock['validator'].reason})`);
-				if (lock['formats']) return this.errorReply(`Hot-patching formats has been disabled by ${lock['formats'].by} (${lock['formats'].reason})`);
-
 				TeamValidator.PM.respawn();
-				this.sendReply("The team validator has been hot-patched. Any battles started after now will have teams be validated according to the new code.");
+				return this.sendReply("The team validator has been hotpatched. Any battles started after now will have teams be validated according to the new code.");
 			} else if (target === 'punishments') {
-				if (lock['punishments']) return this.errorReply(`Hot-patching punishments has been disabled by ${lock['punishments'].by} (${lock['punishments'].reason})`);
-
 				delete require.cache[require.resolve('./punishments')];
 				global.Punishments = require('./punishments');
-				this.sendReply("Punishments have been hot-patched.");
+				return this.sendReply("Punishments have been hotpatched.");
 			} else if (target === 'dnsbl' || target === 'datacenters') {
 				Dnsbl.loadDatacenters();
-				this.sendReply("Dnsbl has been hot-patched.");
+				return this.sendReply("Dnsbl has been hotpatched.");
+			} else if (target.startsWith('disablechat')) {
+				if (Monitor.hotpatchLockChat) return this.errorReply("Hotpatch is already disabled.");
+				let reason = target.split(', ')[1];
+				if (!reason) return this.errorReply("Usage: /hotpatch disablechat, [reason]");
+				Monitor.hotpatchLockChat = reason;
+				return this.sendReply("You have disabled hotpatch until the next server restart.");
 			} else if (target.startsWith('disable')) {
-				this.sendReply("Disabling hot-patch has been moved to its own command:");
-				return this.parse('/help nohotpatch');
-			} else {
-				return this.errorReply("Your hot-patch command was unrecognized.");
+				let reason = target.split(', ')[1];
+				if (!reason) return this.errorReply("Usage: /hotpatch disable, [reason]");
+				Monitor.hotpatchLock = reason;
+				return this.sendReply("You have disabled hotpatch until the next server restart.");
 			}
 		} catch (e) {
-			Rooms.global.notifyRooms(['development', 'staff', 'upperstaff'], `|c|${user.getIdentity()}|/log ${user.name} used /hotpatch ${target} - but something failed while trying to hot-patch.`);
-			return this.errorReply(`Something failed while trying to hot-patch ${target}: \n${e.stack}`);
+			return this.errorReply("Something failed while trying to hotpatch " + target + ": \n" + e.stack);
 		}
-		Rooms.global.notifyRooms(['development', 'staff', 'upperstaff'], `|c|${user.getIdentity()}|/log ${user.name} used /hotpatch ${target}`);
+		this.errorReply("Your hot-patch command was unrecognized.");
 	},
-	hotpatchhelp: [
-		"Hot-patching the game engine allows you to update parts of Showdown without interrupting currently-running battles. Requires: ~",
+	hotpatchhelp: ["Hot-patching the game engine allows you to update parts of Showdown without interrupting currently-running battles. Requires: ~",
 		"Hot-patching has greater memory requirements than restarting.",
-		"You can disable various hot-patches with /nohotpatch. For more information on this, see /help nohotpatch",
 		"/hotpatch chat - reload chat-commands.js and the chat-plugins",
 		"/hotpatch battles - spawn new simulator processes",
 		"/hotpatch validator - spawn new team validator processes",
 		"/hotpatch formats - reload the sim/dex.js tree, rebuild and rebroad the formats list, and spawn new simulator and team validator processes",
 		"/hotpatch dnsbl - reloads Dnsbl datacenters",
-		"/hotpatch punishments - reloads new punishments code",
-		"/hotpatch tournaments - reloads new tournaments code",
-		"/hotpatch all - hot-patches chat, tournaments, formats, login server, punishments, and dnsbl",
-	],
-
-	hotpatchlock: 'nohotpatch',
-	nohotpatch: function (target, room, user) {
-		if (!this.can('hotpatch')) return;
-		if (!target) return this.parse('/help nohotpatch');
-
-		const separator = ' ';
-
-		const hotpatch = toId(target.substr(0, target.indexOf(separator)));
-		const reason = target.substr(target.indexOf(separator), target.length).trim();
-		if (!reason || !target.includes(separator)) return this.parse('/help nohotpatch');
-
-		let lock = Monitor.hotpatchLock;
-		const validDisable = ['chat', 'battles', 'formats', 'validator', 'tournaments', 'punishments', 'all'];
-
-		if (validDisable.includes(hotpatch)) {
-			if (lock[hotpatch]) return this.errorReply(`Hot-patching ${hotpatch} has already been disabled by ${lock[hotpatch].by} (${lock[hotpatch].reason})`);
-			lock[hotpatch] = {
-				by: user.name,
-				reason: reason,
-			};
-			this.sendReply(`You have disabled hot-patching ${hotpatch}.`);
-		} else {
-			return this.errorReply("This hot-patch is not an option to disable.");
-		}
-		Rooms.global.notifyRooms(['development', 'staff', 'upperstaff'], `|c|${user.getIdentity()}|/log ${user.name} has disabled hot-patching ${hotpatch}.`);
-	},
-	nohotpatchhelp: ["/nohotpatch [chat|formats|battles|validator|tournaments|punishments|all] [reason] - Disables hotpatching the specified part of the simulator. Requires: ~"],
+		"/hotpatch disable, [reason] - disables the use of hotpatch until the next server restart"],
 
 	savelearnsets: function (target, room, user) {
 		if (!this.can('hotpatch')) return false;

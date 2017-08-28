@@ -7,24 +7,24 @@ exports.BattleItems = {
 	},
 	dragonfang: {
 		inherit: true,
-		desc: "No competitive use.",
 		onBasePower: function () {},
+		desc: "No competitive use.",
 	},
 	metalpowder: {
 		inherit: true,
-		desc: "If held by a Ditto, its Defense and Sp. Def are 1.5x, even while Transformed.",
-		// In Gen 2 this happens in stat calculation directly.
+		// On Gen 2 this happens in stat calculation directly.
 		onModifyDef: function () {},
 		onModifySpD: function () {},
 	},
 	lightball: {
 		inherit: true,
-		// In Gen 2 this happens in stat calculation directly.
+		// On Gen 2 this happens in stat calculation directly.
+		onModifyAtk: function () {},
 		onModifySpA: function () {},
 	},
 	luckypunch: {
 		inherit: true,
-		desc: "If held by a Chansey, its critical hit ratio is always at stage 2. (25% crit rate)",
+		desc: "If holder is a Chansey, its critical hit ratio is always at stage 2. (25% crit rate)",
 		onModifyCritRatioPriority: -1,
 		onModifyCritRatio: function (critRatio, user) {
 			if (user.template.species === 'Chansey') {
@@ -34,7 +34,7 @@ exports.BattleItems = {
 	},
 	stick: {
 		inherit: true,
-		desc: "If held by a Farfetch'd, its critical hit ratio is always at stage 2. (25% crit rate)",
+		desc: "If holder is a Farfetch'd, its critical hit ratio is always at stage 2. (25% crit rate)",
 		onModifyCritRatioPriority: -1,
 		onModifyCritRatio: function (critRatio, user) {
 			if (user.template.species === 'Farfetch\'d') {
@@ -44,7 +44,7 @@ exports.BattleItems = {
 	},
 	thickclub: {
 		inherit: true,
-		// In Gen 2 this happens in stat calculation directly.
+		// On Gen 2 this happens in stat calculation directly.
 		onModifyAtk: function () {},
 	},
 	berserkgene: {

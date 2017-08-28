@@ -71,12 +71,15 @@ exports.BattleAbilities = {
 		onModifyMove: function (move, pokemon) {
 			if (move.type === 'Normal' && !(move.id in {naturalgift:1, revelationdance:1}) && !(move.isZ && move.category !== 'Status')) {
 				move.type = 'Flying';
-				move.aerilateBoosted = true;
+				if (move.category !== 'Status') pokemon.addVolatile('aerilate');
 			}
 		},
-		onBasePowerPriority: 8,
-		onBasePower: function (basePower, pokemon, target, move) {
-			if (move.aerilateBoosted) return this.chainModify([0x1333, 0x1000]);
+		effect: {
+			duration: 1,
+			onBasePowerPriority: 8,
+			onBasePower: function (basePower, pokemon, target, move) {
+				return this.chainModify([0x1333, 0x1000]);
+			},
 		},
 		id: "aerilate",
 		name: "Aerilate",
@@ -200,7 +203,10 @@ exports.BattleAbilities = {
 		},
 		onAnyTryPrimaryHit: function (target, source, move) {
 			if (target === source || move.category === 'Status') return;
-			move.hasAuraBreak = true;
+			source.addVolatile('aurabreak');
+		},
+		effect: {
+			duration: 1,
 		},
 		id: "aurabreak",
 		name: "Aura Break",
@@ -579,11 +585,12 @@ exports.BattleAbilities = {
 		onStart: function (pokemon) {
 			this.add('-ability', pokemon, 'Dark Aura');
 		},
-		onAnyBasePower: function (basePower, source, target, move) {
-			if (target === source || move.category === 'Status' || move.type !== 'Dark') return;
-			return this.chainModify([move.hasAuraBreak ? 0x0C00 : 0x1547, 0x1000]);
+		onAnyTryPrimaryHit: function (target, source, move) {
+			if (target === source || move.category === 'Status') return;
+			if (move.type === 'Dark') {
+				source.addVolatile('aura');
+			}
 		},
-		isUnbreakable: true,
 		id: "darkaura",
 		name: "Dark Aura",
 		rating: 3,
@@ -713,10 +720,10 @@ exports.BattleAbilities = {
 				return 0;
 			}
 		},
-		onEffectiveness: function (typeMod, target, type, move) {
+		onEffectiveness: function (typeMod, type, move) {
 			if (!this.activeTarget) return;
 			let pokemon = this.activeTarget;
-			if (pokemon.template.speciesid !== 'mimikyu' || pokemon.transformed || (pokemon.volatiles['substitute'] && !(move.flags['authentic'] || move.infiltrates))) return;
+			if (pokemon.template.speciesid !== 'mimikyu' || pokemon.transformed) return;
 			if (!pokemon.runImmunity(move.type)) return;
 			return 0;
 		},
@@ -884,11 +891,12 @@ exports.BattleAbilities = {
 		onStart: function (pokemon) {
 			this.add('-ability', pokemon, 'Fairy Aura');
 		},
-		onAnyBasePower: function (basePower, source, target, move) {
-			if (target === source || move.category === 'Status' || move.type !== 'Fairy') return;
-			return this.chainModify([move.hasAuraBreak ? 0x0C00 : 0x1547, 0x1000]);
+		onAnyTryPrimaryHit: function (target, source, move) {
+			if (target === source || move.category === 'Status') return;
+			if (move.type === 'Fairy') {
+				source.addVolatile('aura');
+			}
 		},
-		isUnbreakable: true,
 		id: "fairyaura",
 		name: "Fairy Aura",
 		rating: 3,
@@ -1199,12 +1207,15 @@ exports.BattleAbilities = {
 		onModifyMove: function (move, pokemon) {
 			if (move.type === 'Normal' && !(move.id in {naturalgift:1, revelationdance:1}) && !(move.isZ && move.category !== 'Status')) {
 				move.type = 'Electric';
-				move.galvanizeBoosted = true;
+				if (move.category !== 'Status') pokemon.addVolatile('galvanize');
 			}
 		},
-		onBasePowerPriority: 8,
-		onBasePower: function (basePower, pokemon, target, move) {
-			if (move.galvanizeBoosted) return this.chainModify([0x1333, 0x1000]);
+		effect: {
+			duration: 1,
+			onBasePowerPriority: 8,
+			onBasePower: function (basePower, pokemon, target, move) {
+				return this.chainModify([0x1333, 0x1000]);
+			},
 		},
 		id: "galvanize",
 		name: "Galvanize",
@@ -2148,12 +2159,15 @@ exports.BattleAbilities = {
 		onModifyMove: function (move, pokemon) {
 			if (!(move.isZ && move.category !== 'Status') && !(move.id in {hiddenpower:1, judgment:1, multiattack:1, naturalgift:1, revelationdance:1, struggle:1, technoblast:1, weatherball:1})) {
 				move.type = 'Normal';
-				move.normalizeBoosted = true;
+				if (move.category !== 'Status') pokemon.addVolatile('normalize');
 			}
 		},
-		onBasePowerPriority: 8,
-		onBasePower: function (basePower, pokemon, target, move) {
-			if (move.normalizeBoosted) return this.chainModify([0x1333, 0x1000]);
+		effect: {
+			duration: 1,
+			onBasePowerPriority: 8,
+			onBasePower: function (basePower, pokemon, target, move) {
+				return this.chainModify([0x1333, 0x1000]);
+			},
 		},
 		id: "normalize",
 		name: "Normalize",
@@ -2256,19 +2270,29 @@ exports.BattleAbilities = {
 			if (move.id in {iceball: 1, rollout: 1}) return;
 			if (move.category !== 'Status' && !move.selfdestruct && !move.multihit && !move.flags['charge'] && !move.spreadHit && !move.isZ) {
 				move.multihit = 2;
-				move.hasParentalBond = true;
-				move.hit = 0;
+				source.addVolatile('parentalbond');
 			}
 		},
-		onBasePowerPriority: 8,
-		onBasePower: function (basePower, pokemon, target, move) {
-			if (move.hasParentalBond && ++move.hit > 1) return this.chainModify(0.25);
-		},
-		onSourceModifySecondaries: function (secondaries, target, source, move) {
-			if (move.hasParentalBond && move.id === 'secretpower' && move.hit < 2) {
-				// hack to prevent accidentally suppressing King's Rock/Razor Fang
-				return secondaries.filter(effect => effect.volatileStatus === 'flinch');
-			}
+		effect: {
+			duration: 1,
+			onBasePowerPriority: 8,
+			onBasePower: function (basePower) {
+				if (this.effectData.hit) {
+					this.effectData.hit++;
+					return this.chainModify(0.25);
+				} else {
+					this.effectData.hit = 1;
+				}
+			},
+			onSourceModifySecondaries: function (secondaries, target, source, move) {
+				if (move.id === 'secretpower' && this.effectData.hit < 2) {
+					// hack to prevent accidentally suppressing King's Rock/Razor Fang
+					return secondaries.filter(effect => effect.volatileStatus === 'flinch');
+				}
+			},
+			onAnyAfterMove: function () {
+				this.effectData.target.removeVolatile('parentalbond');
+			},
 		},
 		id: "parentalbond",
 		name: "Parental Bond",
@@ -2332,12 +2356,15 @@ exports.BattleAbilities = {
 		onModifyMove: function (move, pokemon) {
 			if (move.type === 'Normal' && !(move.id in {naturalgift:1, revelationdance:1}) && !(move.isZ && move.category !== 'Status')) {
 				move.type = 'Fairy';
-				move.pixilateBoosted = true;
+				if (move.category !== 'Status') pokemon.addVolatile('pixilate');
 			}
 		},
-		onBasePowerPriority: 8,
-		onBasePower: function (basePower, pokemon, target, move) {
-			if (move.pixilateBoosted) return this.chainModify([0x1333, 0x1000]);
+		effect: {
+			duration: 1,
+			onBasePowerPriority: 8,
+			onBasePower: function (basePower, pokemon, target, move) {
+				return this.chainModify([0x1333, 0x1000]);
+			},
 		},
 		id: "pixilate",
 		name: "Pixilate",
@@ -2656,12 +2683,15 @@ exports.BattleAbilities = {
 		onModifyMove: function (move, pokemon) {
 			if (move.type === 'Normal' && !(move.id in {naturalgift:1, revelationdance:1}) && !(move.isZ && move.category !== 'Status')) {
 				move.type = 'Ice';
-				move.refrigerateBoosted = true;
+				if (move.category !== 'Status') pokemon.addVolatile('refrigerate');
 			}
 		},
-		onBasePowerPriority: 8,
-		onBasePower: function (basePower, pokemon, target, move) {
-			if (move.refrigerateBoosted) return this.chainModify([0x1333, 0x1000]);
+		effect: {
+			duration: 1,
+			onBasePowerPriority: 8,
+			onBasePower: function (basePower, pokemon, target, move) {
+				return this.chainModify([0x1333, 0x1000]);
+			},
 		},
 		id: "refrigerate",
 		name: "Refrigerate",
@@ -2951,12 +2981,15 @@ exports.BattleAbilities = {
 			if (move.secondaries) {
 				delete move.secondaries;
 				// Actual negation of `AfterMoveSecondary` effects implemented in scripts.js
-				move.hasSheerForce = true;
+				pokemon.addVolatile('sheerforce');
 			}
 		},
-		onBasePowerPriority: 8,
-		onBasePower: function (basePower, pokemon, target, move) {
-			if (move.hasSheerForce) return this.chainModify([0x14CD, 0x1000]);
+		effect: {
+			duration: 1,
+			onBasePowerPriority: 8,
+			onBasePower: function (basePower, pokemon, target, move) {
+				return this.chainModify([0x14CD, 0x1000]);
+			},
 		},
 		id: "sheerforce",
 		name: "Sheer Force",
@@ -3033,7 +3066,7 @@ exports.BattleAbilities = {
 		num: 197,
 	},
 	"simple": {
-		shortDesc: "When this Pokemon's stat stages are raised or lowered, the effect is doubled instead.",
+		shortDesc: "If this Pokemon's stat stages are raised or lowered, the effect is doubled instead.",
 		onBoost: function (boost, target, source, effect) {
 			if (effect && effect.id === 'zpower') return;
 			for (let i in boost) {
