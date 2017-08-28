@@ -208,9 +208,6 @@ class RandomGen4Teams extends RandomGen5Teams {
 				case 'doubleedge':
 					if (hasMove['bodyslam'] || hasMove['facade'] || hasMove['return']) rejected = true;
 					break;
-				case 'headbutt':
-					if (!hasMove['bodyslam'] && !hasMove['thunderwave']) rejected = true;
-					break;
 				case 'judgment':
 					if (counter.setupType !== 'Special' && counter.stab > 1) rejected = true;
 					break;
@@ -262,15 +259,17 @@ class RandomGen4Teams extends RandomGen5Teams {
 				case 'icepunch':
 					if (!counter.setupType && hasMove['icebeam']) rejected = true;
 					break;
-				case 'aurasphere': case 'drainpunch': case 'focusblast':
+				case 'aurasphere': case 'drainpunch':
 					if (hasMove['closecombat'] && counter.setupType !== 'Special') rejected = true;
 					break;
 				case 'brickbreak': case 'closecombat': case 'crosschop':
 					if (hasMove['substitute'] && hasMove['focuspunch']) rejected = true;
 					break;
+				case 'focusblast':
+					if (hasMove['crosschop']) rejected = true;
+					break;
 				case 'machpunch':
 					if (hasType['Fighting'] && counter.stab < 2 && !hasAbility['Technician']) rejected = true;
-					if (hasMove['vacuumwave'] && counter.setupType !== 'Physical') rejected = true;
 					break;
 				case 'seismictoss':
 					if (hasMove['nightshade'] || counter.Physical + counter.Special >= 1) rejected = true;
@@ -319,9 +318,6 @@ class RandomGen4Teams extends RandomGen5Teams {
 				case 'leechseed': case 'painsplit':
 					if (counter.setupType || !!counter['speedsetup'] || hasMove['moonlight'] || hasMove['rest'] || hasMove['synthesis']) rejected = true;
 					break;
-				case 'recover': case 'slackoff':
-					if (hasMove['rest'] && hasMove['sleeptalk']) rejected = true;
-					break;
 				case 'stunspore':
 					if (movePool.includes('sleeppowder') || movePool.includes('spore')) rejected = true;
 					break;
@@ -329,7 +325,7 @@ class RandomGen4Teams extends RandomGen5Teams {
 					if (hasMove['pursuit'] || hasMove['rest'] || hasMove['taunt']) rejected = true;
 					break;
 				case 'thunderwave':
-					if (hasMove['toxic'] || hasMove['trickroom'] || hasMove['bodyslam'] && hasAbility['Serene Grace']) rejected = true;
+					if (hasMove['toxic'] || hasMove['trickroom']) rejected = true;
 					break;
 				}
 
@@ -354,9 +350,8 @@ class RandomGen4Teams extends RandomGen5Teams {
 				}
 
 				// Reject defensive status moves if a reliable recovery move is available but not selected.
-				// Toxic is only defensive if used with another status move other than Protect (Toxic + 3 attacks and Toxic + Protect are ok).
-				if ((!!defensiveStatusMoves[moveid] || moveid === 'toxic' && ((counter.Status > 1 && !hasMove['protect']) || counter.Status > 2)) &&
-					!moves.some(id => !!recoveryMoves[id]) && movePool.some(id => !!recoveryMoves[id])) {
+				// Toxic is only defensive if used with another status move (Toxic + 3 attacks is ok).
+				if ((!!defensiveStatusMoves[moveid] || moveid === 'toxic' && counter.Status > 1) && !moves.some(id => !!recoveryMoves[id]) && movePool.some(id => !!recoveryMoves[id])) {
 					rejected = true;
 				}
 
@@ -365,7 +360,6 @@ class RandomGen4Teams extends RandomGen5Teams {
 					(hasType['Electric'] && !counter['Electric']) ||
 					(hasType['Fighting'] && !counter['Fighting'] && (counter.setupType || !counter['Status'])) ||
 					(hasType['Fire'] && !counter['Fire']) ||
-					(hasType['Flying'] && !counter['Flying'] && movePool.includes('bravebird')) ||
 					(hasType['Ground'] && !counter['Ground']) ||
 					(hasType['Ice'] && !counter['Ice'] && (!hasType['Water'] || !counter['Water'])) ||
 					(hasType['Psychic'] && !!counter['Psychic'] && !hasType['Flying'] && template.types.length > 1 && counter.stab < 2) ||
@@ -574,7 +568,7 @@ class RandomGen4Teams extends RandomGen5Teams {
 			item = 'Lum Berry';
 		} else if (hasMove['substitute']) {
 			item = counter.damagingMoves.length < 2 ||
-				!counter['drain'] && (counter.damagingMoves.length < 3 || template.baseStats.hp >= 60 || template.baseStats.def + template.baseStats.spd >= 180) ? 'Leftovers' : 'Life Orb';
+				!counter['drain'] && (counter.damagingMoves.length < 3 || template.baseStats.hp < 60 && template.baseStats.def + template.baseStats.spd < 180) ? 'Leftovers' : 'Life Orb';
 		} else if (hasMove['lightscreen'] || hasMove['reflect']) {
 			item = 'Light Clay';
 		} else if (template.species === 'Palkia' && !!counter['Dragon'] && !!counter['Water']) {

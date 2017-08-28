@@ -322,15 +322,15 @@ class BattleTimer {
 }
 
 class Battle {
-	constructor(room, formatid, rated) {
-		let format = Dex.getFormat(formatid);
+	constructor(room, format, rated) {
+		format = Dex.getFormat(format);
 		this.id = room.id;
 		this.room = room;
 		this.title = format.name;
 		if (!this.title.endsWith(" Battle")) this.title += " Battle";
 		this.allowRenames = !rated;
 
-		this.format = formatid;
+		this.format = format.id;
 		this.rated = rated;
 		this.started = false;
 		this.ended = false;
@@ -353,6 +353,7 @@ class Battle {
 		// data to be logged
 		this.logData = null;
 		this.endType = 'normal';
+		this.customBanlist = !!format.customBanlist;
 
 		this.rqid = 1;
 
@@ -361,7 +362,7 @@ class Battle {
 			throw new Error(`Battle with ID ${room.id} already exists.`);
 		}
 
-		this.send('init', this.format, rated ? '1' : '');
+		this.send('init', this.format, rated ? '1' : '', format.customBanlist ? format.customBanlist.join(',') : '');
 		this.process.pendingTasks.set(room.id, this);
 	}
 
@@ -739,7 +740,7 @@ if (process.send && module === process.mainModule) {
 			const id = data[0];
 			if (!Battles.has(id)) {
 				try {
-					const battle = Sim.construct(data[2], data[3], sendBattleMessage);
+					const battle = Sim.construct(Dex.getFormat(data[2], data[4]), data[3], sendBattleMessage);
 					battle.id = id;
 					Battles.set(id, battle);
 				} catch (err) {

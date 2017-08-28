@@ -35,8 +35,14 @@ exports.BattleItems = {
 		},
 	},
 	"custapberry": {
-		inherit: true,
-		onModifyPriority: function () {},
+		id: "custapberry",
+		name: "Custap Berry",
+		spritenum: 86,
+		isBerry: true,
+		naturalGift: {
+			basePower: 80,
+			type: "Ghost",
+		},
 		onBeforeTurn: function (pokemon) {
 			if (pokemon.hp <= pokemon.maxhp / 4 || (pokemon.hp <= pokemon.maxhp / 2 && pokemon.ability === 'gluttony')) {
 				let decision = this.willMove(pokemon);
@@ -67,6 +73,7 @@ exports.BattleItems = {
 				this.runDecision(decision);
 			}
 		},
+		desc: "Activates at 25% HP. Next move used goes first. One-time use.",
 	},
 	"deepseascale": {
 		inherit: true,
@@ -86,7 +93,6 @@ exports.BattleItems = {
 	},
 	"focussash": {
 		inherit: true,
-		desc: "If holder's HP is full, survives all hits of one attack with at least 1 HP. Single use.",
 		onDamage: function () { },
 		onTryHit: function (target, source, move) {
 			if (target !== source && target.hp === target.maxhp) {
@@ -109,7 +115,6 @@ exports.BattleItems = {
 	},
 	"griseousorb": {
 		inherit: true,
-		desc: "Can only be held by Giratina. Its Ghost- & Dragon-type attacks have 1.2x power.",
 		onBasePower: function (basePower, user, target, move) {
 			if (user.template.num === 487 && (move.type === 'Ghost' || move.type === 'Dragon')) {
 				return this.chainModify(1.2);
@@ -133,9 +138,12 @@ exports.BattleItems = {
 		},
 	},
 	"lifeorb": {
-		inherit: true,
-		onModifyDamage: function () {},
-		onAfterMoveSecondarySelf: function () {},
+		id: "lifeorb",
+		name: "Life Orb",
+		spritenum: 249,
+		fling: {
+			basePower: 30,
+		},
 		onBasePower: function (basePower, user, target) {
 			if (!target.volatiles['substitute']) {
 				user.addVolatile('lifeorb');
@@ -154,14 +162,12 @@ exports.BattleItems = {
 				}
 			},
 		},
+		num: 270,
+		gen: 4,
+		desc: "Holder's damaging moves do 1.3x damage; loses 1/10 max HP after the attack.",
 	},
 	"lightball": {
 		inherit: true,
-		onModifyAtk: function (atk, pokemon) {
-			if (pokemon.template.species === 'Pikachu') {
-				return this.chainModify(2);
-			}
-		},
 		onModifySpA: function (spa, pokemon) {
 			if (pokemon.template.species === 'Pikachu') {
 				return this.chainModify(2);
@@ -185,8 +191,9 @@ exports.BattleItems = {
 		},
 	},
 	"mentalherb": {
-		inherit: true,
-		desc: "Holder is cured if it is infatuated. Single use.",
+		id: "mentalherb",
+		name: "Mental Herb",
+		spritenum: 285,
 		fling: {
 			basePower: 10,
 			effect: function (pokemon) {
@@ -201,10 +208,10 @@ exports.BattleItems = {
 				this.add('-end', pokemon, 'move: Attract', '[from] item: Mental Herb');
 			}
 		},
+		desc: "Cures infatuation. One-time use.",
 	},
 	"metronome": {
 		inherit: true,
-		desc: "Damage of moves used on consecutive turns is increased. Max 2x after 10 turns.",
 		effect: {
 			onStart: function (pokemon) {
 				this.effectData.numConsecutive = 0;
