@@ -4,6 +4,7 @@
 // The rules that formats use are stored in data/rulesets.js
 
 exports.Formats = [
+<<<<<<< HEAD
                    
                    // SM Singles
                    ///////////////////////////////////////////////////////////////////
@@ -184,19 +185,24 @@ exports.Formats = [
                    ruleset: ['Pokemon', 'Standard GBU', 'Team Preview', 'Inverse Mod'],
                    requirePentagon: true,
                    },
-                   {
-                   name: "[Gen 7] 2017 No Holds Barred",
-                   desc: ["&bullet; <a href=\"https://www.smogon.com/forums/threads/3610937/\">2017 No Holds Barred</a>"],
-                   
-                   mod: 'gen7',
-                   forcedLevel: 100,
-                   teamLength: {
-                   validate: [3, 6],
-                   battle: 3,
-                   },
-                   ruleset: ['Pokemon', 'Nickname Clause', 'Team Preview', 'Cancel Mod'],
-                   banlist: ['Illegal', 'Unreleased', 'Mewtwo', 'Lugia', 'Ho-Oh', 'Kyogre', 'Groudon', 'Rayquaza', 'Dialga', 'Palkia', 'Giratina', 'Arceus', 'Reshiram', 'Zekrom', 'Kyurem', 'Xerneas', 'Yveltal', 'Solgaleo', 'Lunala'],
-                   },
+		    {
+		    name: "[Gen 7] Mega Melee",
+		    desc: ["&bullet; <a href=\"https://www.smogon.com/forums/threads/3613480/\">Mega Melee</a>"],
+
+		    mod: 'gen7',
+		    maxForcedLevel: 50,
+		    teamLength: {
+		    validate: [3, 6],
+		    battle: 1,
+		    },
+		    ruleset: ['Pokemon', 'Standard GBU', 'Team Preview'],
+		    onValidateSet(set, format) {
+			  let template = this.getTemplate(set.species || set.name);
+			  if (!template.otherFormes || !this.getTemplate(template.otherFormes[0]).isMega) {
+				return [`${set.name || set.species} can't Mega Evolve and is banned in ${format.name}.`];
+			  }
+		    },
+		    },
                    {
                    name: "[Gen 7] Custom Game",
                    
