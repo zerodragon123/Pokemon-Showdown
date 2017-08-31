@@ -4,8 +4,7 @@
 // The rules that formats use are stored in data/rulesets.js
 
 exports.Formats = [
-<<<<<<< HEAD
-                   
+              
                    // SM Singles
                    ///////////////////////////////////////////////////////////////////
                    {
