@@ -20,8 +20,6 @@
 const crypto = require('crypto');
 const FS = require('./fs');
 
-const Matchmaker = require('./ladders-matchmaker').matchmaker;
-
 const MAX_REASON_LENGTH = 300;
 const MUTE_LENGTH = 7 * 60 * 1000;
 const HOURMUTE_LENGTH = 60 * 60 * 1000;
@@ -2112,7 +2110,7 @@ exports.commands = {
 
 		let entry = targetUser.name + " was forced to choose a new name by " + user.name + (reason ? ": " + reason : "");
 		this.privateModCommand("(" + entry + ")");
-		Matchmaker.cancelSearch(targetUser);
+		Ladders.matchmaker.cancelSearch(targetUser);
 		targetUser.resetName(true);
 		targetUser.send("|nametaken||" + user.name + " considers your name inappropriate" + (reason ? ": " + reason : "."));
 		return true;
@@ -2142,7 +2140,7 @@ exports.commands = {
 		}
 
 		this.globalModlog("NAMELOCK", targetUser, ` by ${user.name}${reasonText}`);
-		Matchmaker.cancelSearch(targetUser);
+		Ladders.matchmaker.cancelSearch(targetUser);
 		Punishments.namelock(targetUser, null, null, reason);
 		targetUser.popup(`|modal|${user.name} has locked your name and you can't change names anymore${reasonText}`);
 		return true;
@@ -3301,9 +3299,9 @@ exports.commands = {
 					return false;
 				}
 			}
-			Matchmaker.searchBattle(user, target);
+			Ladders.matchmaker.searchBattle(user, target);
 		} else {
-			Matchmaker.cancelSearch(user, target);
+			Ladders.matchmaker.cancelSearch(user, target);
 		}
 	},
 
@@ -3331,6 +3329,9 @@ exports.commands = {
 				this.popupReply("Because moderated chat is set, you must be of rank " + groupName + " or higher to challenge users.");
 				return false;
 			}
+		}
+		if (targetUser === user) {
+			return this.popupReply("You can't battle yourself. The best you can do is open PS in Private Browsing (or another browser) and log into a different username, and battle that username.");
 		}
 		user.prepBattle(Dex.getFormat(target).id, 'challenge', connection).then(validTeam => {
 			if (validTeam === false) return;
