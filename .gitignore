@@ -6,6 +6,7 @@
 /chat-plugins/private.js
 npm-debug.log
 .eslintcache
+/config/formats.js
 
 # boilerplate #
 ###############
