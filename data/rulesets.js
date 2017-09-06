@@ -370,14 +370,14 @@ exports.BattleFormats = {
     		name: 'PSChina Clause',
     		desc: ["Prevents teams from having more than three Pok&eacute;mon listed in the Special list of PSChina"],
     		onStart: function () {
-            		this.add('rule', 'PSChina Clause: Limit three certain Pok&eacute;mon');
+            		this.add('rule', 'PSChina Clause: Limit three certain Pokémon');
     		},
     		onValidateTeam: function (team, format) {
         	let countchina = 0;
         	for (let i = 0; i < team.length; i++) {
-                	if (team[i].species === 'Chansey' || team[i].species === 'Skarmory' || team[i].species === 'Toxapex' || team[i].species === 'Celesteela') {
+                	if (team[i].species === 'Chansey' || team[i].species === 'Skarmory' || team[i].species === 'Toxapex' || team[i].species === 'Celesteela' || team[i].species === 'Landorus' || team[i].species === 'Greninja' || team[i].species === 'Magearna' || team[i].species === 'Diancie-Mega') {
                 		if (countchina >= 3) {
-                    			return ["You are limited to three Pok&eacute;mon listed in the Special list of PSChina."];
+                    			return ["You are limited to three Pokémon listed in the Special list of PSChina."];
                 			}
                			countchina ++;
             			}
