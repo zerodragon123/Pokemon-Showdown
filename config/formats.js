@@ -54,8 +54,8 @@ exports.Formats = [
                    {
                    name: "[Gen 7] UU",
                    desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3612054/\">UU Metagame Discussion</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3603387/\">UU Viability Rankings</a>",
+                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3614035/\">UU Metagame Discussion</a>",
+                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3613279/\">UU Viability Rankings</a>",
                           "&bullet; <a href=\"https://www.smogon.com/forums/threads/3591880/\">UU Sample Teams</a>",
                           ],
                    
@@ -66,7 +66,7 @@ exports.Formats = [
                    {
                    name: "[Gen 7] RU",
                    desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3611512/\">RU Metagame Discussion</a>",
+                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3614037/\">RU Metagame Discussion</a>",
                           "&bullet; <a href=\"https://www.smogon.com/forums/threads/3602279/\">RU Viability Rankings</a>",
                           "&bullet; <a href=\"https://www.smogon.com/forums/threads/3598090/\">RU Sample Teams</a>",
                           ],
@@ -88,7 +88,7 @@ exports.Formats = [
                    banlist: ['RU', 'BL3', 'Drought'],
                    },
                    {
-                   name: "[Gen 7] PU (beta)",
+                   name: "[Gen 7] PU",
                    desc: ["&bullet; <a href=\"https://www.smogon.com/forums/threads/3611417/\">PU Metagame Discussion</a>"],
                    
                    mod: 'gen7',
@@ -769,314 +769,306 @@ exports.Formats = [
                    ruleset: ['[Gen 2] OU', 'Ignore STAB Moves'],
                    banlist: [],
                    },
-                   
-                   // ORAS Singles
-                   ///////////////////////////////////////////////////////////////////
-                   
-                   {
-                   section: "ORAS Singles",
-                   column: 3,
-                   },
-                   {
-                   name: "[Gen 6] OU",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3573990/\">OU Metagame Discussion</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/dex/xy/tags/ou/\">OU Banlist</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3571990/\">OU Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   ruleset: ['Pokemon', 'Standard', 'Team Preview', 'Swagger Clause', 'Baton Pass Clause'],
-                   banlist: ['Uber', 'Shadow Tag', 'Soul Dew'],
-                   },
-                   {
-                   name: "[Gen 6] Ubers",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3522911/\">Ubers Metagame Discussion</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3535106/\">Ubers Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   ruleset: ['Pokemon', 'Standard', 'Swagger Clause', 'Team Preview', 'Mega Rayquaza Clause'],
-                   },
-                   {
-                   name: "[Gen 6] UU",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3582473/\">np: UU Stage 7.3</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/dex/xy/tags/uu/\">UU Banlist</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3580117/\">UU Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   ruleset: ['[Gen 6] OU'],
-                   banlist: ['OU', 'BL', 'Drizzle', 'Drought', 'Baton Pass'],
-                   },
-                   {
-                   name: "[Gen 6] RU",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3583022/\">np: RU Stage 19</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/dex/xy/tags/ru/\">RU Banlist</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3558546/\">RU Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   ruleset: ['[Gen 6] UU'],
-                   banlist: ['UU', 'BL2'],
-                   },
-                   {
-                   name: "[Gen 6] NU",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3576747/\">np: NU Stage 15</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/dex/xy/tags/nu/\">NU Banlist</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3555650/\">NU Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   ruleset: ['[Gen 6] RU'],
-                   banlist: ['RU', 'BL3'],
-                   },
-                   {
-                   name: "[Gen 6] PU",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3586575/\">np: PU Stage 10</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3528743/\">PU Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   ruleset: ['[Gen 6] NU'],
-                   banlist: ['NU', 'BL4', 'Chatter'],
-                   unbanlist: ['Baton Pass'],
-                   },
-                   {
-                   name: "[Gen 6] LC",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3505710/\">LC Metagame Discussion</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/dex/xy/formats/lc/\">LC Banlist</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3547566/\">LC Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   maxLevel: 5,
-                   ruleset: ['Pokemon', 'Standard', 'Team Preview', 'Little Cup'],
-                   banlist: ['LC Uber', 'Gligar', 'Misdreavus', 'Scyther', 'Sneasel', 'Tangela', 'Dragon Rage', 'Sonic Boom', 'Swagger'],
-                   },
-                   {
-                   name: "[Gen 6] Anything Goes",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3523229/\">Anything Goes Discussion</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3548945/\">Anything Goes Resources</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   ruleset: ['Pokemon', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
-                   banlist: ['Illegal', 'Unreleased'],
-                   },
-                   {
-                   name: "[Gen 6] CAP",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3537407/\">CAP Metagame Discussion</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3545628/\">CAP Viability Ranking</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/posts/5594694/\">CAP Sample Teams</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   searchShow: false,
-                   ruleset: ['[Gen 6] OU', 'Allow CAP'],
-                   },
-                   {
-                   name: "[Gen 6] Battle Spot Singles",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3527960/\">Battle Spot Singles Discussion</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3554616/\">Battle Spot Singles Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   maxForcedLevel: 50,
-                   teamLength: {
-                   validate: [3, 6],
-                   battle: 3,
-                   },
-                   ruleset: ['Pokemon', 'Standard GBU', 'Team Preview'],
-                   requirePentagon: true,
-                   },
-                   {
-                   name: "[Gen 6] Inverse Battle",
-                   desc: ["The effectiveness of attacks is inverted."],
-                   
-                   mod: 'gen6',
-                   searchShow: false,
-                   ruleset: ['Pokemon', 'Inverse Mod', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
-                   banlist: ['Illegal', 'Unreleased'],
-                   },
-                   {
-                   name: "[Gen 6] Random Battle",
-                   
-                   mod: 'gen6',
-                   team: 'random',
-                   ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
-                   },
-                   {
-                   name: "[Gen 6] Custom Game",
-                   
-                   mod: 'gen6',
-                   searchShow: false,
-                   canUseRandomTeam: true,
-                   debug: true,
-                   maxLevel: 9999,
-                   defaultLevel: 100,
-                   // no restrictions, for serious (other than team preview)
-                   ruleset: ['Team Preview', 'Cancel Mod'],
-                   },
-                   
-                   // ORAS Doubles/Triples
-                   ///////////////////////////////////////////////////////////////////
-                   
-                   {
-                   section: "ORAS Doubles/Triples",
-                   },
-                   {
-                   name: "[Gen 6] Doubles OU",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3580680/\">np: Doubles OU Stage 5</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3498688/\">Doubles OU Banlist</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3535930/\">Doubles OU Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   gameType: 'doubles',
-                   ruleset: ['Pokemon', 'Standard Doubles', 'Swagger Clause', 'Team Preview'],
-                   banlist: [
-                             'Arceus', 'Dialga', 'Giratina', 'Giratina-Origin', 'Groudon', 'Ho-Oh', 'Kyogre', 'Kyurem-White', 'Lugia', 'Mewtwo',
-                             'Palkia', 'Rayquaza', 'Reshiram', 'Salamence-Mega', 'Salamencite', 'Shaymin-Sky', 'Xerneas', 'Yveltal', 'Zekrom', 'Soul Dew',
-                             'Dark Void', 'Gravity ++ Grass Whistle', 'Gravity ++ Hypnosis', 'Gravity ++ Lovely Kiss', 'Gravity ++ Sing', 'Gravity ++ Sleep Powder',
-                             ],
-                   },
-                   {
-                   name: "[Gen 6] Doubles Ubers",
-                   desc: ["&bullet; <a href=\"https://www.smogon.com/forums/threads/3542746/\">Doubles Ubers</a>"],
-                   
-                   mod: 'gen6',
-                   gameType: 'doubles',
-                   searchShow: false,
-                   ruleset: ['Pokemon', 'Species Clause', 'Moody Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Evasion Abilities Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
-                   banlist: ['Illegal', 'Unreleased', 'Dark Void'],
-                   },
-                   {
-                   name: "[Gen 6] Doubles UU",
-                   desc: ["&bullet; <a href=\"https://www.smogon.com/forums/threads/3542755/\">Doubles UU</a>"],
-                   
-                   mod: 'gen6',
-                   gameType: 'doubles',
-                   searchShow: false,
-                   ruleset: ['[Gen 6] Doubles OU'],
-                   banlist: [
-                             'Aegislash', 'Amoonguss', 'Arcanine', 'Azumarill', 'Bisharp', 'Breloom', 'Charizard-Mega-Y', 'Charizardite Y',
-                             'Conkeldurr', 'Cresselia', 'Diancie-Mega', 'Diancite', 'Ferrothorn', 'Garchomp', 'Gardevoir-Mega', 'Gardevoirite',
-                             'Gastrodon', 'Gengar', 'Greninja', 'Heatran', 'Hitmontop', 'Hoopa-Unbound', 'Hydreigon', 'Jirachi',
-                             'Kangaskhan-Mega', 'Kangaskhanite', 'Keldeo', 'Kyurem-Black', 'Landorus-Therian', 'Latios', 'Ludicolo', 'Milotic',
-                             'Politoed', 'Raichu', 'Rotom-Wash', 'Scizor', 'Scrafty', 'Shaymin-Sky', 'Suicune', 'Sylveon', 'Talonflame',
-                             'Terrakion', 'Thundurus', 'Togekiss', 'Tyranitar', 'Venusaur', 'Volcanion', 'Weavile', 'Whimsicott', 'Zapdos',
-                             ],
-                   },
-                   {
-                   name: "[Gen 6] VGC 2016",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3558332/\">VGC 2016 Rules</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3580592/\">VGC 2016 Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   gameType: 'doubles',
-                   maxForcedLevel: 50,
-                   teamLength: {
-                   validate: [4, 6],
-                   battle: 4,
-                   },
-                   ruleset: ['Pokemon', 'Species Clause', 'Nickname Clause', 'Item Clause', 'Team Preview', 'Cancel Mod'],
-                   banlist: [
-                             'Illegal', 'Unreleased', 'Mew', 'Celebi', 'Jirachi', 'Deoxys', 'Deoxys-Attack', 'Deoxys-Defense', 'Deoxys-Speed', 'Phione', 'Manaphy', 'Darkrai',
-                             'Shaymin', 'Shaymin-Sky', 'Arceus', 'Victini', 'Keldeo', 'Meloetta', 'Genesect', 'Diancie', 'Hoopa', 'Hoopa-Unbound', 'Volcanion', 'Soul Dew',
-                             ],
-                   requirePentagon: true,
-                   onValidateTeam: function (team) {
-                   const legends = {'Mewtwo':1, 'Lugia':1, 'Ho-Oh':1, 'Kyogre':1, 'Groudon':1, 'Rayquaza':1, 'Dialga':1, 'Palkia':1, 'Giratina':1, 'Reshiram':1, 'Zekrom':1, 'Kyurem':1, 'Xerneas':1, 'Yveltal':1, 'Zygarde':1};
-                   let n = 0;
-                   for (let i = 0; i < team.length; i++) {
-                   let template = this.getTemplate(team[i].species).baseSpecies;
-                   if (template in legends) n++;
-                   if (n > 2) return ["You can only use up to two legendary Pok\u00E9mon."];
-                   }
-                   },
-                   },
-                   {
-                   name: "[Gen 6] Battle Spot Doubles",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3560820/\">Battle Spot Doubles Discussion</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3560824/\">Battle Spot Doubles Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   gameType: 'doubles',
-                   maxForcedLevel: 50,
-                   teamLength: {
-                   validate: [4, 6],
-                   battle: 4,
-                   },
-                   ruleset: ['Pokemon', 'Standard GBU', 'Team Preview'],
-                   requirePentagon: true,
-                   },
-                   {
-                   name: "[Gen 6] Random Doubles Battle",
-                   
-                   mod: 'gen6',
-                   gameType: 'doubles',
-                   team: 'random',
-                   searchShow: false,
-                   ruleset: ['PotD', 'Pokemon', 'HP Percentage Mod', 'Cancel Mod'],
-                   },
-                   {
-                   name: "[Gen 6] Doubles Custom Game",
-                   
-                   mod: 'gen6',
-                   gameType: 'doubles',
-                   searchShow: false,
-                   canUseRandomTeam: true,
-                   maxLevel: 9999,
-                   defaultLevel: 100,
-                   debug: true,
-                   // no restrictions, for serious (other than team preview)
-                   ruleset: ['Team Preview', 'Cancel Mod'],
-                   },
-                   {
-                   name: "[Gen 6] Battle Spot Triples",
-                   desc: [
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3533914/\">Battle Spot Triples Discussion</a>",
-                          "&bullet; <a href=\"https://www.smogon.com/forums/threads/3549201/\">Battle Spot Triples Viability Ranking</a>",
-                          ],
-                   
-                   mod: 'gen6',
-                   gameType: 'triples',
-                   maxForcedLevel: 50,
-                   teamLength: {
-                   validate: [6, 6],
-                   },
-                   ruleset: ['Pokemon', 'Standard GBU', 'Team Preview'],
-                   requirePentagon: true,
-                   },
-                   {
-                   name: "[Gen 6] Triples Custom Game",
-                   
-                   mod: 'gen6',
-                   gameType: 'triples',
-                   searchShow: false,
-                   canUseRandomTeam: true,
-                   maxLevel: 9999,
-                   defaultLevel: 100,
-                   debug: true,
-                   // no restrictions, for serious (other than team preview)
-                   ruleset: ['Team Preview', 'Cancel Mod'],
-                   },
-                   
+                           // ORAS Singles
+                           ///////////////////////////////////////////////////////////////////
+                           
+                           {
+                           section: "ORAS Singles",
+                           column: 3,
+                           },
+                           {
+                           name: "[Gen 6] OU",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/dex/xy/tags/ou/\">ORAS OU Banlist</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3596900/\">ORAS OU Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           ruleset: ['Pokemon', 'Standard', 'Team Preview', 'Swagger Clause', 'Baton Pass Clause'],
+                           banlist: ['Uber', 'Shadow Tag', 'Soul Dew'],
+                           },
+                           {
+                           name: "[Gen 6] Ubers",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3522911/\">ORAS Ubers</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3535106/\">ORAS Ubers Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           ruleset: ['Pokemon', 'Standard', 'Swagger Clause', 'Team Preview', 'Mega Rayquaza Clause'],
+                           },
+                           {
+                           name: "[Gen 6] UU",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/dex/xy/tags/uu/\">ORAS UU Banlist</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3598164/\">ORAS UU Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           ruleset: ['[Gen 6] OU'],
+                           banlist: ['OU', 'BL', 'Drizzle', 'Drought', 'Baton Pass'],
+                           },
+                           {
+                           name: "[Gen 6] RU",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/dex/xy/tags/ru/\">ORAS RU Banlist</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3574583/\">ORAS RU Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           ruleset: ['[Gen 6] UU'],
+                           banlist: ['UU', 'BL2'],
+                           },
+                           {
+                           name: "[Gen 6] NU",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/dex/xy/tags/nu/\">ORAS NU Banlist</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3555650/\">ORAS NU Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           ruleset: ['[Gen 6] RU'],
+                           banlist: ['RU', 'BL3'],
+                           },
+                           {
+                           name: "[Gen 6] PU",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/dex/xy/tags/pu/\">ORAS PU Banlist</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3528743/\">ORAS PU Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           ruleset: ['[Gen 6] NU'],
+                           banlist: ['NU', 'BL4', 'Chatter'],
+                           unbanlist: ['Baton Pass'],
+                           },
+                           {
+                           name: "[Gen 6] LC",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/dex/xy/formats/lc/\">ORAS LC Banlist</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3547566/\">ORAS LC Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           maxLevel: 5,
+                           ruleset: ['Pokemon', 'Standard', 'Team Preview', 'Little Cup'],
+                           banlist: ['LC Uber', 'Gligar', 'Misdreavus', 'Scyther', 'Sneasel', 'Tangela', 'Dragon Rage', 'Sonic Boom', 'Swagger'],
+                           },
+                           {
+                           name: "[Gen 6] Anything Goes",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3523229/\">ORAS Anything Goes</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3548945/\">ORAS AG Resources</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           ruleset: ['Pokemon', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
+                           banlist: ['Illegal', 'Unreleased'],
+                           },
+                           {
+                           name: "[Gen 6] CAP",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3537407/\">ORAS CAP Metagame Discussion</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3545628/\">ORAS CAP Viability Rankings</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/posts/5594694/\">ORAS CAP Sample Teams</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           searchShow: false,
+                           ruleset: ['[Gen 6] OU', 'Allow CAP'],
+                           },
+                           {
+                           name: "[Gen 6] Battle Spot Singles",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3527960/\">ORAS Battle Spot Singles</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3554616/\">ORAS BSS Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           maxForcedLevel: 50,
+                           teamLength: {
+                           validate: [3, 6],
+                           battle: 3,
+                           },
+                           ruleset: ['Pokemon', 'Standard GBU', 'Team Preview'],
+                           requirePentagon: true,
+                           },
+                           {
+                           name: "[Gen 6] Inverse Battle",
+                           desc: ["The effectiveness of attacks is inverted."],
+                           
+                           mod: 'gen6',
+                           searchShow: false,
+                           ruleset: ['Pokemon', 'Inverse Mod', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
+                           banlist: ['Illegal', 'Unreleased'],
+                           },
+                           {
+                           name: "[Gen 6] Random Battle",
+                           
+                           mod: 'gen6',
+                           team: 'random',
+                           ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+                           },
+                           {
+                           name: "[Gen 6] Custom Game",
+                           
+                           mod: 'gen6',
+                           searchShow: false,
+                           canUseRandomTeam: true,
+                           debug: true,
+                           maxLevel: 9999,
+                           defaultLevel: 100,
+                           // no restrictions, for serious (other than team preview)
+                           ruleset: ['Team Preview', 'Cancel Mod'],
+                           },
+                           
+                           // ORAS Doubles/Triples
+                           ///////////////////////////////////////////////////////////////////
+                           
+                           {
+                           section: "ORAS Doubles/Triples",
+                           },
+                           {
+                           name: "[Gen 6] Doubles OU",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3498688/\">ORAS Doubles OU Banlist</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3535930/\">ORAS Doubles OU Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           gameType: 'doubles',
+                           ruleset: ['Pokemon', 'Standard Doubles', 'Swagger Clause', 'Team Preview'],
+                           banlist: [
+                                     'Arceus', 'Dialga', 'Giratina', 'Giratina-Origin', 'Groudon', 'Ho-Oh', 'Kyogre', 'Kyurem-White', 'Lugia', 'Mewtwo',
+                                     'Palkia', 'Rayquaza', 'Reshiram', 'Salamence-Mega', 'Salamencite', 'Shaymin-Sky', 'Xerneas', 'Yveltal', 'Zekrom', 'Soul Dew',
+                                     'Dark Void', 'Gravity ++ Grass Whistle', 'Gravity ++ Hypnosis', 'Gravity ++ Lovely Kiss', 'Gravity ++ Sing', 'Gravity ++ Sleep Powder',
+                                     ],
+                           },
+                           {
+                           name: "[Gen 6] Doubles Ubers",
+                           desc: ["&bullet; <a href=\"https://www.smogon.com/forums/threads/3542746/\">ORAS Doubles Ubers</a>"],
+                           
+                           mod: 'gen6',
+                           gameType: 'doubles',
+                           searchShow: false,
+                           ruleset: ['Pokemon', 'Species Clause', 'Moody Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Evasion Abilities Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
+                           banlist: ['Illegal', 'Unreleased', 'Dark Void'],
+                           },
+                           {
+                           name: "[Gen 6] Doubles UU",
+                           desc: ["&bullet; <a href=\"https://www.smogon.com/forums/threads/3542755/\">ORAS Doubles UU</a>"],
+                           
+                           mod: 'gen6',
+                           gameType: 'doubles',
+                           searchShow: false,
+                           ruleset: ['[Gen 6] Doubles OU'],
+                           banlist: [
+                                     'Aegislash', 'Amoonguss', 'Arcanine', 'Azumarill', 'Bisharp', 'Breloom', 'Charizard-Mega-Y', 'Charizardite Y',
+                                     'Conkeldurr', 'Cresselia', 'Diancie-Mega', 'Diancite', 'Ferrothorn', 'Garchomp', 'Gardevoir-Mega', 'Gardevoirite',
+                                     'Gastrodon', 'Gengar', 'Greninja', 'Heatran', 'Hitmontop', 'Hoopa-Unbound', 'Hydreigon', 'Jirachi',
+                                     'Kangaskhan-Mega', 'Kangaskhanite', 'Keldeo', 'Kyurem-Black', 'Landorus-Therian', 'Latios', 'Ludicolo', 'Milotic',
+                                     'Politoed', 'Raichu', 'Rotom-Wash', 'Scizor', 'Scrafty', 'Shaymin-Sky', 'Suicune', 'Sylveon', 'Talonflame',
+                                     'Terrakion', 'Thundurus', 'Togekiss', 'Tyranitar', 'Venusaur', 'Volcanion', 'Weavile', 'Whimsicott', 'Zapdos',
+                                     ],
+                           },
+                           {
+                           name: "[Gen 6] VGC 2016",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3558332/\">VGC 2016 Rules</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3580592/\">VGC 2016 Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           gameType: 'doubles',
+                           maxForcedLevel: 50,
+                           teamLength: {
+                           validate: [4, 6],
+                           battle: 4,
+                           },
+                           ruleset: ['Pokemon', 'Species Clause', 'Nickname Clause', 'Item Clause', 'Team Preview', 'Cancel Mod'],
+                           banlist: [
+                                     'Illegal', 'Unreleased', 'Mew', 'Celebi', 'Jirachi', 'Deoxys', 'Deoxys-Attack', 'Deoxys-Defense', 'Deoxys-Speed', 'Phione', 'Manaphy', 'Darkrai',
+                                     'Shaymin', 'Shaymin-Sky', 'Arceus', 'Victini', 'Keldeo', 'Meloetta', 'Genesect', 'Diancie', 'Hoopa', 'Hoopa-Unbound', 'Volcanion', 'Soul Dew',
+                                     ],
+                           requirePentagon: true,
+                           onValidateTeam: function (team) {
+                           const legends = {'Mewtwo':1, 'Lugia':1, 'Ho-Oh':1, 'Kyogre':1, 'Groudon':1, 'Rayquaza':1, 'Dialga':1, 'Palkia':1, 'Giratina':1, 'Reshiram':1, 'Zekrom':1, 'Kyurem':1, 'Xerneas':1, 'Yveltal':1, 'Zygarde':1};
+                           let n = 0;
+                           for (let i = 0; i < team.length; i++) {
+                           let template = this.getTemplate(team[i].species).baseSpecies;
+                           if (template in legends) n++;
+                           if (n > 2) return ["You can only use up to two legendary Pok\u00E9mon."];
+                           }
+                           },
+                           },
+                           {
+                           name: "[Gen 6] Battle Spot Doubles",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3560820/\">ORAS Battle Spot Doubles Discussion</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3560824/\">ORAS BSD Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           gameType: 'doubles',
+                           maxForcedLevel: 50,
+                           teamLength: {
+                           validate: [4, 6],
+                           battle: 4,
+                           },
+                           ruleset: ['Pokemon', 'Standard GBU', 'Team Preview'],
+                           requirePentagon: true,
+                           },
+                           {
+                           name: "[Gen 6] Random Doubles Battle",
+                           
+                           mod: 'gen6',
+                           gameType: 'doubles',
+                           team: 'random',
+                           searchShow: false,
+                           ruleset: ['PotD', 'Pokemon', 'HP Percentage Mod', 'Cancel Mod'],
+                           },
+                           {
+                           name: "[Gen 6] Doubles Custom Game",
+                           
+                           mod: 'gen6',
+                           gameType: 'doubles',
+                           searchShow: false,
+                           canUseRandomTeam: true,
+                           maxLevel: 9999,
+                           defaultLevel: 100,
+                           debug: true,
+                           // no restrictions, for serious (other than team preview)
+                           ruleset: ['Team Preview', 'Cancel Mod'],
+                           },
+                           {
+                           name: "[Gen 6] Battle Spot Triples",
+                           desc: [
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3533914/\">ORAS Battle Spot Triples Discussion</a>",
+                                  "&bullet; <a href=\"https://www.smogon.com/forums/threads/3549201/\">ORAS BST Viability Rankings</a>",
+                                  ],
+                           
+                           mod: 'gen6',
+                           gameType: 'triples',
+                           maxForcedLevel: 50,
+                           teamLength: {
+                           validate: [6, 6],
+                           },
+                           ruleset: ['Pokemon', 'Standard GBU', 'Team Preview'],
+                           requirePentagon: true,
+                           },
+                           {
+                           name: "[Gen 6] Triples Custom Game",
+                           
+                           mod: 'gen6',
+                           gameType: 'triples',
+                           searchShow: false,
+                           canUseRandomTeam: true,
+                           maxLevel: 9999,
+                           defaultLevel: 100,
+                           debug: true,
+                           // no restrictions, for serious (other than team preview)
+                           ruleset: ['Team Preview', 'Cancel Mod'],
+                           },
                    // BW2 Singles
                    ///////////////////////////////////////////////////////////////////
                    
