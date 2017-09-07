@@ -27,10 +27,11 @@ exports.Formats = [
                    ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
                    },
                    {
-                   name: "[Gen 7] 3DS 6V6 PSChina",
+                   name: "[Gen 7] 3DS 6v6",
                     
                    mod: 'gen7',
                    ruleset: ['[Gen 7] OU', 'PSChina Clause'],
+                   banlist: ['Arena Trap'],
                    },
                    {
                    name: "[Gen 7] OU",
