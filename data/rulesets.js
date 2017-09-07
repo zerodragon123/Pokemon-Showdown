@@ -365,6 +365,25 @@ exports.BattleFormats = {
 			// hardcoded in team-validator.js, so we are done.
 		},
 	},
+	pschinaclause: {
+    		effectType: 'ValidatorRule',
+    		name: 'PSChina Clause',
+    		desc: ["Prevents teams from having more than three Pok&eacute;mon listed in the Special list of PSChina"],
+    		onStart: function () {
+            		this.add('rule', 'PSChina Clause: Limit three certain Pokémon');
+    		},
+    		onValidateTeam: function (team, format) {
+        	let countchina = 0;
+        	for (let i = 0; i < team.length; i++) {
+                	if (team[i].species === 'Chansey' || team[i].species === 'Skarmory' || team[i].species === 'Toxapex' || team[i].species === 'Celesteela' || team[i].species === 'Landorus-Therian' || team[i].species === 'Greninja' || team[i].species === 'Magearna' || team[i].species === 'Ferrothorn' || team[i].species === 'Greninja-Ash' || team[i].species === 'Heatran' || team[i].species === 'Tapu Koko' || team[i].species === 'Tapu Lele' || team[i].species === 'Tapu Bulu' || team[i].species === 'Volcarona' || team[i].species === 'Mew' || team[i].species === 'Tangrowth' || team[i].species === 'Zygarde' || team[i].species === 'Garchomp' || team[i].species === 'Latios' || team[i].species === 'Zapdos' || team[i].species === 'Keldeo' || team[i].species === 'Kyurem-Black' || team[i].species === 'Pelipper' || team[i].species === 'Tyranitar' || team[i].species === 'Hawlucha' || team[i].species === 'Ninetales-Alola' || team[i].species === 'Smeargle' || team[i].species === 'Shuckle' || team[i].item === 'Diancite' || team[i].item === 'Mawilite' || team[i].item === 'Pinsirite' || team[i].item === 'Charizardite Y' || team[i].item === 'Charizardite X' || team[i].item === 'Medichamite' || team[i].item === 'Scizorite' || team[i].item === 'Venusaurite' || team[i].item === 'Lopunnite' || team[i].item === 'Swampertite' || team[i].item === 'Sablenite' || team[i].item === 'Manectite') {
+                		if (countchina >= 3) {
+                    			return ["You are limited to three Pokémon listed in the Special list of PSChina."];
+                			}
+               			countchina ++;
+            			}
+        		}
+    		},
+	},
 	itemclause: {
 		effectType: 'ValidatorRule',
 		name: 'Item Clause',

@@ -27,6 +27,12 @@ exports.Formats = [
                    ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
                    },
                    {
+                   name: "[Gen 7] 3DS 6V6 PSChina",
+                    
+                   mod: 'gen7',
+                   ruleset: ['[Gen 7] OU', 'PSChina Clause'],
+                   },
+                   {
                    name: "[Gen 7] OU",
                    desc: [
                           "&bullet; <a href=\"https://www.smogon.com/forums/threads/3608656/\">OU Metagame Discussion</a>",
