@@ -30,6 +30,7 @@ exports.Formats = [
                    name: "[Gen 7] 3DS 6v6",
                     
                    mod: 'gen7',
+                   maxForcedLevel: 50,
                    ruleset: ['[Gen 7] OU', 'PSChina Clause'],
                    banlist: ['Arena Trap'],
                    },
