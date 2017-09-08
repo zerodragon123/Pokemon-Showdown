@@ -694,7 +694,7 @@ class RandomTeams extends Dex.ModdedDex {
 					if (counter.setupType || !!counter['recovery'] || hasMove['substitute']) rejected = true;
 					break;
 				case 'leechseed': case 'roar': case 'whirlwind':
-					if (counter.setupType || hasMove['dragontail']) rejected = true;
+					if (counter.setupType || !!counter['speedsetup'] || hasMove['dragontail']) rejected = true;
 					break;
 				case 'nightshade': case 'seismictoss':
 					if (counter.stab || counter.setupType || counter.damagingMoves.length > 2) rejected = true;
@@ -727,7 +727,7 @@ class RandomTeams extends Dex.ModdedDex {
 					if (hasMove['lightscreen'] || hasMove['reflect']) rejected = true;
 					break;
 				case 'uturn':
-					if (counter.setupType || !!counter['speedsetup'] || hasMove['batonpass']) rejected = true;
+					if (counter.setupType || !!counter['speedsetup'] || hasMove['batonpass'] || hasAbility['Protean'] && counter.Status > 2) rejected = true;
 					if (hasType['Bug'] && counter.stab < 2 && counter.damagingMoves.length > 2 && !hasAbility['Adaptability'] && !hasMove['technoblast']) rejected = true;
 					break;
 				case 'voltswitch':
@@ -975,7 +975,7 @@ class RandomTeams extends Dex.ModdedDex {
 				case 'willowisp':
 					if (hasMove['scald']) rejected = true;
 					break;
-				case 'moonlight': case 'painsplit': case 'recover': case 'roost': case 'softboiled': case 'synthesis':
+				case 'milkdrink': case 'moonlight': case 'painsplit': case 'recover': case 'roost': case 'softboiled': case 'synthesis':
 					if (hasMove['leechseed'] || hasMove['rest'] || hasMove['wish']) rejected = true;
 					break;
 				case 'safeguard':
@@ -1103,8 +1103,12 @@ class RandomTeams extends Dex.ModdedDex {
 		} while (moves.length < 4 && movePool.length);
 
 		// Moveset modifications
-		if (hasMove['autotomize'] && hasMove['heavyslam'] && template.id !== 'celesteela') {
-			moves[moves.indexOf('autotomize')] = 'rockpolish';
+		if (hasMove['autotomize'] && hasMove['heavyslam']) {
+			if (template.id === 'celesteela') {
+				moves[moves.indexOf('heavyslam')] = 'flashcannon';
+			} else {
+				moves[moves.indexOf('autotomize')] = 'rockpolish';
+			}
 		}
 		if (moves[0] === 'conversion') {
 			moves[0] = moves[3];
@@ -1127,83 +1131,87 @@ class RandomTeams extends Dex.ModdedDex {
 				if (!this.random(3)) ability = ability1.name;
 			}
 
-			let rejectAbility = false;
-			if (ability in counterAbilities) {
-				// Adaptability, Contrary, Hustle, Iron Fist, Skill Link
-				rejectAbility = !counter[toId(ability)];
-			} else if (ability in ateAbilities) {
-				rejectAbility = !counter['Normal'];
-			} else if (ability === 'Blaze') {
-				rejectAbility = !counter['Fire'];
-			} else if (ability === 'Chlorophyll') {
-				rejectAbility = !hasMove['sunnyday'];
-			} else if (ability === 'Compound Eyes' || ability === 'No Guard') {
-				rejectAbility = !counter['inaccurate'];
-			} else if (ability === 'Defiant' || ability === 'Moxie') {
-				rejectAbility = !counter['Physical'] && !hasMove['batonpass'];
-			} else if (ability === 'Flare Boost' || ability === 'Moody') {
-				rejectAbility = true;
-			} else if (ability === 'Gluttony') {
-				rejectAbility = !hasMove['bellydrum'];
-			} else if (ability === 'Lightning Rod') {
-				rejectAbility = template.types.includes('Ground');
-			} else if (ability === 'Limber') {
-				rejectAbility = template.types.includes('Electric');
-			} else if (ability === 'Liquid Voice') {
-				rejectAbility = !hasMove['hypervoice'];
-			} else if (ability === 'Overgrow') {
-				rejectAbility = !counter['Grass'];
-			} else if (ability === 'Poison Heal') {
-				rejectAbility = abilities.includes('Technician') && !!counter['technician'];
-			} else if (ability === 'Prankster') {
-				rejectAbility = !counter['Status'];
-			} else if (ability === 'Quick Feet') {
-				rejectAbility = hasMove['bellydrum'];
-			} else if (ability === 'Reckless' || ability === 'Rock Head') {
-				rejectAbility = !counter['recoil'];
-			} else if (ability === 'Sand Veil') {
-				rejectAbility = !teamDetails['sand'];
-			} else if (ability === 'Serene Grace') {
-				rejectAbility = !counter['serenegrace'] || template.id === 'chansey' || template.id === 'blissey';
-			} else if (ability === 'Sheer Force') {
-				rejectAbility = !counter['sheerforce'] || (abilities.includes('Iron Fist') && counter['sheerforce'] < 2 && counter['ironfist'] > counter['sheerforce']);
-			} else if (ability === 'Simple') {
-				rejectAbility = !counter.setupType && !hasMove['cosmicpower'] && !hasMove['flamecharge'];
-			} else if (ability === 'Snow Cloak') {
-				rejectAbility = !teamDetails['hail'];
-			} else if (ability === 'Solar Power') {
-				rejectAbility = !counter['Special'] || template.isMega;
-			} else if (ability === 'Strong Jaw') {
-				rejectAbility = !counter['bite'];
-			} else if (ability === 'Sturdy') {
-				rejectAbility = !!counter['recoil'] && !counter['recovery'];
-			} else if (ability === 'Swift Swim') {
-				rejectAbility = !hasMove['raindance'] && !teamDetails['rain'];
-			} else if (ability === 'Swarm') {
-				rejectAbility = !counter['Bug'];
-			} else if (ability === 'Synchronize') {
-				rejectAbility = counter.Status < 2;
-			} else if (ability === 'Technician') {
-				rejectAbility = !counter['technician'] || (abilities.includes('Skill Link') && counter['skilllink'] >= counter['technician']);
-			} else if (ability === 'Tinted Lens') {
-				rejectAbility = counter['damage'] >= counter.damagingMoves.length;
-			} else if (ability === 'Torrent') {
-				rejectAbility = !counter['Water'];
-			} else if (ability === 'Triage') {
-				rejectAbility = !counter['recovery'] && !counter['drain'];
-			} else if (ability === 'Unburden') {
-				rejectAbility = template.isMega || (!counter.setupType && !hasMove['acrobatics']);
-			} else if (ability === 'Water Absorb') {
-				rejectAbility = abilities.includes('Volt Absorb') || (abilities.includes('Water Bubble') && counter['Water']);
-			}
-
-			if (rejectAbility) {
-				if (ability === ability1.name) { // or not
-					ability = ability0.name;
-				} else if (ability1.rating > 1) { // only switch if the alternative doesn't suck
-					ability = ability1.name;
+			let rejectAbility;
+			do {
+				rejectAbility = false;
+				if (ability in counterAbilities) {
+					// Adaptability, Contrary, Hustle, Iron Fist, Skill Link
+					rejectAbility = !counter[toId(ability)];
+				} else if (ability in ateAbilities) {
+					rejectAbility = !counter['Normal'];
+				} else if (ability === 'Blaze') {
+					rejectAbility = !counter['Fire'];
+				} else if (ability === 'Chlorophyll') {
+					rejectAbility = !hasMove['sunnyday'] && !teamDetails['sun'];
+				} else if (ability === 'Compound Eyes' || ability === 'No Guard') {
+					rejectAbility = !counter['inaccurate'];
+				} else if (ability === 'Defiant' || ability === 'Moxie') {
+					rejectAbility = !counter['Physical'] && !hasMove['batonpass'];
+				} else if (ability === 'Flare Boost' || ability === 'Moody') {
+					rejectAbility = true;
+				} else if (ability === 'Gluttony') {
+					rejectAbility = !hasMove['bellydrum'];
+				} else if (ability === 'Lightning Rod') {
+					rejectAbility = template.types.includes('Ground');
+				} else if (ability === 'Limber') {
+					rejectAbility = template.types.includes('Electric');
+				} else if (ability === 'Liquid Voice') {
+					rejectAbility = !hasMove['hypervoice'];
+				} else if (ability === 'Overgrow') {
+					rejectAbility = !counter['Grass'];
+				} else if (ability === 'Poison Heal') {
+					rejectAbility = abilities.includes('Technician') && !!counter['technician'];
+				} else if (ability === 'Prankster') {
+					rejectAbility = !counter['Status'];
+				} else if (ability === 'Quick Feet') {
+					rejectAbility = hasMove['bellydrum'];
+				} else if (ability === 'Reckless' || ability === 'Rock Head') {
+					rejectAbility = !counter['recoil'];
+				} else if (ability === 'Sand Force' || ability === 'Sand Veil') {
+					rejectAbility = !teamDetails['sand'];
+				} else if (ability === 'Serene Grace') {
+					rejectAbility = !counter['serenegrace'] || template.id === 'chansey' || template.id === 'blissey';
+				} else if (ability === 'Sheer Force') {
+					rejectAbility = !counter['sheerforce'] || (abilities.includes('Iron Fist') && counter['sheerforce'] < 2 && counter['ironfist'] > counter['sheerforce']);
+				} else if (ability === 'Simple') {
+					rejectAbility = !counter.setupType && !hasMove['cosmicpower'] && !hasMove['flamecharge'];
+				} else if (ability === 'Snow Cloak') {
+					rejectAbility = !teamDetails['hail'];
+				} else if (ability === 'Solar Power') {
+					rejectAbility = !counter['Special'] || template.isMega;
+				} else if (ability === 'Strong Jaw') {
+					rejectAbility = !counter['bite'];
+				} else if (ability === 'Sturdy') {
+					rejectAbility = !!counter['recoil'] && !counter['recovery'];
+				} else if (ability === 'Swift Swim') {
+					rejectAbility = !hasMove['raindance'] && !teamDetails['rain'];
+				} else if (ability === 'Swarm') {
+					rejectAbility = !counter['Bug'];
+				} else if (ability === 'Synchronize') {
+					rejectAbility = counter.Status < 2;
+				} else if (ability === 'Technician') {
+					rejectAbility = !counter['technician'] || (abilities.includes('Skill Link') && counter['skilllink'] >= counter['technician']);
+				} else if (ability === 'Tinted Lens') {
+					rejectAbility = counter['damage'] >= counter.damagingMoves.length;
+				} else if (ability === 'Torrent') {
+					rejectAbility = !counter['Water'];
+				} else if (ability === 'Triage') {
+					rejectAbility = !counter['recovery'] && !counter['drain'];
+				} else if (ability === 'Unburden') {
+					rejectAbility = template.isMega || !counter.setupType && !hasMove['acrobatics'];
+				} else if (ability === 'Water Absorb') {
+					rejectAbility = abilities.includes('Volt Absorb') || (abilities.includes('Water Bubble') && counter['Water']);
 				}
-			}
+
+				if (rejectAbility) {
+					if (ability === ability1.name) { // or not
+						ability = ability0.name;
+					} else if (ability1.rating > 1) { // only switch if the alternative doesn't suck
+						ability = ability1.name;
+					}
+				}
+			} while (rejectAbility && ability === ability1.name);
+
 			if (abilities.includes('Chlorophyll') && ability !== 'Solar Power' && hasMove['sunnyday']) {
 				ability = 'Chlorophyll';
 			}
@@ -1213,25 +1221,22 @@ class RandomTeams extends Dex.ModdedDex {
 			if (abilities.includes('Marvel Scale') && hasMove['rest'] && hasMove['sleeptalk']) {
 				ability = 'Marvel Scale';
 			}
-			if (abilities.includes('Own Tempo') && hasMove['petaldance']) {
-				ability = 'Own Tempo';
-			}
 			if (abilities.includes('Prankster') && counter.Status > 1) {
 				ability = 'Prankster';
 			}
 			if (abilities.includes('Swift Swim') && hasMove['raindance']) {
 				ability = 'Swift Swim';
 			}
-			if (abilities.includes('Triage') && hasMove['drainingkiss']) {
+			if (abilities.includes('Triage') && !!counter['drain']) {
 				ability = 'Triage';
 			}
 			if (abilities.includes('Unburden') && hasMove['acrobatics']) {
 				ability = 'Unburden';
 			}
-			if (template.id === 'ambipom' && !counter['technician']) {
+			if (template.species === 'Ambipom' && !counter['technician']) {
 				// If it doesn't qualify for Technician, Skill Link is useless on it
 				ability = 'Pickup';
-			} else if (template.id === 'aurorus' && ability === 'Snow Warning' && hasMove['hypervoice']) {
+			} else if (template.species === 'Aurorus' && ability === 'Snow Warning' && hasMove['hypervoice']) {
 				for (let i = 0; i < moves.length; i++) {
 					if (moves[i] === 'hypervoice') {
 						moves[i] = 'blizzard';
@@ -1241,23 +1246,22 @@ class RandomTeams extends Dex.ModdedDex {
 				}
 			} else if (template.baseSpecies === 'Basculin') {
 				ability = 'Adaptability';
-			} else if (template.id === 'lopunny' && hasMove['switcheroo'] && this.random(3)) {
+			} else if (template.species === 'Lopunny' && hasMove['switcheroo'] && this.random(3)) {
 				ability = 'Klutz';
+			} else if (template.species === 'Rampardos' && !hasMove['headsmash']) {
+				ability = 'Sheer Force';
+			} else if (template.species === 'Reuniclus') {
+				ability = 'Magic Guard';
+			} else if (template.species === 'Togetic' || template.species === 'Unfezant') {
+				ability = 'Super Luck';
+			} else if (template.species === 'Zygarde-10%' && !hasMove['substitute']) {
+				ability = 'Aura Break';
 			} else if (template.id === 'mawilemega') {
 				ability = 'Intimidate';
-			} else if (template.id === 'rampardos' && !hasMove['headsmash']) {
-				ability = 'Sheer Force';
-			} else if (template.id === 'rhyperior') {
-				ability = 'Solid Rock';
-			} else if (template.id === 'reuniclus') {
-				ability = 'Magic Guard';
-			} else if (template.id === 'togetic' || template.id === 'unfezant') {
-				ability = 'Super Luck';
 			} else if (template.id === 'venusaurmega') {
 				ability = 'Chlorophyll';
 			}
 		}
-
 		if (hasMove['rockclimb'] && ability !== 'Sheer Force') {
 			moves[moves.indexOf('rockclimb')] = 'doubleedge';
 		}
@@ -1303,6 +1307,8 @@ class RandomTeams extends Dex.ModdedDex {
 			item = hasMove['destinybond'] ? 'Custap Berry' : ['Leftovers', 'Sitrus Berry'][this.random(2)];
 		} else if (template.species === 'Raichu-Alola' && hasMove['thunderbolt'] && !teamDetails.zMove && this.random(4) < 1) {
 			item = 'Aloraichium Z';
+		} else if (template.species === 'Zygarde-10%' && hasMove['substitute']) {
+			item = 'Sitrus Berry';
 		} else if (ability === 'Imposter') {
 			item = 'Choice Scarf';
 		} else if (ability === 'Klutz' && hasMove['switcheroo']) {
@@ -1349,7 +1355,7 @@ class RandomTeams extends Dex.ModdedDex {
 			item = (ability === 'Swift Swim' && counter.Status < 2) ? 'Life Orb' : 'Damp Rock';
 		} else if (hasMove['sunnyday']) {
 			item = (ability === 'Chlorophyll' && counter.Status < 2) ? 'Life Orb' : 'Heat Rock';
-		} else if ((hasMove['lightscreen'] && hasMove['reflect']) || hasMove['auroraveil']) {
+		} else if (hasMove['auroraveil'] || hasMove['lightscreen'] && hasMove['reflect']) {
 			item = 'Light Clay';
 		} else if ((ability === 'Guts' || hasMove['facade']) && !hasMove['sleeptalk']) {
 			item = (hasType['Fire'] || ability === 'Quick Feet') ? 'Toxic Orb' : 'Flame Orb';
@@ -1669,8 +1675,9 @@ class RandomTeams extends Dex.ModdedDex {
 			if (item.megaStone) teamDetails['megaStone'] = 1;
 			if (item.zMove) teamDetails['zMove'] = 1;
 			if (set.ability === 'Snow Warning') teamDetails['hail'] = 1;
-			if (set.ability === 'Drizzle' || set.moves.includes('raindance')) teamDetails['rain'] = 1;
+			if (set.moves.includes('raindance') || set.ability === 'Drizzle' && !item.onPrimal) teamDetails['rain'] = 1;
 			if (set.ability === 'Sand Stream') teamDetails['sand'] = 1;
+			if (set.moves.includes('sunnyday') || set.ability === 'Drought' && !item.onPrimal) teamDetails['sun'] = 1;
 			if (set.moves.includes('stealthrock')) teamDetails['stealthRock'] = 1;
 			if (set.moves.includes('toxicspikes')) teamDetails['toxicSpikes'] = 1;
 			if (set.moves.includes('defog') || set.moves.includes('rapidspin')) teamDetails['hazardClear'] = 1;
