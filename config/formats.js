@@ -176,8 +176,8 @@ exports.Formats = [
                    requirePentagon: true,
                    },
                    {
-                   name: "[Gen 7] Battle Spot Special 5",
-                   desc: ["&bullet; <a href=\"https://www.smogon.com/forums/threads/3608900/\">Battle Spot Special</a>"],
+                   name: "[Gen 7] Battle Spot Special 6",
+                   desc: ["&bullet; <a href=\"https://www.smogon.com/forums/threads/3614104/\">Battle Spot Special</a>"],
                    
                    mod: 'gen7',
                    maxForcedLevel: 50,
@@ -185,7 +185,9 @@ exports.Formats = [
                    validate: [3, 6],
                    battle: 3,
                    },
-                   ruleset: ['Pokemon', 'Standard GBU', 'Team Preview', 'Inverse Mod'],
+                   ruleset: ['Pokemon', 'Standard GBU', 'Team Preview'],
+                   banlist: ['Aegislash', 'Blaziken', 'Charizard', 'Ferrothorn', 'Garchomp', 'Gengar', 'Greninja', 'Gyarados', 'Hippowdon', 'Landorus', 'Landorus-Therian', 'Lucario', 'Mamoswine', 'Mimikyu', 'Porygon2', 'Salamence', 'Tapu Fini', 'Tapu Koko', 'Tapu Lele',
+                   ],
                    requirePentagon: true,
                    },
                    {
@@ -215,6 +217,10 @@ exports.Formats = [
                    debug: true,
                    maxLevel: 9999,
                    defaultLevel: 100,
+                   teamLength: {
+                           validate: [1, 24],
+                           battle: 24,
+                   },
                    // no restrictions, for serious (other than team preview)
                    ruleset: ['Team Preview', 'Cancel Mod'],
                    },
@@ -322,6 +328,10 @@ exports.Formats = [
                    maxLevel: 9999,
                    defaultLevel: 100,
                    debug: true,
+                   teamLength: {
+                           validate: [1, 24],
+                           battle: 24,
+                   },
                    // no restrictions, for serious (other than team preview)
                    ruleset: ['Team Preview', 'Cancel Mod'],
                    },
