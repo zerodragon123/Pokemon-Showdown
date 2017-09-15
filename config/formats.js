@@ -32,7 +32,7 @@ exports.Formats = [
                    mod: 'gen7',
                    maxForcedLevel: 50,
                    ruleset: ['[Gen 7] OU', 'PSChina Clause'],
-                   banlist: ['Arena Trap'],
+                   banlist: ['Arena Trap', 'Magearna'],
                    },
                    {
                    name: "[Gen 7] OU",
@@ -44,16 +44,8 @@ exports.Formats = [
                           ],
                    
                    mod: 'gen7',
-                   searchShow: false,
                    ruleset: ['Pokemon', 'Standard', 'Team Preview'],
-                   banlist: ['Uber', 'Power Construct', 'Shadow Tag', 'Baton Pass'],
-                   },
-                   {
-                    		name: "[Gen 7] OU (suspect test)",
-                    		mod: 'gen7',
-                    		challengeShow: false,
-                    		ruleset: ['[Gen 7] OU'],
-                    		banlist: ['Arena Trap', 'Magearna'],
+                   banlist: ['Arena Trap', 'Uber', 'Power Construct', 'Shadow Tag', 'Baton Pass'],
                    },
                    {
                    name: "[Gen 7] Ubers",
@@ -330,7 +322,7 @@ exports.Formats = [
                    defaultLevel: 100,
                    debug: true,
                    teamLength: {
-                           validate: [1, 24],
+                           validate: [2, 24],
                            battle: 24,
                    },
                    // no restrictions, for serious (other than team preview)
@@ -440,7 +432,7 @@ exports.Formats = [
                    
                    mod: 'gen7',
                    ruleset: ['Pokemon', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
-                   banlist: ['Arena Trap', 'Huge Power', 'Innards Out', 'Magnet Pull', 'Moody', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Comatose + Sleep Talk'],
+                   banlist: ['Groudon-Primal', 'Arena Trap', 'Huge Power', 'Innards Out', 'Magnet Pull', 'Moody', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Comatose + Sleep Talk'],
                    },
                    {
                    name: "[Gen 7] 1v1",
