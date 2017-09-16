@@ -914,7 +914,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 species: 'Arceus-Steel', ability: 'Parental Bond', item: 'Safety Googles', 
 				moves: ['naturesmadness', 'healorder', 'taunt'],
 				signatureMove: "Ultimate Judgment", 
-				evs: {hp:44, atk:252, spe:212}, nature: 'Adamant',
+				evs: {hp:252, spd:40, spe:216}, nature: 'Timid',
             },
             'Vincent':{
                 species: 'Archen', ability: 'Adaptability', item: 'Life Orb', 
@@ -926,7 +926,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 species: 'Giratina', ability: 'Shadow Tag', item: 'Choice Scarf', 
 				moves: ['trick', 'spite', 'healorder'],
                 signatureMove: "King's Shield", 
-				evs: {spd:4, atk:252, spe:252}, nature: 'Jolly',
+				evs: {spd:4, spa:252, spe:252}, nature: 'Timid',
             },
             'MS':{
                 species: 'Beedrill-Mega', ability: 'Intimidate', item: 'Assault Vest', 
