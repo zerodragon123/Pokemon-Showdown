@@ -4974,9 +4974,24 @@ exports.BattleMovedex = {
             this.useMove("Haze",source);
         },
 		target: "self",
-		type: "Toxic",
+		type: "Poison",
 	},
-	
+	//千年杀
+	sennengoroshi: {
+		accuracy: 100,
+		basePower: 90,
+		category: "Physical",
+		id: "sennengoroshi",
+		isViable: true,
+		name: "Sennen Goroshi",
+		pp: 10,
+		priority: 0,
+		flags: {contact: 1, protect: 1, mirror: 1},
+		willCrit: true,
+		secondary: false,
+		target: "normal",
+		type: "Dark",
+	},
 	// Modified moves
 	"defog": {
 		inherit: true,
