@@ -4836,6 +4836,28 @@ exports.BattleMovedex = {
 		type: "Normal",
         selfSwitch: true,
 	},
+    thecrowsea: {
+		accuracy: 100,
+		basePower: 100,
+		category: "Special",
+        defensiveCategory: "Physical",
+		id: "thecrowsea",
+		isViable: true,
+		isNonstandard: true,
+		name: "The Crow Sea",
+		pp: 10,
+		priority: 0,
+		flags: {protect: 1, mirror: 1},
+		onPrepareHit: function (target, source) {
+			this.attrLastMove('[still]');
+			this.add('-anim', source, "Core Enforcer", target);
+		},
+        ignoreEvasion: true,
+		ignoreDefensive: true,
+		secondary: false,
+		target: "normal",
+		type: "Dark",
+	},
 	// Modified moves
 	"defog": {
 		inherit: true,

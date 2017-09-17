@@ -429,7 +429,7 @@ exports.Formats = [
 				}
 			}
 			if (!this.shownTip) {
-				this.add('raw|<div class=\"broadcast-green\">Huh? But what do all these weird moves do??<br><b>Protip: Refer to the <a href="https://github.com/Zarel/Pokemon-Showdown/blob/master/mods/seasonal/README.md">PLAYER\'S MANUAL</a>!</b></div>');
+				this.add('raw|<div class=\"broadcast-green\"><br><b>请参考<a href="https://kirliavc.github.io/blog/superstaffbrosmelee">当前的精灵配置列表</a>，查询精灵的配置!</b></div>');
 				this.shownTip = true;
 			}
 		},

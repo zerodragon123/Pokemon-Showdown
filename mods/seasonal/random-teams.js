@@ -934,13 +934,28 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 signatureMove: "Innovative Turn", 
 				evs: {spd:4, atk:252, spe:252}, nature: 'Jolly',
             },
+            'I do stall':{
+                species: 'Blissey', ability: 'Smilence', item: 'Toxic Orb', 
+				moves: ['strengthsap', 'spikyshield', 'toxic'],
+                signatureMove: "Ultimate Judgment", 
+				evs: {spd:252, def:252}, nature: 'Bold',
+            },
+            '晋文公':{
+                species: 'Pidgeot-Mega', ability: 'Mold Breaker', item: ['Dread Plate','Silk Scarf'][this.random(2)], 
+				moves: ['boomburst', 'quiverdance', 'slackoff'],
+                signatureMove: "The Crow Sea", 
+				evs: {spa:252, spe:252,spd:4}, nature: 'Timid',
+            },
 		};
 
 		// Generate the team randomly.
 		let pool = Object.keys(sets);
+        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公'];
+        //let our_pokes= ['MS','I do stall','晋文公'];
 		for (let i = 0; i < 6; i++) {
 			let name = this.sampleNoReplace(pool);
-            
+            if(i<3)
+                name = this.sampleNoReplace(our_pokes);
             
 			let set = sets[name];
 			set.level = 100;
