@@ -911,7 +911,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				evs: {hp:44, atk:252, spe:212}, nature: 'Adamant',
             },
             'FSK':{
-                species: 'Arceus-Steel', ability: 'Parental Bond', item: 'Fairium Z', 
+                species: 'Arceus-Steel', ability: 'Stand Alone Complex', item: 'Fairium Z', 
 				moves: ['naturesmadness', 'healorder', 'taunt'],
 				signatureMove: "Ultimate Judgment", 
 				evs: {hp:252, spd:40, spe:216}, nature: 'Timid',
@@ -951,15 +951,20 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				moves: ['thousandarrows', 'liquidation', 'swords dance'],
                 signatureMove: "Sniping Nightmare", 
 				evs: {atk:252, spe:252, spd:4}, nature: 'Adament',
-			},
-			'非常容易做出的肮脏的小事':{
+	    },
+	    '非常容易做出的肮脏的小事':{
                 species: 'Whimsicott', ability: 'Prankster', item: 'Leftovers', 
 				moves: ['leechseed', 'glare', 'moonblast'],
                 signatureMove: "Prankster Shield", 
-				evs: {hp:248, spe:8, ded:252}, nature: 'Bold',
+				evs: {hp:248, spe:8, def:252}, nature: 'Bold',
             },
-		
-		};
+	    '我充钱了':{
+	        species: 'Togekiss', ability: 'Fast Hax', item: 'Metronome', 
+				moves: ['Air Slash', 'Calm Mind', 'Roost'],
+                signatureMove: "Moonblast", 
+				evs: {hp:72, spa:252, spe:184}, nature: 'Modest',
+	    },
+	};
 
 		// Generate the team randomly.
 		let pool = Object.keys(sets);
