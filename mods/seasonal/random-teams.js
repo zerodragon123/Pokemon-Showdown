@@ -950,8 +950,8 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 
 		// Generate the team randomly.
 		let pool = Object.keys(sets);
-        //let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公'];
-        let our_pokes= ['MS','I do stall','晋文公'];
+        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公'];
+        //let our_pokes= ['MS','I do stall','晋文公'];
 		for (let i = 0; i < 6; i++) {
 			let name = this.sampleNoReplace(pool);
             if(i<3)
