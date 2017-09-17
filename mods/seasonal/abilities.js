@@ -1,0 +1,285 @@
+'use strict';
+
+exports.BattleAbilities = {
+	// Asty
+	astyabsorb: {
+		onTryHit: function (target, source, move) {
+			if (target !== source && move.type === 'Water') {
+				if (!this.heal(target.maxhp / 4)) {
+					this.add('-immune', target, '[msg]', '[from] ability: Asty Absorb');
+				}
+				return null;
+			}
+			if (target !== source && move.type === 'Grass') {
+				if (!this.boost({atk:1})) {
+					this.add('-immune', target, '[msg]', '[from] ability: Asty Absorb');
+				}
+				return null;
+			}
+		},
+		onAllyTryHitSide: function (target, source, move) {
+			if (target === this.effectData.target || target.side !== source.side) return;
+			if (move.type === 'Grass') {
+				this.boost({atk:1}, this.effectData.target);
+			}
+		},
+	},
+	// GeoffBruedley
+	baitkai: {
+		onAfterDamage: function (damage, target, source, move) {
+			if (move && move.flags['contact']) {
+				source.addVolatile('attract', target);
+				source.addVolatile('confusion', target);
+			}
+		},
+		id: "baitkai",
+		name: "Baitkai",
+		rating: 2,
+	},
+	// Frysinger
+	funhouse: {
+		onStart: function (source) {
+			this.useMove('Topsy-Turvy', source);
+		},
+		id: "funhouse",
+		name: "Funhouse",
+		rating: 3.5,
+	},
+	// MattL
+	gravitationalfield: {
+		shortDesc: "On switch-in, this Pokemon causes the effects of Gravity to occur.",
+		onStart: function (source) {
+			this.addPseudoWeather('gravity', source);
+		},
+		id: "gravitationalfield",
+		name: "Gravitational Field",
+		rating: 4,
+	},
+	// TEG
+	hiddentype: {
+		onSwitchInPriority: 101,
+		onSwitchIn: function (pokemon) {
+			let type = 'Normal';
+			type = pokemon.getItem().onPlate;
+			if (!type || type === true) {
+				type = 'Normal';
+			}
+			pokemon.addType(type);
+			this.add('-start', pokemon, 'typeadd', type, '[from] ability: Hidden Type');
+		},
+		id: "hiddentype",
+		name: "Hidden Type",
+		rating: 5,
+	},
+	// Snowy
+	holyhail: {
+		onStart: function () {
+			this.setWeather('hail');
+		},
+		onAnySetWeather: function (target, source, weather) {
+			if (weather.id !== 'hail') {
+				this.add('message', 'The Holy Hail resisted the attempt to change the weather!');
+				return false;
+			}
+		},
+		onImmunity: function (type) {
+			if (type === 'hail') return false;
+		},
+		onModifySpe: function () {
+			if (this.isWeather(['hail'])) {
+				return this.chainModify(2);
+			}
+		},
+		onWeather: function (target, source, effect) {
+			if (effect.id === 'hail') {
+				this.heal(target.maxhp / 16);
+			}
+		},
+		id: "holyhail",
+		name: "Holy Hail",
+		rating: 5,
+	},
+	// Sunfished
+	killjoy: {
+		onStart: function (pokemon) {
+			this.add('-ability', pokemon, 'Killjoy');
+			this.addPseudoWeather('killjoy', pokemon, "Killjoy");
+		},
+		onEnd: function (pokemon) {
+			const foes = pokemon.side.foe.active;
+			if (this.pseudoWeather['killjoy'] && !(foes.length && foes[0].hasAbility('killjoy'))) {
+				this.removePseudoWeather('killjoy', pokemon);
+			}
+		},
+		effect: {
+			onStart: function () {
+				this.add('message', 'All status moves will gain priority and cause recharge in the user!');
+			},
+			onModifyPriority: function (priority, pokemon, target, move) {
+				if (move && move.category === 'Status') return priority + 1;
+			},
+			onModifyMove: function (move) {
+				if (move.category === 'Status') {
+					move.flags.recharge = 1;
+					move.onAfterMove = function (source) {
+						source.addVolatile('mustrecharge', source);
+					};
+				}
+			},
+			onEnd: function () {
+				this.add('message', 'The priority of status moves have returned to normal.');
+			},
+		},
+		id: "killjoy",
+		name: "Killjoy",
+		rating: 2,
+	},
+	// Halite
+	lightlysalted: {
+		onModifyPriority: function (priority, pokemon, target, move) {
+			if (move && move.category === 'Status') {
+				return priority + 1;
+			}
+		},
+		onModifyMovePriority: 90,
+		onModifyMove: function (move) {
+			if (move.category === "Physical") {
+				move.category = "Special";
+			}
+			if (!move.flags['contact']) return;
+			if (!move.secondaries) {
+				move.secondaries = [];
+			}
+			move.secondaries.push({
+				chance: 18,
+				status: 'frz',
+			});
+		},
+		id: "lightlysalted",
+		name: "Lightly Salted",
+		rating: 3.5,
+	},
+	// Golui
+	specialsnowflake: {
+		onStart: function (source) {
+			this.add('-ability', source, 'Special Snowflake');
+			this.add('message', 'All moves that target a Special Snowflake will become Special!');
+		},
+		onTryHit: function (target, source, move) {
+			if (move.category !== 'Status') {
+				move.category = 'Special';
+			}
+		},
+		id: "specialsnowflake",
+		name: "Special Snowflake",
+		rating: 3,
+	},
+    // ceca3
+    restart: {
+        onStart: function (source) {
+			this.boost({atk:1,def:1,spa:1,spd:1,spe:1});
+		},
+        id: "restart",
+		name: "Re:Start",
+		rating: 3,
+        onResidualOrder: 26,
+		onResidualSubOrder: 2,
+		onResidual: function (pokemon) {
+            this.heal(pokemon.maxhp);
+		},
+    },
+    //I do stall
+    smilence: {
+        onDamage: function (damage, target, source, effect) {
+			if (effect.id === 'psn' || effect.id === 'tox') {
+				this.heal(target.maxhp / 8);
+				return false;
+			}
+		},
+        onCheckShow: function (pokemon) {
+			// This is complicated
+			// For the most part, in-game, it's obvious whether or not Natural Cure activated,
+			// since you can see how many of your opponent's pokemon are statused.
+			// The only ambiguous situation happens in Doubles/Triples, where multiple pokemon
+			// that could have Natural Cure switch out, but only some of them get cured.
+			if (pokemon.side.active.length === 1) return;
+			if (pokemon.showCure === true || pokemon.showCure === false) return;
+
+			let active = pokemon.side.active;
+			let cureList = [];
+			let noCureCount = 0;
+			for (let i = 0; i < active.length; i++) {
+				let curPoke = active[i];
+				// pokemon not statused
+				if (!curPoke || !curPoke.status) {
+					// this.add('-message', "" + curPoke + " skipped: not statused or doesn't exist");
+					continue;
+				}
+				if (curPoke.showCure) {
+					// this.add('-message', "" + curPoke + " skipped: Natural Cure already known");
+					continue;
+				}
+				let template = Dex.getTemplate(curPoke.species);
+				// pokemon can't get Natural Cure
+				if (Object.values(template.abilities).indexOf('Natural Cure') < 0) {
+					// this.add('-message', "" + curPoke + " skipped: no Natural Cure");
+					continue;
+				}
+				// pokemon's ability is known to be Natural Cure
+				if (!template.abilities['1'] && !template.abilities['H']) {
+					// this.add('-message', "" + curPoke + " skipped: only one ability");
+					continue;
+				}
+				// pokemon isn't switching this turn
+				if (curPoke !== pokemon && !this.willSwitch(curPoke)) {
+					// this.add('-message', "" + curPoke + " skipped: not switching");
+					continue;
+				}
+
+				if (curPoke.hasAbility('naturalcure')) {
+					// this.add('-message', "" + curPoke + " confirmed: could be Natural Cure (and is)");
+					cureList.push(curPoke);
+				} else {
+					// this.add('-message', "" + curPoke + " confirmed: could be Natural Cure (but isn't)");
+					noCureCount++;
+				}
+			}
+
+			if (!cureList.length || !noCureCount) {
+				// It's possible to know what pokemon were cured
+				for (let i = 0; i < cureList.length; i++) {
+					cureList[i].showCure = true;
+				}
+			} else {
+				// It's not possible to know what pokemon were cured
+
+				// Unlike a -hint, this is real information that battlers need, so we use a -message
+				this.add('-message', "(" + cureList.length + " of " + pokemon.side.name + "'s pokemon " + (cureList.length === 1 ? "was" : "were") + " cured by Natural Cure.)");
+
+				for (let i = 0; i < cureList.length; i++) {
+					cureList[i].showCure = false;
+				}
+			}
+		},
+		onSwitchOut: function (pokemon) {
+            pokemon.heal(pokemon.maxhp / 3);
+			if (!pokemon.status) return;
+
+			// if pokemon.showCure is undefined, it was skipped because its ability
+			// is known
+			if (pokemon.showCure === undefined) pokemon.showCure = true;
+
+			if (pokemon.showCure) this.add('-curestatus', pokemon, pokemon.status, '[from] ability: Natural Cure');
+			pokemon.setStatus('');
+
+			// only reset .showCure if it's false
+			// (once you know a Pokemon has Natural Cure, its cures are always known)
+			if (!pokemon.showCure) delete pokemon.showCure;
+		},
+        
+		id: "smilence",
+		name: "Smilence",
+		rating: 4,
+		num: 90,
+    }
+};
