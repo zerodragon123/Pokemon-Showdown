@@ -12,12 +12,6 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				signatureMove: 'Needs More Screens',
 				evs: {hp:248, def:8, spd:252}, nature: 'Careful',
 			},
-			'Ace': {
-				species: 'Salamence', ability: 'Tinted Lens', item: 'Salamencite', gender: 'M',
-				moves: ['dragonascent', 'closecombat', 'outrage'],
-				signatureMove: 'Big Narstie',
-				evs: {hp:80, atk:252, spe:176}, nature: 'Adamant',
-			},
 			'Aelita': {
 				species: 'Porygon-Z', ability: 'Protean', item: 'Life Orb', gender: 'N',
 				moves: [['boomburst', 'moonblast'][this.random(2)], 'quiverdance', 'chatter'],
@@ -47,12 +41,6 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				moves: ['leafstorm', 'dracometeor', 'secretsword'],
 				signatureMove: 'Back to the bench again?',
 				evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
-			},
-			'AM': {
-				species: 'Tyranitar', ability: 'Adaptability', item: (variant ? 'Lum Berry' : 'Choice Scarf'), gender: 'M',
-				moves: (variant ? ['earthquake', 'diamondstorm', 'swordsdance', 'meanlook'] : ['knockoff', 'diamondstorm', 'earthquake']),
-				signatureMove: "Predator",
-				evs: {atk:252, def:4, spe:252}, nature: 'Jolly',
 			},
 			'Andy': {
 				species: 'Absol', ability: 'Justified', item: 'Absolite', gender: 'M',
@@ -420,12 +408,6 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				signatureMove: 'Tomala wey',
 				evs: {spa:200, spd:80, spe:228}, nature: 'Timid',
 			},
-			'innovamania': {
-				species: 'Arceus', ability: 'Pick Up', item: 'Black Glasses', gender: 'M',
-				moves: [['holdhands', 'trickortreat'][this.random(2)], ['swordsdance', 'agility'][this.random(2)], 'celebrate'],
-				signatureMove: "Rage Quit",
-				evs: {hp:4, atk:252, spe:252}, nature: 'Jolly',
-			},
 			'Jack Higgins': {
 				species: 'Maractus', ability: 'Chlorophyll', item: 'Focus Sash', gender: 'M',
 				moves: [['eruption', 'blueflare'][this.random(2)], 'leafstorm', ['voltswitch', 'synthesis', 'destinybond', 'healingwish', 'growth'][this.random(5)]],
@@ -492,12 +474,6 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				signatureMove: "Seems Good",
 				evs: {atk:252, def:4, spe:252}, nature: 'Jolly',
 			},
-			'Level 51': {
-				species: 'Togekiss', ability: 'Parental Bond', item: 'Leftovers', gender: 'M',
-				moves: ['superfang', ['roost', 'cottonguard'][this.random(2)], ['seismictoss', 'nightshade'][this.random(2)]],
-				signatureMove: "Next Level Strats",
-				evs: {hp:248, spd:184, spe:76}, nature: 'Jolly',
-			},
 			'LJ': {
 				species: 'Giratina-Origin', ability: 'Levitate', item: 'Griseous Orb', gender: 'M',
 				moves: ['dragondance', 'substitute', 'playrough'],
@@ -527,12 +503,6 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				moves: ['thousandarrows', 'morningsun', 'kingsshield'],
 				signatureMove: 'Excuse',
 				evs: {hp:252, def:24, spd:232}, nature: 'Impish',
-			},
-			'MattL': {
-				species: 'Swampert', ability: 'Gravitational Field', item: 'Swampertite', gender: 'M',
-				moves: ['raindance', 'earthquake', 'icepunch'],
-				signatureMove: "Evaporating Surge",
-				evs: {atk:252, def:4, spe:252}, nature: 'Adamant',
 			},
 			'McMeghan': {
 				species: 'Scrafty', ability: ['Moxie', 'Clear Body', 'Stench'][this.random(3)], item: 'Leftovers', gender: 'M',
@@ -611,12 +581,6 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				moves: ['barrier', 'storedpower', 'moonblast'],
 				signatureMove: "Purify Soul",
 				evs: {hp:248, def:252, spd:8}, nature: 'Bold',
-			},
-			'Raven': {
-				species: 'Yveltal', ability: 'Magic Guard', item: 'Sharp Beak', gender: 'M',
-				moves: ['discharge', 'foulplay', 'darkpulse'],
-				signatureMove: 'Buckfast Buzz',
-				evs: {hp:248, spa:252, spd:8}, nature: 'Modest',
 			},
 			'Rekeri': {
 				species: 'Tyrantrum', ability: 'Speed Boost', item: 'Life Orb', gender: 'M',
@@ -968,13 +932,19 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 	    	species: 'Ferrothorn', ability: 'I Have Ferro', item: 'Leftovers', gender: 'M',
 				moves: ['leechseed', 'spikes', ['powerwhip', 'gyroball'][this.random(2)]],
 				signatureMove: "Toxic Shield",
-				evs: {hp:252, def:88, spd:168}, nature: 'Timid',
+				evs: {hp:252, def:88, spd:168}, nature: 'Impish',
+	    },
+	    'Mega lxz': {
+		species: 'Tyranitar-Mega', ability: 'Adaptability', item: (variant ? 'Smooth Rock' : 'Choice Scarf'), gender: 'M',
+				moves: (variant ? ['diamondstorm', 'shoreup', 'knockoff'] : ['knockoff', 'diamondstorm', 'spectralthief']),
+				signatureMove: "Sennen Goroshi",
+				evs: {atk:252, def:4, spe:252}, nature: 'Jolly',   
 	    },
 	};
 
 		// Generate the team randomly.
 		let pool = Object.keys(sets);
-        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事'];
+        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', 'Mega lxz'];
         //let our_pokes= ['Vincent','Nightmare','非常容易做出的肮脏的小事'];
 		for (let i = 0; i < 6; i++) {
 			let name = this.sampleNoReplace(pool);
