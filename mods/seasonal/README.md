@@ -129,7 +129,7 @@ EVs: 252 Spa, 4 SpD, 252 Spe, Nature: Timid
 
 - Zap Cannon
 - Stealth Rock
-- Taunt \ Magic Coat
+- Taunt / Magic Coat
 - Imprisonform - 3 PP, 85% acc. Transforms into opponent and uses Imprison.
 
 
@@ -165,13 +165,13 @@ lxz (Ferrothorn) @ Leftovers
 Ability: I Have Ferro (铁棘+上场黑雾)
 Evs: 252 HP / 88 Def / 168 SpD
 Impish Nature
--Leech Seed
--Gyro Ball / Power Whip
--Spikes
--Haze Shield (使用碉堡同时使用黑雾)
+- Leech Seed
+- Gyro Ball / Power Whip
+- Spikes
+- Haze Shield (使用碉堡同时使用黑雾)
 
 吓得lxz都mega了(Mega Tyranitar) @ Smooth Rock / Choice Scarf
-Ability: Sand Storm
+Ability: Sand Stream
 EVs: 252 Atk / 4 Spd / 252 Spe
 Jolly Nature
 - Knock Off
