@@ -4760,7 +4760,7 @@ exports.BattleMovedex = {
 		category: "Special",
 		id: "jolinboomburst",
 		isViable: true,
-        isNonstandard: true,
+        	isNonstandard: true,
 		name: "Jolin Boomburst",
 		pp: 10,
 		priority: 0,
@@ -4770,7 +4770,7 @@ exports.BattleMovedex = {
 		target: "any",
 		type: "Flying",
 	},
-    ultimatejudgment: {
+    	ultimatejudgment: {
 		accuracy: 100,
 		basePower: 0,
 		damage: 'level',
@@ -4790,7 +4790,7 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Steel",
 	},
-    vincentshield: {
+    	vincentshield: {
 		accuracy: true,
 		basePower: 0,
 		category: "Status",
@@ -4799,7 +4799,7 @@ exports.BattleMovedex = {
 		isViable: true,
 		name: "Vincent Shield",
 		pp: 20,
-		priority: 0,
+		priority: 4,
 		flags: {snatch: 1},
 		secondary: false,
 		onPrepareHit: function (target, source) {
@@ -4812,7 +4812,29 @@ exports.BattleMovedex = {
 		target: "self",
 		type: "Normal",
 	},
-    innovativeturn: {
+	darkspite: {
+		accuracy: 100,
+		basePower: 0,
+		category: "Status",
+		id: "darkspite",
+		isNonstandard: true,
+		isViable: true,
+		name: "Dark Spite",
+		pp: 20,
+		priority: 0,
+		flags: {protect: 1, reflectable: 1, mirror: 1, authentic: 1},
+		onHit: function (target) {
+			if (target.deductPP(target.lastMove, 4)) {
+				this.add("-activate", target, 'move: Spite', this.getMove(target.lastMove).name, 4);
+				return;
+			}
+			return false;
+		},
+		secondary: false,
+		target: "normal",
+		type: "Ghost",
+	},
+    	innovativeturn: {
 		accuracy: 100,
 		basePower: 70,
 		category: "Physical",
@@ -4833,10 +4855,10 @@ exports.BattleMovedex = {
             //this.useMove("U-turn",source);
         },
 		target: "normal",
-		type: "Normal",
+		type: "Bug",
         selfSwitch: true,
 	},
-    thecrowsea: {
+    	thecrowsea: {
 		accuracy: 100,
 		basePower: 100,
 		category: "Special",
