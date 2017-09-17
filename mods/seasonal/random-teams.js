@@ -904,7 +904,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 signatureMove: "The Crow Sea", 
 				evs: {spa:252, spe:252,spd:4}, nature: 'Timid',
 			},
-			'Nightmare':{
+	    'Nightmare':{
                 species: 'Swampert', ability: 'Drizzle', item: 'Swampertite', 
 				moves: ['thousandarrows', 'liquidation', 'swords dance'],
                 signatureMove: "Sniping Nightmare", 
@@ -918,7 +918,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
             },
 	    '我充钱了':{
 	        species: 'Togekiss', ability: 'Fast Hax', item: 'Metronome', 
-				moves: ['Air Slash', 'Calm Mind', 'Roost'],
+				moves: ['airslash', 'calmmind', 'roost'],
                 signatureMove: "Moonblast", 
 				evs: {hp:72, spa:252, spe:184}, nature: 'Modest',
 	    },
@@ -934,7 +934,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				signatureMove: "Toxic Shield",
 				evs: {hp:252, def:88, spd:168}, nature: 'Impish',
 	    },
-	    'Mega lxz': {
+	    '吓得lxz都Mega了': {
 		species: 'Tyranitar-Mega', ability: 'Adaptability', item: (variant ? 'Smooth Rock' : 'Choice Scarf'), gender: 'M',
 				moves: (variant ? ['diamondstorm', 'shoreup', 'knockoff'] : ['knockoff', 'diamondstorm', 'spectralthief']),
 				signatureMove: "Sennen Goroshi",
@@ -944,7 +944,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 
 		// Generate the team randomly.
 		let pool = Object.keys(sets);
-        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', 'Mega lxz'];
+        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了'];
         //let our_pokes= ['Vincent','Nightmare','非常容易做出的肮脏的小事'];
 		for (let i = 0; i < 6; i++) {
 			let name = this.sampleNoReplace(pool);
