@@ -18,7 +18,7 @@ Adament Nature
 - 击掌奇袭
 - Jolin Boomburst 普通系爆音波，回血3/4
 
-FSK (Arceus-Steel) @ Safety Googles [√]
+FSK (Arceus-Steel) @ Fairium Z [√]
 
 Ability: Parental Bond
 
@@ -31,9 +31,9 @@ Adament Nature
 - 回复指令
 - Ultimate Judgement 地球投，钢系
 
-SCEAM (Yveltal) @ Life Orb [√]
+SCEAM (Yveltal) @ Sky Plate [√]
 
-Ability: Dark Aura
+Ability: Delta Stream
 
 Evs: 168 HP / 152 SpA / 188 Spe
 
@@ -67,13 +67,13 @@ Bold Nature
 IVs: 0 Atk  
 
 - Trick  
-- Spite  
-- Heal Order  
+- Dark Spite 32PP的Spite,消耗对手4pp
+- Heal Order 
 - King's Shield  
 
 MS (Beedrill-Mega) @ Assault Vest  
 
-Ability: Intimidate  
+Ability: Regenerator
 
 EVs: 252 Atk / 4 SpD / 252 Spe  
 
@@ -123,7 +123,7 @@ Jolly Nature
 - Thousand Arrows  
 - Shell Smash  
 - Vincent Shield  
-同时使用王盾+龙舞，PP和动画和王盾一样【王盾有bug】
+同时使用王盾+龙舞，PP和动画和王盾一样
 
 
 ### Acast
