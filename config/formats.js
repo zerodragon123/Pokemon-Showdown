@@ -353,7 +353,7 @@ exports.Formats = [
                    column: 2,
                    },
                    {
-		name: "Super Staff Bros. Melee",
+		name: "[Gen 7] Super Staff Bros. Melee",
 		desc: ["&bullet; <a href=\"https://www.smogon.com/forums/threads/3491902/\">Seasonal Ladder</a>"],
 		section: "OM of the Month",
 
