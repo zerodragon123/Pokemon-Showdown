@@ -935,7 +935,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				evs: {hp:252, def:88, spd:168}, nature: 'Impish',
 	    },
 	    '吓得lxz都Mega了': {
-		species: 'Tyranitar-Mega', ability: 'Adaptability', item: (variant ? 'Smooth Rock' : 'Choice Scarf'), gender: 'M',
+		species: 'Tyranitar-Mega', ability: 'Sand Storm', item: (variant ? 'Smooth Rock' : 'Choice Scarf'), gender: 'M',
 				moves: (variant ? ['diamondstorm', 'shoreup', 'knockoff'] : ['knockoff', 'diamondstorm', 'spectralthief']),
 				signatureMove: "Sennen Goroshi",
 				evs: {atk:252, def:4, spe:252}, nature: 'Jolly',   
