@@ -4834,7 +4834,7 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Ghost",
 	},
-    innovativeturn: {
+    	innovativeturn: {
 		accuracy: 100,
 		basePower: 70,
 		category: "Physical",
@@ -4858,11 +4858,11 @@ exports.BattleMovedex = {
 		type: "Bug",
         selfSwitch: true,
 	},
-    thecrowsea: {
+    	thecrowsea: {
 		accuracy: 100,
 		basePower: 100,
 		category: "Special",
-        defensiveCategory: "Physical",
+        	defensiveCategory: "Physical",
 		id: "thecrowsea",
 		isViable: true,
 		isNonstandard: true,
@@ -4874,7 +4874,7 @@ exports.BattleMovedex = {
 			this.attrLastMove('[still]');
 			this.add('-anim', source, "Core Enforcer", target);
 		},
-        ignoreEvasion: true,
+        	ignoreEvasion: true,
 		ignoreDefensive: true,
 		secondary: false,
 		target: "normal",
@@ -4953,6 +4953,30 @@ exports.BattleMovedex = {
 		zMoveBoost: {def: 1},
 		contestType: "Tough",
 	},
+	//lxz
+	hazeshield: {
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		id: "hazeshield",
+		isNonstandard: true,
+		isViable: true,
+		name: "Haze Shield",
+		pp: 20,
+		priority: 4,
+		flags: {snatch: 1},
+		secondary: false,
+		onPrepareHit: function (target, source) {
+			this.attrLastMove('[still]');
+		},
+        onTryHit:function(source){
+            this.useMove("Baneful Bunker",source);
+            this.useMove("Haze",source);
+        },
+		target: "self",
+		type: "Toxic",
+	},
+	
 	// Modified moves
 	"defog": {
 		inherit: true,
