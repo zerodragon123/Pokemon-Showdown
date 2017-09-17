@@ -899,7 +899,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				evs: {spa:252, def:4, spe:252}, nature: 'Timid',
             },
             'SCEAM': {
-                species: 'Yveltal', ability: 'Dark Aura', item: 'Life Orb', 
+                species: 'Yveltal', ability: 'Delta Stream', item: 'Sky Plate', 
 				moves: ['heatwave', 'darkpulse', 'oblivionwing'],
 				signatureMove: "Dark Wind",
 				evs: {hp:168, spa:152, spe:188}, nature: 'Modest',
@@ -911,7 +911,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				evs: {hp:44, atk:252, spe:212}, nature: 'Adamant',
             },
             'FSK':{
-                species: 'Arceus-Steel', ability: 'Parental Bond', item: 'Safety Googles', 
+                species: 'Arceus-Steel', ability: 'Parental Bond', item: 'Fairium Z', 
 				moves: ['naturesmadness', 'healorder', 'taunt'],
 				signatureMove: "Ultimate Judgment", 
 				evs: {hp:252, spd:40, spe:216}, nature: 'Timid',
@@ -924,12 +924,12 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
             },
             '暗黑员':{
                 species: 'Giratina', ability: 'Shadow Tag', item: 'Choice Scarf', 
-				moves: ['trick', 'spite', 'healorder'],
-                signatureMove: "King's Shield", 
+				moves: ['trick', 'kingsshield', 'healorder'],
+                signatureMove: "Dark Spite", 
 				evs: {spd:4, spa:252, spe:252}, nature: 'Timid',
             },
             'MS':{
-                species: 'Beedrill-Mega', ability: 'Intimidate', item: 'Assault Vest', 
+                species: 'Beedrill-Mega', ability: 'Regenerator', item: 'Assault Vest', 
 				moves: ['gunkshot', 'megahorn', 'drillrun'],
                 signatureMove: "Innovative Turn", 
 				evs: {spd:4, atk:252, spe:252}, nature: 'Jolly',
