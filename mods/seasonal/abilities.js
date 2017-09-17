@@ -323,4 +323,19 @@ exports.BattleAbilities = {
 		name: "Fast Hax",
 		rating: 4,
 	},
+	// lxz
+	ihaveferro: {
+		onStart: function (source) {
+			this.useMove('Haze', source);
+		},
+		onAfterDamageOrder: 1,
+		onAfterDamage: function (damage, target, source, move) {
+			if (source && source !== target && move && move.flags['contact']) {
+				this.damage(source.maxhp / 8, source, target);
+			}
+		},
+		id: "ihaveferro",
+		name: "I Have Ferro",
+		rating: 4,
+	},
 };
