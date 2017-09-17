@@ -911,7 +911,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				evs: {atk:252, spe:252, spd:4}, nature: 'Adament',
 	    },
 	    '非常容易做出的肮脏的小事':{
-                species: 'Whimsicott', ability: 'Prankster', item: 'Leftovers', 
+                species: 'Whimsicott', ability: 'Prankster', item: 'Lum Berry', 
 				moves: ['leechseed', 'glare', 'moonblast'],
                 signatureMove: "Prankster Shield", 
 				evs: {hp:248, spe:8, def:252}, nature: 'Bold',
@@ -931,7 +931,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 	    '总受lxz':{
 	    	species: 'Ferrothorn', ability: 'I Have Ferro', item: 'Leftovers', gender: 'M',
 				moves: ['leechseed', 'spikes', ['powerwhip', 'gyroball'][this.random(2)]],
-				signatureMove: "Toxic Shield",
+				signatureMove: "Haze Shield",
 				evs: {hp:252, def:88, spd:168}, nature: 'Impish',
 	    },
 	    '吓得lxz都Mega了': {
