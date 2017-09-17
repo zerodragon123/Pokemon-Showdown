@@ -156,10 +156,10 @@ Jolly Nature
 Ability: Fast Hax (G6 Gale Wings + Serene Grace)
 Evs: 72Hp, 252 Spa, 184 Spe
 Nature: Timid
--Air Slash
--Calm Mind
--Roost
--Moonblast
+- Air Slash
+- Calm Mind
+- Roost
+- Moonblast
 
 lxz (Ferrothorn) @ Leftovers 
 Ability: I Have Ferro (铁棘+上场黑雾)
@@ -181,6 +181,7 @@ Jolly Nature
 
 Sennen Goroshi (千年杀) 恶，物理，90/100/10，必定ct
 
+----原有精灵-----
 
 ### Acast
 Gourgeist-Super @ Mental Herb
