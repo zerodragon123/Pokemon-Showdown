@@ -945,13 +945,26 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				moves: ['boomburst', 'quiverdance', 'slackoff'],
                 signatureMove: "The Crow Sea", 
 				evs: {spa:252, spe:252,spd:4}, nature: 'Timid',
+			},
+			'Nightmare':{
+                species: 'Swampert', ability: 'Drizzle', item: 'Swampertite', 
+				moves: ['thousandarrows', 'liquidation', 'swords dance'],
+                signatureMove: "Sniping Nightmare", 
+				evs: {atk:252, spe:252, spd:4}, nature: 'Adament',
+			},
+			'非常容易做出的肮脏的小事':{
+                species: 'Whimsicott', ability: 'Prankster', item: 'Leftovers', 
+				moves: ['leechseed', 'glare', 'moonblast'],
+                signatureMove: "Prankster Shield", 
+				evs: {hp:248, spe:8, ded:252}, nature: 'Bold',
             },
+		
 		};
 
 		// Generate the team randomly.
 		let pool = Object.keys(sets);
-        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公'];
-        //let our_pokes= ['MS','I do stall','晋文公'];
+        //let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事'];
+        let our_pokes= ['Vincent','Nightmare','非常容易做出的肮脏的小事'];
 		for (let i = 0; i < 6; i++) {
 			let name = this.sampleNoReplace(pool);
             if(i<3)

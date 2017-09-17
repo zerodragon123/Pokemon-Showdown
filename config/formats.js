@@ -627,7 +627,6 @@ exports.Formats = [
 			if (name === 'winry') {
 				pokemon.addVolatile('hellacute', pokemon);
 			}
-
 			// Edgy switch-in sentences go here.
 			// Sentences vary in style and how they are presented, so each Pokémon has its own way of sending them.
 			let sentences = [];

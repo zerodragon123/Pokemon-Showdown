@@ -4834,7 +4834,7 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Ghost",
 	},
-    	innovativeturn: {
+    innovativeturn: {
 		accuracy: 100,
 		basePower: 70,
 		category: "Physical",
@@ -4858,7 +4858,7 @@ exports.BattleMovedex = {
 		type: "Bug",
         selfSwitch: true,
 	},
-    	thecrowsea: {
+    thecrowsea: {
 		accuracy: 100,
 		basePower: 100,
 		category: "Special",
@@ -4879,6 +4879,79 @@ exports.BattleMovedex = {
 		secondary: false,
 		target: "normal",
 		type: "Dark",
+	},
+	snipingnightmare: {
+		accuracy: 100,
+		basePower: 100,
+		category: "Special",
+		id: "snipingnightmare",
+		isViable: true,
+		isNonstandard: true,
+		name: "Sniping Nightmare",
+		pp: 5,
+		priority: 0,
+		flags: {protect: 1, mirror: 1},
+		onEffectiveness: function (typeMod, type) {
+			return typeMod + this.getEffectiveness('Fire', type);
+		},
+		onPrepareHit: function (target, source) {
+			this.attrLastMove('[still]');
+			this.add('-anim', source, "Sucker Punch", target);
+		},
+		secondary: false,
+		target: "normal",
+		type: "Flying",
+	},
+	prankstershield: {
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		id: "prankstershield",
+		isViable: true,
+		isNonstandard: true,
+		name: "Prankster Shield",
+		pp: 10,
+		priority: 4,
+		flags: {},
+		stallingMove: true,
+		volatileStatus: 'spikyshield',
+		onTryHit: function (target, source, move) {
+			return !!this.willAct() && this.runEvent('StallMove', target);
+		},
+		onHit: function (pokemon) {
+			pokemon.addVolatile('stall');
+			this.useMove("Substitute",pokemon);
+		},
+		effect: {
+			duration: 1,
+			onStart: function (target) {
+				this.add('-singleturn', target, 'move: Protect');
+			},
+			onTryHitPriority: 3,
+			onTryHit: function (target, source, move) {
+				if (!move.flags['protect']) {
+					if (move.isZ) move.zBrokeProtect = true;
+					return;
+				}
+				this.add('-activate', target, 'move: Protect');
+				let lockedmove = source.getVolatile('lockedmove');
+				if (lockedmove) {
+					// Outrage counter is reset
+					if (source.volatiles['lockedmove'].duration === 2) {
+						delete source.volatiles['lockedmove'];
+					}
+				}
+				if (move.flags['contact']) {
+					this.damage(source.maxhp / 8, source, target);
+				}
+				return null;
+			},
+		},
+		secondary: false,
+		target: "self",
+		type: "Grass",
+		zMoveBoost: {def: 1},
+		contestType: "Tough",
 	},
 	// Modified moves
 	"defog": {
