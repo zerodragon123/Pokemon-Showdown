@@ -396,12 +396,6 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				signatureMove: "Meme Mime",
 				evs: {hp:252, def:4, spe:252}, ivs: {atk:0, spa:0}, nature: 'Timid',
 			},
-			'ih8ih8sn0w': {
-				species: 'Deoxys-Speed', ability: 'Pressure', item: 'Leftovers', gender: 'N', shiny: true,
-				moves: ['meteormash', 'stealthrock', ['taunt', 'magiccoat'][this.random(2)]],
-				signatureMove: "Imprisonform",
-				evs: {atk:252, spd:4, spe:252}, nature: 'Jolly',
-			},
 			'imanalt': {
 				species: 'Rhydon', ability: 'Prankster', item: 'Eviolite', gender: 'M',
 				moves: ['heartswap', 'rockblast', 'stealthrock', 'substitute', 'batonpass'],
@@ -963,6 +957,18 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				moves: ['Air Slash', 'Calm Mind', 'Roost'],
                 signatureMove: "Moonblast", 
 				evs: {hp:72, spa:252, spe:184}, nature: 'Modest',
+	    },
+	    '弱鸡sin':{
+		species: 'Deoxys-Speed', ability: 'No Guard', item: 'Focus Sash', gender: 'N',
+				moves: ['zapcannon', 'stealthrock', ['taunt', 'magiccoat'][this.random(2)]],
+				signatureMove: "Imprisonform",
+				evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
+	    },
+	    '总受lxz':{
+	    	species: 'Ferrothorn', ability: 'I Have Ferro', item: 'Leftovers', gender: 'M',
+				moves: ['leechseed', 'spikes', ['powerwhip', 'gyroball'][this.random(2)]],
+				signatureMove: "Toxic Shield",
+				evs: {hp:252, def:88, spd:168}, nature: 'Timid',
 	    },
 	};
 
