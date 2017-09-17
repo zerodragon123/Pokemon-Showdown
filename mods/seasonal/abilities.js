@@ -188,6 +188,30 @@ exports.BattleAbilities = {
             this.heal(pokemon.maxhp);
 		},
     },
+    // FSK
+    standalonecomplex: {
+		onPrepareHit: function (source, target, move) {
+			if (move.id in {iceball: 1, rollout: 1}) return;
+			if (move.category !== 'Status' && !move.selfdestruct && !move.multihit && !move.flags['charge'] && !move.spreadHit) {
+				move.multihit = 2;
+				move.hasParentalBond = true;
+				move.hit = 0;
+			}
+		},
+		onBasePowerPriority: 8,
+		onBasePower: function (basePower, pokemon, target, move) {
+			if (move.hasParentalBond && ++move.hit > 1) return this.chainModify(1);
+		},
+		onSourceModifySecondaries: function (secondaries, target, source, move) {
+			if (move.hasParentalBond && move.id === 'secretpower' && move.hit < 2) {
+				// hack to prevent accidentally suppressing King's Rock/Razor Fang
+				return secondaries.filter(effect => effect.volatileStatus === 'flinch');
+			}
+		},
+		id: "standalonecomplex",
+		name: "Stand Alone Complex",
+		rating: 4,
+    },
     //I do stall
     smilence: {
         onDamage: function (damage, target, source, effect) {
@@ -282,5 +306,21 @@ exports.BattleAbilities = {
 		rating: 4,
 		num: 90,
 	},
-	
+	//Yui Togekiss
+	fasthax: {
+		onModifyPriority: function (priority, pokemon, target, move) {
+			if (move && move.type === 'Flying') return priority + 1;
+		},
+		onModifyMove: function (move) {
+			if (move.secondaries) {
+				this.debug('doubling secondary chance');
+				for (let i = 0; i < move.secondaries.length; i++) {
+					move.secondaries[i].chance *= 2;
+				}
+			}
+		},
+		id: "fasthax",
+		name: "Fast Hax",
+		rating: 4,
+	},
 };
