@@ -73,7 +73,7 @@ IVs: 0 Atk
 
 MS (Beedrill-Mega) @ Assault Vest  
 
-Ability: Regenerator
+Ability: Adaptability
 
 EVs: 252 Atk / 4 SpD / 252 Spe  
 
@@ -174,12 +174,57 @@ Impish Nature
 Ability: Sand Stream
 EVs: 252 Atk / 4 Spd / 252 Spe
 Jolly Nature
-- Knock Off
-- Diamond Storm
-- Shore Up / Spectral Thief
-- Sennen Goroshi
+- 打落
+- 钻石风暴
+- 集沙 / Spectral Thief
+- Sennen Goroshi  恶，物理，80/100/10，必定ct
 
-Sennen Goroshi (千年杀) 恶，物理，90/100/10，必定ct
+Update 17/09/18
+
+Raticate-Alola @ Normalium Z
+Ability: Simple
+EVs: 252 Atk / 4 Spd / 252 Spe
+Adamant Nature
+- Power Trip
+- 神速
+- 替身
+- Celebration 等同于Z-Celebrate，pp为1
+
+袁绍 (Prinplup) @ Berserk Gene [上场物攻+2，且混乱]
+Ability: Clannism [上场随机2项能力+2，且不会陷入混乱]
+EVs: 252 Atk / 4 Spd / 252 Spe
+Adamant Nature
+- 冰柱坠落
+- 万箭齐发
+- 水流喷射
+- Triumphantly Command 水系物攻，威力60，对地面上的精灵威力翻倍
+
+Epistle (Alakazam-Mega) @ Expert Belt
+Ability: Illusion 
+EVs: 252 SpA / 4 Spd / 252 Spe
+Timid Nature
+- Secret Sword
+- Mystical Fire
+- Dazzling Gleam
+- Spewing Psychic 超能系，特攻，威力90，命中后开超场
+
+Heracross-Mega @ Big Root
+Ability: Nerfed Triage  [回复技能先制度+0.5]
+EVs: 252 Atk / 4 Spd / 252 Spe
+Adamant Nature
+- Swords Dance
+- Drain Punch
+- Ice Punch
+- Leech Life
+
+Marowak-Alola @ Thick Club
+Ability: Huge Power OR Adapability OR Sheer Force
+EVs: 248 HP / 252 Atk / 8 Spd 
+Adamant Nature
+- Flare Blitz
+- Shadow Bone
+- Shadow Sneak
+- Stealth Rock
 
 ----原有精灵-----
 

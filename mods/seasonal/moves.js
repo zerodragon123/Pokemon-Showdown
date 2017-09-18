@@ -5039,7 +5039,7 @@ exports.BattleMovedex = {
 	},
 	spewingpsychic: {
 		accuracy: 100,
-		basePower: 80,
+		basePower: 90,
 		category: "Special",
 		desc: "The terrain becomes Psychic Terrain.",
 		shortDesc: "Summons Psychic Terrain.",
