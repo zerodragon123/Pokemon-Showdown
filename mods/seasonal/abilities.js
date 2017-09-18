@@ -338,4 +338,38 @@ exports.BattleAbilities = {
 		name: "I Have Ferro",
 		rating: 4,
 	},
+	clannism: {
+		id: "clannism",
+		name: "Clannism",
+		rating: 4,
+		onTryAddVolatile: function (status, pokemon) {
+			if (status.id === 'confusion') return null;
+		},
+		onStart: function (pokemon) {
+			let boost = {};
+			let viablestats = {atk:1,def:1,spa:1,spd:1,spe:1};
+			let stats = [];
+			for (let statPlus in viablestats) {
+				if (pokemon.boosts[statPlus] < 6) {
+					stats.push(statPlus);
+				}
+			}
+			let randomStat = stats.length ? stats[this.random(stats.length)] : "";
+			if (randomStat) boost[randomStat] = 3;
+			let randomStat2 = randomStat;
+			while(randomStat2 === randomStat){
+				randomStat2 = stats[this.random(stats.length)];
+			}
+			boost[randomStat2] = 2;
+			this.boost(boost);
+		},
+	},
+	nerfedtriage: {
+		id: "nerfedtriage",
+		name: "Nerfed Triage",
+		rating: 4,
+		onModifyPriority: function (priority, pokemon, target, move) {
+			if (move && move.flags['heal']) return priority + 0.5;
+		},
+	}
 };
