@@ -970,13 +970,24 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 					signatureMove: "Stealth Rock",
 					evs: {hp:248, spd:8, atk:252}, nature: 'Adamant',
 		},
-
+		'loving1069':{
+			species: 'Kyogre', ability: 'Water Spin', item: 'Choice Scarf', 
+					moves: ['waterspout', 'voltswitch', 'icebeam'],
+					signatureMove: "Excited Surf",
+					evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
+		},
+		'源氏':{
+			species: 'Scizor-Mega', ability: 'Steelate', item: 'Insect Plate', 
+					moves: ['extremespeed', 'swordsdance', 'uturn'],
+					signatureMove: "Genji Bounce",
+					evs: {atk:252, spd:4, spe:252}, nature: 'Adamant',
+		},
 	};
 
 		// Generate the team randomly.
 		let pool = Object.keys(sets);
-        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','Epistle','Heracross-Mega','Marowak-Alola'];
-        //let our_pokes= ['Heracross-Mega','Marowak-Alola','袁绍'];
+        //let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','Epistle','Heracross-Mega','Marowak-Alola'];
+        let our_pokes= ['SCEAM','loving1069','源氏'];
 		for (let i = 0; i < 6; i++) {
 			let name = this.sampleNoReplace(pool);
             if(i<3)

@@ -4747,9 +4747,12 @@ exports.BattleMovedex = {
 			this.attrLastMove('[still]');
 		},
         onTryHit:function(source){
-            this.useMove("Taunt",source);
-            this.useMove("Nasty Plot",source);
-            this.useMove("Tail Wind",source);
+			this.useMove("Taunt",source);
+			if(source.boosts['spa'] == 0 && source.boosts['spd'] == 0 && 
+				source.boosts['spe'] == 0 ){
+					this.useMove("Quiver Dance",source);
+					this.useMove("Tail Wind",source);
+				}
         },
 		target: "self",
 		type: "Normal",
@@ -5064,6 +5067,62 @@ exports.BattleMovedex = {
 		},
 		target: "normal",
 		type: "Psychic",
+	},
+	excitedsurf: {
+		accuracy: 100,
+		basePower: 90,
+		category: "Special",
+		id: "excitedsurf",
+		isViable: true,
+        isNonstandard: true,
+		name: "Excited Surf",
+		pp: 10,
+		priority: 0,
+		onPrepareHit: function (target, source) {
+			this.attrLastMove('[still]');
+			this.add('-anim', source, "Surf", target);
+		},
+		flags: {protect: 1, mirror: 1, distance: 1, heal: 1},
+		drain: [2, 3],
+		secondary: false,
+		target: "normal",
+		type: "Water",
+	},
+	genjibounce:{
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		id: "genjibounce",
+		isViable: true,
+        isNonstandard: true,
+		name: "Genji Bounce",
+		pp: 10,
+		priority: 4,
+		onPrepareHit: function (pokemon) {
+			if(pokemon.removeVolatile('genjibounce'))
+				return false;
+			this.attrLastMove('[still]');
+			this.add('-anim', pokemon, "Smart Strike", pokemon);
+		},
+		flags: {},
+		volatileStatus: 'genjibounce',
+		effect: {
+			onStart: function (target) {
+				this.add('-singleturn', target, 'move: Genji Bounce');
+			},
+			onTryHitPriority: 2,
+			onTryHit: function (target, source, move) {
+				if (target === source || move.hasBounced || move.category === 'Status') {
+					return;
+				}
+				let newMove = this.getMoveCopy(move.id);
+				newMove.hasBounced = true;
+				this.useMove(newMove, target, source);
+				return null;
+			},
+		},
+		target: "self",
+		type: "Steel",
 	},
 	// Modified moves
 	"defog": {

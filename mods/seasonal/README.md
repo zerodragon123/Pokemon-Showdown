@@ -20,7 +20,7 @@ Adament Nature
 
 FSK (Arceus-Steel) @ Fairium Z [√]
 
-Ability: Stand Alone Complex
+Ability: Stand Alone Complex    [效果等同于亲子爱]
 
 Evs: 252 HP / 40 SpD / 216 Spe
 
@@ -42,7 +42,7 @@ Modest Nature
 - 热风
 - 恶之波动
 - 死亡之翼
-- Dark Wind 先制度+1，使用挑拨，顺风，阴谋
+- Dark Wind 先制度+1，使用挑拨。上场第一次使用，会同时使出顺风和蝶舞
 
 ceca3 (Kirlia) @ Power Herb [√]
 
@@ -113,9 +113,13 @@ Timid Nature
 
 
 非常容易做出的肮脏的小事 (Whimsicott) @ Leftovers [√]
+
 Ability: Prankster  
+
 EVs: 248 HP / 252 Def / 8 Spe  
+
 Bold Nature  
+
 IVs: 0 Atk  
 - Leech Seed  
 - Glare  
@@ -123,8 +127,11 @@ IVs: 0 Atk
 - Prankster Shield (同时使出替身和刺盾)
 
 弱鸡sin
+
 Deoxys-Speed @ Focus Sash
+
 Ability: No Guard
+
 EVs: 252 Spa, 4 SpD, 252 Spe, Nature: Timid
 
 - Zap Cannon
@@ -134,8 +141,11 @@ EVs: 252 Spa, 4 SpD, 252 Spe, Nature: Timid
 
 
 Nightmare (Swampert) @ Swampertite  [√]
+
 Ability: Drizzle  
+
 EVs: 252 Atk / 4 SpD / 252 Spe  
+
 Adamant Nature  
 - Thousand Arrows  
 - Liquidation  
@@ -143,8 +153,11 @@ Adamant Nature
 - Sniping Nightmare 双属性攻击，飞+火，威力100，PP8，威力不受雨天削弱，动画和偷袭一样
 
 Vincent (Archen) @ Life Orb[√]
-Ability: Adaptability  
+
+Ability: Adaptability
+
 EVs: 252 Atk / 4 SpD / 252 Spe  
+
 Jolly Nature  
 - Dragon Ascent  
 - Thousand Arrows  
@@ -153,27 +166,39 @@ Jolly Nature
 同时使用王盾+龙舞，动画和王盾一样
 
 我充钱了 (Togekiss) @ Metronome [Yui] [√]
+
 Ability: Fast Hax (G6 Gale Wings + Serene Grace)
+
 Evs: 72Hp, 252 Spa, 184 Spe
+
 Nature: Timid
+
 - Air Slash
 - Calm Mind
 - Roost
 - Moonblast
 
 lxz (Ferrothorn) @ Leftovers 
+
 Ability: I Have Ferro (铁棘+上场黑雾)
+
 Evs: 252 HP / 88 Def / 168 SpD
+
 Impish Nature
+
 - Leech Seed
 - Gyro Ball / Power Whip
 - Spikes
 - Haze Shield (使用碉堡同时使用黑雾)
 
 吓得lxz都mega了(Mega Tyranitar) @ Smooth Rock / Choice Scarf
+
 Ability: Sand Stream
+
 EVs: 252 Atk / 4 Spd / 252 Spe
+
 Jolly Nature
+
 - 打落
 - 钻石风暴
 - 集沙 / Spectral Thief
@@ -182,50 +207,97 @@ Jolly Nature
 Update 17/09/18
 
 Raticate-Alola @ Normalium Z
+
 Ability: Simple
+
 EVs: 252 Atk / 4 Spd / 252 Spe
+
 Adamant Nature
+
 - Power Trip
 - 神速
 - 替身
 - Celebration 等同于Z-Celebrate，pp为1
 
 袁绍 (Prinplup) @ Berserk Gene [上场物攻+2，且混乱]
+
 Ability: Clannism [上场随机2项能力+2，且不会陷入混乱]
+
 EVs: 252 Atk / 4 Spd / 252 Spe
+
 Adamant Nature
+
 - 冰柱坠落
 - 万箭齐发
 - 水流喷射
 - Triumphantly Command 水系物攻，威力60，对地面上的精灵威力翻倍
 
 Epistle (Alakazam-Mega) @ Expert Belt
+
 Ability: Illusion 
+
 EVs: 252 SpA / 4 Spd / 252 Spe
+
 Timid Nature
+
 - Secret Sword
 - Mystical Fire
 - Dazzling Gleam
 - Spewing Psychic 超能系，特攻，威力90，命中后开超场
 
 Heracross-Mega @ Big Root
+
 Ability: Nerfed Triage  [回复技能先制度+0.5]
+
 EVs: 252 Atk / 4 Spd / 252 Spe
+
 Adamant Nature
+
 - Swords Dance
 - Drain Punch
 - Ice Punch
 - Leech Life
 
 Marowak-Alola @ Thick Club
+
 Ability: Huge Power OR Adapability OR Sheer Force
+
 EVs: 248 HP / 252 Atk / 8 Spd 
+
 Adamant Nature
+
 - Flare Blitz
 - Shadow Bone
 - Shadow Sneak
 - Stealth Rock
 
+loving1069 (Kyogre) @ Choice Scarf  
+
+Ability: Water Spin 使用喷水时，清除己方场上所有钉子
+
+EVs: 252 SpA / 4 SpD / 252 Spe  
+
+Timid Nature  
+
+IVs: 0 Atk  
+
+- Water Spout  
+- Excited Surf (冲浪同时回复1/2HP)  
+- Volt Switch  
+- Ice Beam  
+
+
+Genji (Scizor-Mega) @ Insect Plate
+
+Ability: Steelate [普通系技能变成钢系，威力*1.2]
+
+Adamant Nature
+
+Evs: 252 HP / 252 Atk / 4 Spe
+- Swords Dance
+- Extreme Speed
+- Genji Bounce	[反弹所有物理和特殊技能，连续使用必将失败]
+- U-turn    [同时使用Spikes]
 ----原有精灵-----
 
 ### Acast
