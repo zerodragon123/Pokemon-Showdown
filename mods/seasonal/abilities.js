@@ -371,5 +371,40 @@ exports.BattleAbilities = {
 		onModifyPriority: function (priority, pokemon, target, move) {
 			if (move && move.flags['heal']) return priority + 0.5;
 		},
+	},
+	steelate: {
+		id: "steelate",
+		name: "Steelate",
+		rating: 4,
+		onModifyMovePriority: -1,
+		onModifyMove: function (move, pokemon) {
+			if (move.type === 'Normal' && !(move.id in {naturalgift:1, revelationdance:1}) && !(move.isZ && move.category !== 'Status')) {
+				move.type = 'Steel';
+				move.aerilateBoosted = true;
+			}
+		},
+		onBasePowerPriority: 8,
+		onBasePower: function (basePower, pokemon, target, move) {
+			if (move.aerilateBoosted) return this.chainModify([0x1333, 0x1000]);
+		},
+		onPrepareHit: function (target, source, move){
+			if(move.id === 'uturn')
+				this.useMove('Spikes',target);
+		}
+	},
+	waterspin: {
+		id: "waterspin",
+		name: "Water Spin",
+		rating: 1,
+		onPrepareHit: function (target,source,move){
+			if(move.id === 'waterspout'){
+				let sideConditions = {spikes:1, toxicspikes:1, stealthrock:1, stickyweb:1};
+				for (let i in sideConditions) {
+					if (target.hp && target.side.removeSideCondition(i)) {
+						this.add('-sideend', target.side, this.getEffect(i).name, '[from] move: Rapid Spin', '[of] ' + target);
+					}
+				}
+			}
+		}
 	}
 };
