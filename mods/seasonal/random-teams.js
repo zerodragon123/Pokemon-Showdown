@@ -887,7 +887,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				evs: {spd:4, spa:252, spe:252}, nature: 'Timid',
             },
             'MS':{
-                species: 'Beedrill-Mega', ability: 'Regenerator', item: 'Assault Vest', 
+                species: 'Beedrill-Mega', ability: 'Adapability', item: 'Assault Vest', 
 				moves: ['gunkshot', 'megahorn', 'drillrun'],
                 signatureMove: "Innovative Turn", 
 				evs: {spd:4, atk:252, spe:252}, nature: 'Jolly',
