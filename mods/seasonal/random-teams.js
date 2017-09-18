@@ -898,7 +898,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 signatureMove: "Ultimate Judgment", 
 				evs: {spd:252, def:252}, nature: 'Bold',
             },
-            '晋文公':{
+        '晋文公':{
                 species: 'Pidgeot-Mega', ability: 'Mold Breaker', item: ['Dread Plate','Silk Scarf'][this.random(2)], 
 				moves: ['boomburst', 'quiverdance', 'slackoff'],
                 signatureMove: "The Crow Sea", 
@@ -908,7 +908,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 species: 'Swampert', ability: 'Drizzle', item: 'Swampertite', 
 				moves: ['thousandarrows', 'liquidation', 'swords dance'],
                 signatureMove: "Sniping Nightmare", 
-				evs: {atk:252, spe:252, spd:4}, nature: 'Adament',
+				evs: {atk:252, spe:252, spd:4}, nature: 'Adamant',
 	    },
 	    '非常容易做出的肮脏的小事':{
                 species: 'Whimsicott', ability: 'Prankster', item: 'Lum Berry', 
@@ -918,7 +918,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
             },
 	    '我充钱了':{
 	        species: 'Togekiss', ability: 'Fast Hax', item: 'Metronome', 
-				moves: ['airslash', 'calmmind', 'roost'],
+				moves: ['airslash', 'calmmind', 'moonlight'],
                 signatureMove: "Moonblast", 
 				evs: {hp:72, spa:252, spe:184}, nature: 'Modest',
 	    },
@@ -935,17 +935,48 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				evs: {hp:252, def:88, spd:168}, nature: 'Impish',
 	    },
 	    '吓得lxz都Mega了': {
-		species: 'Tyranitar-Mega', ability: 'Sand Stream', item: (variant ? 'Smooth Rock' : 'Choice Scarf'), gender: 'M',
+			species: 'Tyranitar-Mega', ability: 'Sand Stream', item: (variant ? 'Smooth Rock' : 'Choice Scarf'), gender: 'M',
 				moves: (variant ? ['diamondstorm', 'shoreup', 'knockoff'] : ['knockoff', 'diamondstorm', 'spectralthief']),
 				signatureMove: "Sennen Goroshi",
 				evs: {atk:252, def:4, spe:252}, nature: 'Jolly',   
-	    },
+		},
+		'Raticate-Alola': {
+			species: 'Raticate-Alola', ability: 'Simple', item:'Normalium Z', gender: 'M',
+					moves: ['powertrip', 'extremespeed', 'substitute'],
+					signatureMove: "Celebration",
+					evs: {atk:252, def:4, spe:252}, nature: 'Adamant',   
+		},
+		'袁绍': {
+			species: 'Prinplup', ability: 'Clannism', item:'Berserk Gene',
+			moves: ['iciclecrash', 'thousandarrows', 'aquajet'],
+			signatureMove: "Triumphantly Command",
+			evs: {atk:252, def:4, spe:252}, nature: 'Jolly',   
+		},
+		'Epistle':{
+			species: 'Alakazam-Mega', ability: 'Illusion', item: 'Expert Belt', 
+					moves: ['secretsword', 'mysticalfire', 'dazzlinggleam'],
+					signatureMove: "Spewing Psychic",
+					evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
+		},
+		'Heracross-Mega':{
+			species: 'Heracross-Mega', ability: 'Nerfed Triage', item: 'Big Root', 
+					moves: ['swordsdance', 'drainpunch', 'icepunch'],
+					signatureMove: "Leech Life",
+					evs: {hp:252, spd:4, atk:252}, nature: 'Adamant',
+		},
+		'Marowak-Alola':{
+			species: 'Marowak-Alola', ability: ['Huge Power','Adaptability','Sheer Force'][this.random(3)], item: 'Thick Club', 
+					moves: ['flareblitz', 'shadowbone', 'shadowsneak'],
+					signatureMove: "Stealth Rock",
+					evs: {hp:248, spd:8, atk:252}, nature: 'Adamant',
+		},
+
 	};
 
 		// Generate the team randomly.
 		let pool = Object.keys(sets);
-        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了'];
-        //let our_pokes= ['Vincent','Nightmare','非常容易做出的肮脏的小事'];
+        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','Epistle','Heracross-Mega','Marowak-Alola'];
+        //let our_pokes= ['Heracross-Mega','Marowak-Alola','袁绍'];
 		for (let i = 0; i < 6; i++) {
 			let name = this.sampleNoReplace(pool);
             if(i<3)

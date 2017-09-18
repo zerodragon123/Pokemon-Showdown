@@ -4882,8 +4882,8 @@ exports.BattleMovedex = {
 	},
 	snipingnightmare: {
 		accuracy: 100,
-		basePower: 100,
-		category: "Special",
+		basePower: 90,
+		category: "Physical",
 		id: "snipingnightmare",
 		isViable: true,
 		isNonstandard: true,
@@ -4986,11 +4986,84 @@ exports.BattleMovedex = {
 		name: "Sennen Goroshi",
 		pp: 10,
 		priority: 0,
+		onPrepareHit: function (target, source) {
+			this.attrLastMove('[still]');
+			this.add('-anim', source, "Dynamic Punch", target);
+		},
 		flags: {contact: 1, protect: 1, mirror: 1},
 		willCrit: true,
 		secondary: false,
 		target: "normal",
 		type: "Dark",
+	},
+	celebration: {
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		id: "celebration",
+		isNonstandard: true,
+		isViable: true,
+		name: "Celebration",
+		pp: 1,
+		noPPBoosts: true,
+		priority: 0,
+		onPrepareHit: function (target, source) {
+			this.attrLastMove('[still]');
+			this.add('-anim', source, "Sucker Punch", target);
+		},
+		secondary: false,
+		target: "self",
+		type: "Normal",
+		boosts: {atk: 1, def: 1, spa: 1, spd: 1, spe: 1},
+	},
+	triumphantlycommand: {
+		accuracy: 100,
+		basePower: 60,
+		category: "Physical",
+		id: "triumphantlycommand",
+		isViable: true,
+		isNonstandard: true,
+		name: "Triumphantly Command",
+		pp: 5,
+		priority: 0,
+		flags: {protect: 1, mirror: 1},
+		onPrepareHit: function (target, source, move) {
+			this.attrLastMove('[still]');
+			if(target.isGrounded())
+				move.basePower = 120;
+			this.add('-anim', source, "Hydro Cannon", target);
+		},
+		secondary: false,
+		target: "normal",
+		type: "Water",
+	},
+	spewingpsychic: {
+		accuracy: 100,
+		basePower: 80,
+		category: "Special",
+		desc: "The terrain becomes Psychic Terrain.",
+		shortDesc: "Summons Psychic Terrain.",
+		id: "spewingpsychic",
+		name: "Spewing Psychic",
+		pp: 8,
+		priority: 0,
+		flags: {},
+		onPrepareHit: function (target, source, move) {
+			this.attrLastMove('[still]');
+			if(target.isGrounded())
+				move.basePower = 120;
+			this.add('-anim', source, "Genesis Supernova", target);
+		},
+		secondary: {
+			chance: 100,
+			self: {
+				onHit: function () {
+					this.setTerrain('psychicterrain');
+				},
+			},
+		},
+		target: "normal",
+		type: "Psychic",
 	},
 	// Modified moves
 	"defog": {
