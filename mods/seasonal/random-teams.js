@@ -898,119 +898,119 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 signatureMove: "Ultimate Judgment", 
 				evs: {spd:252, def:252}, nature: 'Bold',
             },
-        '晋文公':{
-                species: 'Pidgeot-Mega', ability: 'Mold Breaker', item: ['Dread Plate','Silk Scarf'][this.random(2)], 
-				moves: ['boomburst', 'quiverdance', 'slackoff'],
-                signatureMove: "The Crow Sea", 
-				evs: {spa:252, spe:252,spd:4}, nature: 'Timid',
-			},
-	    'Nightmare':{
-                species: 'Swampert', ability: 'Drizzle', item: 'Swampertite', 
-				moves: ['thousandarrows', 'liquidation', 'swords dance'],
-                signatureMove: "Sniping Nightmare", 
-				evs: {atk:252, spe:252, spd:4}, nature: 'Adamant',
-	    },
-	    '非常容易做出的肮脏的小事':{
-                species: 'Whimsicott', ability: 'Prankster', item: 'Lum Berry', 
-				moves: ['leechseed', 'glare', 'moonblast'],
-                signatureMove: "Prankster Shield", 
-				evs: {hp:248, spe:8, def:252}, nature: 'Bold',
+            '晋文公':{
+                species: 'Pidgeot-Mega', ability: 'Mold Breaker', item: ['Dread Plate','Silk Scarf'][this.random(2)],
+                moves: ['boomburst', 'quiverdance', 'slackoff'],
+                signatureMove: "The Crow Sea",
+                evs: {spa:252, spe:252,spd:4}, nature: 'Timid',
             },
-	    '我充钱了':{
-	        species: 'Togekiss', ability: 'Fast Hax', item: 'Metronome', 
-				moves: ['airslash', 'calmmind', 'moonlight'],
-                signatureMove: "Moonblast", 
-				evs: {hp:72, spa:252, spe:184}, nature: 'Modest',
-	    },
-	    '弱鸡sin':{
-		species: 'Deoxys-Speed', ability: 'No Guard', item: 'Focus Sash', gender: 'N',
-				moves: ['zapcannon', 'stealthrock', ['taunt', 'magiccoat'][this.random(2)]],
-				signatureMove: "Imprisonform",
-				evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
-	    },
-	    '总受lxz':{
-	    	species: 'Ferrothorn', ability: 'I Have Ferro', item: 'Leftovers', gender: 'M',
-				moves: ['leechseed', 'spikes', ['powerwhip', 'gyroball'][this.random(2)]],
-				signatureMove: "Haze Shield",
-				evs: {hp:252, def:88, spd:168}, nature: 'Impish',
-	    },
-	    '吓得lxz都Mega了': {
-			species: 'Tyranitar-Mega', ability: 'Sand Stream', item: (variant ? 'Smooth Rock' : 'Choice Scarf'), gender: 'M',
-				moves: (variant ? ['diamondstorm', 'shoreup', 'knockoff'] : ['knockoff', 'diamondstorm', 'spectralthief']),
-				signatureMove: "Sennen Goroshi",
-				evs: {atk:252, def:4, spe:252}, nature: 'Jolly',   
-		},
-		'Raticate-Alola': {
-			species: 'Raticate-Alola', ability: 'Simple', item:'Normalium Z', gender: 'M',
-					moves: ['powertrip', 'extremespeed', 'substitute'],
-					signatureMove: "Celebration",
-					evs: {atk:252, def:4, spe:252}, nature: 'Adamant',   
-		},
-		'袁绍': {
-			species: 'Prinplup', ability: 'Clannism', item:'Berserk Gene',
-			moves: ['iciclecrash', 'thousandarrows', 'aquajet'],
-			signatureMove: "Triumphantly Command",
-			evs: {atk:252, def:4, spe:252}, nature: 'Jolly',   
-		},
-		'Epistle':{
-			species: 'Alakazam-Mega', ability: 'Illusion', item: 'Expert Belt', 
-					moves: ['secretsword', 'mysticalfire', 'dazzlinggleam'],
-					signatureMove: "Spewing Psychic",
-					evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
-		},
-		'Heracross-Mega':{
-			species: 'Heracross-Mega', ability: 'Nerfed Triage', item: 'Big Root', 
-					moves: ['swordsdance', 'drainpunch', 'icepunch'],
-					signatureMove: "Leech Life",
-					evs: {hp:252, spd:4, atk:252}, nature: 'Adamant',
-		},
-		'Marowak-Alola':{
-			species: 'Marowak-Alola', ability: ['Huge Power','Adaptability','Sheer Force'][this.random(3)], item: 'Thick Club', 
-					moves: ['flareblitz', 'shadowbone', 'shadowsneak'],
-					signatureMove: "Stealth Rock",
-					evs: {hp:248, spd:8, atk:252}, nature: 'Adamant',
-		},
-		'loving1096':{
-			species: 'Kyogre', ability: 'Water Spin', item: 'Choice Scarf', 
-					moves: ['waterspout', 'voltswitch', 'icebeam'],
-					signatureMove: "Excited Surf",
-					evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
-		},
-		'源氏':{
-			species: 'Scizor-Mega', ability: 'Steelate', item: 'Insect Plate', 
-					moves: ['extremespeed', 'swordsdance', 'uturn'],
-					signatureMove: "Genji Bounce",
-					evs: {atk:252, spd:4, spe:252}, nature: 'Adamant',
-		},
-	};
-
-		// Generate the team randomly.
-		let pool = Object.keys(sets);
+            'Nightmare':{
+                species: 'Swampert', ability: 'Drizzle', item: 'Swampertite',
+                moves: ['thousandarrows', 'liquidation', 'swords dance'],
+                signatureMove: "Sniping Nightmare",
+                evs: {atk:252, spe:252, spd:4}, nature: 'Adamant',
+            },
+            '非常容易做出的肮脏的小事':{
+                species: 'Whimsicott', ability: 'Prankster', item: 'Lum Berry',
+                moves: ['leechseed', 'glare', 'moonblast'],
+                signatureMove: "Prankster Shield",
+                evs: {hp:248, spe:8, def:252}, nature: 'Bold',
+            },
+            '我充钱了':{
+                species: 'Togekiss', ability: 'Fast Hax', item: 'Metronome',
+                moves: ['airslash', 'calmmind', 'moonlight'],
+                signatureMove: "Moonblast",
+                evs: {hp:72, spa:252, spe:184}, nature: 'Modest',
+            },
+            '弱鸡sin':{
+                species: 'Deoxys-Speed', ability: 'No Guard', item: 'Focus Sash', gender: 'N',
+                moves: ['zapcannon', 'stealthrock', ['taunt', 'magiccoat'][this.random(2)]],
+                signatureMove: "Imprisonform",
+                evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
+            },
+            '总受lxz':{
+                species: 'Ferrothorn', ability: 'I Have Ferro', item: 'Leftovers', gender: 'M',
+                moves: ['leechseed', 'spikes', ['powerwhip', 'gyroball'][this.random(2)]],
+                signatureMove: "Haze Shield",
+                evs: {hp:252, def:88, spd:168}, nature: 'Impish',
+            },
+            '吓得lxz都Mega了': {
+                species: 'Tyranitar-Mega', ability: 'Sand Stream', item: (variant ? 'Smooth Rock' : 'Choice Scarf'), gender: 'M',
+                moves: (variant ? ['diamondstorm', 'shoreup', 'knockoff'] : ['knockoff', 'diamondstorm', 'spectralthief']),
+                signatureMove: "Sennen Goroshi",
+                evs: {atk:252, def:4, spe:252}, nature: 'Jolly',
+            },
+            'Raticate-Alola': {
+                species: 'Raticate-Alola', ability: 'Simple', item:'Normalium Z', gender: 'M',
+                moves: ['powertrip', 'extremespeed', 'substitute'],
+                signatureMove: "Celebration",
+                evs: {hp:32, atk:180, def:44, spe:252}, nature: 'Jolly',
+            },
+                '袁绍': {
+                species: 'Prinplup', ability: 'Clannism', item:'Berserk Gene',
+                moves: ['iciclecrash', 'thousandarrows', 'aquajet'],
+                signatureMove: "Triumphantly Command",
+                evs: {atk:252, def:4, spe:252}, nature: 'Jolly',
+            },
+                'Epistle':{
+                species: 'Alakazam-Mega', ability: 'Illusion', item: 'Expert Belt',
+                moves: ['secretsword', 'mysticalfire', 'dazzlinggleam'],
+                signatureMove: "Spewing Psychic",
+                evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
+            },
+            'Heracross-Mega':{
+                species: 'Heracross-Mega', ability: 'Nerfed Triage', item: 'Big Root',
+                moves: ['swordsdance', 'drainpunch', 'icepunch'],
+                signatureMove: "Leech Life",
+                evs: {hp:252, spd:4, atk:252}, nature: 'Adamant',
+            },
+            'Marowak-Alola':{
+                species: 'Marowak-Alola', ability: ['Adaptability','Sheer Force'][this.random(2)], item: 'Thick Club',
+                moves: ['flareblitz', 'shadowbone', 'shadowsneak'],
+                signatureMove: "Stealth Rock",
+                evs: {hp:248, spd:8, atk:252}, nature: 'Adamant',
+            },
+            'loving1096':{
+                species: 'Kyogre', ability: 'Water Spin', item: 'Choice Scarf',
+                moves: ['waterspout', 'voltswitch', 'icebeam'],
+                signatureMove: "Excited Surf",
+                evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
+            },
+            '源氏':{
+                species: 'Scizor-Mega', ability: 'Steelate', item: 'Insect Plate',
+                moves: ['extremespeed', 'swordsdance', 'uturn'],
+                signatureMove: "Genji Bounce",
+                evs: {atk:252, spd:4, spe:252}, nature: 'Adamant',
+            },
+        };
+        
+        // Generate the team randomly.
+        let pool = Object.keys(sets);
         let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','Epistle','Heracross-Mega','Marowak-Alola','loving1096','源氏'];
         //let our_pokes= ['SCEAM','loving1069','源氏'];
-		for (let i = 0; i < 6; i++) {
-			let name = this.sampleNoReplace(pool);
+        for (let i = 0; i < 6; i++) {
+            let name = this.sampleNoReplace(pool);
             if(i<4)
                 name = this.sampleNoReplace(our_pokes);
             
-			let set = sets[name];
-			set.level = 100;
-			set.name = name;
-			if (!set.ivs) {
-				set.ivs = {hp:31, atk:31, def:31, spa:31, spd:31, spe:31};
-			} else {
-				for (let iv in {hp:31, atk:31, def:31, spa:31, spd:31, spe:31}) {
-					set.ivs[iv] = iv in set.ivs ? set.ivs[iv] : 31;
-				}
-			}
-			// Assuming the hardcoded set evs are all legal.
-			if (!set.evs) set.evs = {hp:84, atk:84, def:84, spa:84, spd:84, spe:84};
-			set.moves = [this.sampleNoReplace(set.moves), this.sampleNoReplace(set.moves), this.sampleNoReplace(set.moves)].concat(set.signatureMove);
-			team.push(set);
-		}
-
-		return team;
-	}
+            let set = sets[name];
+            set.level = 100;
+            set.name = name;
+            if (!set.ivs) {
+                set.ivs = {hp:31, atk:31, def:31, spa:31, spd:31, spe:31};
+            } else {
+                for (let iv in {hp:31, atk:31, def:31, spa:31, spd:31, spe:31}) {
+                    set.ivs[iv] = iv in set.ivs ? set.ivs[iv] : 31;
+                }
+            }
+            // Assuming the hardcoded set evs are all legal.
+            if (!set.evs) set.evs = {hp:84, atk:84, def:84, spa:84, spd:84, spe:84};
+            set.moves = [this.sampleNoReplace(set.moves), this.sampleNoReplace(set.moves), this.sampleNoReplace(set.moves)].concat(set.signatureMove);
+            team.push(set);
+        }
+        
+        return team;
+    }
 }
 
 module.exports = RandomSeasonalMeleeTeams;

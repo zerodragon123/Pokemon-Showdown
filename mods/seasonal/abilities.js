@@ -181,7 +181,7 @@ exports.BattleAbilities = {
 		},
         id: "restart",
 		name: "Re:Start",
-		rating: 3,
+		rating: 4,
         onResidualOrder: 26,
 		onResidualSubOrder: 2,
 		onResidual: function (pokemon) {
@@ -210,7 +210,7 @@ exports.BattleAbilities = {
 		},
 		id: "standalonecomplex",
 		name: "Stand Alone Complex",
-		rating: 4,
+		rating: 5,
     },
     //I do stall
     smilence: {
@@ -398,7 +398,7 @@ exports.BattleAbilities = {
 		rating: 1,
 		onPrepareHit: function (target,source,move){
 			if(move.id === 'waterspout'){
-				let sideConditions = {spikes:1, toxicspikes:1, stealthrock:1, stickyweb:1};
+                let sideConditions = {spikes:1, toxicspikes:1, burnspikes:1, stealthrock:1, stickyweb:1};
 				for (let i in sideConditions) {
 					if (target.hp && target.side.removeSideCondition(i)) {
 						this.add('-sideend', target.side, this.getEffect(i).name, '[from] move: Rapid Spin', '[of] ' + target);

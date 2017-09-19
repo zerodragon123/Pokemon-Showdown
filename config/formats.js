@@ -1174,16 +1174,20 @@ exports.Formats = [
                    pokemon.side.addSideCondition('healingwish', pokemon, this);
                    }
                    if (name === 'FSK') {
-                   this.add("c|@Ascriptmaster|冬天来了，春天还会远吗");
+                   this.add('c|~FSK|冬天来了，春天还会远吗');
+                   this.add('c|*bot|专属技能Ultimate Judgment，固定100威力，钢属性');
                    }
                    if (name === 'EroyalBoy') {
-                   this.add("c|@Ascriptmaster|你已难逃一吸");
+                   this.add('c|~EroyalBoy|你已难逃一吸');
+                   this.add('c|*bot|专属技能蔡依林Boomburst威力140，钢属飞行,回复伤害的3/4');
                    }
                    if (name === '暗黑员') {
-                   this.add("c|@Ascriptmaster|我是光明的员");
+                   this.add('c|@暗黑员|我是光明的员');
+                   this.add('c|*bot|专属技能Dark Spite 是32PP的Spite，消耗对面4PP');
                    }
                    if (name === '总受lxz') {
-                   this.add("c|@Ascriptmaster|我一点也不受");
+                   this.add('c|@lxz|我一点也不受');
+                   this.add('c|*bot|专属技能Haze Shield 同时使出黑雾和碉堡');
                    }
                    // Add here salty tears, that is, custom faint phrases.
                    let sentences = [];

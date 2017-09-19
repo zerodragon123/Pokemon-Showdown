@@ -5016,7 +5016,7 @@ exports.BattleMovedex = {
 		},
 		secondary: false,
 		target: "self",
-		type: "Normal",
+		type: "Dark",
 		boosts: {atk: 1, def: 1, spa: 1, spd: 1, spe: 1},
 	},
 	triumphantlycommand: {
@@ -5048,13 +5048,11 @@ exports.BattleMovedex = {
 		shortDesc: "Summons Psychic Terrain.",
 		id: "spewingpsychic",
 		name: "Spewing Psychic",
-		pp: 8,
+		pp: 5,
 		priority: 0,
 		flags: {},
 		onPrepareHit: function (target, source, move) {
 			this.attrLastMove('[still]');
-			if(target.isGrounded())
-				move.basePower = 120;
 			this.add('-anim', source, "Genesis Supernova", target);
 		},
 		secondary: {
