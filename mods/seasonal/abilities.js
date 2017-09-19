@@ -185,7 +185,10 @@ exports.BattleAbilities = {
         onResidualOrder: 26,
 		onResidualSubOrder: 2,
 		onResidual: function (pokemon) {
-            this.heal(pokemon.maxhp);
+			if(pokemon.hp<pokemon.maxhp){
+				this.add("raw|<div class=\"broadcast-red\"><b>The server is restarted!</div>");
+				this.heal(pokemon.maxhp);
+			}
 		},
     },
     // FSK
@@ -390,6 +393,8 @@ exports.BattleAbilities = {
 		onPrepareHit: function (target, source, move){
 			if(move.id === 'uturn')
 				this.useMove('Spikes',target);
+			if(move.id !== 'genjibounce')
+				source.removeVolatile('cooldown');
 		}
 	},
 	waterspin: {

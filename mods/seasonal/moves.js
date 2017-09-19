@@ -5097,8 +5097,12 @@ exports.BattleMovedex = {
 		pp: 10,
 		priority: 4,
 		onPrepareHit: function (pokemon) {
-			if(pokemon.removeVolatile('genjibounce'))
+			console.log('cooldown:'+pokemon.volatiles['cooldown']);
+			if(pokemon.volatiles['cooldown']){
+				pokemon.removeVolatile('cooldown');
 				return false;
+			}
+				
 			this.attrLastMove('[still]');
 			this.add('-anim', pokemon, "Smart Strike", pokemon);
 		},
@@ -5110,14 +5114,41 @@ exports.BattleMovedex = {
 			},
 			onTryHitPriority: 2,
 			onTryHit: function (target, source, move) {
+				if (!target.volatiles['genjibounce'])
+					return;
 				if (target === source || move.hasBounced || move.category === 'Status') {
 					return;
 				}
+				target.addVolatile('cooldown');
 				let newMove = this.getMoveCopy(move.id);
 				newMove.hasBounced = true;
 				this.useMove(newMove, target, source);
 				return null;
 			},
+			onBeforeMove: function (pokemon, target, move) {
+				this.add('c|%Acast|beforemove');
+				if (move.id === 'genjibounce' ){	//使用genjibounce，不解除
+					pokemon.addVolatile('genjibounce');
+					pokemon.addVolatile('cooldown');
+					return;
+					//cooldown已经解除
+				}	
+				pokemon.removeVolatile('cooldown');
+				return;
+				//this.debug('removing Destiny Bond before attack');
+				//pokemon.removeVolatile('genjibounce');
+			},
+			onMoveAborted: function (pokemon, target, move) {
+				this.add('c|%Acast|xxxxxx');
+				pokemon.removeVolatile('genjibounce');
+			},
+			onBeforeSwitchOutPriority: 1,
+			onBeforeSwitchOut: function (pokemon) {
+				pokemon.removeVolatile('genjibounce');
+			},
+			onResidual: function(pokemon){
+				pokemon.removeVolatile('genjibounce');
+			}
 		},
 		target: "self",
 		type: "Steel",
