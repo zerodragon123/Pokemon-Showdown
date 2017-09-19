@@ -5169,9 +5169,9 @@ exports.BattleMovedex = {
 			this.attrLastMove('[still]');
 			this.add('-anim', source, "Genesis Supernova", target);
 		},
-		onTryHit:function(source){
-            this.useMove("Charge",source);
-        },
+		onHit: function (target, source) {
+			this.useMove("Charge", source);
+		},
 		secondary: {
 			chance: 100,
 			self: {
@@ -5213,8 +5213,8 @@ exports.BattleMovedex = {
 		type: "Psychic",
 	},
 	backstab: {
-		accuracy: 85,
-		basePower: 1,
+		accuracy: 100,
+		basePower: 0,
 		category: "Physical",
 		id: "backstab",
 		isViable: true,
