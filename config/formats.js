@@ -452,6 +452,7 @@ exports.Formats = [
                    onSwitchInPriority: 1,
                    onSwitchIn: function (pokemon) {
                    let name = toId(pokemon.illusion ? pokemon.illusion.name : pokemon.name);
+                   
                    // Wonder Guard is available, but it curses you.
                    if (pokemon.getAbility().id === 'wonderguard' && pokemon.baseTemplate.baseSpecies !== 'Shedinja' && pokemon.baseTemplate.baseSpecies !== 'Kakuna') {
                    pokemon.addVolatile('curse', pokemon);
@@ -1166,36 +1167,66 @@ exports.Formats = [
                    if (name === 'zodiax') {
                    this.add('c|%Zodiax|Introducing 7 time Grand Champion to the battle!');
                    }
-                   if (name === 'fsk') {
+                   if (pokemon.species === 'Arceus-Steel') {
                    this.add('c|~FSK|冬天来了，春天还会远吗');
-                   this.add('c|*bot|专属技能Ultimate Judgment，固定100威力，钢属性');
+                   this.add('c|*bot|Ultimate Judgment：造成100点伤害，钢属性');
                    }
-                   if (name === 'eroyalboy') {
+                   if (pokemon.species === 'Salamence') {
                    this.add('c|~EroyalBoy|你已难逃一吸');
-                   this.add('c|*bot|专属技能蔡依林Boomburst威力140，钢属飞行,回复伤害的3/4');
+                   this.add('c|*bot|Jolin Boomburst：普通系140特攻，回复伤害的3/4');
                    }
-                   if (name === 'ahy') {
+                   if (pokemon.species === 'Giratina') {
                    this.add('c|@暗黑员|我是光明的员');
-                   this.add('c|*bot|专属技能Dark Spite 是32PP的Spite，消耗对面4PP');
+                   this.add('c|*bot|Dark Spite：32PP，每次使用消耗对面4PP');
                    }
-                   if (name === 'lxz') {
+                   if (pokemon.species === 'Ferrothorn') {
                    this.add('c|@lxz|我一点也不受');
-                   this.add('c|*bot|专属技能Haze Shield 同时使出黑雾和碉堡');
+                   this.add('c|*bot|Haze Shield：同时使出黑雾和碉堡');
                    }
-                   if (name === 'lxzmega') {
+                   if (pokemon.species === 'Tyranitar-Mega') {
                    this.add('c|@lxz|我真的一点也不受');
-                   this.add('c|*bot|专属技能千年杀，威力90，属性恶，必定CT');
+                   this.add('c|*bot|Sennen Goroshi：恶系90物攻，必定CT');
                    }
-                   if (name === 'ceca3') {
-                   this.add('c|*bot|专属先制技能intial song，威力60，属性妖');
+                   if (pokemon.species === 'Kirlia') {
+                   this.add('c|*bot|intial song：妖精系60特攻，先制+1');
                    }
                    if (name === 'vincent') {
                    this.add('c|Vincent|还记得被LC支配的恐惧吗');
-                   this.add('c|*bot|专属技能文森特盾，同时王盾和龙舞');
+                   this.add('c|*bot|Vincent Shield：同时使用王盾和龙舞');
                    }
-                   if (name === 'fy') {
-                   this.add('c|*bot|专属技能恶心盾，同时刺盾和替身，不过只有8PP');
+                   if (pokemon.species === 'Whimscott') {
+                   this.add('c|*bot|Prankster Shield：同时使用保护和替身，PP为4');
                    }
+                   if (pokemon.species === 'Scizor-Mega'){
+                        this.add('c|*bot|Genji Bounce：反弹当回合所有攻击技能，连续使用必将失败');
+                   }
+                   if (pokemon.species === 'Beedrill-Mega'){
+                    this.add('c|*bot|Innovative Turn：使用暗影偷盗和蜻蜓回转');
+                   }
+                   if (pokemon.species === 'Pidgeot-Mega'){
+                    this.add('c|*bot|The Crow Sea：恶系100特攻，以物防计算伤害');
+                   }
+                   if (pokemon.species === 'Swampert'){
+                    this.add('c|*bot|Sniping Nightmare：飞行+火系90物攻');
+                   }
+                   if (pokemon.species === 'Deoxys-Speed'){
+                    this.add('c|*bot|Imprisonform：变成对手的样子之后使用封印');
+                   }
+                   if (pokemon.species === 'Prinplup'){
+                    this.add('c|*bot|Triumphantly Command：水系60物攻，对地面上的精灵威力翻倍');
+                   }
+                   if (pokemon.species === 'Metagross-Mega'){
+                    this.add('c|*bot|Ultimate Charge：超能系85物攻，命中后开超场');
+                   }
+                   if (pokemon.species === 'Grumpig'){
+                    this.add('c|*bot|Dance of control：超能系95先制特攻，30%混乱并提升自己一级速度');
+                   }
+                   if (pokemon.species === 'Weavile'){
+                    this.add('c|*bot|Backstab：85%命中率，在对方生命值小于50%时直接秒杀');
+                    this.add('c|*bot|Assassin：攻击对方时以对方两防中较低的一项计算防御');
+                   }
+
+                   
                    },
                    onFaint: function (pokemon, source, effect) {
                    let name = toId(pokemon.name);

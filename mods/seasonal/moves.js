@@ -4913,7 +4913,8 @@ exports.BattleMovedex = {
 		isViable: true,
 		isNonstandard: true,
 		name: "Prankster Shield",
-		pp: 5,
+		pp: 4,
+		noPPBoosts:true,
 		priority: 4,
 		flags: {},
 		stallingMove: true,
@@ -5097,30 +5098,146 @@ exports.BattleMovedex = {
 		pp: 10,
 		priority: 4,
 		onPrepareHit: function (pokemon) {
-			if(pokemon.removeVolatile('genjibounce'))
+			//console.log('cooldown:'+pokemon.volatiles['cooldown']);
+			if(pokemon.volatiles['cooldown']){
+				pokemon.removeVolatile('cooldown');
 				return false;
+			}
+				
 			this.attrLastMove('[still]');
 			this.add('-anim', pokemon, "Smart Strike", pokemon);
 		},
 		flags: {},
 		volatileStatus: 'genjibounce',
 		effect: {
+			duration: 1,
 			onStart: function (target) {
 				this.add('-singleturn', target, 'move: Genji Bounce');
 			},
 			onTryHitPriority: 2,
 			onTryHit: function (target, source, move) {
+				//console.log('genjibounce:'+target.volatiles['genjibounce']);
+				if (!target.volatiles['genjibounce'])
+					return;
 				if (target === source || move.hasBounced || move.category === 'Status') {
 					return;
 				}
+				target.addVolatile('cooldown');
 				let newMove = this.getMoveCopy(move.id);
 				newMove.hasBounced = true;
 				this.useMove(newMove, target, source);
 				return null;
 			},
+			onBeforeMove: function (pokemon, target, move) {
+				this.add('c|%Acast|beforemove');
+				if (move.id === 'genjibounce' ){	//使用genjibounce，不解除
+					pokemon.addVolatile('genjibounce');
+					pokemon.addVolatile('cooldown');
+					return;
+					//cooldown已经解除
+				}	
+				pokemon.removeVolatile('cooldown');
+				return;
+				//this.debug('removing Destiny Bond before attack');
+				//pokemon.removeVolatile('genjibounce');
+			},
+			onMoveAborted: function (pokemon, target, move) {
+				this.add('c|%Acast|xxxxxx');
+				pokemon.removeVolatile('genjibounce');
+			},
+			onBeforeSwitchOutPriority: 1,
+			onBeforeSwitchOut: function (pokemon) {
+				pokemon.removeVolatile('genjibounce');
+			},
+			onResidual: function(pokemon){
+				pokemon.removeVolatile('genjibounce');
+			}
 		},
 		target: "self",
 		type: "Steel",
+	},
+	ultimatecharge: {
+		accuracy: 100,
+		basePower: 85,
+		category: "Physical",
+		id: "ultimatecharge",
+		name: "Ultimate Charge",
+		pp: 5,
+		priority: 0,
+		flags: {},
+		onPrepareHit: function (target, source, move) {
+			this.attrLastMove('[still]');
+			this.add('-anim', source, "Genesis Supernova", target);
+		},
+		onTryHit:function(source){
+            this.useMove("Charge",source);
+        },
+		secondary: {
+			chance: 100,
+			self: {
+				onHit: function () {
+					this.setTerrain('psychicterrain');
+				},
+			},
+		},
+		target: "normal",
+		type: "Psychic",
+	},
+	danceofcontrol: {
+		accuracy: 100,
+		basePower: 95,
+		category: "Physical",
+		id: "danceofcontrol",
+		name: "Dance of control",
+		pp: 10,
+		priority: 1,
+		flags: {protect: 1},
+		onPrepareHit: function (target, source, move) {
+			this.attrLastMove('[still]');
+			this.add('-anim', source, "Revelation Dance", target);
+		},
+		onEffectiveness: function (typeMod, type) {
+			if (type === 'Dark' || type === 'Steel') return 0;
+			if (type === 'Psychic') return -2;
+		},
+		secondary: {
+			chance: 30,
+			volatileStatus: 'confusion',
+			self: {
+				boosts: {
+					spe: 1,
+				},
+			},
+		},
+		target: "normal",
+		type: "Psychic",
+	},
+	backstab: {
+		accuracy: 85,
+		basePower: 1,
+		category: "Physical",
+		id: "backstab",
+		isViable: true,
+        isNonstandard: true,
+		name: "Backstab",
+		pp: 10,
+		priority: 0,
+		onPrepareHit: function (target, source) {
+			this.attrLastMove('[still]');
+			this.add('-anim', source, "Night Slash", target);
+		},
+		onModifyMovePriority:1,
+		onModifyMove: function (move, source, target) {
+			//console.log("target.hp:"+target.hp+" "+target.maxhp);
+			if (target.hp<target.maxhp/2){	//if spd<def,special
+				move.ohko=true;
+			}
+		},
+		flags: {protect: 1},
+		ohko: false,
+		secondary: false,
+		target: "normal",
+		type: "Water",
 	},
 	// Modified moves
 	"defog": {
