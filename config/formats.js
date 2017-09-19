@@ -1166,13 +1166,6 @@ exports.Formats = [
                    if (name === 'zodiax') {
                    this.add('c|%Zodiax|Introducing 7 time Grand Champion to the battle!');
                    }
-                   },
-                   onFaint: function (pokemon, source, effect) {
-                   let name = toId(pokemon.name);
-                   
-                   if (name === 'innovamania') {
-                   pokemon.side.addSideCondition('healingwish', pokemon, this);
-                   }
                    if (name === 'FSK') {
                    this.add('c|~FSK|冬天来了，春天还会远吗');
                    this.add('c|*bot|专属技能Ultimate Judgment，固定100威力，钢属性');
@@ -1188,6 +1181,27 @@ exports.Formats = [
                    if (name === '总受lxz') {
                    this.add('c|@lxz|我一点也不受');
                    this.add('c|*bot|专属技能Haze Shield 同时使出黑雾和碉堡');
+                   }
+                   if (name === '吓得lxz都Mega了') {
+                   this.add('c|@lxz|我真的一点也不受');
+                   this.add('c|*bot|专属技能千年杀，威力90，属性恶，必定CT');
+                   }
+                   if (name === 'ceca3') {
+                   this.add('c|*bot|专属先制技能intial song，威力60，属性妖');
+                   }
+                   if (name === 'Vincent') {
+                   this.add('c|Vincent|还记得被LC支配的恐惧吗');
+                   this.add('c|*bot|专属技能文森特盾，同时王盾和龙舞');
+                   }
+                   if (name === '非常容易做出的肮脏的小事') {
+                   this.add('c|*bot|专属技能恶心盾，同时刺盾和替身，不过只有8PP');
+                   }
+                   },
+                   onFaint: function (pokemon, source, effect) {
+                   let name = toId(pokemon.name);
+                   
+                   if (name === 'innovamania') {
+                   pokemon.side.addSideCondition('healingwish', pokemon, this);
                    }
                    // Add here salty tears, that is, custom faint phrases.
                    let sentences = [];
