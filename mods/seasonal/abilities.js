@@ -174,6 +174,19 @@ exports.BattleAbilities = {
 		name: "Special Snowflake",
 		rating: 3,
 	},
+	assassin: {
+		onModifyMovePriority: 1,
+		onModifyMove: function (move, source, target) {
+			console.log("spd and def:"+target.stats['spd']+" "+target.stats['def'])
+			if (target.stats['spd']<target.stats['def']){	//if spd<def,special
+				
+				move.defensiveCategory='Special';
+			}
+		},
+		id: "assassin",
+		name: "Assassin",
+		rating: 3,
+	},
     // ceca3
     restart: {
         onStart: function (source) {
@@ -411,5 +424,13 @@ exports.BattleAbilities = {
 				}
 			}
 		}
-	}
+	},
+	defensiveboost: {
+		onResidual: function (pokemon) {
+			this.boost([{def :1},{spd :1}][this.random(2)]);
+		},
+		id: "defensiveboost",
+		name: "Defensive Boost",
+		rating: 4,
+	},
 };

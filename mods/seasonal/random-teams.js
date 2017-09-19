@@ -858,7 +858,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
             },
             'SCEAM': {
                 species: 'Yveltal', ability: 'Delta Stream', item: 'Sky Plate', 
-				moves: ['heatwave', 'darkpulse', 'oblivionwing'],
+				moves: ['lavaplume', 'darkpulse', 'oblivionwing'],
 				signatureMove: "Dark Wind",
 				evs: {hp:168, spa:152, spe:188}, nature: 'Modest',
             },
@@ -952,7 +952,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 signatureMove: "Triumphantly Command",
                 evs: {atk:252, def:4, spe:252}, nature: 'Jolly',
             },
-            'Epistle':{
+            '洛渊':{
                 species: 'Alakazam-Mega', ability: 'Illusion', item: 'Expert Belt',
                 moves: ['secretsword', 'mysticalfire', 'dazzlinggleam'],
                 signatureMove: "Spewing Psychic",
@@ -978,16 +978,34 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
             },
             '源氏':{
                 species: 'Scizor-Mega', ability: 'Steelate', item: 'Insect Plate',
-                moves: ['extremespeed', 'swordsdance', 'uturn'],
+                moves: ['quickattack', 'swordsdance', 'uturn'],
                 signatureMove: "Genji Bounce",
                 evs: {atk:252, spd:4, spe:252}, nature: 'Adamant',
-            },
+			},
+			'暗星': {
+                species: 'Metagross', ability: 'Defensive Boost', item: 'Metagrossite',
+                moves: ['meteormash', 'wildcharge', 'flamecharge'],
+                signatureMove: "Ultimate Charge",
+                evs: {atk:252, spd:4, spe:252}, nature: 'Jolly',
+			},
+			'Grumpig': {
+				species: 'Grumpig', ability: 'Water Spin', item: 'Colbur Berry',
+                moves: ['shadowball', 'focusblast', 'thunderwave'],
+                signatureMove: "Dance of control",
+                evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
+			},
+			'Weavile': {
+				species: 'Weavile', ability: 'Assassin', item: 'Focus Sash',
+                moves: ['knockoff', 'iciclecrash', 'swordsdance'],
+                signatureMove: "Backstab",
+                evs: {atk:252, spd:4, spe:252}, nature: 'Jolly',
+			}
         };
         
         // Generate the team randomly.
         let pool = Object.keys(sets);
-        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','Epistle','Heracross-Mega','Marowak-Alola','loving1096','源氏'];
-        //let our_pokes= ['ceca3','loving1096','源氏','Epistle'];
+        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','洛渊','Heracross-Mega','Marowak-Alola','loving1096','源氏','暗星','Grumpig','Weavile'];
+        //let our_pokes= ['Weavile','Grumpig','暗星','源氏'];
         for (let i = 0; i < 6; i++) {
             let name = this.sampleNoReplace(pool);
             if(i<4)

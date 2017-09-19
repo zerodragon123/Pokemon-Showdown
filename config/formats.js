@@ -1215,8 +1215,15 @@ exports.Formats = [
                    if (pokemon.species === 'Prinplup'){
                     this.add('c|*bot|Triumphantly Command：水系60物攻，对地面上的精灵威力翻倍');
                    }
-                   if (pokemon.species === 'Kyogre'){
-                    this.add('c|*bot|Excited Surf：冲浪并回复造成伤害的2/3');
+                   if (pokemon.species === 'Metagross-Mega'){
+                    this.add('c|*bot|Ultimate Charge：超能系85物攻，命中后开超场');
+                   }
+                   if (pokemon.species === 'Grumpig'){
+                    this.add('c|*bot|Dance of control：超能系95先制特攻，30%混乱并提升自己一级速度');
+                   }
+                   if (pokemon.species === 'Weavile'){
+                    this.add('c|*bot|Backstab：85%命中率，在对方生命值小于50%时直接秒杀');
+                    this.add('c|*bot|Assassin：攻击对方时以对方两防中较低的一项计算防御');
                    }
 
                    
