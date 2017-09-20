@@ -5164,7 +5164,7 @@ exports.BattleMovedex = {
 		name: "Ultimate Charge",
 		pp: 5,
 		priority: 0,
-		flags: {},
+		flags: {protect: 1},
 		onPrepareHit: function (target, source, move) {
 			this.attrLastMove('[still]');
 			this.add('-anim', source, "Genesis Supernova", target);
@@ -5186,23 +5186,24 @@ exports.BattleMovedex = {
 	danceofcontrol: {
 		accuracy: 100,
 		basePower: 95,
-		category: "Physical",
+		category: "Special",
 		id: "danceofcontrol",
 		name: "Dance of control",
 		pp: 10,
 		priority: 1,
 		flags: {protect: 1},
+		ignoreImmunity: {'Psychic': true},
 		onPrepareHit: function (target, source, move) {
 			this.attrLastMove('[still]');
 			this.add('-anim', source, "Revelation Dance", target);
 		},
 		onEffectiveness: function (typeMod, type) {
-			if (type === 'Dark' || type === 'Steel') return 0;
 			if (type === 'Psychic') return -2;
+			return 0;
 		},
 		secondary: {
-			chance: 30,
-			volatileStatus: 'confusion',
+			chance: 25,
+			volatileStatus: 'flinch',
 			self: {
 				boosts: {
 					spe: 1,
@@ -5230,7 +5231,8 @@ exports.BattleMovedex = {
 		onModifyMove: function (move, source, target) {
 			//console.log("target.hp:"+target.hp+" "+target.maxhp);
 			if (target.hp<target.maxhp/2){	//if spd<def,special
-				move.ohko=true;
+				move.basePower=70000;
+				move.accuracy=true;
 			}
 		},
 		flags: {protect: 1},

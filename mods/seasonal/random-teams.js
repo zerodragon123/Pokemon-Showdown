@@ -978,7 +978,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
             },
             '源氏':{
                 species: 'Scizor-Mega', ability: 'Steelate', item: 'Insect Plate',
-                moves: ['quickattack', 'swordsdance', 'uturn'],
+                moves: ['extremespeed', 'swordsdance', 'uturn'],
                 signatureMove: "Genji Bounce",
                 evs: {atk:252, spd:4, spe:252}, nature: 'Adamant',
 			},
@@ -1004,13 +1004,19 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
         
         // Generate the team randomly.
         let pool = Object.keys(sets);
-        let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','洛渊','Heracross-Mega','Marowak-Alola','loving1096','源氏','暗星','Grumpig','Weavile'];
+		let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','洛渊','Heracross-Mega','Marowak-Alola','loving1096','源氏','暗星','Grumpig','Weavile'];
+		let selected_pokes=[];
         //let our_pokes= ['Weavile','Grumpig','暗星','源氏'];
         for (let i = 0; i < 6; i++) {
             let name = this.sampleNoReplace(pool);
-            if(i<4)
-                name = this.sampleNoReplace(our_pokes);
-            
+            if(i<4)		//前4只为新pm
+				name = this.sampleNoReplace(our_pokes);
+			else{
+				while(selected_pokes.indexOf(name)!=-1)		//防止重复pm
+					name = this.sampleNoReplace(pool);
+			}
+			selected_pokes.push(name);
+			
             let set = sets[name];
             set.level = 100;
             set.name = name;
