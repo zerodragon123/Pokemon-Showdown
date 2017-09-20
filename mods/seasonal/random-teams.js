@@ -977,8 +977,8 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
             },
             '源氏':{
-                species: 'Scizor-Mega', ability: 'Careless Technican', item: 'Insect Plate',
-                moves: ['bulletpunch', 'swordsdance', 'uturn'],
+                species: 'Scizor-Mega', ability: 'Steelate', item: 'Insect Plate',
+                moves: ['extremespeed', 'swordsdance', 'uturn'],
                 signatureMove: "Genji Bounce",
                 evs: {atk:252, spd:4, spe:252}, nature: 'Adamant',
 			},

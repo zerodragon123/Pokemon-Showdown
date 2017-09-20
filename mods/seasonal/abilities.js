@@ -388,15 +388,14 @@ exports.BattleAbilities = {
 			if (move && move.flags['heal']) return priority + 0.5;
 		},
 	},
-	carelesstechnican: {
-		id: "carelesstechnican",
-		name: "Carelenss Technican",
+	steelate: {
+		id: "steelate",
+		name: "steelate",
 		rating: 4,
-		onBasePowerPriority: 8,
-		onBasePower: function (basePower, attacker, defender, move) {
-			if (basePower <= 60) {
-				this.debug('Technician boost');
-				return this.chainModify(1.5);
+		onModifyMovePriority: -1,
+		onModifyMove: function (move, pokemon) {
+			if (move.type === 'Normal' && !(move.id in {naturalgift:1, revelationdance:1}) && !(move.isZ && move.category !== 'Status')) {
+				move.type = 'Steel';
 			}
 		},
 		onPrepareHit: function (target, source, move){
