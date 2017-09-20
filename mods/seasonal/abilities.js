@@ -177,7 +177,6 @@ exports.BattleAbilities = {
 	assassin: {
 		onModifyMovePriority: 1,
 		onModifyMove: function (move, source, target) {
-			console.log("spd and def:"+target.stats['spd']+" "+target.stats['def'])
 			if (target.stats['spd']<target.stats['def']){	//if spd<def,special
 				
 				move.defensiveCategory='Special';

@@ -5192,6 +5192,7 @@ exports.BattleMovedex = {
 		pp: 10,
 		priority: 1,
 		flags: {protect: 1},
+		ignoreImmunity: {'Psychic': true},
 		onPrepareHit: function (target, source, move) {
 			this.attrLastMove('[still]');
 			this.add('-anim', source, "Revelation Dance", target);
@@ -5201,8 +5202,8 @@ exports.BattleMovedex = {
 			return 0;
 		},
 		secondary: {
-			chance: 30,
-			volatileStatus: 'confusion',
+			chance: 25,
+			volatileStatus: 'flinch',
 			self: {
 				boosts: {
 					spe: 1,
@@ -5230,7 +5231,6 @@ exports.BattleMovedex = {
 		onModifyMove: function (move, source, target) {
 			//console.log("target.hp:"+target.hp+" "+target.maxhp);
 			if (target.hp<target.maxhp/2){	//if spd<def,special
-				this.add("OHKO!!!");
 				move.basePower=70000;
 				move.accuracy=true;
 			}
