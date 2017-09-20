@@ -353,6 +353,7 @@ exports.BattleAbilities = {
 		name: "I Have Ferro",
 		rating: 4,
 	},
+    // 袁绍
 	clannism: {
 		id: "clannism",
 		name: "Clannism",
@@ -379,6 +380,7 @@ exports.BattleAbilities = {
 			this.boost(boost);
 		},
 	},
+    //HerraMega
 	nerfedtriage: {
 		id: "nerfedtriage",
 		name: "Nerfed Triage",
@@ -387,6 +389,7 @@ exports.BattleAbilities = {
 			if (move && move.flags['heal']) return priority + 0.5;
 		},
 	},
+    //Gengi 源氏
 	steelate: {
 		id: "steelate",
 		name: "steelate",
@@ -404,6 +407,7 @@ exports.BattleAbilities = {
 				source.removeVolatile('cooldown');
 		}
 	},
+    // loving1096
 	waterspin: {
 		id: "waterspin",
 		name: "Water Spin",
@@ -419,6 +423,7 @@ exports.BattleAbilities = {
 			}
 		}
 	},
+    // 暗星
 	defensiveboost: {
 		onResidual: function (pokemon) {
 			this.boost([{def :1},{spd :1}][this.random(2)]);

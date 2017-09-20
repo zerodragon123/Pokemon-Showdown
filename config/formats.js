@@ -1168,65 +1168,83 @@ exports.Formats = [
                    this.add('c|%Zodiax|Introducing 7 time Grand Champion to the battle!');
                    }
                    if (pokemon.species === 'Arceus-Steel') {
-                   this.add('c|~FSK|冬天来了，春天还会远吗');
-                   this.add('c|*bot|Ultimate Judgment：造成100点伤害，钢属性');
+                   this.add('c|~FSK| If winter comes, can spring be far behind?');
+                   this.add('c|*FSK专属技能|Ultimate Judgment：造成100点伤害，钢属性');
                    }
                    if (pokemon.species === 'Salamence') {
                    this.add('c|~EroyalBoy|你已难逃一吸');
-                   this.add('c|*bot|Jolin Boomburst：普通系140特攻，回复伤害的3/4');
+                   this.add('c|*EB专属技能|Jolin Boomburst：普通系140特攻，回复伤害的3/4');
+                   }
+                   if (pokemon.species === 'Yveltal'){
+                   this.add('c|*SC专属技能|Dark Wind:使用挑拨；上场第一次使用，会同时使出顺风和蝶舞');
                    }
                    if (pokemon.species === 'Giratina') {
                    this.add('c|@暗黑员|我是光明的员');
-                   this.add('c|*bot|Dark Spite：32PP，每次使用消耗对面4PP');
+                   this.add('c|*暗黑员专属技能|Dark Spite：32PP，每次使用消耗对面4PP');
                    }
                    if (pokemon.species === 'Ferrothorn') {
                    this.add('c|@lxz|我一点也不受');
-                   this.add('c|*bot|Haze Shield：同时使出黑雾和碉堡');
+                   this.add('c|*总受lxz专属技能|Haze Shield：同时使出黑雾和碉堡');
                    }
                    if (pokemon.species === 'Tyranitar-Mega') {
                    this.add('c|@lxz|我真的一点也不受');
-                   this.add('c|*bot|Sennen Goroshi：恶系90物攻，必定CT');
+                   this.add('c|*Megalxz专属技能|Sennen Goroshi(千年杀)：恶系90物攻，必定CT');
                    }
                    if (pokemon.species === 'Kirlia') {
-                   this.add('c|*bot|intial song：妖精系60特攻，先制+1');
+                   this.add('c|*圣光专属技能|intial song：妖精系60特攻，先制+1');
                    }
                    if (name === 'vincent') {
                    this.add('c|Vincent|还记得被LC支配的恐惧吗');
-                   this.add('c|*bot|Vincent Shield：同时使用王盾和龙舞');
+                   this.add('c|*文森特专属技能|Vincent Shield：同时使用王盾和龙舞');
                    }
                    if (pokemon.species === 'Whimscott') {
-                   this.add('c|*bot|Prankster Shield：同时使用保护和替身，PP为4');
+                   this.add('c|*风妖专属技能|Prankster Shield：同时使用保护和替身，PP为4');
                    }
                    if (pokemon.species === 'Scizor-Mega'){
-                        this.add('c|*bot|Genji Bounce：反弹当回合所有攻击技能，连续使用必将失败');
+                   this.add('c|*源氏专属技能|Genji Bounce：反弹当回合所有攻击技能，连续使用必将失败');
+                   this.add('c|*源氏专属技能|Steelate：普通系技能变成钢系，威力*1.2');
                    }
                    if (pokemon.species === 'Beedrill-Mega'){
-                    this.add('c|*bot|Innovative Turn：使用暗影偷盗和蜻蜓回转');
+                   this.add('c|*MS专属技能|Innovative Turn：使用暗影偷盗和蜻蜓回转');
                    }
                    if (pokemon.species === 'Pidgeot-Mega'){
-                    this.add('c|*bot|The Crow Sea：恶系100特攻，以物防计算伤害');
+                   this.add('c|*晋文公专属技能|The Crow Sea：恶系100特攻，以物防计算伤害');
                    }
                    if (pokemon.species === 'Swampert'){
-                    this.add('c|*bot|Sniping Nightmare：飞行+火系90物攻');
+                   this.add('c|*噩梦狙击专属技能|Sniping Nightmare：飞行+火系90物攻');
                    }
                    if (pokemon.species === 'Deoxys-Speed'){
-                    this.add('c|*bot|Imprisonform：变成对手的样子之后使用封印');
+                   this.add('c|*正弦专属技能|Imprisonform：变成对手的样子之后使用封印');
                    }
                    if (pokemon.species === 'Prinplup'){
-                    this.add('c|*bot|Triumphantly Command：水系60物攻，对地面上的精灵威力翻倍');
+                   this.add('c|*袁绍专属技能|Triumphantly Command：水系60物攻，对地面上的精灵威力翻倍');
                    }
                    if (pokemon.species === 'Metagross-Mega'){
-                    this.add('c|*bot|Ultimate Charge：超能系85物攻，命中后开超场');
+                   this.add('c|*暗星专属技能|Ultimate Charge：物理80威力超能技能，开超场，同时使用蓄电');
+                   this.add('c|*暗星专属特性|：每回合随机提升一级防御或特防');
                    }
                    if (pokemon.species === 'Grumpig'){
-                    this.add('c|*bot|Dance of control：超能系95先制特攻，30%混乱并提升自己一级速度');
+                   this.add('c|*噗噗猪专属技能|Dance of control：威力95 超能特攻，对恶有效，先制度+1，25%害怕');
                    }
                    if (pokemon.species === 'Weavile'){
-                    this.add('c|*bot|Backstab：85%命中率，在对方生命值小于50%时直接秒杀');
-                    this.add('c|*bot|Assassin：攻击对方时以对方两防中较低的一项计算防御');
+                   this.add('c|*玛狃拉专属技能|Backstab：必定命中，在对方生命值小于50%时直接秒杀，否则0威力');
+                   this.add('c|*玛狃拉专属特性|Assassin：攻击对方时以对方两防中较低的一项计算防御');
+                   }
+                   if (pokemon.species === 'Togekiss'){
+                   this.add('c|*充钱者专属特性|Fasthax：G6疾风之翼和天恩的合体');
+                   }
+                   if (pokemon.species === 'Raticate-Alola'){
+                   this.add('c|*阿罗拉拉达专属技能|Celebration:是PP1的Z庆祝');
+                   }
+                   if (pokemon.species === 'kyogre'){
+                   this.add('c|+loving1096| 我好兴奋啊!');
+                   this.add('c|*爱叔专属技能|Excited Surf:冲浪同时回复伤害的1/2');
+                   this.add('c|*爱叔专属特性|Water Spin:使用喷水时，清除己方场上所有钉子');
+                   }
+                   if (pokemon.species === 'Heracross-Mega'){
+                   this.add('c|*赫拉专属特性|Nerfed Triage:回复技能先制度+0.5');
                    }
 
-                   
                    },
                    onFaint: function (pokemon, source, effect) {
                    let name = toId(pokemon.name);

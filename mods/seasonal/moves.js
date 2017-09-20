@@ -5239,7 +5239,7 @@ exports.BattleMovedex = {
 		ohko: false,
 		secondary: false,
 		target: "normal",
-		type: "Water",
+		type: "Dark",
 	},
 	// Modified moves
 	"defog": {

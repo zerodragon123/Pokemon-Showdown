@@ -108,12 +108,6 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				signatureMove: "Ancestor's Rage",
 				evs: {hp:252, atk:252, def:4}, nature: 'Adamant',
 			},
-			'Beowulf': {
-				species: 'Beedrill', ability: 'Download', item: 'Beedrillite', gender: 'M',
-				moves: ['spikyshield', 'gunkshot', ['sacredfire', 'boltstrike', 'diamondstorm'][this.random(3)]],
-				signatureMove: "Buzzing of the Swarm",
-				evs: {def:4, atk:252, spe:252}, nature: 'Jolly',
-			},
 			'biggie': {
 				species: 'Snorlax', ability: 'Fur Coat', item: 'Leftovers', gender: 'M',
 				moves: ['drainpunch', 'diamondstorm', 'kingsshield', 'knockoff', 'precipiceblades'],
@@ -426,12 +420,6 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				signatureMove: "Wyvern's Wind",
 				evs: {hp:252, def:4, spd:252}, nature: 'Calm',
 			},
-			'Jetpack': {
-				species: 'Alakazam', ability: 'Magic Guard', item: 'Alakazite', gender: 'M',
-				moves: ['substitute', 'shadowball', 'focusblast'],
-				signatureMove: "Malicious Hypnosis",
-				evs: {hp:4, spa:252, spe:252}, nature: 'Timid',
-			},
 			'Joim': {
 				species: 'Zapdos', ability: 'Tinted Lens', item: 'Life Orb', gender: 'M', shiny: true,
 				moves: ['thunderbolt', 'hurricane', 'quiverdance'],
@@ -468,13 +456,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				signatureMove: "Shell Fortress",
 				evs: {hp:252, def:228, spd:28}, nature: 'Calm',
 			},
-			'Lemonade': {
-				species: 'Weavile', ability: 'Pressure', item: 'Life Orb', gender: 'M',
-				moves: ['knockoff', 'iciclecrash', 'iceshard'],
-				signatureMove: "Seems Good",
-				evs: {atk:252, def:4, spe:252}, nature: 'Jolly',
-			},
-			'LJ': {
+            'LJ': {
 				species: 'Giratina-Origin', ability: 'Levitate', item: 'Griseous Orb', gender: 'M',
 				moves: ['dragondance', 'substitute', 'playrough'],
 				signatureMove: "Chaos Wheel",
@@ -766,12 +748,12 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				signatureMove: "Desolation Pulse",
 				evs: {spa:252, spd:4, spe:252}, nature: 'Modest',
 			},
-			'Trickster': {
-				species: 'Whimsicott', ability: 'Illuminate', item: 'Quick Claw', gender: 'M',
-				moves: [['substitute', 'defog'][this.random(2)], 'sing', 'gigadrain'],
-				signatureMove: "Sacred Spear Explosion",
-				evs: {hp:252, def:4, spe:252}, nature: 'Timid',
-			},
+			//'Trickster': {
+			//	species: 'Whimsicott', ability: 'Illuminate', item: 'Quick Claw', gender: 'M',
+			//	moves: [['substitute', 'defog'][this.random(2)], 'sing', 'gigadrain'],
+			//	signatureMove: "Sacred Spear Explosion",
+			//	evs: {hp:252, def:4, spe:252}, nature: 'Timid',
+			//},
 			'unfixable': {
 				species: 'Cacnea', ability: 'Water Absorb', item: 'Eviolite', gender: 'F',
 				moves: ['spikes', 'spikyshield', variant ? 'powerwhip' : 'seedflare'],
@@ -917,7 +899,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 evs: {hp:248, spe:8, def:252}, nature: 'Bold',
             },
             '我充钱了':{
-                species: 'Togekiss', ability: 'Fast Hax', item: 'Metronome',
+                species: 'Togekiss', ability: 'Fast Hax', item: 'Leftovers',
                 moves: ['airslash', 'calmmind', 'moonlight'],
                 signatureMove: "Moonblast",
                 evs: {hp:72, spa:252, spe:184}, nature: 'Modest',
@@ -989,14 +971,14 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 evs: {atk:252, spd:4, spe:252}, nature: 'Jolly',
 			},
 			'Grumpig': {
-				species: 'Grumpig', ability: 'Water Spin', item: 'Colbur Berry',
+				species: 'Grumpig', ability: 'Dazzling', item: 'Colbur Berry',
                 moves: ['shadowball', 'focusblast', 'thunderwave'],
                 signatureMove: "Dance of control",
                 evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
 			},
 			'Weavile': {
 				species: 'Weavile', ability: 'Assassin', item: 'Focus Sash',
-                moves: ['knockoff', 'iciclecrash', 'swordsdance'],
+                moves: ['knockoff', 'iciclecrash', ['iceshard', 'suckerpunch'][this.random(2)]],
                 signatureMove: "Backstab",
                 evs: {atk:252, spd:4, spe:252}, nature: 'Jolly',
 			}

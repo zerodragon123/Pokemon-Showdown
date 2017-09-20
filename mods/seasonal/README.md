@@ -39,7 +39,7 @@ Evs: 168 HP / 152 SpA / 188 Spe
 
 Modest Nature
 
-- 热风
+- 喷烟
 - 恶之波动
 - 死亡之翼
 - Dark Wind 先制度+1，使用挑拨。上场第一次使用，会同时使出顺风和蝶舞
@@ -175,7 +175,7 @@ Nature: Timid
 
 - Air Slash
 - Calm Mind
-- Roost
+- Moonlight
 - Moonblast
 
 lxz (Ferrothorn) @ Leftovers 
@@ -210,9 +210,9 @@ Raticate-Alola @ Normalium Z
 
 Ability: Simple
 
-EVs: 252 Atk / 4 Spd / 252 Spe
+EVs: HP 32 / 180 Atk / 44 Def/ 252 Spe
 
-Adamant Nature
+Jolly Nature
 
 - Power Trip
 - 神速
@@ -260,7 +260,7 @@ Adamant Nature
 
 Marowak-Alola @ Thick Club
 
-Ability: Huge Power OR Adapability OR Sheer Force
+Ability: Adapability OR Sheer Force
 
 EVs: 248 HP / 252 Atk / 8 Spd 
 
@@ -298,6 +298,41 @@ Evs: 252 HP / 252 Atk / 4 Spe
 - Extreme Speed
 - Genji Bounce	[反弹所有物理和特殊技能，连续使用必将失败]
 - U-turn    [同时使用Spikes]
+
+暗星 (Metagross) @ Metagrossite
+
+Ability: Defensive Boost [每回合随机提升一级防御或特防]
+Jolly Nature
+Evs: 252 Atk / 4 SpD / 252 Spe
+
+- Meteor Mash
+- Wild Charge
+- Flame Charge
+- Ultimate Charge [物理80威力超能技能，开超场，同时使用蓄电]
+
+Grumpig @ Colbur Berry
+
+Ability: Dazzling[免疫先制]
+Timid Nature
+252 SpA /  4 SpD / 252 Spe
+
+- Shadow Ball
+- Focus Blast
+- Thunder Wave
+- Dance of control [威力95 超能特攻，对恶有效，先制度+1，25%害怕]
+
+Weavile @ Focus Sash
+
+Ability: Assassin[攻击时只计算目标物防特防中更低的那一项]
+Jolly Nature
+Evs: 252 Atk / 4 SpD / 252 Spe
+
+- Knock Off
+- Icicle Crash
+- Sucker Punch / Ice Shard
+- Backstab [目标血量在一半或以上时0威力，否则直接击杀]
+
+
 ----原有精灵-----
 
 ### Acast
