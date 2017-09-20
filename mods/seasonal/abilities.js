@@ -371,7 +371,7 @@ exports.BattleAbilities = {
 				}
 			}
 			let randomStat = stats.length ? stats[this.random(stats.length)] : "";
-			if (randomStat) boost[randomStat] = 3;
+			if (randomStat) boost[randomStat] = 2;
 			let randomStat2 = randomStat;
 			while(randomStat2 === randomStat){
 				randomStat2 = stats[this.random(stats.length)];
@@ -388,20 +388,16 @@ exports.BattleAbilities = {
 			if (move && move.flags['heal']) return priority + 0.5;
 		},
 	},
-	steelate: {
-		id: "steelate",
-		name: "Steelate",
+	carelesstechnican: {
+		id: "carelesstechnican",
+		name: "Carelenss Technican",
 		rating: 4,
-		onModifyMovePriority: -1,
-		onModifyMove: function (move, pokemon) {
-			if (move.type === 'Normal' && !(move.id in {naturalgift:1, revelationdance:1}) && !(move.isZ && move.category !== 'Status')) {
-				move.type = 'Steel';
-				move.aerilateBoosted = true;
-			}
-		},
 		onBasePowerPriority: 8,
-		onBasePower: function (basePower, pokemon, target, move) {
-			if (move.aerilateBoosted) return this.chainModify([0x1333, 0x1000]);
+		onBasePower: function (basePower, attacker, defender, move) {
+			if (basePower <= 60) {
+				this.debug('Technician boost');
+				return this.chainModify(1.5);
+			}
 		},
 		onPrepareHit: function (target, source, move){
 			if(move.id === 'uturn')
