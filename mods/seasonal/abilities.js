@@ -432,4 +432,35 @@ exports.BattleAbilities = {
 		name: "Defensive Boost",
 		rating: 4,
 	},
+	africanrampage: {
+		id: "africanrampage",
+		name: "African Rampage",
+		onStart: function (pokemon) {
+			this.addPseudoWeather('Welcome to Africa', pokemon);
+		},
+		onModifyMovePriority: 7,
+		onModifyMove: function (move) {
+			move.onMoveFail=function (target, source, move) {
+				if (move.id === 'jumpkick')
+					this.damage(source.maxhp / 4, source, source, 'jumpkick');
+				if(!move.tryAgain &&!target.volatiles['stall'] &&this.getImmunity(move,target) && !target.volatiles['genjibounce'])
+					move.tryAgain=1;
+				else return;
+				this.add('message','Tapu bulu is angry because its move missed!');
+				this.useMove(move,source);
+				this.useMove(move,source);
+				this.useMove(move,source);
+			};
+		},
+		rating: 4,
+	},
+	cursedsoul: {
+		onStart: function (source) {
+			this.useMove(['Thunder Wave','Toxic','Will-O-Wisp'][this.random(3)], source);
+			this.useMove('Initial Curse',source);
+		},
+		id: "cursedsoul",
+		name: "Cursed Soul",
+		rating: 4,
+	},
 };

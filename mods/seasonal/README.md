@@ -289,7 +289,7 @@ IVs: 0 Atk
 
 Genji (Scizor-Mega) @ Insect Plate
 
-Ability: Steelate [普通系技能变成钢系，威力*1.2]
+Ability: Steelate [普通系技能变成钢系，威力没有变化]
 
 Adamant Nature
 
@@ -302,7 +302,9 @@ Evs: 252 HP / 252 Atk / 4 Spe
 暗星 (Metagross) @ Metagrossite
 
 Ability: Defensive Boost [每回合随机提升一级防御或特防]
+
 Jolly Nature
+
 Evs: 252 Atk / 4 SpD / 252 Spe
 
 - Meteor Mash
@@ -310,21 +312,25 @@ Evs: 252 Atk / 4 SpD / 252 Spe
 - Flame Charge
 - Ultimate Charge [物理80威力超能技能，开超场，同时使用蓄电]
 
-Grumpig @ Colbur Berry
+Rotom-Frost @ Expert Belt
 
-Ability: Dazzling[免疫先制]
+Ability: Dazzling
+
 Timid Nature
+
 252 SpA /  4 SpD / 252 Spe
 
-- Shadow Ball
-- Focus Blast
+- Earth Power
+- Ice Beam
 - Thunder Wave
-- Dance of control [威力95 超能特攻，对恶有效，先制度+1，25%害怕]
+- Dance of control [威力70 电系特攻，对地面有效，先制度+1，25%害怕]
 
 Weavile @ Focus Sash
 
 Ability: Assassin[攻击时只计算目标物防特防中更低的那一项]
+
 Jolly Nature
+
 Evs: 252 Atk / 4 SpD / 252 Spe
 
 - Knock Off
@@ -332,7 +338,33 @@ Evs: 252 Atk / 4 SpD / 252 Spe
 - Sucker Punch / Ice Shard
 - Backstab [目标血量在一半或以上时0威力，否则直接击杀]
 
+ahhh (Gengar-Mega) @ Black Sludge
 
+Ability: Cursed Soul[上场随机使用电磁波/鬼火/剧毒，赋予对手诅咒状态]
+
+Timid Nature
+
+Evs: 252 SpA / 4 SpD / 252 Spe
+
+- Pain Split
+- Hex
+- Substitute
+- lmfao [随机使用同归/怨念/定身法，并将对方的第二属性设定为鬼系] [先制+3]
+
+绝望的非洲人 (Tapu Bulu) @ Iapapa Berry
+
+Ability: African Rampage 
+
+上场制造非洲场地，所有技能的命中率变为原来的74%。如果自己的技能miss，则会因为愤怒连续使用3次该技能
+
+Adamant Nature
+
+Evs: 248 HP / 252 Atk / 4 Spe 
+
+- Power Whip
+- Play Rough
+- Jump Kick [如果踢空，只损失1/4的生命值]
+- Substitute
 ----原有精灵-----
 
 ### Acast
