@@ -992,7 +992,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
         
         // Generate the team randomly.
         let pool = Object.keys(sets);
-		let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','洛渊','Heracross-Mega','Marowak-Alola','loving1096','源氏','暗星','绝望的非洲人','Weavile','Rotom-Frost','ahhh'];
+		let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','洛渊','Heracross-Mega','Marowak-Alola','loving1096','源氏','暗星','绝望的非洲人','Weavile','Rotom-Frost','ahhh','qtrx','Marshmallon'];
 		let selected_pokes=[];
         //let our_pokes= ['绝望的非洲人','Rotom-Frost','源氏','ahhh','Nightmare'];
         for (let i = 0; i < 6; i++) {
