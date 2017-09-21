@@ -5299,7 +5299,7 @@ exports.BattleMovedex = {
 			}
 		},
 		onHit: function (target, source) {
-			this.directDamage(source.maxhp / 4, source, source);
+			this.directDamage(source.maxhp / 5, source, source);
 		},
 		effect: {
 			onStart: function (pokemon, source) {
@@ -5307,7 +5307,7 @@ exports.BattleMovedex = {
 			},
 			onResidualOrder: 10,
 			onResidual: function (pokemon) {
-				this.damage(pokemon.maxhp / 6);
+				this.damage(pokemon.maxhp / 4);
 			},
 		},
 		secondary: false,
