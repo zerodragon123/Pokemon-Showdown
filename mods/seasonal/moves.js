@@ -3747,8 +3747,10 @@ exports.BattleMovedex = {
 		flags: {mirror: 1},
 		onHitField: function (target, source, effect) {
 			if (this.pseudoWeather['shitpostparadise']) {
+				
 				this.removePseudoWeather('shitpostparadise', source, effect, '[of] ' + source);
 			} else {
+				console.log(effect);
 				this.addPseudoWeather('shitpostparadise', source, effect, '[of] ' + source);
 			}
 		},
@@ -4893,7 +4895,7 @@ exports.BattleMovedex = {
 		name: "Sniping Nightmare",
 		pp: 5,
 		priority: 0,
-		flags: {protect: 1, mirror: 1},
+		flags: {protect: 1, mirror: 1, contact: 1},
 		onEffectiveness: function (typeMod, type) {
 			return typeMod + this.getEffectiveness('Fire', type);
 		},
@@ -5051,7 +5053,7 @@ exports.BattleMovedex = {
 		name: "Spewing Psychic",
 		pp: 5,
 		priority: 0,
-		flags: {},
+		flags: {protect: 1, contact:1},
 		onPrepareHit: function (target, source, move) {
 			this.attrLastMove('[still]');
 			this.add('-anim', source, "Genesis Supernova", target);
@@ -5069,7 +5071,7 @@ exports.BattleMovedex = {
 	},
 	excitedsurf: {
 		accuracy: 100,
-		basePower: 90,
+		basePower: 100,
 		category: "Special",
 		id: "excitedsurf",
 		isViable: true,
@@ -5164,10 +5166,10 @@ exports.BattleMovedex = {
 		name: "Ultimate Charge",
 		pp: 5,
 		priority: 0,
-		flags: {protect: 1},
+		flags: {protect: 1, contact: 1},
 		onPrepareHit: function (target, source, move) {
 			this.attrLastMove('[still]');
-			this.add('-anim', source, "Genesis Supernova", target);
+			this.add('-anim', source, "Shattered Psyche", target);
 		},
 		onHit: function (target, source) {
 			this.useMove("Charge", source);
@@ -5185,21 +5187,20 @@ exports.BattleMovedex = {
 	},
 	danceofcontrol: {
 		accuracy: 100,
-		basePower: 95,
+		basePower: 70,
 		category: "Special",
 		id: "danceofcontrol",
 		name: "Dance of control",
 		pp: 10,
 		priority: 1,
 		flags: {protect: 1},
-		ignoreImmunity: {'Psychic': true},
+		ignoreImmunity: {'Electric': true},
 		onPrepareHit: function (target, source, move) {
 			this.attrLastMove('[still]');
 			this.add('-anim', source, "Revelation Dance", target);
 		},
 		onEffectiveness: function (typeMod, type) {
-			if (type === 'Psychic') return -2;
-			return 0;
+			if (type === 'Ground') return 0;
 		},
 		secondary: {
 			chance: 25,
@@ -5211,7 +5212,7 @@ exports.BattleMovedex = {
 			},
 		},
 		target: "normal",
-		type: "Psychic",
+		type: "Electric",
 	},
 	backstab: {
 		accuracy: 100,
@@ -5235,11 +5236,104 @@ exports.BattleMovedex = {
 				move.accuracy=true;
 			}
 		},
-		flags: {protect: 1},
+		flags: {protect: 1, contact: 1},
 		ohko: false,
 		secondary: false,
 		target: "normal",
 		type: "Dark",
+	},
+	welcometoafrica: {
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		id: "welcometoafrica",
+		isNonstandard: true,
+		name: "Welcome to Africa",
+		pp: 10,
+		priority: 0,
+		flags: {mirror: 1, heal: 1},
+		heal: [1, 3],
+		onHitField: function (target, source, effect) {
+			if (this.pseudoWeather['welcometoafrica']) {
+			} else {
+				this.addPseudoWeather('welcometoafrica', source, effect, '[of] ' + source);
+				//console.log(this.pseudoWeather['africa']);
+			}
+		},
+		effect: {
+			duration: 5,
+			onStart: function (target, source) {
+				this.add('-fieldstart', 'move: Welcome to Africa', '[silent]');
+			},
+			onResidualOrder: 25,
+			onEnd: function () {
+				this.add('-fieldend', 'move: Welcome to Africa', '[silent]');
+			},
+			onModifyMovePriority: 7,
+			onModifyMove: function (move) {
+				if (typeof move.accuracy === 'number' && move.accuracy>=80) move.accuracy *= 0.74;
+			},
+		},
+		secondary: false,
+		target: "all",
+		type: "Psychic",
+	},
+	initialcurse: {
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		id: "initialcurse",
+		name: "Initial Curse",
+		pp: 10,
+		priority: 0,
+		flags: {authentic: 1},
+		volatileStatus: 'curse',
+		onModifyMove: function (move, source, target) {
+			if (!source.hasType('Ghost')) {
+				move.target = move.nonGhostTarget;
+			}
+		},
+		onTryHit: function (target, source, move) {
+			if (!source.hasType('Ghost')) {
+				delete move.volatileStatus;
+				delete move.onHit;
+				move.self = {boosts: {spe:-1, atk:1, def:1}};
+			} else if (move.volatileStatus && target.volatiles.curse) {
+				return false;
+			}
+		},
+		effect: {
+			onStart: function (pokemon, source) {
+				this.add('-start', pokemon, 'Curse', '[of] ' + source);
+			},
+			onResidualOrder: 10,
+			onResidual: function (pokemon) {
+				this.damage(pokemon.maxhp / 4);
+			},
+		},
+		secondary: false,
+		target: "normal",
+		nonGhostTarget: "self",
+		type: "Ghost",
+		zMoveEffect: 'curse',
+		contestType: "Tough",
+	},
+	lmfao:{
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		id: "lmfao",
+		name: "lmfao",
+		pp: 10,
+		priority: 3,
+		secondary: false,
+		target: "normal",
+		type: "Ghost",
+		flags: {sound: 1, protect: 1},
+		onHit: function (target, source, move){
+			this.useMove(['destinybond','disable','Grudge'][this.random(3)],source);
+			target.setType([target.types[0],'Ghost']);
+		}
 	},
 	// Modified moves
 	"defog": {

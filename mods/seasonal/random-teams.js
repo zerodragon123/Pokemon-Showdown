@@ -122,7 +122,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 			},
 			'Blitzamirin': {
 				species: 'Chandelure', ability: 'Prankster', item: 'Red Card', gender: 'M',
-				moves: [['darkvoid', 'substitute'][this.random(2)], 'shadowball', 'blueflare'],
+				moves: [['spore', 'substitute'][this.random(2)], 'shadowball', 'blueflare'],
 				signatureMove: "Pneuma Relinquish",
 				evs: {def:4, spa:252, spe:252}, ivs: {atk:0}, nature: 'Timid',
 			},
@@ -962,7 +962,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 species: 'Scizor-Mega', ability: 'Steelate', item: 'Insect Plate',
                 moves: ['extremespeed', 'swordsdance', 'uturn'],
                 signatureMove: "Genji Bounce",
-                evs: {atk:252, spd:4, spe:252}, nature: 'Adamant',
+                evs: {hp:252, atk:252, spd:4}, nature: 'Adamant',
 			},
 			'暗星': {
                 species: 'Metagross', ability: 'Defensive Boost', item: 'Metagrossite',
@@ -970,9 +970,9 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 signatureMove: "Ultimate Charge",
                 evs: {atk:252, spd:4, spe:252}, nature: 'Jolly',
 			},
-			'Grumpig': {
-				species: 'Grumpig', ability: 'Dazzling', item: 'Colbur Berry',
-                moves: ['shadowball', 'focusblast', 'thunderwave'],
+			'Rotom-Frost': {
+				species: 'Rotom-Frost', ability: 'Dazzling', item: 'Expert Belt',
+                moves: ['icebeam', 'earthpower', 'thunderwave'],
                 signatureMove: "Dance of control",
                 evs: {spa:252, spd:4, spe:252}, nature: 'Timid',
 			},
@@ -981,14 +981,26 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 moves: ['knockoff', 'iciclecrash', ['iceshard', 'suckerpunch'][this.random(2)]],
                 signatureMove: "Backstab",
                 evs: {atk:252, spd:4, spe:252}, nature: 'Jolly',
+			},
+			'绝望的非洲人': {
+				species: 'Tapu Bulu', ability: 'African Rampage', item: 'Iapapa Berry',shiny: true,
+                moves: ['powerwhip', 'jumpkick','playrough'],
+                signatureMove: "Substitute",
+                evs: {hp:248, atk:252, spe:8}, nature: 'Adamant',
+			},
+			'ahhh': {
+				species: 'Gengar-Mega', ability: 'Cursed Soul', item: 'Black Sludge',shiny: true,
+                moves: ['painsplit', 'hex','substitute'],
+                signatureMove: "lmfao",
+                evs: {hp:4, spa:252, spe:252}, nature: 'Timid',
 			}
         };
         
         // Generate the team randomly.
         let pool = Object.keys(sets);
-		let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','洛渊','Heracross-Mega','Marowak-Alola','loving1096','源氏','暗星','Grumpig','Weavile'];
+		let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','洛渊','Heracross-Mega','Marowak-Alola','loving1096','源氏','暗星','绝望的非洲人','Weavile','Rotom-Frost','ahhh'];
 		let selected_pokes=[];
-        //let our_pokes= ['Weavile','Grumpig','暗星','源氏'];
+        //let our_pokes= ['绝望的非洲人','Rotom-Frost','源氏','ahhh','Nightmare'];
         for (let i = 0; i < 6; i++) {
             let name = this.sampleNoReplace(pool);
             if(i<4)		//前4只为新pm
