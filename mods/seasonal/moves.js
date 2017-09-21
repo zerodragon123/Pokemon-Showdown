@@ -5203,12 +5203,9 @@ exports.BattleMovedex = {
 			if (type === 'Ground') return 0;
 		},
 		secondary: {
-			chance: 25,
-			volatileStatus: 'flinch',
+			chance: 100,
 			self: {
-				boosts: {
-					spe: 1,
-				},
+				boosts: [{spe: 1}, {spa: 1}, {spd: 1}][this.random(3)],
 			},
 		},
 		target: "normal",
@@ -5252,7 +5249,6 @@ exports.BattleMovedex = {
 		pp: 10,
 		priority: 0,
 		flags: {mirror: 1, heal: 1},
-		heal: [1, 3],
 		onHitField: function (target, source, effect) {
 			if (this.pseudoWeather['welcometoafrica']) {
 			} else {
@@ -5302,13 +5298,16 @@ exports.BattleMovedex = {
 				return false;
 			}
 		},
+		onHit: function (target, source) {
+			this.directDamage(source.maxhp / 4, source, source);
+		},
 		effect: {
 			onStart: function (pokemon, source) {
 				this.add('-start', pokemon, 'Curse', '[of] ' + source);
 			},
 			onResidualOrder: 10,
 			onResidual: function (pokemon) {
-				this.damage(pokemon.maxhp / 4);
+				this.damage(pokemon.maxhp / 6);
 			},
 		},
 		secondary: false,
