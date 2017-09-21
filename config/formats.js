@@ -1197,7 +1197,7 @@ exports.Formats = [
                    this.add('c|Vincent|还记得被LC支配的恐惧吗');
                    this.add('c|*文森特专属技能|Vincent Shield：同时使用王盾和龙舞');
                    }
-                   if (pokemon.species === 'Whimscott') {
+                   if (pokemon.species === 'Whimsicott') {
                    this.add('c|*风妖专属技能|Prankster Shield：同时使用保护和替身，PP为4');
                    }
                    if (pokemon.species === 'Scizor-Mega'){
@@ -1219,12 +1219,12 @@ exports.Formats = [
                    if (pokemon.species === 'Prinplup'){
                    this.add('c|*袁绍专属技能|Triumphantly Command：水系60物攻，对地面上的精灵威力翻倍');
                    }
-                   if (pokemon.species === 'Metagross-Mega'){
+                   if (pokemon.species === 'Metagross'){
                    this.add('c|*暗星专属技能|Ultimate Charge：物理80威力超能技能，开超场，同时使用蓄电');
-                   this.add('c|*暗星专属特性|：每回合随机提升一级防御或特防');
+                   this.add('c|*暗星Mega前专属特性|：每回合随机提升一级防御或特防');
                    }
-                   if (pokemon.species === 'Grumpig'){
-                   this.add('c|*噗噗猪专属技能|Dance of control：威力95 超能特攻，对恶有效，先制度+1，25%害怕');
+                   if (pokemon.species === 'Rotom-Frost'){
+                   this.add('c|*电冰箱专属技能|Dance of control：威力70 电系特攻，对地面有效，先制度+1，25%害怕');
                    }
                    if (pokemon.species === 'Weavile'){
                    this.add('c|*玛狃拉专属技能|Backstab：必定命中，在对方生命值小于50%时直接秒杀，否则0威力');
@@ -1236,7 +1236,7 @@ exports.Formats = [
                    if (pokemon.species === 'Raticate-Alola'){
                    this.add('c|*阿罗拉拉达专属技能|Celebration:是PP1的Z庆祝');
                    }
-                   if (pokemon.species === 'kyogre'){
+                   if (pokemon.species === 'Kyogre'){
                    this.add('c|+loving1096| 我好兴奋啊!');
                    this.add('c|*爱叔专属技能|Excited Surf:冲浪同时回复伤害的1/2');
                    this.add('c|*爱叔专属特性|Water Spin:使用喷水时，清除己方场上所有钉子');
@@ -1244,7 +1244,22 @@ exports.Formats = [
                    if (pokemon.species === 'Heracross-Mega'){
                    this.add('c|*赫拉专属特性|Nerfed Triage:回复技能先制度+0.5');
                    }
-
+                   if (pokemon.species === 'Blissey'){
+                   this.add('c|*IDS专属特性|Smilence:再生力+毒疗+自然回复');
+                   }
+                   if (pokemon.species === 'Alakazam-Mega'){
+                   this.add('c|*LY专属技能|Spewing Psychic 超能系特攻，威力90，命中后开超场');
+                   }
+                   if (pokemon.species === 'Gengar-Mega'){
+                   this.add('c|+ahhh| 我才不是日狗吹呢!');
+                   this.add('c|*ahhh专属技能|lmfao:随机使用同归/怨念/定身法，并将对方的第二属性设定为鬼系,先制+3');
+                   this.add('c|*ahhh专属特性|Cursed Soul:上场随机使用电磁波/鬼火/剧毒，赋予对手诅咒状态');
+                   if (pokemon.side.foe.active.length && pokemon.side.foe.active[0].name === 'loving1069') this.add('c|@ahhh|爱叔又兴奋了...');
+                   }
+                   if (pokemon.species === 'Tapu Bulu'){
+                   this.add('c|绝望的非洲人| 脸真是黑死了...');
+                   this.add('c|*非洲人专属特性|African Rampage:制造非洲场地，所有技能的命中率变为原来的74%,如果自己的技能miss,则会因为愤怒连续使用3次该技能');
+                   }
                    },
                    onFaint: function (pokemon, source, effect) {
                    let name = toId(pokemon.name);

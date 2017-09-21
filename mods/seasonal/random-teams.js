@@ -210,12 +210,6 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				signatureMove: "Really Big Swords Dance",
 				evs: {atk:252, spa:4, spe:252}, nature: 'Adamant',
 			},
-			'Dream Eater Gengar': {
-				species: 'Gengar', ability: 'Levitate', item: 'Gengarite', gender: 'M',
-				moves: ['focusblast', 'hex', 'sludgewave'],
-				signatureMove: "Sweet Dreams",
-				evs: {hp:8, spa:248, spe:252}, nature: 'Timid',
-			},
 			'Duck': {
 				species: 'Farfetch\'d', ability: 'Prankster', item: 'Stick', gender: 'M',
 				moves: ['destinybond', 'swordsdance', 'softboiled', 'bravebird', 'drillrun'],
