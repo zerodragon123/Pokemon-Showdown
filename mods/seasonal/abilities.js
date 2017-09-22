@@ -432,6 +432,7 @@ exports.BattleAbilities = {
 		name: "Defensive Boost",
 		rating: 4,
 	},
+    //非洲人bulu
 	africanrampage: {
 		id: "africanrampage",
 		name: "African Rampage",
@@ -454,6 +455,7 @@ exports.BattleAbilities = {
 		},
 		rating: 4,
 	},
+    //ahhh
 	cursedsoul: {
 		onStart: function (source) {
 			this.useMove(['Thunder Wave','Toxic','Will-O-Wisp'][this.random(3)], source);
@@ -463,4 +465,52 @@ exports.BattleAbilities = {
 		name: "Cursed Soul",
 		rating: 4,
 	},
+    // 咩咩
+    iquit: {
+        onResidual: function (pokemon,target) {
+            this.useMove('Parting Shot',target);
+        },
+        onSwitchOut: function (pokemon) {
+            pokemon.heal(pokemon.maxhp / 4);
+        },
+        
+        id: "iquit",
+        name: "I Quit",
+        rating: 3.5,
+    },
+    // pikachu
+    socute: {
+        onStart: function (source) {
+            this.boost({def:2,spd:2});
+        },
+        id: "socute",
+        name: "So cute",
+        rating: 3.5,
+    },
+    //钱神花
+    trolling: {
+        onAnyModifyBoost: function (boosts, target) {
+            let source = this.effectData.target;
+            if (source === target) return;
+            if (source === this.activePokemon && target === this.activeTarget) {
+                boosts['def'] = 0;
+                boosts['spd'] = 0;
+                boosts['evasion'] = 0;
+            }
+            if (target === this.activePokemon && source === this.activeTarget) {
+                boosts['atk'] = 0;
+                boosts['spa'] = 0;
+                boosts['accuracy'] = 0;
+            }
+        },
+        onSourceModifyDamage: function (damage, source, target, move) {
+            if (move.typeMod > 0) {
+                this.debug('Filter neutralize');
+                return this.chainModify(0.75);
+            }
+        },
+        id: "trolling",
+        name: "Trolling",
+        rating: 3,
+    },
 };

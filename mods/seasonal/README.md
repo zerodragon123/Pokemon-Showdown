@@ -13,7 +13,7 @@ Evs: 44 HP / 252 Atk / 212 Spe
 
 Adament Nature
 
-- 换挡
+- 冥想
 - 神速
 - 击掌奇袭
 - Jolin Boomburst 普通系爆音波，回血3/4
@@ -282,7 +282,7 @@ Timid Nature
 IVs: 0 Atk  
 
 - Water Spout  
-- Excited Surf (冲浪同时回复1/2HP)  
+- Excited Surf (100威力冲浪同时回复1/2HP)  
 - Volt Switch  
 - Ice Beam  
 
@@ -323,7 +323,7 @@ Timid Nature
 - Earth Power
 - Ice Beam
 - Thunder Wave
-- Dance of control [威力70 电系特攻，对地面有效，先制度+1，25%害怕]
+- Dance of control [威力70 电系特攻，对地面有效，先制度+1，随机提升特攻特防速度中的一项]
 
 Weavile @ Focus Sash
 
@@ -365,6 +365,47 @@ Evs: 248 HP / 252 Atk / 4 Spe
 - Play Rough
 - Jump Kick [如果踢空，只损失1/4的生命值]
 - Substitute
+
+
+天天退坑的咩咩 (Ampharos-Mega) @Leftovers
+
+Ability: I Quit [每回合结束自动使用退场台词，同时回复25%的HP]
+
+Bolt Nature
+
+Evs: 248 HP / 116 Def /  144 SpD
+
+- Spacial Rend
+- Thunderbolt
+- Spectral Thief / Grass Knot
+- Daily Quit (PP为2的Z退场台词)
+
+
+皮神 (Pikachu) @ Light Ball
+
+Ability: So Cute [上场时自动使用宇宙力量]
+
+Naive Nature
+
+Evs: 248 HP / 4 Def /  252 Spe
+
+- Transform
+- Extreme Speed
+- Hidden Power Ice
+- 10,000,000 Volt Thunderbolt [直接使用195威力大概率CT的皮卡Z]
+
+钱神花 (Cradily) @ Leftovers
+
+Ability: Trolling [天然+过滤器]
+
+Careful Nature
+
+Evs: 248 HP / 100 Def / 156 Spd 
+- God Leech [剧毒+种子+漩涡]
+- Stockpile
+- Stealth Rock / Rapid Spin
+- Recover
+
 ----原有精灵-----
 
 ### Acast

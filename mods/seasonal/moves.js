@@ -4741,7 +4741,7 @@ exports.BattleMovedex = {
 		isNonstandard: true,
 		isViable: true,
 		name: "DarkWind",
-		pp: 20,
+		pp: 5,
 		priority: 1,
 		flags: {snatch: 1},
 		secondary: false,
@@ -4775,7 +4775,7 @@ exports.BattleMovedex = {
 		target: "any",
 		type: "Flying",
 	},
-    	ultimatejudgment: {
+    ultimatejudgment: {
 		accuracy: 100,
 		basePower: 0,
 		damage: 'level',
@@ -4795,7 +4795,7 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Steel",
 	},
-    	vincentshield: {
+    vincentshield: {
 		accuracy: true,
 		basePower: 0,
 		category: "Status",
@@ -4839,7 +4839,7 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Ghost",
 	},
-    	innovativeturn: {
+    innovativeturn: {
 		accuracy: 100,
 		basePower: 70,
 		category: "Physical",
@@ -4863,7 +4863,7 @@ exports.BattleMovedex = {
 		type: "Bug",
         selfSwitch: true,
 	},
-    	thecrowsea: {
+    thecrowsea: {
 		accuracy: 100,
 		basePower: 100,
 		category: "Special",
@@ -5334,6 +5334,80 @@ exports.BattleMovedex = {
 			target.setType([target.types[0],'Ghost']);
 		}
 	},
+    dailyquit: {
+        accuracy: true,
+        basePower: 0,
+        category: "Status",
+        id: "dailyquit",
+        isNonstandard: true,
+        isViable: true,
+        name: "Daily Quit",
+        pp: 2,
+        priority: 0,
+        flags: {protect: 1, reflectable: 1, mirror: 1, sound: 1, authentic: 1},
+        selfSwitch: true,
+        boosts: {
+            atk: -1,
+            spa: -1,
+        },
+        sideCondition: 'zpartingshot',
+        effect: {
+            duration: 2,
+            onStart: function (side, source) {
+                this.debug('Healing Wish started on ' + side.name);
+                this.effectData.positions = [];
+                for (let i = 0; i < side.active.length; i++) {
+                    this.effectData.positions[i] = false;
+                }
+                this.effectData.positions[source.position] = true;
+            },
+            onRestart: function (side, source) {
+                this.effectData.positions[source.position] = true;
+            },
+            onSwitchInPriority: 1,
+            onSwitchIn: function (target) {
+                if (!this.effectData.positions[target.position]) {
+                    return;
+                }
+                if (!target.fainted) {
+                    target.heal(target.maxhp);
+                    target.setStatus('');
+                    this.add('-heal', target, target.getHealth, '[from] move: Z Parting Shot');
+                    this.effectData.positions[target.position] = false;
+                }
+                if (!this.effectData.positions.some(affected => affected === true)) {
+                    target.side.removeSideCondition('zpartingshot');
+                }
+            },
+        },
+        secondary: false,
+        target: "normal",
+        type: "Dark",
+    },
+    godleech: {
+        accuracy: 90,
+        basePower: 35,
+        category: "Special",
+        id: "godleech",
+        isNonstandard: true,
+        isViable: true,
+        name: "God Leech",
+        pp: 10,
+        priority: 0,
+        flags: {snatch: 1,protect:1},
+        volatileStatus: 'partiallytrapped',
+        secondary: false,
+        onPrepareHit: function (target, source) {
+        this.attrLastMove('[still]');
+        },
+        onTryHit:function(source,target){
+            this.useMove("Toxic",target);
+            this.useMove("Leech Seed",target);
+            this.add('-anim', target, "Whirlpool", source);
+        },
+        target: "normal",
+        type: "Water",
+    },
 	// Modified moves
 	"defog": {
 		inherit: true,
