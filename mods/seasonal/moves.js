@@ -5284,7 +5284,7 @@ exports.BattleMovedex = {
 		name: "Initial Curse",
 		pp: 10,
 		priority: 0,
-		flags: {authentic: 1},
+		flags: {},
 		volatileStatus: 'curse',
 		onModifyMove: function (move, source, target) {
 			if (!source.hasType('Ghost')) {
@@ -5394,7 +5394,8 @@ exports.BattleMovedex = {
         isNonstandard: true,
         isViable: true,
         name: "God Leech",
-        pp: 10,
+		pp: 5,
+		noPPBoosts: true,
         priority: 0,
         flags: {snatch: 1,protect:1},
         volatileStatus: 'partiallytrapped',
@@ -5403,13 +5404,36 @@ exports.BattleMovedex = {
         this.attrLastMove('[still]');
         },
         onTryHit:function(source,target){
-            this.useMove("Toxic",target);
             this.useMove("Leech Seed",target);
             this.add('-anim', target, "Whirlpool", source);
         },
         target: "normal",
         type: "Water",
-    },
+	},
+	aurajudge: {
+		accuracy: 90,
+        basePower: 100,
+        category: "Physical",
+        id: "aurajudge",
+        isNonstandard: true,
+        isViable: true,
+        name: "Aura Judge",
+        pp: 30,
+		priority: 0,
+		flags: {authentic: 1,  sound: 1,  protect: 1},
+		secondary: false,
+		onPrepareHit: function (target, source) {
+			this.attrLastMove('[still]');
+			this.add('-anim', source, "Tail Glow", target);
+			this.add('-anim', source, "Prismatic Laser", target);
+		},
+		onModifyMovePriority:1,
+		onModifyMove: function (move, pokemon) {
+			move.type = pokemon.types[0];
+		},
+		target: "normal",
+		type: "Dragon",
+	},
 	// Modified moves
 	"defog": {
 		inherit: true,

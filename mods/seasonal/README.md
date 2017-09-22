@@ -396,15 +396,27 @@ Evs: 248 HP / 4 Def /  252 Spe
 
 钱神花 (Cradily) @ Leftovers
 
-Ability: Trolling [天然+过滤器]
+Ability: Filter
 
 Careful Nature
 
 Evs: 248 HP / 100 Def / 156 Spd 
-- God Leech [剧毒+种子+漩涡]
+- God Leech [种子+漩涡]
 - Stockpile
 - Stealth Rock / Rapid Spin
 - Recover
+
+Zygarde @ Leftovers
+
+Ability: Super Effect [上场时将自己属性变为克制对方当前精灵的属性]
+
+Adamant Nature
+
+Evs: 144 HP / 216 Atk / 148 Spe
+- Slack Off
+- Substitute
+- Coil
+- Aura Judge [威力100，物攻，命中率90，与自身属性相同]
 
 ----原有精灵-----
 
