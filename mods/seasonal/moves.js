@@ -5205,7 +5205,9 @@ exports.BattleMovedex = {
 		secondary: {
 			chance: 100,
 			self: {
-				boosts: [{spe: 1}, {spa: 1}, {spd: 1}][this.random(3)],
+				onHit: function () {
+					this.boost([{spe: 1}, {spa: 1}, {spd: 1}][this.random(3)]);
+				},
 			},
 		},
 		target: "normal",
