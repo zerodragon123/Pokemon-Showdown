@@ -988,12 +988,12 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 signatureMove: "lmfao",
                 evs: {hp:4, spa:252, spe:252}, nature: 'Timid',
 			},
-            '天天退坑的咩咩': {
-            species: 'Ampharos-Mega', ability: 'I Quit', item: 'Leftovers',
-            moves: ['spacialrend', 'thunderbolt',['spectralthief', 'grassknot'][this.random(2)]],
-            signatureMove: "Daily Quit",
-            evs: {hp:248, def:116, spd:144}, nature: 'Bold',
-            },
+            //'天天退坑的咩咩': {
+            //species: 'Ampharos-Mega', ability: 'I Quit', item: 'Leftovers',
+            //moves: ['spacialrend', 'thunderbolt',['spectralthief', 'grassknot'][this.random(2)]],
+            //signatureMove: "Daily Quit",
+            //evs: {hp:248, def:116, spd:144}, nature: 'Bold',
+            //},
             '皮神': {
             species: 'pikachu', ability: 'So Cute', item: 'Light Ball',
             moves: ['transform','extremespeed', 'hiddenpowerice'],
