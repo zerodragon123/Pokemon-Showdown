@@ -1250,7 +1250,7 @@ exports.Formats = [
                    if (pokemon.species === 'Alakazam-Mega'){
                    this.add('c|*LY专属技能|Spewing Psychic 超能系特攻，威力90，命中后开超场');
                    }
-                   if (pokemon.species === 'Gengar-Mega'){
+                   if (pokemon.species === 'Gengar'){
                    this.add('c|+ahhh| 我才不是日狗吹呢!');
                    this.add('c|*ahhh专属技能|lmfao:随机使用同归/怨念/定身法，并将对方的第二属性设定为鬼系,先制+3');
                    this.add('c|*ahhh专属特性|Cursed Soul:上场随机使用电磁波/鬼火/剧毒，赋予对手诅咒状态');
@@ -1259,6 +1259,20 @@ exports.Formats = [
                    if (pokemon.species === 'Tapu Bulu'){
                    this.add('c|绝望的非洲人| 脸真是黑死了...');
                    this.add('c|*非洲人专属特性|African Rampage:制造非洲场地，所有技能的命中率变为原来的74%,如果自己的技能miss,则会因为愤怒连续使用3次该技能');
+                   }
+                   if (pokemon.species === 'Cradily'){
+                   this.add('c|钱神花| 我就是传说中的钱神花');
+                   this.add('c|*钱神花专属技能|God Leech:同时使用寄身种子和漩涡');
+                   }
+                   if (pokemon.species === 'Zygarde'){
+                   this.add('c|*Zygarde专属特性|Super Effect:上场时将自己属性变为克制对方当前精灵的属性(有多个时，会随机变一个)');
+                   }
+                   if (pokemon.species === 'Pikachu'){
+                   this.add('c|*皮神专属特性|So Cute:上场时两防+2');
+                   }
+                   if (pokemon.species === 'Ampharos-Mega'){
+                   this.add('c|@电龙|我有退坑过吗?');
+                   this.add('c|*退坑咩咩专属特性|I Quit:每回合结束自动使用退场台词，同时回复25%的HP');
                    }
                    },
                    onFaint: function (pokemon, source, effect) {

@@ -5345,8 +5345,9 @@ exports.BattleMovedex = {
         isViable: true,
         name: "Daily Quit",
         pp: 2,
+        noPPBoosts: true,
         priority: 0,
-        flags: {protect: 1, reflectable: 1, mirror: 1, sound: 1, authentic: 1},
+        flags: {protect: 1, reflectable: 1, mirror: 1, sound: 1},
         selfSwitch: true,
         boosts: {
             atk: -1,

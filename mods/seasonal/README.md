@@ -383,7 +383,7 @@ Evs: 248 HP / 116 Def /  144 SpD
 
 皮神 (Pikachu) @ Light Ball
 
-Ability: So Cute [上场时自动使用宇宙力量]
+Ability: So Cute [上场时两防+2]
 
 Naive Nature
 
@@ -408,7 +408,7 @@ Evs: 248 HP / 100 Def / 156 Spd
 
 Zygarde @ Leftovers
 
-Ability: Super Effect [上场时将自己属性变为克制对方当前精灵的属性]
+Ability: Super Effect [上场时将自己属性变为克制对方当前精灵的属性(有多个时，会随机变一个)]
 
 Adamant Nature
 
