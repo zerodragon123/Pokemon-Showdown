@@ -189,7 +189,7 @@ exports.BattleAbilities = {
     // ceca3
     restart: {
         onStart: function (source) {
-			this.boost({atk:1,def:1,spa:1,spd:1,spe:1});
+			this.boost({def:1,spa:1,spd:1,spe:1});
 		},
         id: "restart",
 		name: "Re:Start",
@@ -201,6 +201,25 @@ exports.BattleAbilities = {
 				this.add("raw|<div class=\"broadcast-red\"><b>The server is restarted!</div>");
 				this.heal(pokemon.maxhp);
 			}
+			let viablestats = {def:1,spa:1,spd:1,spe:1};
+			let newboost = {};
+			for (let stat in viablestats) {
+				if (pokemon.boosts[stat] < 1) {
+					newboost[stat]=1;
+				}
+			}
+			
+			this.boost(newboost);
+		},
+		onBeforeMove: function (pokemon) {
+			let viablestats = {def:1,spa:1,spd:1,spe:1};
+			let newboost = {};
+			for (let stat in viablestats) {
+				if (pokemon.boosts[stat] < 1) {
+					newboost[stat]=1;
+				}
+			}
+			this.boost(newboost);
 		},
     },
     // FSK
@@ -401,8 +420,8 @@ exports.BattleAbilities = {
 			}
 		},
 		onPrepareHit: function (target, source, move){
-			if(move.id === 'uturn')
-				this.useMove('Spikes',target);
+			//if(move.id === 'uturn')
+			//	this.useMove('Spikes',target);
 			if(move.id !== 'genjibounce')
 				source.removeVolatile('cooldown');
 		}
@@ -467,8 +486,8 @@ exports.BattleAbilities = {
 	},
     // 咩咩
     iquit: {
-        onResidual: function (pokemon,target) {
-            this.useMove('Parting Shot',target);
+        onResidual: function (pokemon) {
+            this.useMove('Parting Shot',pokemon);
         },
         onSwitchOut: function (pokemon) {
             pokemon.heal(pokemon.maxhp / 4);
@@ -512,5 +531,34 @@ exports.BattleAbilities = {
         id: "trolling",
         name: "Trolling",
         rating: 3,
-    },
+	},
+	supereffect: {
+		id: "supereffect",
+		name: "Super Effect",
+		onStart: function (pokemon) {
+			let target = pokemon.side.foe.active[0];
+			if(!target || target.fainted)
+				return;
+			let types = ['Fairy','Psychic','Dark','Flying','Steel','Dragon','Rock','Ghost','Bug','Poison','Water','Ground','Grass','Fighting','Fire','Ice','Electric'];
+			let effective_types = [];
+			for (let i = 0; i < types.length; i++) {
+				if (this.getEffectiveness(types[i], target) > 0 && 
+					this.getImmunity(types[i],target)){
+					if(target.types[0] && this.getEffectiveness(target.types[0], types[i]) >0)
+						continue;
+					if(target.types[1] && this.getEffectiveness(target.types[1], types[i]) >0)
+						continue;
+					effective_types.push(types[i]);
+					console.log(types[i]);
+				}
+					
+				
+			}
+			let select_type=effective_types[this.random(effective_types.length)];
+			console.log("select_type:",select_type);
+			pokemon.setType(select_type);
+			this.add('-start', pokemon, 'typechange', "???", '[from] Super Effect');
+		},
+        rating: 3,
+	},
 };

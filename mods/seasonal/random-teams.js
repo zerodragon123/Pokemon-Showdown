@@ -983,17 +983,23 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
                 evs: {hp:248, atk:252, spe:8}, nature: 'Adamant',
 			},
 			'ahhh': {
-				species: 'Gengar-Mega', ability: 'Cursed Soul', item: 'Black Sludge',shiny: true,
+				species: 'Gengar', ability: 'Cursed Soul', item: 'Black Sludge',shiny: true,
                 moves: ['painsplit', 'hex','substitute'],
                 signatureMove: "lmfao",
                 evs: {hp:4, spa:252, spe:252}, nature: 'Timid',
 			},
-            //'天天退坑的咩咩': {
-            //species: 'Ampharos-Mega', ability: 'I Quit', item: 'Leftovers',
-            //moves: ['spacialrend', 'thunderbolt',['spectralthief', 'grassknot'][this.random(2)]],
-            //signatureMove: "Daily Quit",
-            //evs: {hp:248, def:116, spd:144}, nature: 'Bold',
-            //},
+			'Zygarde': {
+				species: 'Zygarde', ability: 'Super Effect', item: 'Leftovers',shiny: true,
+                moves: ['slack off', 'coil','substitute'],
+                signatureMove: "Aura Judge",
+                evs: {hp:144, atk:216, spe:148}, nature: 'Adamant',
+			},
+            '天天退坑的咩咩': {
+            species: 'Ampharos-Mega', ability: 'I Quit', item: 'Leftovers',
+        	moves: ['spacialrend', 'thunderbolt',['spectralthief', 'grassknot'][this.random(2)]],
+            signatureMove: "Daily Quit",
+            evs: {hp:248, def:116, spd:144}, nature: 'Bold',
+            },
             '皮神': {
             species: 'pikachu', ability: 'So Cute', item: 'Light Ball',
             moves: ['transform','extremespeed', 'hiddenpowerice'],
@@ -1001,7 +1007,7 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
             evs: {hp:248, def:4, spe:252}, nature: 'Naive',
             },
             '钱神花': {
-            species: 'cradily', ability: 'trolling', item: 'Leftovers',
+            species: 'cradily', ability: 'Filter', item: 'Leftovers',
             moves: ['Stockpile','Recover', ['stealthrock', 'rapidspin'][this.random(2)]],
             signatureMove: "God Leech",
             evs: {hp:248, def:100, spd:156}, nature: 'Careful',
@@ -1010,9 +1016,9 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
         
         // Generate the team randomly.
         let pool = Object.keys(sets);
-		let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','洛渊','Heracross-Mega','Marowak-Alola','loving1096','源氏','暗星','绝望的非洲人','Weavile','Rotom-Frost','ahhh','天天退坑的咩咩','皮神','钱神花','qtrx','Marshmallon'];
+		let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','洛渊','Heracross-Mega','Marowak-Alola','loving1096','源氏','暗星','绝望的非洲人','Weavile','Rotom-Frost','ahhh','天天退坑的咩咩','皮神','钱神花','qtrx','Marshmallon','Zygarde'];
 		let selected_pokes=[];
-        //let our_pokes= ['绝望的非洲人','Rotom-Frost','ahhh','天天退坑的咩咩','皮神','钱神花'];
+        our_pokes= ['ceca3','总受lxz','Zygarde','钱神花'];
         for (let i = 0; i < 6; i++) {
             let name = this.sampleNoReplace(pool);
             if(i<4)		//前4只为新pm
