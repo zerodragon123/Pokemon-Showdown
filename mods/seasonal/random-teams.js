@@ -528,12 +528,12 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
 				signatureMove: 'Burn Spikes',
 				evs: {hp:252, def:252, spe:4}, nature: 'Relaxed',
 			},
-			'Pikachuun': {
-				species: 'Pikachu', ability: 'Magic Guard', item: 'Light Ball',
-				moves: ['thunderbolt', 'lightofruin', 'icebeam'],
-				signatureMove: "Pure Skill",
-				evs: {def:4, spa:252, spe:252}, nature: 'Modest',
-			},
+			//'Pikachuun': {
+			//	species: 'Pikachu', ability: 'Magic Guard', item: 'Light Ball',
+			//	moves: ['thunderbolt', 'lightofruin', 'icebeam'],
+			//	signatureMove: "Pure Skill",
+			//	evs: {def:4, spa:252, spe:252}, nature: 'Modest',
+			//},
 			'pluviometer': {
 				species: 'Mismagius', ability: 'Levitate', item: 'Life Orb',
 				moves: ['painsplit', 'earthpower', 'shadowball'],
