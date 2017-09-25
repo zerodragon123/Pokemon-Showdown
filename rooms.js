@@ -499,11 +499,7 @@ class GlobalRoom {
 	}
 	getRooms(user) {
 		let roomsData = {official:[], pspl:[], chat:[], userCount: this.userCount, battleCount: this.battleCount};
-<<<<<<< HEAD
 		for (const room of this.chatRooms) {
-=======
-		for (const room of this.chatrooms) {
->>>>>>> parent of ac87eff... Revert "Merge remote-tracking branch 'Zarel/master'"
 			if (!room) continue;
 			if (room.isPrivate && !(room.isPrivate === 'voice' && user.group !== ' ')) continue;
 			if (room.isOfficial) {
