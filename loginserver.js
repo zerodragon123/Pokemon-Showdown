@@ -152,8 +152,8 @@ class LoginServerInstance {
 				this.requestTimeoutTimer = null;
 			}
 			req.abort();
-			for (const requestCallback of requestCallbacks) {
-				setImmediate(requestCallback, null, null, error);
+			for (let i = 0, len = requestCallbacks.length; i < len; i++) {
+				setImmediate(requestCallbacks[i], null, null, error);
 			}
 			this.requestEnd(error);
 		};

@@ -64,7 +64,8 @@ class BattlePlayer {
 		this.slotNum = Number(slot.charAt(1)) - 1;
 		this.active = true;
 
-		for (const connection of user.connections) {
+		for (let i = 0; i < user.connections.length; i++) {
+			let connection = user.connections[i];
 			if (connection.inRooms.has(game.id)) {
 				Sockets.subchannelMove(connection.worker, this.game.id, this.slotNum + 1, connection.socketid);
 			}
@@ -74,7 +75,8 @@ class BattlePlayer {
 		if (this.active) this.simSend('leave');
 		let user = Users(this.userid);
 		if (user) {
-			for (const connection of user.connections) {
+			for (let j = 0; j < user.connections.length; j++) {
+				let connection = user.connections[j];
 				Sockets.subchannelMove(connection.worker, this.game.id, '0', connection.socketid);
 			}
 			user.games.delete(this.game.id);
@@ -88,7 +90,8 @@ class BattlePlayer {
 			Sockets.subchannelMove(user.worker, this.game.id, this.slotNum + 1, user.socketid);
 			return;
 		}
-		for (const connection of user.connections) {
+		for (let i = 0; i < user.connections.length; i++) {
+			let connection = user.connections[i];
 			Sockets.subchannelMove(connection.worker, this.game.id, this.slotNum + 1, connection.socketid);
 		}
 	}

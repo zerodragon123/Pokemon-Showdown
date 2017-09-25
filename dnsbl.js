@@ -84,9 +84,9 @@ Dnsbl.query = function queryDnsbl(ip) {
 Dnsbl.ipToNumber = function (ip) {
 	let num = 0;
 	let parts = ip.split('.');
-	for (const part of parts) {
+	for (let i = 0, len = parts.length; i < len; i++) {
 		num *= 256;
-		num += parseInt(part);
+		num += parseInt(parts[i]);
 	}
 	return num;
 };
@@ -169,7 +169,8 @@ Dnsbl.rangeToPattern = function (range) {
  * @return {boolean}
  */
 Dnsbl.checkPattern = function (patterns, num) {
-	for (const pattern of patterns) {
+	for (let i = 0; i < patterns.length; ++i) {
+		let pattern = patterns[i];
 		if (num >= pattern[0] && num <= pattern[1]) {
 			return true;
 		}
@@ -261,7 +262,7 @@ Dnsbl.reverse = function reverseDns(ip) {
 			resolve('ovh.fr.res-nohost');
 			return;
 		}
-		for (const row of Dnsbl.datacenters) {
+		for (let row of Dnsbl.datacenters) {
 			if (ipNumber >= row[0] && ipNumber <= row[1]) {
 				resolve(row[2] + '.proxy-nohost');
 				return;
