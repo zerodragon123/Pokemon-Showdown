@@ -1,4 +1,5 @@
 /config/*
+!/config/ipbans.txt
 !/config/formats.js
 /logs/*
 /node_modules

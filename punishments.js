@@ -1162,7 +1162,7 @@ Punishments.checkIpBanned = function (connection) {
 	if (!banned) return false;
 
 	if (banned === '#ipban') {
-		connection.send(`|popup||modal|Your IP (${ip}) is not allowed to connect to PS, because it has been used to spam, hack, or otherwise attack our server.||Make sure you are not using any proxies to connect to PS.`);
+		connection.send(`|popup||modal|你的IP (${ip}) 被Pokemon Showdown中国服务器永久封禁，因为该IP曾被用于刷屏、攻击服务器等行为。||如果你的IP被不小心误封，请加入PS国服讨论群[群号:451507969]，并联系管理员解封。||注意：请不要使用任何代理登录PS。`);
 	} else {
 		let appeal = (Config.appealurl ? `||||Or you can appeal at: ${Config.appealurl}` : ``);
 		connection.send(`|popup||modal|You are banned because you have the same IP (${ip}) as banned user '${banned}'. Your ban will expire in a few days.${appeal}`);
