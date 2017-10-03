@@ -1843,7 +1843,7 @@ exports.Formats = [
                    
                    mod: 'ultimatez',
                    ruleset: ['[Gen 7] OU'],
-                   banlist: [],
+                   banlist: ['Celebrate', 'Happy Hour', 'Hold Hands'],
                    },
                    {
                    name: "[Gen 6] Balanced Hackmons",
