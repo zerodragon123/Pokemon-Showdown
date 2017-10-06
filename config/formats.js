@@ -262,12 +262,12 @@ exports.Formats = [
                    gameType: 'doubles',
                    ruleset: ['[Gen 7] Doubles OU'],
                    banlist: [
-                             'Aegislash', 'Amoonguss', 'Arcanine', 'Celesteela', 'Cresselia', 'Deoxys-Attack', 'Diancie', 'Excadrill', 'Ferrothorn', 'Garchomp',
-                             'Gastrodon', 'Genesect', 'Gigalith', 'Heatran', 'Hoopa-Unbound', 'Jirachi', 'Kartana', 'Kingdra', 'Kyurem-Black', 'Landorus-Therian',
-                             'Marowak-Alola', 'Marshadow', 'Milotic', 'Mimikyu', 'Muk-Alola', 'Ninetales-Alola', 'Oranguru', 'Pelipper', 'Pheromosa', 'Politoed',
-                             'Porygon2', 'Rotom-Wash', 'Scrafty', 'Snorlax', 'Suicune', 'Sylveon', 'Tapu Bulu', 'Tapu Fini', 'Tapu Koko', 'Tapu Lele',
-                             'Terrakion', 'Torkoal', 'Tyranitar', 'Venusaur', 'Volcanion', 'Volcarona', 'Weavile', 'Whimsicott', 'Zapdos', 'Zygarde-Base',
-                             'Battle Bond', 'Aggronite', 'Altarianite', 'Ampharosite', 'Banettite', 'Blazikenite', 'Cameruptite', 'Charizardite Y', 'Diancite', 'Galladite', 'Gardevoirite', 'Gengarite', 'Gyaradosite', 'Kangaskhanite', 'Latiasite', 'Latiosite', 'Lopunnite', 'Mawilite', 'Metagrossite', 'Salamencite', 'Sceptilite', 'Swampertite', 'Tyranitarite',
+                             'Aegislash', 'Amoonguss', 'Arcanine', 'Bronzong', 'Celesteela', 'Deoxys-Attack', 'Diancie', 'Excadrill', 'Ferrothorn',
+                             'Garchomp', 'Gastrodon', 'Genesect', 'Heatran', 'Hoopa-Unbound', 'Jirachi', 'Kartana', 'Kingdra', 'Kyurem-Black',
+                             'Landorus-Therian', 'Ludicolo', 'Marowak-Alola', 'Marshadow', 'Milotic', 'Mimikyu', 'Ninetales-Alola', 'Oranguru',
+                             'Pelipper', 'Politoed', 'Porygon2', 'Scrafty', 'Snorlax', 'Suicune', 'Tapu Bulu', 'Tapu Fini', 'Tapu Koko',
+                             'Tapu Lele', 'Tyranitar', 'Volcanion', 'Volcarona', 'Weavile', 'Whimsicott', 'Zapdos', 'Zygarde-Base',
+                             'Charizardite Y', 'Diancite', 'Gardevoirite', 'Gengarite', 'Kangaskhanite', 'Mawilite', 'Metagrossite', 'Salamencite', 'Swampertite',
                              ],
                    },
                    {
@@ -1861,9 +1861,9 @@ exports.Formats = [
                    column: 2,
                    },
                    {
-                   name: "[Gen 7] PO Balanced Hackmons",
+                   name: "[Gen 7] Balanced Hackmons Plus",
                    desc: [
-                          "PO version of Balanced Hackmons in GEN 7.",
+                          "Balanced Hackmons with special Arceus forms mechanics in GEN 7.",
                           "&bullet; <a href=\"http://pokemon-online.eu/threads/35426/\">Balanced Hackmons</a>",
                           "&bullet; <a href=\"http://pokemon-online.eu/threads/36170/\">BH Tiering Policy</a>",
                           "&bullet; <a href=\"http://pokemon-online.eu/threads/36018/\">BH Viability Rankings</a>",
@@ -1871,7 +1871,7 @@ exports.Formats = [
                    
                    mod: 'bhplus',
                    ruleset: ['Pokemon', 'Swagger Clause', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
-                   banlist: ['Groudon-Primal', 'Arena Trap', 'Huge Power', 'Innards Out', 'Magnet Pull', 'Moody', 'Parental Bond', 'Pure Power', 'Shadow Tag', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Comatose + Sleep Talk', 'Assist'],
+                   banlist: ['Groudon-Primal', 'Arena Trap', 'Huge Power', 'Innards Out', 'Magnet Pull', 'Moody', 'Parental Bond', 'Pure Power', 'Shadow Tag', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Comatose + Sleep Talk', 'Stakeout', 'Protean'],
                    
                    //onModifyMove: function (move, pokemon) {
                    //    if (move.id === 'naturepower') {
@@ -1889,7 +1889,7 @@ exports.Formats = [
                    //    }
                    //},
                    },
-                   
+
                    {
                    name: "[Gen 7] Balanced Hackmons",
                    desc: [
@@ -2088,7 +2088,19 @@ exports.Formats = [
                    ruleset: ['Pokemon', 'Standard NEXT', 'Team Preview'],
                    banlist: ['Uber'],
                    },
+                   {
+                   name: "[Gen 7] Relic PO Balanced Hackmons",
+                   desc: [
+                          "Relic PO version of Balanced Hackmons in GEN 7 allowing Protean, Magpull and Stakeout",
+                          "&bullet; <a href=\"http://pokemon-online.eu/threads/35426/\">Balanced Hackmons</a>",
+                          "&bullet; <a href=\"http://pokemon-online.eu/threads/36170/\">BH Tiering Policy</a>",
+                          "&bullet; <a href=\"http://pokemon-online.eu/threads/36018/\">BH Viability Rankings</a>",
+                          ],
                    
+                   mod: 'bhplus',
+                   ruleset: ['Pokemon', 'Swagger Clause', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
+                   banlist: ['Groudon-Primal', 'Arena Trap', 'Huge Power', 'Innards Out', 'Moody', 'Parental Bond', 'Pure Power', 'Shadow Tag', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Comatose + Sleep Talk', 'Assist'],
+                   },
                    {
                    name: "[Gen 7] PO No Rule Hackmons",
                    desc: [
