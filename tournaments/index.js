@@ -873,13 +873,14 @@ class Tournament {
 			this.update();
 			return this.room.update();
 		}
-
-		let error = this.generator.setMatchResult([from, to], result, score);
-		if (error) {
-			// Should never happen
-			return this.room.add("Unexpected " + error + " from setMatchResult([" + room.p1.userid + ", " + room.p2.userid + "], " + result + ", " + score + ") in onBattleWin(" + room.id + ", " + winnerid + "). Please report this to an admin.").update();
+		if (!(this.disqualifiedUsers.get(from) || this.disqualifiedUsers.get(to))) {
+			// If a player was disqualified, handle the results there
+			let error = this.generator.setMatchResult([from, to], result, score);
+			if (error) {
+				// Should never happen
+				return this.room.add("Unexpected " + error + " from setMatchResult([" + room.p1.userid + ", " + room.p2.userid + "], " + result + ", " + score + ") in onBattleWin(" + room.id + ", " + winnerid + "). Please report this to an admin.").update();
+			}
 		}
-
 		this.room.add('|tournament|battleend|' + from.name + '|' + to.name + '|' + result + '|' + score.join(',') + '|success|' + room.id);
 
 		this.generator.setUserBusy(from, false);
@@ -1018,7 +1019,7 @@ let commands = {
 			if (Monitor.countPrepBattle(connection.ip, connection)) {
 				return;
 			}
-			TeamValidator(tournament.teambuilderFormat).prepTeam(user.team).then(result => {
+			TeamValidatorAsync(tournament.teambuilderFormat).validateTeam(user.team).then(result => {
 				if (result.charAt(0) === '1') {
 					connection.popup("Your team is valid for this tournament.");
 				} else {
