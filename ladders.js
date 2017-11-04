@@ -34,11 +34,12 @@ Ladders.disabled = false;
 // ladder = [ladderRow]
 // ladderRow = [userid, elo, username, w, l, t]
 let ladderCaches = Ladders.ladderCaches = Object.create(null);
-
+let ladderDecayTime = Object.create(null);
 class Ladder {
 	constructor(formatid) {
 		this.formatid = toId(formatid);
 		this.loadedLadder = null;
+        this.lastDecay = 0;
 		this.ladder = this.load();
 	}
 
@@ -95,6 +96,7 @@ class Ladder {
 			return;
 		}
 		let stream = FS(`config/ladders/${this.formatid}.tsv`).createWriteStream();
+        
 		stream.write('Elo\tUsername\tW\tL\tT\tLast update\r\n');
 		for (let row of this.loadedLadder) {
 			stream.write(row.slice(1).join('\t') + '\r\n');
@@ -130,7 +132,14 @@ class Ladder {
 	async getTop() {
 		let formatid = this.formatid;
 		let name = Dex.getFormat(formatid).name;
+        
 		const ladder = await this.ladder;
+        if(!ladderDecayTime[this.formatid] || new Date().getTime()-ladderDecayTime[this.formatid]>3600*24*1000){
+            ladderDecayTime[this.formatid]=new Date().getTime();
+            for (let row of this.loadedLadder) {
+                row[1]=(row[1]-1000)*0.99+1000;
+            }
+        }
 		let buf = `<h3>${name} Top 100</h3>`;
 		buf += `<table>`;
 		buf += `<tr><th>` + ['', 'Username', '<abbr title="Elo rating">Elo</abbr>', 'W', 'L', 'T'].join(`</th><th>`) + `</th></tr>`;

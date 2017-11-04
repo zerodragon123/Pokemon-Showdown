@@ -418,6 +418,18 @@ Evs: 144 HP / 216 Atk / 148 Spe
 - Coil
 - Aura Judge [威力100，物攻，命中率90，与自身属性相同]
 
+Charizard-Mega-X @ Choice Band
+
+Ability: Rock Head v2 [反弹伤害的技能，反弹改为回复同样的HP]
+
+Jolly Nature
+
+Evs: 252 Atk / 252 Spe
+- Flare Blitz
+- Extreme Speed
+- Head Smash / Volt Tackle / 
+- Great Fire [威力120，物攻，命中率100，龙系，33%反弹伤害]
+
 ----原有精灵-----
 
 ### Acast

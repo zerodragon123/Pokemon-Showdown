@@ -1012,13 +1012,25 @@ class RandomSeasonalMeleeTeams extends RandomTeams{
             signatureMove: "God Leech",
             evs: {hp:248, def:100, spd:156}, nature: 'Careful',
             },
+            'Charizard': {
+                species: 'Charizard-Mega-X', ability: 'Rock Head v2', item: 'Choice Band',
+                moves: ['flareblitz', 'headsmash','extremespeed'],
+                signatureMove: "Great Fire",
+                evs: { atk:252, spe:252}, nature: 'Jolly',
+            },
+            '黑化魔法少女':{
+                species: 'Tapu Lele', ability: 'Blackening', item: 'Coba Berry',
+                moves: ['lovelykiss', 'moongeistbeam','aurasphere','icebeam','stealthrock'],
+                signatureMove: "Bloody Ending",
+                evs: { spa:252, spe:252}, nature: 'Timid',
+            },
         };
         
         // Generate the team randomly.
         let pool = Object.keys(sets);
-		let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','洛渊','Heracross-Mega','Marowak-Alola','loving1096','源氏','暗星','绝望的非洲人','Weavile','Rotom-Frost','ahhh','天天退坑的咩咩','皮神','钱神花','qtrx','Marshmallon','Zygarde'];
+		let our_pokes = ['ceca3','SCEAM','EroyalBoy','FSK','Vincent','暗黑员','MS','I do stall','晋文公','Nightmare','非常容易做出的肮脏的小事', '我充钱了', '弱鸡sin', '总受lxz', '吓得lxz都Mega了','Raticate-Alola','袁绍','洛渊','Heracross-Mega','Marowak-Alola','loving1096','源氏','暗星','绝望的非洲人','Weavile','Rotom-Frost','ahhh','天天退坑的咩咩','皮神','钱神花','qtrx','Marshmallon','Zygarde','Charizard','黑化魔法少女'];
 		let selected_pokes=[];
-        //our_pokes= ['ceca3','总受lxz','Zygarde','钱神花'];
+        //our_pokes= ['Charizard','Zygarde','钱神花','黑化魔法少女'];
         for (let i = 0; i < 6; i++) {
             let name = this.sampleNoReplace(pool);
             if(i<4)		//前4只为新pm
