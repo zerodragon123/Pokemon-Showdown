@@ -549,7 +549,6 @@ exports.BattleAbilities = {
 					if(target.types[1] && this.getEffectiveness(target.types[1], types[i]) >0)
 						continue;
 					effective_types.push(types[i]);
-					console.log(types[i]);
 				}
 					
 				
@@ -561,4 +560,42 @@ exports.BattleAbilities = {
 		},
         rating: 3,
 	},
+    // charizard-x
+    rockheadv2: {
+        onDamage: function (damage, target, source, effect) {
+			if (effect.id === 'recoil' && this.activeMove.id !== 'struggle') {
+                this.heal(damage);
+                return null;
+            }
+		},
+        id: "rockheadv2",
+        name: "Rock Head v2",
+        rating: 3.5,
+    },
+    //tapu lele
+    blackening: {
+        onDamagePriority: 1,
+        onDamage: function (damage, target, source, effect) {
+			if (effect && effect.effectType === 'Move' && !target.set.shiny) {
+				this.add('-activate', target, 'ability: Blackening');
+				this.effectData.busted = true;
+				return 0;
+			}
+		},
+        onUpdate: function (pokemon) {
+			if (this.effectData.busted && !pokemon.set.shiny) {
+				let template = pokemon.baseTemplate;
+                pokemon.set.shiny=true;
+				pokemon.details = template.species + (pokemon.level === 100 ? '' : ', L' + pokemon.level) + (pokemon.gender === '' ? '' : ', ' + pokemon.gender) + (pokemon.set.shiny ? ', shiny' : '');
+				this.add('detailschange', pokemon, pokemon.details);
+                let types=['Ghost','Fighting']
+                pokemon.setType(types);
+                this.add('-start', pokemon, 'typechange', 'Ghost', '[from] Blackening');
+                this.add('-start', pokemon, 'typeadd', 'Fighting', '[from] Blackening');
+			}
+		},
+        id: "blackening",
+        name: "Blackening",
+        rating: 3.5,
+    }
 };

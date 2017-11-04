@@ -5435,6 +5435,75 @@ exports.BattleMovedex = {
 		target: "normal",
 		type: "Dragon",
 	},
+    greatfire: {
+		accuracy: 100,
+        basePower: 120,
+        category: "Physical",
+        id: "greatfire",
+        isNonstandard: true,
+        isViable: true,
+        name: "Great Fire",
+        pp: 30,
+		priority: 0,
+		flags: {protect: 1},
+        recoil: [33, 100],
+		secondary: false,
+		onPrepareHit: function (target, source) {
+			this.attrLastMove('[still]');
+			this.add('-anim', source, "Tail Glow", target);
+			this.add('-anim', source, "Outrage", target);
+		},
+		
+		target: "normal",
+		type: "Dragon",
+	},
+    bloodyending:{
+        accuracy: 100,
+        basePower: 200,
+        category: "Special",
+        id: "bloodyending",
+        isNonstandard: true,
+        isViable: true,
+        name: "Bloody Ending",
+        pp: 1,
+        noPPBoosts: true,
+        selfdestruct:"always",
+		priority: 0,
+		flags: {protect: 1},
+        sideCondition: 'healingwish',
+		effect: {
+			duration: 2,
+			onStart: function (side, source) {
+				this.debug('Healing Wish started on ' + side.name);
+				this.effectData.positions = [];
+				for (let i = 0; i < side.active.length; i++) {
+					this.effectData.positions[i] = false;
+				}
+				this.effectData.positions[source.position] = true;
+			},
+			onRestart: function (side, source) {
+				this.effectData.positions[source.position] = true;
+			},
+			onSwitchInPriority: 1,
+			onSwitchIn: function (target) {
+				if (!this.effectData.positions[target.position]) {
+					return;
+				}
+				if (!target.fainted) {
+					target.heal(target.maxhp);
+					target.setStatus('');
+					this.add('-heal', target, target.getHealth, '[from] move: Healing Wish');
+					this.effectData.positions[target.position] = false;
+				}
+				if (!this.effectData.positions.some(affected => affected === true)) {
+					target.side.removeSideCondition('healingwish');
+				}
+			},
+		},
+		secondary: false,
+		target: "normal",
+		type: "Ghost",
+    },
 	// Modified moves
 	"defog": {
 		inherit: true,
