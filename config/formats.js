@@ -2010,14 +2010,18 @@ exports.Formats = [
                    'Rayquaza', 'Regigigas', 'Reshiram', 'Shaymin-Sky', 'Shedinja', 'Slaking', 'Solgaleo', 'Terrakion', 'Xerneas', 'Yveltal', 'Zekrom',
                    'Arena Trap', 'Power Construct', 'Shadow Tag', 'Gengarite', 'Kangaskhanite', 'Lucarionite', 'Salamencite', 'Baton Pass',
                    ],
-         onValidateSet: function (set) {
-         let bannedAbilities = {'Arena Trap': 1, 'Comatose': 1, 'Contrary': 1, 'Fluffy': 1, 'Fur Coat': 1, 'Huge Power': 1, 'Illusion': 1, 'Imposter': 1, 'Innards Out': 1, 'Parental Bond': 1, 'Power Construct': 1, 'Protean': 1, 'Pure Power': 1, 'Shadow Tag':1, 'Simple':1, 'Speed Boost': 1, 'Stakeout': 1, 'Water Bubble': 1, 'Wonder Guard': 1};
-         if (set.ability in bannedAbilities) {
-         let template = this.getTemplate(set.species || set.name);
-         let legalAbility = false;
-         for (let i in template.abilities) {
-         if (set.ability === template.abilities[i]) legalAbility = true;
-         }
+         bannedAbilities: [
+            'Comatose', 'Contrary', 'Fluffy', 'Fur Coat', 'Huge Power', 'Illusion', 'Imposter', 'Innards Out', 'Parental Bond', 'Protean',
+            'Pure Power', 'Simple', 'Speed Boost', 'Stakeout', 'Water Bubble', 'Wonder Guard',
+         ],
+         onValidateSet: function (set, format) {
+            let bannedAbilities = format.bannedAbilities || [];
+            if (bannedAbilities.includes(set.ability)) {
+                let template = this.getTemplate(set.species || set.name);
+                let legalAbility = false;
+            for (let i in template.abilities) {
+                if (set.ability === template.abilities[i]) legalAbility = true;
+            }
          if (!legalAbility) return ['The ability ' + set.ability + ' is banned on Pok\u00e9mon that do not naturally have it.'];
          }
          },
@@ -2055,7 +2059,7 @@ exports.Formats = [
          searchShow: false,
          ruleset: ['Gen 7] OU', 'Ignore STAB Moves'],
          banlist: ['Kartana', 'Komala', 'Kyurem-Black', 'Silvally-Ghost', 'Tapu Koko', 'Tapu Lele', 'Aerodactylite', 'King\'s Rock', 'Metagrossite', 'Razor Fang'],
-         noLearn: ['Acupressure', 'Belly Drum', 'Chatter', 'Geomancy', 'Shell Smash', 'Shift Gear', 'Thousand Arrows'],
+         noLearn: ['Acupressure', 'Belly Drum', 'Chatter', 'Geomancy', 'Lovely Kiss', 'Shell Smash', 'Shift Gear', 'Thousand Arrows'],
          },
          {
          name: "[Gen 7] 2v2 Doubles",
