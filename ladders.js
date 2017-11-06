@@ -134,8 +134,12 @@ class Ladder {
 		let name = Dex.getFormat(formatid).name;
         
 		const ladder = await this.ladder;
-        if(!ladderDecayTime[this.formatid] || new Date().getTime()-ladderDecayTime[this.formatid]>3600*24*1000){
-            ladderDecayTime[this.formatid]=new Date().getTime();
+        const decayPeriod=3600*24*1000;
+        if(!ladderDecayTime[this.formatid] || new Date().getTime()-ladderDecayTime[this.formatid]>decayPeriod){
+            if(!ladderDecayTime[this.formatid])
+                ladderDecayTime[this.formatid]=new Date().getTime();
+            else
+                ladderDecayTime[this.formatid]+=decayPeriod;
             for (let row of this.loadedLadder) {
                 row[1]=(row[1]-1000)*0.99+1000;
             }
