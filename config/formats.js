@@ -97,7 +97,11 @@ exports.Formats = [
          },
          {
          name: "[Gen 7] PU",
-         desc: ["&bullet; <a href=\"http://www.smogon.com/forums/threads/3611417/\">PU Metagame Discussion</a>"],
+         desc: [
+                "&bullet; <a href=\"http://www.smogon.com/forums/threads/3614120/\">PU Metagame Discussion</a>",
+                "&bullet; <a href=\"http://www.smogon.com/forums/threads/3614892/\">PU Viability Rankings</a>",
+                "&bullet; <a href=\"http://www.smogon.com/forums/threads/3614470/\">PU Sample Teams</a>",
+                ],
          
          mod: 'gen7',
          ruleset: ['[Gen 7] NU'],
@@ -2057,7 +2061,7 @@ exports.Formats = [
         
          mod: 'gen7',
          searchShow: false,
-         ruleset: ['Gen 7] OU', 'Ignore STAB Moves'],
+         ruleset: ['[Gen 7] OU', 'Ignore STAB Moves'],
          banlist: ['Kartana', 'Komala', 'Kyurem-Black', 'Silvally-Ghost', 'Tapu Koko', 'Tapu Lele', 'Aerodactylite', 'King\'s Rock', 'Metagrossite', 'Razor Fang'],
          noLearn: ['Acupressure', 'Belly Drum', 'Chatter', 'Geomancy', 'Lovely Kiss', 'Shell Smash', 'Shift Gear', 'Thousand Arrows'],
          },
