@@ -3477,7 +3477,7 @@ exports.BattleFormatsData = {
 		randomBattleMoves: ["calmmind", "dragonpulse", "surf", "dracometeor", "roost", "hiddenpowerfire", "substitute", "psyshock"],
 		randomDoubleBattleMoves: ["dragonpulse", "psychic", "tailwind", "helpinghand", "healpulse", "lightscreen", "reflect", "protect"],
 		requiredItem: "Latiasite",
-		tier: "UU",
+		tier: "BL",
 	},
 	latios: {
 		randomBattleMoves: ["dracometeor", "hiddenpowerfire", "surf", "thunderbolt", "psyshock", "roost", "trick", "defog"],
@@ -4793,7 +4793,7 @@ exports.BattleFormatsData = {
 			{"generation": 5, "level": 50, "gender": "M", "nature": "Quirky", "moves":["agility", "embargo", "punishment", "snarl"], "pokeball": "cherishball"},
 			{"generation": 6, "level": 50, "moves":["sludgebomb", "darkpulse", "flamethrower", "suckerpunch"], "pokeball": "ultraball"},
 		],
-		tier: "RU",
+		tier: "BL2",
 	},
 	minccino: {
 		randomBattleMoves: ["return", "tailslap", "wakeupslap", "uturn", "aquatail"],
