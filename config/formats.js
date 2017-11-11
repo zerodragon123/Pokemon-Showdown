@@ -656,10 +656,9 @@ exports.Formats = [
         banlist: ['Groudon-Primal', 'Kyogre-Primal', 'Aerilate + Pixilate + Refrigerate > 1', 'Arena Trap', 'Huge Power', 'Moody', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Wonder Guard', 'Assist', 'Chatter',
         ],
     },
-        {
+    {
         name: "[Gen 7] Super Staff Bros. Melee",
         desc: ["&bullet; <a href=\"http://www.smogon.com/forums/threads/3491902/\">Seasonal Ladder</a>"],
-        section: "OM of the Month",
                 
         mod: 'seasonal',
         team: 'randomSeasonalMelee',
