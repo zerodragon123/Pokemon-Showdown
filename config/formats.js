@@ -2837,7 +2837,7 @@ exports.Formats = [
 
 		mod: 'gen3',
 		team: 'random',
-		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Pokemon', 'Standard'],
 	},
 	{
 		name: "[Gen 3] Custom Game",
@@ -2874,7 +2874,7 @@ exports.Formats = [
 
 		mod: 'gen2',
 		team: 'random',
-		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Pokemon', 'Standard'],
 	},
 	{
 		name: "[Gen 2] Custom Game",
@@ -2922,7 +2922,7 @@ exports.Formats = [
 
 		mod: 'gen1',
 		team: 'random',
-		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Pokemon', 'Standard'],
 	},
 	{
 		name: "[Gen 1] Challenge Cup",
@@ -2931,7 +2931,7 @@ exports.Formats = [
 		team: 'randomCC',
 		searchShow: false,
 		challengeShow: false,
-		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Pokemon', 'HP Percentage Mod', 'Cancel Mod'],
 	},
 	{
 		name: "[Gen 1] Stadium",
