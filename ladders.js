@@ -144,10 +144,11 @@ class Ladder {
                 row[1]=(row[1]-1000)*0.99+1000;
             }
         }
-		let buf = `<h3>${name} Top 100</h3>`;
+		let buf = `<h3>${name} Top 200</h3>`;
 		buf += `<table>`;
 		buf += `<tr><th>` + ['', 'Username', '<abbr title="Elo rating">Elo</abbr>', 'W', 'L', 'T'].join(`</th><th>`) + `</th></tr>`;
-		for (let i = 0; i < ladder.length; i++) {
+        let show_len = min(ladder.length,200);
+		for (let i = 0; i < show_len; i++) {
 			let row = ladder[i];
 			buf += `<tr><td>` + [
 				i + 1, row[2], `<strong>${Math.round(row[1])}</strong>`, row[3], row[4], row[5],
