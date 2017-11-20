@@ -147,7 +147,7 @@ class Ladder {
 		let buf = `<h3>${name} Top 200</h3>`;
 		buf += `<table>`;
 		buf += `<tr><th>` + ['', 'Username', '<abbr title="Elo rating">Elo</abbr>', 'W', 'L', 'T'].join(`</th><th>`) + `</th></tr>`;
-        let show_len = min(ladder.length,200);
+        let show_len = Math.min(ladder.length,200);
 		for (let i = 0; i < show_len; i++) {
 			let row = ladder[i];
 			buf += `<tr><td>` + [
