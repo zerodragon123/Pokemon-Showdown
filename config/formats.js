@@ -5,10 +5,10 @@
 
 exports.Formats = [
 
-	// USUM Singles
+	// US/UM Singles
 	///////////////////////////////////////////////////////////////////
 	{
-		section: "USUM Singles",
+		section: "US/UM Singles",
 	},
 	{
 		name: "[Gen 7] Random Battle",
@@ -211,11 +211,11 @@ exports.Formats = [
 		ruleset: ['Team Preview', 'Cancel Mod'],
 	},
 
-	// USUM Doubles
+	// US/UM Doubles
 	///////////////////////////////////////////////////////////////////
 
 	{
-		section: "USUM Doubles",
+		section: "US/UM Doubles",
 	},
 	{
 		name: "[Gen 7] Random Doubles Battle",
@@ -441,8 +441,8 @@ exports.Formats = [
 
 		mod: 'mixandmega',
 		ruleset: ['Pokemon', 'Standard', 'Mega Rayquaza Clause', 'Team Preview'],
-		banlist: ['Baton Pass', 'Electrify', 'Ultranecrozium Z'],
-		bannedStones: ['Beedrillite', 'Blazikenite', 'Gengarite', 'Kangaskhanite', 'Mawilite', 'Medichamite'],
+		banlist: ['Baton Pass', 'Electrify'],
+		bannedStones: ['Beedrillite', 'Blazikenite', 'Gengarite', 'Kangaskhanite', 'Mawilite', 'Medichamite', 'Ultranecrozium Z'],
 		cannotMega: [
 			'Arceus', 'Darkrai', 'Deoxys', 'Deoxys-Attack', 'Dialga', 'Dragonite', 'Giratina', 'Groudon', 'Ho-Oh', 'Kyogre', 'Kyurem-Black', 'Kyurem-White', 'Lugia', 'Lunala', 'Marshadow',
 			'Mewtwo', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Palkia', 'Pheromosa', 'Rayquaza', 'Regigigas', 'Reshiram', 'Shaymin-Sky', 'Slaking', 'Solgaleo', 'Xerneas', 'Yveltal', 'Zekrom',
@@ -460,8 +460,8 @@ exports.Formats = [
 		onValidateSet: function (set, format) {
 			let template = this.getTemplate(set.species || set.name);
 			let item = this.getItem(set.item);
-			if (!item.megaEvolves && item.id !== 'blueorb' && item.id !== 'redorb') return;
-			if (template.baseSpecies === item.megaEvolves || (template.baseSpecies === 'Groudon' && item.id === 'redorb') || (template.baseSpecies === 'Kyogre' && item.id === 'blueorb')) return;
+			if (!item.megaEvolves && item.id !== 'blueorb' && item.id !== 'redorb' && item.id !== 'ultranecroziumz') return;
+			if (template.baseSpecies === item.megaEvolves || (template.baseSpecies === 'Groudon' && item.id === 'redorb') || (template.baseSpecies === 'Kyogre' && item.id === 'blueorb') || (template.species.substr(0, 9) === 'Necrozma-' && item.id === 'ultranecroziumz')) return;
 			if (template.evos.length) return ["" + template.species + " is not allowed to hold " + item.name + " because it's not fully evolved."];
 			let uberStones = format.bannedStones || [];
 			let uberPokemon = format.cannotMega || [];
@@ -2295,11 +2295,11 @@ exports.Formats = [
 		],
 	},
 
-	// ORAS Singles
+	// OR/AS Singles
 	///////////////////////////////////////////////////////////////////
 
 	{
-		section: "ORAS Singles",
+		section: "OR/AS Singles",
 		column: 3,
 	},
 	{
@@ -2454,11 +2454,11 @@ exports.Formats = [
 		ruleset: ['Team Preview', 'Cancel Mod'],
 	},
 
-	// ORAS Doubles/Triples
+	// OR/AS Doubles/Triples
 	///////////////////////////////////////////////////////////////////
 
 	{
-		section: "ORAS Doubles/Triples",
+		section: "OR/AS Doubles/Triples",
 	},
 	{
 		name: "[Gen 6] Doubles OU",
@@ -2593,11 +2593,11 @@ exports.Formats = [
 		ruleset: ['Team Preview', 'Cancel Mod'],
 	},
 
-	// BW2 Singles
+	// B2/W2 Singles
 	///////////////////////////////////////////////////////////////////
 
 	{
-		section: "BW2 Singles",
+		section: "B2/W2 Singles",
 		column: 4,
 	},
 	{
@@ -2692,11 +2692,11 @@ exports.Formats = [
 		ruleset: ['Team Preview', 'Cancel Mod'],
 	},
 
-	// BW2 Doubles
+	// B2/W2 Doubles
 	///////////////////////////////////////////////////////////////////
 
 	{
-		section: 'BW2 Doubles',
+		section: 'B2/W2 Doubles',
 		column: 4,
 	},
 	{
