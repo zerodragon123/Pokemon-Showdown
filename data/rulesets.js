@@ -430,7 +430,7 @@ exports.BattleFormats = {
         name: 'PSChina Clause',
         desc: ["The ruleset for PSChina in-game Pok&eacute;mon tournaments"],
         ruleset: ['Sleep Clause Mod', 'Species Clause', 'Nickname Clause', 'Item Clause', 'Team Preview', 'Cancel Mod', 'OHKO Clause', 'Moody Clause', 'Evasion Moves Clause', 'Endless Battle Clause'],
-        banlist: ['Unreleased', 'Illegal', 'Baton Pass'
+        banlist: ['Unreleased', 'Illegal', 'Baton Pass',
             'Mewtwo', 'Mew',
             'Lugia', 'Ho-Oh', 'Celebi',
             'Kyogre', 'Groudon', 'Rayquaza', 'Jirachi', 'Deoxys',
