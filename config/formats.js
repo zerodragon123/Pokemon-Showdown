@@ -28,12 +28,24 @@ exports.Formats = [
 		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
 	},
     {
-        name: "[Gen 7] 3DS 6v6",
-                   
+        name: "[Gen 7] 3DS 6V6",
+        
         mod: 'gen7',
-        maxForcedLevel: 50,
-        ruleset: ['[Gen 7] OU', 'PSChina Clause'],
-        banlist: ['Arena Trap', 'Magearna'],
+        searchShow: false,
+        forcedLevel: 50,
+        timer: {starting: 15 * 60 - 10, perTurn: 10, maxPerTurn: 60, maxFirstTurn: 90, timeoutAutoChoose: true},
+        ruleset: ['Pokemon', 'PSChina Clause'],
+        requirePlus: true,
+    },
+    {
+        name: "[Gen 7] 3DS 6V6 (suspect test)",
+        
+        mod: 'gen7',
+        forcedLevel: 50,
+        timer: {starting: 15 * 60 - 10, perTurn: 10, maxPerTurn: 60, maxFirstTurn: 90, timeoutAutoChoose: true},
+        ruleset: ['Pokemon', 'PSChina Clause'],
+        unbanlist: ['Necrozma-Dawn-Wings'],
+        requirePlus: true,
     },
 	{
 		name: "[Gen 7] OU",

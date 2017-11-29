@@ -406,9 +406,9 @@ exports.BattleFormats = {
 			// hardcoded in team-validator.js, so we are done.
 		},
 	},
-	pschinaclause: {
+	smpschinaclause: {
     		effectType: 'ValidatorRule',
-    		name: 'PSChina Clause',
+    		name: 'SM PSChina Clause',
     		desc: ["Prevents teams from having more than three Pok&eacute;mon listed in the Special list of PSChina"],
     		onStart: function () {
             		this.add('rule', 'PSChina Clause: Limit three certain Pokémon');
@@ -425,6 +425,29 @@ exports.BattleFormats = {
         		}
     		},
 	},
+    pschinaclause: {
+        effectType: 'ValidatorRule',
+        name: 'PSChina Clause',
+        desc: ["The ruleset for PSChina in-game Pok&eacute;mon tournaments"],
+        ruleset: ['Sleep Clause Mod', 'Species Clause', 'Nickname Clause', 'Item Clause', 'Team Preview', 'Cancel Mod', 'OHKO Clause', 'Moody Clause', 'Evasion Moves Clause', 'Endless Battle Clause'],
+        banlist: ['Unreleased', 'Illegal', 'Baton Pass'
+            'Mewtwo', 'Mew',
+            'Lugia', 'Ho-Oh', 'Celebi',
+            'Kyogre', 'Groudon', 'Rayquaza', 'Jirachi', 'Deoxys',
+            'Dialga', 'Palkia', 'Giratina', 'Phione', 'Manaphy', 'Darkrai', 'Shaymin', 'Arceus',
+            'Victini', 'Reshiram', 'Zekrom', 'Kyurem-White', 'Keldeo', 'Meloetta', 'Genesect',
+            'Xerneas', 'Yveltal', 'Zygarde', 'Diancie', 'Hoopa', 'Volcanion',
+            'Cosmog', 'Cosmoem', 'Solgaleo', 'Lunala', 'Magearna', 'Marshadow', 'Zeraora',
+            'Aegislash', 'Blaziken', 'Naganadel', 'Necrozma-Dusk-Mane', 'Necrozma-Dawn-Wings', 'Pheromosa',
+            'Gengarite', 'Lucarionite', 'Metagrossite', 'Salamencite', 'Ultranecrozium Z',
+            'Power Construct', 'Arena Trap', 'Shadow Tag',
+        ],
+        onValidateSet(set, format) {
+            if (this.gen < 7 && toId(set.item) === 'souldew') {
+                return [`${set.name || set.species} has Soul Dew, which is banned in ${format.name}.`];
+            }
+        },
+    },
 	itemclause: {
 		effectType: 'ValidatorRule',
 		name: 'Item Clause',
