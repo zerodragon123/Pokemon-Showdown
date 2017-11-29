@@ -6068,12 +6068,12 @@ exports.BattleFormatsData = {
 		tier: "LC",
 	},
 	lycanroc: {
-		randomBattleMoves: ["swordsdance", "accelerock", "stoneedge", "crunch", "firefang"],
+		randomBattleMoves: ["swordsdance", "accelerock", "stoneedge", "drillrun", "firefang"],
 		randomDoubleBattleMoves: ["accelerock", "stoneedge", "crunch", "firefang", "protect", "taunt"],
 		tier: "PU",
 	},
 	lycanrocmidnight: {
-		randomBattleMoves: ["bulkup", "stoneedge", "stealthrock", "suckerpunch", "swordsdance", "firefang"],
+		randomBattleMoves: ["bulkup", "stoneedge", "stealthrock", "suckerpunch", "swordsdance", "firepunch"],
 		randomDoubleBattleMoves: ["stoneedge", "suckerpunch", "swordsdance", "protect", "taunt"],
 		eventPokemon: [
 			{"generation": 7, "level": 50, "isHidden": true, "moves":["stoneedge", "firefang", "suckerpunch", "swordsdance"], "pokeball": "cherishball"},
@@ -6738,6 +6738,11 @@ exports.BattleFormatsData = {
 		eventPokemon: [
 			{"generation": 6, "level": 16, "isHidden": false, "abilities":["naturalcure"], "moves":["celebrate", "holdhands", "fly", "metronome"], "pokeball": "cherishball"},
 		],
+		tier: "CAP",
+	},
+	pajantom: {
+		randomBattleMoves: ["spiritshackle", "dragonclaw", "toxicspikes", "psychicfangs", "earthquake", "substitute", "leechlife"],
+		isNonstandard: true,
 		tier: "CAP",
 	},
 	syclant: {
