@@ -435,7 +435,7 @@ exports.BattleFormats = {
             'Lugia', 'Ho-Oh', 'Celebi',
             'Kyogre', 'Groudon', 'Rayquaza', 'Jirachi', 'Deoxys',
             'Dialga', 'Palkia', 'Giratina', 'Phione', 'Manaphy', 'Darkrai', 'Shaymin', 'Arceus',
-            'Victini', 'Reshiram', 'Zekrom', 'Kyurem-White', 'Keldeo', 'Meloetta', 'Genesect',
+            'Victini', 'Reshiram', 'Zekrom', 'Kyurem', 'Keldeo', 'Meloetta', 'Genesect',
             'Xerneas', 'Yveltal', 'Diancie', 'Hoopa', 'Volcanion',
             'Cosmog', 'Cosmoem', 'Solgaleo', 'Lunala', 'Magearna', 'Marshadow', 'Zeraora',
             'Aegislash', 'Blaziken', 'Naganadel', 'Necrozma-Dusk-Mane', 'Necrozma-Dawn-Wings', 'Pheromosa',

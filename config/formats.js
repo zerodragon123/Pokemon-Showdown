@@ -31,20 +31,9 @@ exports.Formats = [
         name: "[Gen 7] 3DS 6V6",
         
         mod: 'gen7',
-        searchShow: false,
         forcedLevel: 50,
         timer: {starting: 15 * 60 - 10, perTurn: 10, maxPerTurn: 60, maxFirstTurn: 90, timeoutAutoChoose: true},
         ruleset: ['Pokemon', 'PSChina Clause'],
-        requirePlus: true,
-    },
-    {
-        name: "[Gen 7] 3DS 6V6 (suspect test)",
-        
-        mod: 'gen7',
-        forcedLevel: 50,
-        timer: {starting: 15 * 60 - 10, perTurn: 10, maxPerTurn: 60, maxFirstTurn: 90, timeoutAutoChoose: true},
-        ruleset: ['Pokemon', 'PSChina Clause'],
-        unbanlist: ['Necrozma-Dawn-Wings'],
         requirePlus: true,
     },
 	{
