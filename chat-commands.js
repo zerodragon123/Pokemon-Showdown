@@ -2134,7 +2134,7 @@ exports.commands = {
 
 		let entry = targetUser.name + " was forced to choose a new name by " + user.name + (reason ? ": " + reason : "");
 		this.privateModCommand("(" + entry + ")");
-		Ladders.matchmaker.cancelSearch(targetUser);
+		Ladders.cancelSearches(targetUser);
 		targetUser.resetName(true);
 		targetUser.send("|nametaken||" + user.name + " considers your name inappropriate" + (reason ? ": " + reason : "."));
 		return true;
@@ -2164,7 +2164,7 @@ exports.commands = {
 		}
 
 		this.globalModlog("NAMELOCK", targetUser, ` by ${user.name}${reasonText}`);
-		Ladders.matchmaker.cancelSearch(targetUser);
+		Ladders.cancelSearches(targetUser);
 		Punishments.namelock(targetUser, null, null, reason);
 		targetUser.popup(`|modal|${user.name} has locked your name and you can't change names anymore${reasonText}`);
 		return true;
@@ -3324,22 +3324,22 @@ exports.commands = {
 				let userGroup = user.group;
 				if (Config.groupsranking.indexOf(userGroup) < Config.groupsranking.indexOf(Config.laddermodchat)) {
 					let groupName = Config.groups[Config.laddermodchat].name || Config.laddermodchat;
-					this.popupReply("On this server, you must be of rank " + groupName + " or higher to search for a battle.");
+					this.popupReply(`On this server, you must be of rank ${groupName} or higher to search for a battle.`);
 					return false;
 				}
 			}
-			Ladders.matchmaker.searchBattle(user, target);
+			Ladders.searchBattle(user, target);
 		} else {
-			Ladders.matchmaker.cancelSearches(user);
+			Ladders.cancelSearches(user);
 		}
 	},
 
 	'!cancelsearch': true,
 	cancelsearch: function (target, room, user) {
 		if (target) {
-			Ladders.matchmaker.cancelSearch(user, target);
+			Ladders(toId(target)).cancelSearch(user);
 		} else {
-			Ladders.matchmaker.cancelSearches(user);
+			Ladders.cancelSearches(user);
 		}
 	},
 
@@ -3507,7 +3507,7 @@ exports.commands = {
 			));
 		} else if (cmd === 'laddertop') {
 			if (!trustable) return false;
-			Ladders(target).getTop().then(result => {
+			Ladders(toId(target)).getTop().then(result => {
 				connection.send('|queryresponse|laddertop|' + JSON.stringify(result));
 			});
 		} else {
