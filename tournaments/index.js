@@ -114,23 +114,13 @@ class Tournament {
 	}
 
 	setCustomRules(rules, output) {
-		let format = Dex.getFormat(this.originalFormat);
-		if (format.team) {
-			output.errorReply(`WARNING: ${format.name} uses generated teams - only in-battle mod rules (like Sleep Clause Mod) will have any effect.`);
-		}
-		format = Dex.getFormat(this.originalFormat, rules);
-		if (!format.customRules) {
-			output.errorReply(`The specified rules are invalid or already included in ${format.name}.`);
-			return false;
-		}
 		try {
-			Dex.getRuleTable(format);
+			this.teambuilderFormat = Dex.validateFormat(this.originalFormat + '@@@' + rules);
 		} catch (e) {
-			output.errorReply(`Rule error: ${e.message}`);
+			output.errorReply(`Custom rule error: ${e.message}`);
 			return false;
 		}
-		this.teambuilderFormat = this.originalFormat + '@@@' + format.customRules.join(',');
-		this.customRules = format.customRules;
+		this.customRules = Dex.getFormat(this.teambuilderFormat, true).customRules;
 		return true;
 	}
 
@@ -682,7 +672,7 @@ class Tournament {
 		if (!this.isEnded) this.autoDisqualifyTimer = setTimeout(() => this.runAutoDisqualify(), this.autoDisqualifyTimeout);
 	}
 
-	challenge(user, targetUserid, output) {
+	async challenge(user, targetUserid, output) {
 		if (!this.isTournamentStarted) {
 			output.sendReply('|tournament|error|NotStarted');
 			return;
@@ -717,11 +707,8 @@ class Tournament {
 		this.isAvailableMatchesInvalidated = true;
 		this.update();
 
-		user.prepBattle(this.teambuilderFormat, 'tournament', user).then(validTeam => this.finishChallenge(user, to, output, validTeam));
-	}
-	finishChallenge(user, to, output, validTeam) {
-		let from = this.players[user.userid];
-		if (validTeam === false) {
+		const validTeam = await user.prepBattle(this.teambuilderFormat, 'tournament', user);
+		if (!validTeam) {
 			this.generator.setUserBusy(from, false);
 			this.generator.setUserBusy(to, false);
 
@@ -765,7 +752,7 @@ class Tournament {
 		this.isAvailableMatchesInvalidated = true;
 		this.update();
 	}
-	acceptChallenge(user, output) {
+	async acceptChallenge(user, output) {
 		if (!this.isTournamentStarted) {
 			output.sendReply('|tournament|error|NotStarted');
 			return;
@@ -780,12 +767,8 @@ class Tournament {
 		let challenge = this.pendingChallenges.get(player);
 		if (!challenge || !challenge.from) return;
 
-		user.prepBattle(this.teambuilderFormat, 'tournament', user).then(validTeam =>
-			this.finishAcceptChallenge(user, challenge, validTeam)
-		);
-	}
-	finishAcceptChallenge(user, challenge, validTeam) {
-		if (validTeam === false) return;
+		const validTeam = await user.prepBattle(this.teambuilderFormat, 'tournament', user);
+		if (!validTeam) return;
 
 		// Prevent battles between offline users from starting
 		let from = Users.get(challenge.from.userid);
@@ -793,7 +776,6 @@ class Tournament {
 
 		// Prevent double accepts and users that have been disqualified while between these two functions
 		if (!this.pendingChallenges.get(challenge.from)) return;
-		let player = this.players[user.userid];
 		if (!this.pendingChallenges.get(player)) return;
 
 		let room = Rooms.createBattle(this.teambuilderFormat, {
