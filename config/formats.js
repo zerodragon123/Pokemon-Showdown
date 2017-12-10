@@ -843,6 +843,8 @@ exports.Formats = [
         desc: ["&bullet; <a href=\"http://www.smogon.com/forums/threads/3491902/\">Seasonal Ladder</a>"],
                 
         mod: 'seasonal',
+		  searchShow: false,
+        challengeShow: false,
         team: 'randomSeasonalMelee',
         ruleset: ['Sleep Clause Mod', 'Freeze Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
         onBegin: function () {
