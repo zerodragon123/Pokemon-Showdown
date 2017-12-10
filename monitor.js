@@ -123,16 +123,17 @@ const Monitor = module.exports = {
         Dnsbl.cache.clear();
     },
     
-connections: new TimedCounter(),
-battles: new TimedCounter(),
-battlePreps: new TimedCounter(),
-groupChats: new TimedCounter(),
+    connections: new TimedCounter(),
+    battles: new TimedCounter(),
+    battlePreps: new TimedCounter(),
+    groupChats: new TimedCounter(),
+    tickets: new TimedCounter(),
     
     /** @type {string | null} */
-activeIp: null,
-networkUse: {},
-networkCount: {},
-hotpatchLock: {},
+    activeIp: null,
+    networkUse: {},
+    networkCount: {},
+    hotpatchLock: {},
     
     /**
      * Counts a connection. Returns true if the connection should be terminated for abuse.
@@ -220,6 +221,19 @@ hotpatchLock: {},
     countGroupChat(ip) {
         let count = this.groupChats.increment(ip, 60 * 60 * 1000)[0];
         return count > 4;
+    },
+    
+    /**
+     * Counts ticket creation. Returns true if too much.
+     *
+     * @param {string} ip
+     * @return {boolean}
+     */
+    countTickets(ip) {
+        let count = this.tickets.increment(ip, 60 * 60 * 1000)[0];
+        if (Punishments.sharedIps.has(ip) && count >= 50) return true;
+        if (count >= 5) return true;
+        return false;
     },
     
     /**
