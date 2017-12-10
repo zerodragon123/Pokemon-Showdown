@@ -433,7 +433,7 @@ exports.grouplist = [
 		minigame: true,
 	},
    {
-      symbol: '\u1F3C6',
+      symbol: '\u265A',
       id: "champ",
       name: "Champion",
       inherit: '+',
