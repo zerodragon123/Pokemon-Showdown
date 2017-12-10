@@ -432,14 +432,14 @@ exports.grouplist = [
 		joinbattle: true,
 		minigame: true,
 	},
-    {
-        symbol: '\u1F3C6',
-        id: "champ",
-        name: "Champion",
-        inherit: '+',
-        alts: 's',
-        broadcast: true,
-    },
+   {
+      symbol: '\u1F3C6',
+      id: "champ",
+      name: "Champion",
+      inherit: '+',
+		alts: 's',
+      broadcast: true,
+   },
 	{
 		symbol: '+',
 		id: "voice",
