@@ -134,7 +134,7 @@ class LadderStore {
 		let formatid = this.formatid;
 		let name = Dex.getFormat(formatid).name;
 		const ladder = await this.getLadder();
-        const decayPeriod=10*1000;
+        const decayPeriod=3600*24*1000;
         if(!ladderDecayTime[this.formatid] || new Date().getTime()-ladderDecayTime[this.formatid]>decayPeriod){
             if(!ladderDecayTime[this.formatid])
                 ladderDecayTime[this.formatid]=new Date().getTime();
