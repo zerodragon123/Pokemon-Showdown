@@ -131,6 +131,7 @@ exports.commands = {
 	code: function (target, room, user) {
 		if (!target) return this.parse('/help code');
 		if (!this.canTalk()) return;
+		if (target.startsWith('\n')) target = target.slice(1);
 		const separator = '\n';
 		if (target.includes(separator)) {
 			const params = target.split(separator);
@@ -1416,6 +1417,7 @@ exports.commands = {
 	part: function (target, room, user, connection) {
 		let targetRoom = target ? Rooms.search(target) : room;
 		if (!targetRoom || targetRoom === Rooms.global) {
+			if (target.startsWith('view-')) return;
 			return this.errorReply("The room '" + target + "' does not exist.");
 		}
 		user.leaveRoom(targetRoom, connection);
@@ -1721,13 +1723,13 @@ exports.commands = {
 		}
 
 		// Destroy personal rooms of the banned user.
-		targetUser.inRooms.forEach(roomid => {
-			if (roomid === 'global') return;
+		for (const roomid of targetUser.inRooms) {
+			if (roomid === 'global') continue;
 			let targetRoom = Rooms.get(roomid);
 			if (targetRoom.isPersonal && targetRoom.auth[userid] === '#') {
 				targetRoom.destroy();
 			}
-		});
+		}
 
 		let proof = '';
 		let userReason = target;
@@ -3477,13 +3479,13 @@ exports.commands = {
 				return false;
 			}
 			let roomList = {};
-			targetUser.inRooms.forEach(roomid => {
-				if (roomid === 'global') return;
+			for (let roomid of targetUser.inRooms) {
+				if (roomid === 'global') continue;
 				let targetRoom = Rooms.get(roomid);
-				if (!targetRoom) return; // shouldn't happen
+				if (!targetRoom) continue; // shouldn't happen
 				let roomData = {};
 				if (targetRoom.isPrivate) {
-					if (!user.inRooms.has(roomid) && !user.games.has(roomid)) return;
+					if (!user.inRooms.has(roomid) && !user.games.has(roomid)) continue;
 					roomData.isPrivate = true;
 				}
 				if (targetRoom.battle) {
@@ -3495,7 +3497,7 @@ exports.commands = {
 					roomid = targetRoom.auth[targetUser.userid] + roomid;
 				}
 				roomList[roomid] = roomData;
-			});
+			}
 			if (!targetUser.connected) roomList = false;
 			let userdetails = {
 				userid: targetUser.userid,
