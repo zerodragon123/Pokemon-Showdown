@@ -37,7 +37,7 @@ const MAX_PARSE_RECURSION = 10;
 const VALID_COMMAND_TOKENS = '/!';
 const BROADCAST_TOKEN = '!';
 
-const FS = require('./fs');
+const FS = require('./lib/fs');
 
 let Chat = module.exports;
 
@@ -206,6 +206,10 @@ class CommandContext {
 		this.cmdToken = options.cmdToken || '';
 		this.target = options.target || ``;
 		this.fullCmd = options.fullCmd || '';
+
+		// broadcast context
+		this.broadcasting = false;
+		this.broadcastToRoom = true;
 
 		// target user
 		this.targetUser = null;
@@ -396,7 +400,7 @@ class CommandContext {
 		try {
 			result = commandHandler.call(this, this.target, this.room, this.user, this.connection, this.cmd, this.message);
 		} catch (err) {
-			require('./crashlogger')(err, 'A chat command', {
+			require('./lib/crashlogger')(err, 'A chat command', {
 				user: this.user.name,
 				room: this.room && this.room.id,
 				pmTarget: this.pmTarget && this.pmTarget.name,
@@ -484,15 +488,9 @@ class CommandContext {
 		}).join('\n');
 	}
 	sendReply(data) {
-		if (this.broadcasting) {
+		if (this.broadcasting && this.broadcastToRoom) {
 			// broadcasting
-			if (this.pmTarget) {
-				data = this.pmTransform(data);
-				this.user.send(data);
-				if (this.pmTarget !== this.user) this.pmTarget.send(data);
-			} else {
-				this.room.add(data);
-			}
+			this.add(data);
 		} else {
 			// not broadcasting
 			if (this.pmTarget) {
@@ -539,12 +537,12 @@ class CommandContext {
 		this.room.send(data);
 	}
 	sendModCommand(data) {
-		this.room.sendModCommand(data);
+		this.room.sendModsByUser(this.user, data);
 	}
 	privateModCommand(data, logOnlyText) {
-		this.room.sendModCommand(data);
-		this.logEntry(data);
-		this.room.modlog(data + (logOnlyText || ""));
+		this.room.sendModsByUser(this.user, data);
+		this.roomlog(data);
+		this.room.modlog('(' + this.room.id + ') ' + data + (logOnlyText || ""));
 	}
 	globalModlog(action, user, note) {
 		let buf = `(${this.room.id}) ${action}: `;
@@ -559,16 +557,16 @@ class CommandContext {
 		buf += note;
 		Rooms.global.modlog(buf);
 	}
-	logEntry(data) {
+	roomlog(data) {
 		if (this.pmTarget) return;
-		this.room.logEntry(data);
+		this.room.roomlog(data);
 	}
 	addModCommand(text, logOnlyText) {
-		this.room.addLogMessage(this.user, text);
-		this.room.modlog(text + (logOnlyText || ""));
+		this.room.addByUser(this.user, text);
+		this.room.modlog('(' + this.room.id + ') ' + text + (logOnlyText || ""));
 	}
 	logModCommand(text) {
-		this.room.modlog(text);
+		this.room.modlog('(' + this.room.id + ') ' + text);
 	}
 	update() {
 		if (this.room) this.room.update();
@@ -582,22 +580,23 @@ class CommandContext {
 	}
 	canBroadcast(suppressMessage) {
 		if (!this.broadcasting && this.cmdToken === BROADCAST_TOKEN) {
-			let message = this.canTalk(suppressMessage || this.message);
-			if (!message) return false;
 			if (!this.pmTarget && !this.user.can('broadcast', null, this.room)) {
 				this.errorReply("You need to be voiced to broadcast this command's information.");
 				this.errorReply("To see it for yourself, use: /" + this.message.substr(1));
 				return false;
 			}
 
-			// broadcast cooldown
-			let broadcastMessage = message.toLowerCase().replace(/[^a-z0-9\s!,]/g, '');
-
 			if (this.room && this.room.lastBroadcast === this.broadcastMessage &&
 					this.room.lastBroadcastTime >= Date.now() - BROADCAST_COOLDOWN) {
 				this.errorReply("You can't broadcast this because it was just broadcasted.");
 				return false;
 			}
+
+			let message = this.canTalk(suppressMessage || this.message);
+			if (!message) return false;
+
+			// broadcast cooldown
+			let broadcastMessage = message.toLowerCase().replace(/[^a-z0-9\s!,]/g, '');
 
 			this.message = message;
 			this.broadcastMessage = broadcastMessage;
@@ -615,17 +614,17 @@ class CommandContext {
 			if (!this.canBroadcast(suppressMessage)) return false;
 		}
 
+		this.broadcasting = true;
+
 		if (this.pmTarget) {
-			this.add('|c~|' + (suppressMessage || this.message));
+			this.sendReply('|c~|' + (suppressMessage || this.message));
 		} else {
-			this.add('|c|' + this.user.getIdentity(this.room.id) + '|' + (suppressMessage || this.message));
+			this.sendReply('|c|' + this.user.getIdentity(this.room.id) + '|' + (suppressMessage || this.message));
 		}
 		if (!this.pmTarget) {
 			this.room.lastBroadcast = this.broadcastMessage;
 			this.room.lastBroadcastTime = Date.now();
 		}
-
-		this.broadcasting = true;
 
 		return true;
 	}

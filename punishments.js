@@ -15,7 +15,7 @@
 
 let Punishments = module.exports;
 
-const FS = require('./fs');
+const FS = require('./lib/fs');
 
 const PUNISHMENT_FILE = 'config/punishments.tsv';
 const ROOM_PUNISHMENT_FILE = 'config/room-punishments.tsv';
@@ -1302,8 +1302,7 @@ Punishments.isRoomBanned = function (user, roomid) {
 		}
 	}
 
-	if (!punishment && Rooms(roomid).parent) punishment = Punishments.isRoomBanned(user, Rooms(roomid).parent.id);
-	return punishment;
+	if (Rooms(roomid).parent) return Punishments.isRoomBanned(user, Rooms(roomid).parent.id);
 };
 
 /**

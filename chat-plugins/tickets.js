@@ -1,6 +1,6 @@
 'use strict';
 
-const FS = require('../fs');
+const FS = require('./../lib/fs');
 const TICKET_FILE = 'config/tickets.json';
 const TICKET_CACHE_TIME = 24 * 60 * 60 * 1000; // 24 hours
 const TICKET_BAN_DURATION = 48 * 60 * 60 * 1000; // 48 hours
@@ -83,7 +83,7 @@ class HelpTicket extends Rooms.RoomGame {
 	}
 
 	modnote(user, text) {
-		this.room.addLogMessage(user, text);
+		this.room.addByUser(user, text);
 		this.room.modlog(text);
 	}
 
@@ -95,7 +95,7 @@ class HelpTicket extends Rooms.RoomGame {
 		this.modnote(staff, `${staff.name} closed this ticket.`);
 		notifyStaff(this.ticket.escalated);
 		if (this.room.expireTimer) clearTimeout(this.room.expireTimer);
-		this.room.expireTimer = setTimeout(() => this.room.tryExpire(), 40 * 60 * 1000);
+		this.room.expireTimer = setTimeout(() => this.room.expire(), 40 * 60 * 1000);
 	}
 
 	deleteTicket(staff) {
