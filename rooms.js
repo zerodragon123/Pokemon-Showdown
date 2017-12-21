@@ -480,7 +480,7 @@ class GlobalRoom extends BasicRoom {
 	 * @param {string} message
 	 */
 	modlog(message) {
-		this.modlogStream.write(message + '\n');
+		this.modlogStream.write('[' + (new Date().toJSON()) + '] ' + message + '\n');
 	}
 
 	writeChatRoomData() {
@@ -1091,9 +1091,11 @@ class BasicChatRoom extends BasicRoom {
 		this.pokeExpireTimer();
 	}
 	pokeExpireTimer() {
+		if (this.expireTimer) clearTimeout(this.expireTimer);
 		if ((this.isPersonal && !this.isHelp) || (this.isHelp && this.isHelp !== 'open')) {
-			if (this.expireTimer) clearTimeout(this.expireTimer);
 			this.expireTimer = setTimeout(() => this.expire(), TIMEOUT_INACTIVE_DEALLOCATE);
+		} else {
+			this.expireTimer = null;
 		}
 	}
 	expire() {
@@ -1571,6 +1573,8 @@ let Rooms = Object.assign(getRoom, {
 	RoomGamePlayer: require('./room-game').RoomGamePlayer,
 
 	RETRY_AFTER_LOGIN,
+
+	Roomlogs: Roomlogs,
 
 	RoomBattle: require(roomBattleLoc).RoomBattle,
 	RoomBattlePlayer: require(roomBattleLoc).RoomBattlePlayer,
