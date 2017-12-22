@@ -83,4 +83,36 @@ exports.BattleFormats = {
 			set.moves = moves;
 		},
 	},
+	standardpo: {
+		effectType: 'ValidatorRule',
+		name: 'StandardPO',
+		ruleset: ['Sleep Clause Mod', 'Species Clause', 'Freeze Clause Mod', 'OHKO Clause', 'Evasion Moves Clause', 'HP Percentage Mod', 'Cancel Mod'],
+		banlist: ['Unreleased', 'Illegal',
+			'Hypnosis + Mean Look',
+			'Hypnosis + Spider Web',
+			'Lovely Kiss + Mean Look',
+			'Lovely Kiss + Spider Web',
+			'Sing + Mean Look',
+			'Sing + Spider Web',
+			'Sleep Powder + Mean Look',
+			'Sleep Powder + Spider Web',
+			'Spore + Mean Look',
+			'Spore + Spider Web',
+		],
+		onValidateSet: function (set) {
+			// limit one of each move in Standard
+			let moves = [];
+			if (set.moves) {
+				let hasMove = {};
+				for (let i = 0; i < set.moves.length; i++) {
+					let move = this.getMove(set.moves[i]);
+					let moveid = move.id;
+					if (hasMove[moveid]) continue;
+					hasMove[moveid] = true;
+					moves.push(set.moves[i]);
+				}
+			}
+			set.moves = moves;
+		},
+	},
 };
