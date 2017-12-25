@@ -137,6 +137,7 @@ exports.Formats = [
         teamLength: {
 			battle: 3,
 		},
+        searchShow: false,
 		mod: 'gen7',
 		ruleset: ['Pokemon', 'Standard'],
 		banlist: ['Uber', 'Arena Trap', 'Power Construct', 'Shadow Tag', 'Baton Pass'],
