@@ -135,6 +135,7 @@ exports.Formats = [
 			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3606650/\">OU Sample Teams</a>",
 		],
         teamLength: {
+            validate: [1, 3],
 			battle: 3,
 		},
         searchShow: false,
