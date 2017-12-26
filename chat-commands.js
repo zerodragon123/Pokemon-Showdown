@@ -3030,7 +3030,8 @@ exports.commands = {
 	refreshpage: function (target, room, user) {
 		if (!this.can('hotpatch')) return false;
 		Rooms.global.send('|refresh|');
-		this.roomlog(user.name + " used /refreshpage");
+		const logRoom = Rooms('staff') || room;
+		logRoom.roomlog(`${user.name} used /refreshpage`);
 	},
 
 	updateserver: async function (target, room, user, connection) {
@@ -3060,6 +3061,7 @@ exports.commands = {
 		}
 
 		this.sendReply(`Fetching newest version...`);
+		logRoom.roomlog(`${user.name} used /updateserver`);
 
 		let [code, stdout, stderr] = await exec(`git fetch`);
 		if (code) throw new Error(`updateserver: Crash while fetching - make sure this is a Git repository`);
@@ -3125,7 +3127,8 @@ exports.commands = {
 			Rooms.lobby.modchat = false;
 			Rooms.lobby.addRaw("<div class=\"broadcast-green\"><b>We fixed the crash without restarting the server!</b><br />You may resume talking in the lobby and starting new battles.</div>").update();
 		}
-		this.roomlog(user.name + " used /crashfixed");
+		const logRoom = Rooms('staff') || room;
+		logRoom.roomlog(`${user.name} used /crashfixed`);
 	},
 	crashfixedhelp: ["/crashfixed - Ends the active lockdown caused by a crash without the need of a restart. Requires: ~"],
 
@@ -3330,7 +3333,7 @@ exports.commands = {
 	},
 
 	uploadreplay: 'savereplay',
-	savereplay: function (target, room, user, connection) {
+	savereplay: async function (target, room, user, connection) {
 		if (!room || !room.battle) return;
 		// retrieve spectator log (0) if there are privacy concerns
 		const format = Dex.getFormat(room.format, true);
@@ -3341,7 +3344,7 @@ exports.commands = {
 		let players = room.battle.playerNames;
 		let rating = 0;
 		if (room.battle.ended && room.rated) rating = room.rated;
-		LoginServer.request('prepreplay', {
+		const [success] = await LoginServer.request('prepreplay', {
 			id: room.id.substr(7),
 			loghash: datahash,
 			p1: players[0],
@@ -3349,16 +3352,15 @@ exports.commands = {
 			format: room.format,
 			rating: rating,
 			hidden: room.isPrivate ? '1' : '',
-		}, success => {
-			if (success && success.errorip) {
-				connection.popup(`This server's request IP ${success.errorip} is not a registered server.`);
-				return;
-			}
-			connection.send('|queryresponse|savereplay|' + JSON.stringify({
-				log: data,
-				id: room.id.substr(7),
-			}));
 		});
+		if (success && success.errorip) {
+			connection.popup(`This server's request IP ${success.errorip} is not a registered server.`);
+			return;
+		}
+		connection.send('|queryresponse|savereplay|' + JSON.stringify({
+			log: data,
+			id: room.id.substr(7),
+		}));
 	},
 
 	addplayer: function (target, room, user) {
