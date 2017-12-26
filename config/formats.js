@@ -126,23 +126,6 @@ exports.Formats = [
 			'Eevium Z', 'Dragon Rage', 'Sonic Boom',
 		],
 	},
-    {
-		name: "[Gen 7] Battle Tree 3v3",
-		desc: [
-			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3621042/\">OU Metagame Discussion</a>",
-			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3587177/\">OU Banlist</a>",
-			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3621329/\">OU Viability Rankings</a>",
-			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3606650/\">OU Sample Teams</a>",
-		],
-        teamLength: {
-            validate: [1, 3],
-			battle: 3,
-		},
-        searchShow: false,
-		mod: 'gen7',
-		ruleset: ['Pokemon', 'Standard'],
-		banlist: ['Uber', 'Arena Trap', 'Power Construct', 'Shadow Tag', 'Baton Pass'],
-	},
 	{
 		name: "[Gen 7] Monotype",
 		desc: [
@@ -247,6 +230,23 @@ exports.Formats = [
 			}
 		},
 		requirePentagon: true,
+	},
+	{
+		name: "[Gen 7] Battle Tree 3v3",
+		desc: [
+			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3621042/\">OU Metagame Discussion</a>",
+			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3587177/\">OU Banlist</a>",
+			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3621329/\">OU Viability Rankings</a>",
+			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3606650/\">OU Sample Teams</a>",
+		],
+      teamLength: {
+         validate: [1, 3],
+			battle: 3,
+		},
+      searchShow: false,
+		mod: 'gen7',
+		ruleset: ['Pokemon', 'Standard'],
+		banlist: ['Uber', 'Power Construct'],
 	},
 	{
 		name: "[Gen 7] Custom Game",
