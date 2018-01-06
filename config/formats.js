@@ -341,6 +341,7 @@ exports.Formats = [
 		},
 		timer: {starting: 15 * 60 - 10, perTurn: 10, maxPerTurn: 60, maxFirstTurn: 90, timeoutAutoChoose: true},
 		ruleset: ['Pokemon', 'Standard GBU'],
+		banlist: ['Unown'],
 		requirePlus: true,
 	},
 	{
@@ -415,7 +416,7 @@ exports.Formats = [
 
 		mod: 'gen7',
 		ruleset: ['[Gen 7] OU'],
-		banlist: ['Hoopa-Unbound', 'Kartana', 'Kyurem-Black', 'Gyarados-Mega', 'Regigigas', 'Shedinja', 'Slaking', 'Huge Power', 'Imposter', 'Pure Power', 'Speed Boost', 'Water Bubble', 'Assist', 'Chatter'],
+		banlist: ['Hoopa-Unbound', 'Kartana', 'Kyurem-Black', 'Regigigas', 'Shedinja', 'Slaking', 'Huge Power', 'Imposter', 'Pure Power', 'Speed Boost', 'Water Bubble', 'Gyaradosite', 'Assist', 'Chatter'],
 		noChangeForme: true,
 		noChangeAbility: true,
 		getEvoFamily: function (species) {
@@ -430,7 +431,7 @@ exports.Formats = [
 				let abilityMap = Object.create(null);
 				for (let speciesid in Dex.data.Pokedex) {
 					let pokemon = Dex.data.Pokedex[speciesid];
-					if (pokemon.num < 1 || Dex.data.FormatsData[speciesid].tier === 'Uber' || this.format.banlist.includes(pokemon.species) || pokemon.species === 'Smeargle') continue;
+					if (pokemon.num < 1 || pokemon.species === 'Smeargle') continue;
 					if (Dex.data.FormatsData[speciesid].requiredItem || Dex.data.FormatsData[speciesid].requiredMove) continue;
 					for (let key in pokemon.abilities) {
 						let abilityId = toId(pokemon.abilities[key]);
@@ -454,7 +455,8 @@ exports.Formats = [
 			let template = Dex.getTemplate(species);
 			if (!template.exists) return [`The Pokemon "${set.species}" does not exist.`];
 			if (template.isUnreleased) return [`${template.species} is unreleased.`];
-			if (template.tier === 'Uber' || this.format.banlist.includes(template.species)) return [`${template.species} is banned.`];
+			let megaTemplate = Dex.getTemplate(Dex.getItem(set.item).megaStone);
+			if (template.tier === 'Uber' || megaTemplate.tier === 'Uber' || this.format.banlist.includes(template.species)) return [`${megaTemplate.tier === 'Uber' ? megaTemplate.species : template.species} is banned.`];
 
 			let name = set.name;
 
@@ -650,7 +652,7 @@ exports.Formats = [
 		mod: 'mixandmega',
 		ruleset: ['Pokemon', 'Standard', 'Mega Rayquaza Clause', 'Team Preview'],
 		banlist: ['Shadow Tag', 'Gengarite', 'Baton Pass', 'Electrify'],
-		bannedStones: ['Beedrillite', 'Blazikenite', 'Kangaskhanite', 'Mawilite', 'Medichamite', 'Ultranecrozium Z'],
+		restrictedStones: ['Beedrillite', 'Blazikenite', 'Kangaskhanite', 'Mawilite', 'Medichamite', 'Ultranecrozium Z'],
 		cannotMega: [
 			'Arceus', 'Darkrai', 'Deoxys', 'Deoxys-Attack', 'Dialga', 'Dragonite', 'Giratina', 'Groudon', 'Ho-Oh', 'Kyogre', 'Kyurem-Black', 'Kyurem-White', 'Lugia', 'Lunala', 'Marshadow',
 			'Mewtwo', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Palkia', 'Pheromosa', 'Rayquaza', 'Regigigas', 'Reshiram', 'Shaymin-Sky', 'Slaking', 'Solgaleo', 'Xerneas', 'Yveltal', 'Zekrom',
@@ -671,7 +673,7 @@ exports.Formats = [
 			if (!item.megaEvolves && item.id !== 'blueorb' && item.id !== 'redorb' && item.id !== 'ultranecroziumz') return;
 			if (template.baseSpecies === item.megaEvolves || (template.baseSpecies === 'Groudon' && item.id === 'redorb') || (template.baseSpecies === 'Kyogre' && item.id === 'blueorb') || (template.species.substr(0, 9) === 'Necrozma-' && item.id === 'ultranecroziumz')) return;
 			if (template.evos.length) return ["" + template.species + " is not allowed to hold " + item.name + " because it's not fully evolved."];
-			let uberStones = format.bannedStones || [];
+			let uberStones = format.restrictedStones || [];
 			let uberPokemon = format.cannotMega || [];
 			if (uberPokemon.includes(template.name) || set.ability === 'Power Construct' || uberStones.includes(item.name)) return ["" + template.species + " is not allowed to hold " + item.name + "."];
 		},
@@ -701,46 +703,22 @@ exports.Formats = [
 	{
 		name: "[Gen 7] Almost Any Ability",
 		desc: [
-			"Pok&eacute;mon can use any ability, barring the few that are banned.",
+			"Pok&eacute;mon can use any ability, barring the few that are restricted to their natural users.",
 			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3587901/\">Almost Any Ability</a>",
 			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3595753/\">AAA Resources</a>",
 		],
 
 		mod: 'gen7',
-		searchShow: false,
 		ruleset: ['[Gen 7] OU', 'Ability Clause', 'Ignore Illegal Abilities'],
 		banlist: ['Archeops', 'Dragonite', 'Hoopa-Unbound', 'Kartana', 'Keldeo', 'Kyurem-Black', 'Regigigas', 'Shedinja', 'Slaking', 'Terrakion'],
 		unbanlist: ['Genesect', 'Landorus', 'Metagross-Mega', 'Naganadel'],
-		bannedAbilities: [
+		restrictedAbilities: [
 			'Comatose', 'Contrary', 'Fluffy', 'Fur Coat', 'Huge Power', 'Illusion', 'Imposter', 'Innards Out',
 			'Parental Bond', 'Protean', 'Pure Power', 'Simple', 'Speed Boost', 'Stakeout', 'Water Bubble', 'Wonder Guard',
 		],
 		onValidateSet: function (set, format) {
-			let bannedAbilities = format.bannedAbilities || [];
-			if (bannedAbilities.includes(set.ability)) {
-				let template = this.getTemplate(set.species || set.name);
-				let legalAbility = false;
-				for (let i in template.abilities) {
-					if (set.ability === template.abilities[i]) legalAbility = true;
-				}
-				if (!legalAbility) return ['The ability ' + set.ability + ' is banned on Pok\u00e9mon that do not naturally have it.'];
-			}
-		},
-	},
-	{
-		name: "[Gen 7] Almost Any Ability (suspect test)",
-		desc: ["&bullet; <a href=\"http://www.smogon.com/forums/posts/7619534/\">Almost Any Ability Suspect Test</a>"],
-
-		mod: 'gen7',
-		challengeShow: false,
-		ruleset: ['[Gen 7] Almost Any Ability'],
-		bannedAbilities: [
-			'Comatose', 'Contrary', 'Fluffy', 'Fur Coat', 'Huge Power', 'Illusion', 'Imposter', 'Innards Out',
-			'Parental Bond', 'Protean', 'Pure Power', 'Simple', 'Speed Boost', 'Stakeout', 'Water Bubble', 'Wonder Guard',
-		],
-		onValidateSet: function (set, format) {
-			let bannedAbilities = format.bannedAbilities || [];
-			if (bannedAbilities.includes(set.ability)) {
+			let restrictedAbilities = format.restrictedAbilities || [];
+			if (restrictedAbilities.includes(set.ability)) {
 				let template = this.getTemplate(set.species || set.name);
 				let legalAbility = false;
 				for (let i in template.abilities) {
