@@ -175,6 +175,17 @@ exports.Formats = [
 		banlist: ['Illegal', 'Unreleased'],
 	},
 	{
+		name: "[Gen 7] PO吧RUBY团赛",
+		desc: [
+			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3591711/\">AG Resources</a>",
+		],
+
+		mod: 'gen7',
+		searchShow: false,
+		ruleset: ['Pokemon', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Sleep Clause Mod', 'Freeze Clause Mod', 'Species Clause', 'OHKO Clause', 'Evasion Moves Clause'],
+		banlist: ['Illegal', 'Unreleased'],
+	},
+	{
 		name: "[Gen 7] CAP",
 		desc: [
 			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3587865/\">CAP Metagame Discussion</a>",
