@@ -166,7 +166,7 @@ exports.Formats = [
 		banlist: ['Illegal', 'Unreleased'],
 	},
 	{
-		name: "[Gen 7] PO吧RUBY团赛",
+		name: "[Gen 7] PO吧寒假RUBY比赛",
 		desc: [
 			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3591711/\">AG Resources</a>",
 		],
