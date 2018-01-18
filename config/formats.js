@@ -216,8 +216,10 @@ exports.Formats = [
 		requirePentagon: true,
 	},
 	{
-		name: "[Gen 7] Battle Spot Special 7",
-		desc: ["&bullet; <a href=\"http://www.smogon.com/forums/threads/3621403/\">Battle Spot Special: Season 7</a>"],
+		name: "[Gen 7] Battle Spot Special 8",
+		desc: [
+			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3626059/\">Battle Spot Special 8</a>",
+		],
 
 		mod: 'gen7',
 		maxForcedLevel: 50,
@@ -225,32 +227,19 @@ exports.Formats = [
 			validate: [3, 6],
 			battle: 3,
 		},
-		ruleset: ['Pokemon', 'Standard GBU', 'Alola Pokedex'],
-		banlist: ['Poipole', 'Naganadel', 'Stakataka', 'Blacephalon'],
-		requirePlus: true,
-	},
-	{
-		name: "[Gen 7] Dragon Cup",
-		desc: [`&bullet; <a href="https://3ds.pokemon-gl.com/dl-regulation/6010">Dragon Cup: Official rules</a>`],
-
-		mod: 'gen7',
-		maxForcedLevel: 50,
-		teamLength: {
-			validate: [3, 6],
-			battle: 3,
-		},
-		timer: {starting: 15 * 60 - 10, perTurn: 10, maxPerTurn: 60, maxFirstTurn: 90, timeoutAutoChoose: true},
-		ruleset: ['Pokemon', 'Minimal GBU', 'Team Preview'],
+		ruleset: ['Pokemon', 'Species Clause', 'Item Clause', 'Team Preview'],
+		banlist: ['Unreleased', 'Illegal'],
 		onValidateTeam: function (team) {
-			const restrictedLegends = ['Mewtwo', 'Lugia', 'Ho-Oh', 'Kyogre', 'Groudon', 'Rayquaza', 'Dialga', 'Palkia', 'Giratina', 'Reshiram', 'Zekrom', 'Kyurem', 'Xerneas', 'Yveltal', 'Zygarde', 'Cosmog', 'Cosmoem', 'Solgaleo', 'Lunala', 'Necrozma'];
-			let count = 0;
+			const legends = ['Mewtwo', 'Mew', 'Lugia', 'Ho-Oh', 'Celebi', 'Kyogre', 'Groudon', 'Rayquaza', 'Jirachi', 'Deoxys', 'Dialga', 'Palkia', 'Giratina', 'Phione', 'Manaphy', 'Darkrai', 'Shaymin', 'Arceus', 'Victini', 'Reshiram', 'Zekrom', 'Kyurem', 'Keldeo', 'Meloetta', 'Genesect', 'Xerneas', 'Yveltal', 'Zygarde', 'Diancie', 'Hoopa', 'Volcanion', 'Cosmog', 'Cosmoem', 'Solgaleo', 'Lunala', 'Necrozma', 'Magearna', 'Marshadow'];
+			let hasLegend = false;
 			for (const set of team) {
-				const baseSpecies = this.getTemplate(set.species).baseSpecies;
-				if (restrictedLegends.includes(baseSpecies)) count++;
-				if (count > 1) return ["You can only use one Restricted Legendary Pok\u00E9mon."];
+				const pokemon = this.getTemplate(set.species).baseSpecies;
+				if (legends.includes(pokemon)) {
+					if (hasLegend) return ["You can only use one legendary Pok\u00E9mon."];
+					hasLegend = true;
+				}
 			}
 		},
-		requirePentagon: true,
 	},
 	{
 		name: "[Gen 7] Battle Tree 3v3",
@@ -349,7 +338,7 @@ exports.Formats = [
 			validate: [4, 6],
 			battle: 4,
 		},
-		timer: {starting: 5 * 60 - 10, perTurn: 10, maxPerTurn: 55, maxFirstTurn: 90, timeoutAutoChoose: true},
+		timer: {starting: 6 * 60 + 30 - 10, perTurn: 10, maxPerTurn: 55, maxFirstTurn: 90, timeoutAutoChoose: true},
 		ruleset: ['Pokemon', 'Standard GBU'],
 		banlist: ['Unown'],
 		requirePlus: true,
@@ -364,6 +353,7 @@ exports.Formats = [
 
 		mod: 'vgc17',
 		gameType: 'doubles',
+		searchShow: false,
 		forcedLevel: 50,
 		teamLength: {
 			validate: [4, 6],
@@ -768,14 +758,19 @@ exports.Formats = [
 		restrictedMoves: ['Acupressure', 'Belly Drum', 'Chatter', 'Geomancy', 'Lovely Kiss', 'Shell Smash', 'Shift Gear', 'Thousand Arrows'],
 		checkLearnset: function (move, template, lsetData, set) {
 			if (!move.isZ && !this.format.restrictedMoves.includes(move.name)) {
+				let dex = this.dex;
 				let types = template.types;
-				if (template.prevo) types = types.concat(this.dex.getTemplate(this.dex.getTemplate(template.prevo).prevo || template.prevo).types);
-				if (template.baseSpecies === 'Rotom') types = ['Electric', 'Ghost', 'Fire', 'Water', 'Ice', 'Flying', 'Grass'];
-				if (template.baseSpecies === 'Shaymin') types = ['Grass', 'Flying'];
-				if (template.baseSpecies === 'Hoopa') types = ['Psychic', 'Ghost', 'Dark'];
-				if (template.baseSpecies === 'Oricorio') types = ['Fire', 'Flying', 'Electric', 'Psychic', 'Ghost'];
-				if (template.baseSpecies === 'Necrozma') types = ['Psychic', 'Steel', 'Ghost'];
-				if (template.baseSpecies === 'Arceus' || template.baseSpecies === 'Silvally' || types.includes(move.type)) return false;
+				let baseTemplate = dex.getTemplate(template.baseSpecies);
+				if (template.prevo) types = types.concat(dex.getTemplate(dex.getTemplate(template.prevo).prevo || template.prevo).types);
+				for (let i in baseTemplate.otherFormes) {
+					let forme = dex.getTemplate(baseTemplate.otherFormes[i]);
+					if (baseTemplate.otherFormes && !forme.battleOnly) {
+						if (forme.forme !== 'Alola' && forme.forme !== 'Alola-Totem') {
+							types = types.concat(forme.types).concat(baseTemplate.types);
+						}
+					}
+				}
+				if (types.includes(move.type)) return false;
 			}
 			return this.checkLearnset(move, template, lsetData, set);
 		},
@@ -2558,8 +2553,14 @@ exports.Formats = [
 		],
 
 		mod: 'gen1',
-		ruleset: ['[Gen 1] OU', 'Ignore STAB Moves'],
+		ruleset: ['[Gen 1] OU'],
 		banlist: [],
+		checkLearnset: function (move, template, lsetData, set) {
+			let types = template.types;
+			if (template.prevo) types = types.concat(this.dex.getTemplate(this.dex.getTemplate(template.prevo).prevo || template.prevo).types);
+			if (types.includes(move.type)) return false;
+			return this.checkLearnset(move, template, lsetData, set);
+		},
 	},
 
 	// Past Gens OU

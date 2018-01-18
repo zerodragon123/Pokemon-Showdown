@@ -690,12 +690,14 @@ exports.commands = {
 			isPrivate: privacy,
 			auth: {},
 			introMessage: '<h2 style="margin-top:0">' + titleHTML + '</h2><p>There are several ways to invite people:<br />- in this chat: <code>/invite USERNAME</code><br />- anywhere in PS: link to <code>&lt;&lt;' + roomid + '>></code>' + (groupChatURL ? '<br />- outside of PS: link to <a href="' + groupChatURL + '">' + groupChatURL + '</a>' : '') + '</p><p>This room will expire after 40 minutes of inactivity or when the server is restarted.</p><p style="margin-bottom:0"><button name="send" value="/roomhelp">Room management</button>',
+			staffMessage: `<p>As creator of this groupchat, <u>you are entirely responsible for what occurs in this chatroom</u>. Global rules apply at all times.</p><p>If you have created this room for someone else, <u>you are still responsible</u> whether or not you choose to actively supervise the room.</p><p style="font-style:italic">For this reason, we strongly recommend that you only create groupchats for users you know and trust.</p><p>If this room is used to break global rules or disrupt other areas of the server, this will be considered irresponsible use of auth privileges on the part of the creator, and <b>you will be globally demoted and barred from public auth.</b></p>`,
 		});
 		if (targetRoom) {
 			// The creator is RO.
 			targetRoom.auth[user.userid] = '#';
 			// Join after creating room. No other response is given.
 			user.joinRoom(targetRoom.id);
+			user.popup(`You've just made a groupchat; it is now your responsibility, regardless of whether or not you actively partake in the room. For more info, read your groupchat's staff intro.`);
 			return;
 		}
 		return this.errorReply("An unknown error occurred while trying to create the room '" + title + "'.");
@@ -2658,7 +2660,7 @@ exports.commands = {
 		if (!this.can('hotpatch')) return;
 
 		const lock = Monitor.hotpatchLock;
-		const hotpatches = ['chat', 'tournaments', 'formats', 'loginserver', 'punishments', 'dnsbl'];
+		const hotpatches = ['chat', 'formats', 'loginserver', 'punishments', 'dnsbl'];
 
 		try {
 			if (target === 'all') {
@@ -2670,22 +2672,22 @@ exports.commands = {
 				}
 			} else if (target === 'chat' || target === 'commands') {
 				if (lock['chat']) return this.errorReply(`Hot-patching chat has been disabled by ${lock['chat'].by} (${lock['chat'].reason})`);
+				if (lock['tournaments']) return this.errorReply(`Hot-patching tournaments has been disabled by ${lock['tournaments'].by} (${lock['tournaments'].reason})`);
 
-				const ProcessManagers = require('./process-manager').cache;
-				for (let PM of ProcessManagers.keys()) {
-					if (PM.isChatBased) {
-						PM.unspawn();
-						ProcessManagers.delete(PM);
+				const processManagers = require('./lib/process-manager').processManagers;
+				for (let manager of processManagers.slice()) {
+					if (manager.filename.startsWith(FS('chat-plugins').path)) {
+						manager.destroy();
 					}
 				}
 
-				Chat.uncacheTree('./chat');
-				delete require.cache[require.resolve('./chat-commands')];
-				delete require.cache[require.resolve('./chat-plugins/info')];
+				Chat.uncache('./chat');
+				Chat.uncache('./chat-commands');
+				Chat.uncacheDir('./chat-plugins');
 				global.Chat = require('./chat');
 
 				let runningTournaments = Tournaments.tournaments;
-				Chat.uncacheTree('./tournaments');
+				Chat.uncacheDir('./tournaments');
 				global.Tournaments = require('./tournaments');
 				Tournaments.tournaments = runningTournaments;
 				this.sendReply("Chat commands have been hot-patched.");
@@ -2693,7 +2695,7 @@ exports.commands = {
 				if (lock['tournaments']) return this.errorReply(`Hot-patching tournaments has been disabled by ${lock['tournaments'].by} (${lock['tournaments'].reason})`);
 
 				let runningTournaments = Tournaments.tournaments;
-				Chat.uncacheTree('./tournaments');
+				Chat.uncacheDir('./tournaments');
 				global.Tournaments = require('./tournaments');
 				Tournaments.tournaments = runningTournaments;
 				this.sendReply("Tournaments have been hot-patched.");
@@ -2701,7 +2703,7 @@ exports.commands = {
 				if (lock['battles']) return this.errorReply(`Hot-patching battles has been disabled by ${lock['battles'].by} (${lock['battles'].reason})`);
 				if (lock['formats']) return this.errorReply(`Hot-patching formats has been disabled by ${lock['formats'].by} (${lock['formats'].reason})`);
 
-				Rooms.SimulatorProcess.respawn();
+				Rooms.PM.respawn();
 				this.sendReply("Battles have been hot-patched. Any battles started after now will use the new code; however, in-progress battles will continue to use the old code.");
 			} else if (target === 'formats') {
 				if (lock['formats']) return this.errorReply(`Hot-patching formats has been disabled by ${lock['formats'].by} (${lock['formats'].reason})`);
@@ -2709,7 +2711,9 @@ exports.commands = {
 				if (lock['validator']) return this.errorReply(`Hot-patching the validator has been disabled by ${lock['validator'].by} (${lock['validator'].reason})`);
 
 				// uncache the sim/dex.js dependency tree
-				Chat.uncacheTree('./sim/dex');
+				Chat.uncacheDir('./sim');
+				Chat.uncacheDir('./data');
+				Chat.uncacheDir('./mods');
 				// reload sim/dex.js
 				global.Dex = require('./sim/dex');
 				// rebuild the formats list
@@ -2717,14 +2721,14 @@ exports.commands = {
 				// respawn validator processes
 				TeamValidatorAsync.PM.respawn();
 				// respawn simulator processes
-				Rooms.SimulatorProcess.respawn();
+				Rooms.PM.respawn();
 				// broadcast the new formats list to clients
 				Rooms.global.send(Rooms.global.formatListText);
 
 				this.sendReply("Formats have been hot-patched.");
 			} else if (target === 'loginserver') {
 				FS('config/custom.css').unwatch();
-				Chat.uncacheTree('./loginserver');
+				Chat.uncache('./loginserver');
 				global.LoginServer = require('./loginserver');
 				this.sendReply("The login server has been hot-patched. New login server requests will use the new code.");
 			} else if (target === 'learnsets' || target === 'validator') {
@@ -2736,7 +2740,7 @@ exports.commands = {
 			} else if (target === 'punishments') {
 				if (lock['punishments']) return this.errorReply(`Hot-patching punishments has been disabled by ${lock['punishments'].by} (${lock['punishments'].reason})`);
 
-				delete require.cache[require.resolve('./punishments')];
+				Chat.uncache('./punishments');
 				global.Punishments = require('./punishments');
 				this.sendReply("Punishments have been hot-patched.");
 			} else if (target === 'dnsbl' || target === 'datacenters') {
@@ -2820,7 +2824,7 @@ exports.commands = {
 		// should be in the format: IP, IP, name, URL
 		let widen = (cmd === 'widendatacenters');
 
-		FS('config/datacenters.csv').readTextIfExists().then(data => {
+		FS('config/datacenters.csv').readIfExists().then(data => {
 			let datacenters = [];
 			for (const row of data.split("\n")) {
 				if (!row) continue;
