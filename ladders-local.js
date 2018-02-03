@@ -236,7 +236,7 @@ class LadderStore {
 	async updateRating(p1name, p2name, p1score, room) {
 		if (Ladders.disabled) {
 			room.addRaw(`Ratings not updated. The ladders are currently disabled.`).update();
-			return [p1score, undefined, undefined];
+			return [p1score, null, null];
 		}
 
 		let formatid = this.formatid;
@@ -299,7 +299,7 @@ class LadderStore {
 
 			if (!room.battle) {
 				Monitor.warn(`room expired before ladder update was received`);
-				return;
+				return [p1score, null, null];
 			}
 
 			let reasons = '' + (Math.round(p1newElo) - Math.round(p1elo)) + ' for ' + (p1score > 0.9 ? 'winning' : (p1score < 0.1 ? 'losing' : 'tying'));
@@ -312,7 +312,7 @@ class LadderStore {
 
 			room.update();
 		} catch (e) {
-			if (!room.battle) return;
+			if (!room.battle) return [p1score, null, null];
 			room.addRaw(`There was an error calculating rating changes:`);
 			room.add(e.stack);
 			room.update();

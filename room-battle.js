@@ -532,12 +532,12 @@ class Battle {
 	receive(/** @type {string[]} */ lines) {
 		switch (lines[0]) {
 		case 'update':
-			this.checkActive();
 			for (const line of lines.slice(1)) {
 				this.room.add(line);
 			}
 			this.room.update();
 			if (!this.ended) this.timer.nextRequest();
+			this.checkActive();
 			break;
 
 		case 'sideupdate': {
@@ -575,9 +575,10 @@ class Battle {
 			this.started = true;
 			if (!this.ended) {
 				this.ended = true;
-				this.onEnd(this.logData.winnerid);
+				this.onEnd(this.logData.winner);
 				this.removeAllPlayers();
 			}
+			this.checkActive();
 			break;
 		}
 	}
@@ -620,7 +621,7 @@ class Battle {
 			this.logData = null;
 		}
 		if (Config.autosavereplays) {
-			let uploader = Users.get(winnerid);
+			let uploader = Users.get(winnerid || p1id);
 			if (uploader && uploader.connections[0]) {
 				Chat.parse('/savereplay', this.room, uploader, uploader.connections[0]);
 			}
@@ -948,6 +949,9 @@ if (!PM.isParentProcess) {
 		// graceful crash - allow current battles to finish before restarting
 		process.on('uncaughtException', err => {
 			require('./lib/crashlogger')(err, 'A simulator process');
+		});
+		process.on('unhandledRejection', err => {
+			require('./lib/crashlogger')(err, 'A simulator process Promise');
 		});
 	}
 
