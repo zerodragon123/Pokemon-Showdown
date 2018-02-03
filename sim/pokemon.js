@@ -48,7 +48,7 @@ class Pokemon {
 		if (!this.baseTemplate.exists) {
 			throw new Error(`Unidentified species: ${this.baseTemplate.name}`);
 		}
-		this.species = Dex.getSpecies(set.species);
+		this.species = this.battle.getSpecies(set.species);
 		if (set.name === set.species || !set.name) {
 			set.name = this.baseTemplate.baseSpecies;
 		}
@@ -89,7 +89,8 @@ class Pokemon {
 		/**@type {?number} */
 		this.draggedIn = null;
 
-		this.lastMove = '';
+		/**@type {?Move} */
+		this.lastMove = null;
 		/**@type {string | boolean} */
 		this.moveThisTurn = '';
 
@@ -115,7 +116,7 @@ class Pokemon {
 		this.level = set.level;
 
 		let genders = {M: 'M', F: 'F', N: 'N'};
-		this.gender = genders[set.gender] || this.template.gender || (Math.random() * 2 < 1 ? 'M' : 'F');
+		this.gender = genders[set.gender] || this.template.gender || (this.battle.random() * 2 < 1 ? 'M' : 'F');
 		if (this.gender === 'N') this.gender = '';
 		this.happiness = typeof set.happiness === 'number' ? this.battle.clampIntRange(set.happiness, 0, 255) : 255;
 		this.pokeball = this.set.pokeball || 'pokeball';
@@ -501,13 +502,13 @@ class Pokemon {
 	}
 
 	/**
-	 * @param {string | Move} move
+	 * @param {Move} move
 	 * @param {number} targetLoc
 	 */
 	moveUsed(move, targetLoc) {
-		this.lastMove = this.battle.getMove(move).id;
+		this.lastMove = move;
 		this.lastMoveTargetLoc = targetLoc;
-		this.moveThisTurn = this.lastMove;
+		this.moveThisTurn = move.id;
 	}
 
 	/**
@@ -881,7 +882,7 @@ class Pokemon {
 			this.forceSwitchFlag = false;
 		}
 
-		this.lastMove = '';
+		this.lastMove = null;
 		this.moveThisTurn = '';
 
 		this.lastDamage = 0;
@@ -1129,16 +1130,12 @@ class Pokemon {
 	}
 
 	/**
-	 * @param {string} itemId
 	 * @param {Pokemon} source
 	 * @param {Effect} sourceEffect
 	 */
-	eatItem(itemId, source, sourceEffect) {
+	eatItem(source, sourceEffect) {
 		if (!this.hp || !this.isActive) return false;
 		if (!this.item) return false;
-
-		let id = toId(itemId);
-		if (id && this.item !== id) return false;
 
 		if (!sourceEffect && this.battle.effect) sourceEffect = this.battle.effect;
 		if (!source && this.battle.event && this.battle.event.target) source = this.battle.event.target;
@@ -1161,16 +1158,12 @@ class Pokemon {
 	}
 
 	/**
-	 * @param {string} itemName
 	 * @param {Pokemon} source
 	 * @param {Effect} sourceEffect
 	 */
-	useItem(itemName, source, sourceEffect) {
+	useItem(source, sourceEffect) {
 		if ((!this.hp && !this.getItem().isGem) || !this.isActive) return false;
 		if (!this.item) return false;
-
-		let id = toId(itemName);
-		if (id && this.item !== id) return false;
 
 		if (!sourceEffect && this.battle.effect) sourceEffect = this.battle.effect;
 		if (!source && this.battle.event && this.battle.event.target) source = this.battle.event.target;
@@ -1234,13 +1227,11 @@ class Pokemon {
 			this.isStale = 2;
 			this.isStaleSource = 'getleppa';
 		}
-		this.lastItem = this.item;
 		this.item = item.id;
 		this.itemData = {id: item.id, target: this};
 		if (item.id) {
 			this.battle.singleEvent('Start', item, this.itemData, this, source, effect);
 		}
-		if (this.lastItem) this.usedItemThisTurn = true;
 		return true;
 	}
 
@@ -1277,6 +1268,7 @@ class Pokemon {
 			if (['illusion', 'battlebond', 'comatose', 'disguise', 'multitype', 'powerconstruct', 'rkssystem', 'schooling', 'shieldsdown', 'stancechange'].includes(ability.id)) return false;
 			if (['battlebond', 'comatose', 'disguise', 'multitype', 'powerconstruct', 'rkssystem', 'schooling', 'shieldsdown', 'stancechange'].includes(oldAbility)) return false;
 		}
+		if (!this.battle.runEvent('SetAbility', this, source, this.battle.effect, ability)) return false;
 		this.battle.singleEvent('End', this.battle.getAbility(oldAbility), this.abilityData, this, source);
 		if (this.battle.effect && this.battle.effect.effectType === 'Move') {
 			this.battle.add('-endability', this, this.battle.getAbility(oldAbility), '[from] move: ' + this.battle.getMove(this.battle.effect.id));
@@ -1428,7 +1420,7 @@ class Pokemon {
 		if (!this.hp) return '0 fnt';
 		let hpstring;
 		// side === true in replays
-		if (side === this.side || this.battle.reportExactHP || (side === true && this.battle.replayExactHP)) {
+		if (side === this.side || side === true) {
 			hpstring = '' + this.hp + '/' + this.maxhp;
 		} else {
 			let ratio = this.hp / this.maxhp;

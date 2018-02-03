@@ -117,6 +117,16 @@ class Effect {
 		 */
 		this.isUnreleased = false;
 		/**
+		 * A shortened form of the description of this effect. Not all effects have this
+		 * @type {string}
+		 */
+		this.shortDesc = '';
+		/**
+		 * The full description for this effect
+		 * @type {string}
+		 */
+		this.desc = '';
+		/**
 		 * Is this item/move/ability/pokemon nonstandard? True for effects
 		 * that have no use in standard formats: made-up pokemon (CAP),
 		 * glitches (Missingno etc), and Pokestar pokemon.
@@ -204,6 +214,8 @@ class RuleTable extends Map {
 		 * @type {[string, string, number, string[]][]}
 		 */
 		this.complexTeamBans = [];
+		/** @type {[Function, string]?} */
+		this.checkLearnset = null;
 	}
 	/**
 	 * @param {string} thing
@@ -357,10 +369,19 @@ class Format extends Effect {
 		/** @type {boolean | undefined} */
 		this.tournamentShow = this.tournamentShow;
 
+		/** @type {AnyObject?} */
+		this.timer = this.timer;
+		/** @type {boolean} */
+		this.noLog = !!this.noLog;
+
 		/**
 		 * @type {((this: Validator, set: PokemonSet, teamHas: AnyObject) => string[] | false)?}
 		 */
 		this.validateSet = this.validateSet;
+		/**
+		 * @type {((this: Validator, move: Move, template: Template, lsetData: PokemonSources, set: PokemonSet) => string | false)?}
+		 */
+		this.checkLearnset = this.checkLearnset;
 		/**
 		 * @type {((this: Validator, team: PokemonSet[], removeNicknames: boolean) => string[] | false)?}
 		 */
@@ -564,9 +585,16 @@ class Template extends Effect {
 		 * Other forms. List of names of cosmetic forms. These should have
 		 * `aliases.js` aliases to this entry, but not have their own
 		 * entry in `pokedex.js`.
-		 * @type {?string[]}
+		 * @type {string[]?}
 		 */
 		this.otherForms = this.otherForms || null;
+
+		/**
+		 * Other formes. List of names of formes, appears only on the base
+		 * forme. Unlike forms, these have their own entry in `pokedex.js`.
+		 * @type {string[]?}
+		 */
+		this.otherFormes = this.otherFormes || null;
 
 		/**
 		 * Forme letter. One-letter version of the forme name. Usually the
@@ -585,7 +613,7 @@ class Template extends Effect {
 
 		/**
 		 * Abilities
-		 * @type {{0: string, 1?: string, H?: string}}
+		 * @type {{0: string, 1?: string, H?: string, S?: string}}
 		 */
 		this.abilities = this.abilities || {0: ""};
 
@@ -613,6 +641,13 @@ class Template extends Effect {
 		 * @type {string}
 		 */
 		this.tier = this.tier || '';
+
+		/**
+		 * Doubles Tier. The Pokemon's location in the Smogon doubles tier system.
+		 * Do not use for LC bans.
+		 * @type {string}
+		 */
+		this.doublesTier = this.doublesTier || '';
 
 		/**
 		 * Evolutions. Array because many Pokemon have multiple evolutions.
@@ -804,6 +839,12 @@ class Move extends Effect {
 		 * @type {number}
 		 */
 		this.basePower = this.basePower;
+
+		/**
+		 * Move base accuracy. True denotes a move that always hits
+		 * @type {true | number}
+		 */
+		this.accuracy = this.accuracy;
 
 		/**
 		 * Critical hit ratio. Defaults to 1.

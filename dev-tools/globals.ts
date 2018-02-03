@@ -5,16 +5,13 @@ let Config = require('../config/config');
 let Monitor = require('../monitor');
 
 let LoginServer = require('../loginserver');
-let Users = require('../users');
-type Connection = any;
-type User = any;
 
-type RoomBattle = any;
+type RoomBattle = AnyObject;
 
 let Verifier = require('../verifier');
 let Dnsbl = require('../dnsbl');
 let Sockets = require('../sockets');
-let TeamValidator = require('../sim/team-validator');
+// let TeamValidator = require('../sim/team-validator');
 let TeamValidatorAsync = require('../team-validator-async');
 
 type GenderName = 'M' | 'F' | 'N' | '';

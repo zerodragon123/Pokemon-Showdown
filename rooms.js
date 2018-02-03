@@ -27,9 +27,12 @@ const Roomlogs = require('./roomlogs');
  *********************************************************/
 
 /**
- * @typedef {{userid: string, time: number, guestNum: number, autoconfirmed: boolean}} MuteEntry
+ * @typedef {{userid: string, time: number, guestNum: number, autoconfirmed: string}} MuteEntry
  */
 
+/**
+ * @abstract
+ */
 class BasicRoom {
 	/**
 	 * @param {string} roomid
@@ -95,6 +98,7 @@ class BasicRoom {
 		/** @type {string?} */
 		this.modchat = null;
 		this.staffRoom = false;
+		/** @type {false | number} */
 		this.slowchat = false;
 		this.filterStretching = false;
 		this.filterEmojis = false;
@@ -136,7 +140,7 @@ class BasicRoom {
 	}
 	/**
 	 * Send a room message to a single user.
-	 * @param {User} user
+	 * @param {User | Connection} user
 	 * @param {string} message
 	 */
 	sendUser(user, message) {
@@ -169,7 +173,7 @@ class BasicRoom {
 	 * @param {string} text
 	 */
 	addByUser(user, text) {
-		return this.add('|c|' + user.getIdentity(this) + '|/log ' + text).update();
+		return this.add('|c|' + user.getIdentity(this.id) + '|/log ' + text).update();
 	}
 	/**
 	 * Like addByUser, but sends to mods only.
@@ -177,7 +181,7 @@ class BasicRoom {
 	 * @param {string} text
 	 */
 	sendModsByUser(user, text) {
-		return this.sendMods('|c|' + user.getIdentity(this) + '|/log ' + text);
+		return this.sendMods('|c|' + user.getIdentity(this.id) + '|/log ' + text);
 	}
 	update() {}
 
@@ -337,19 +341,17 @@ class BasicRoom {
 	unmute(userid, notifyText) {
 		let successUserid = '';
 		let user = Users.get(userid);
-		if (!user) {
-			// If the user is not found, construct a dummy user object for them.
-			user = {
-				userid: userid,
-				autoconfirmed: '',
-			};
+		let autoconfirmed = '';
+		if (user) {
+			userid = user.userid;
+			autoconfirmed = user.autoconfirmed;
 		}
 
 		for (let i = 0; i < this.muteQueue.length; i++) {
 			let entry = this.muteQueue[i];
-			if (entry.userid === user.userid ||
-				entry.guestNum === user.guestNum ||
-				(user.autoconfirmed && entry.autoconfirmed === user.autoconfirmed)) {
+			if (entry.userid === userid ||
+				(user && entry.guestNum === user.guestNum) ||
+				(autoconfirmed && entry.autoconfirmed === autoconfirmed)) {
 				if (i === 0) {
 					this.muteQueue.splice(0, 1);
 					this.runMuteTimer(true);
@@ -361,7 +363,7 @@ class BasicRoom {
 			}
 		}
 
-		if (successUserid && user.userid in this.users) {
+		if (user && successUserid && userid in this.users) {
 			user.updateIdentity(this.id);
 			if (notifyText) user.popup(notifyText);
 		}
@@ -451,7 +453,7 @@ class GlobalRoom extends BasicRoom {
 		} else {
 			// Prevent there from being two possible hidden classes an instance
 			// of GlobalRoom can have.
-			this.ladderIpLog = new (require('stream')).Writable();
+			this.ladderIpLog = new (require('./lib/streams')).WriteStream({write() {}});
 		}
 
 		let lastBattle;
@@ -502,13 +504,13 @@ class GlobalRoom extends BasicRoom {
 			LoginServer.request('updateuserstats', {
 				date: this.maxUsersDate,
 				users: this.maxUsers,
-			}, () => {});
+			});
 			this.maxUsersDate = 0;
 		}
 		LoginServer.request('updateuserstats', {
 			date: Date.now(),
 			users: this.userCount,
-		}, () => {});
+		});
 	}
 
 	get formatListText() {
@@ -636,10 +638,10 @@ class GlobalRoom extends BasicRoom {
 		}
 		return roomsData;
 	}
-	checkModjoin() {
+	checkModjoin(/** @type {User} */ user) {
 		return true;
 	}
-	isMuted() {
+	isMuted(/** @type {User} */ user) {
 		return null;
 	}
 	/**
@@ -981,11 +983,18 @@ class BasicChatRoom extends BasicRoom {
 		this.filterStretching = false;
 		this.filterEmojis = false;
 		this.filterCaps = false;
+		/** @type {false | number} */
 		this.slowchat = false;
 		this.introMessage = '';
 		this.staffMessage = '';
 		this.autojoin = false;
 		this.staffAutojoin = /** @type {string | boolean} */ (false);
+
+		/** @type {?true | RegExp} */
+		this.banwordRegex = null;
+		/** @type {string[]} */
+		this.banwords = [];
+
 		this.chatRoomData = (options.isPersonal ? null : options);
 		Object.assign(this, options);
 		if (this.auth) Object.setPrototypeOf(this.auth, null);
@@ -1259,6 +1268,7 @@ class BasicChatRoom extends BasicRoom {
 
 		// remove references to ourself
 		for (let i in this.users) {
+			// @ts-ignore
 			this.users[i].leaveRoom(this, null, true);
 			delete this.users[i];
 		}
@@ -1344,8 +1354,8 @@ class GameRoom extends BasicChatRoom {
 		this.tour = options.tour || null;
 		this.parent = options.parent || (this.tour && this.tour.room) || null;
 
-		this.p1 = null;
-		this.p2 = null;
+		this.p1 = options.p1 || null;
+		this.p2 = options.p2 || null;
 
 		/**
 		 * The lower player's rating, for searching purposes.
@@ -1372,8 +1382,8 @@ class GameRoom extends BasicChatRoom {
 	 * @param {User} user
 	 */
 	getLogForUser(user) {
-		if (!(user in this.game.players)) return this.getLog();
-		return this.getLog(this.game.players[user].slotNum + 1);
+		if (!(user.userid in this.game.players)) return this.getLog();
+		return this.getLog(this.game.players[user.userid].slotNum + 1);
 	}
 	/**
 	 * @param {User?} excludeUser
@@ -1411,7 +1421,8 @@ class GameRoom extends BasicChatRoom {
 	 * @param {0 | 1} num
 	 */
 	getPlayer(num) {
-		return this.battle['p' + (num + 1)];
+		// @ts-ignore
+		return this.game['p' + (num + 1)];
 	}
 	/**
 	 * @param {User} user
@@ -1449,9 +1460,6 @@ function getRoom(roomid) {
 }
 
 /** @typedef {GlobalRoom | GameRoom | ChatRoom} Room */
-
-// workaround to stop TypeScript from checking room-battle
-let roomBattleLoc = './room-battle';
 
 let Rooms = Object.assign(getRoom, {
 	/**
@@ -1501,17 +1509,15 @@ let Rooms = Object.assign(getRoom, {
 	 * @param {AnyObject} options
 	 */
 	createBattle(formatid, options) {
-		const p1 = options.p1;
-		const p2 = options.p2;
-		if (p1 === p2) throw new Error(`Players can't battle themselves`);
-		if (!p1) throw new Error(`p1 required`);
-		if (!p2) throw new Error(`p2 required`);
-		Ladders.cancelSearches(p1);
-		Ladders.cancelSearches(p2);
+		const p1 = /** @type {User?} */ (options.p1);
+		const p2 = /** @type {User?} */ (options.p2);
+		if (p1 && p1 === p2) throw new Error(`Players can't battle themselves`);
+		if (p1) Ladders.cancelSearches(p1);
+		if (p2) Ladders.cancelSearches(p2);
 
 		if (Rooms.global.lockdown === true) {
-			p1.popup("The server is restarting. Battles will be available again in a few minutes.");
-			p2.popup("The server is restarting. Battles will be available again in a few minutes.");
+			if (p1) p1.popup("The server is restarting. Battles will be available again in a few minutes.");
+			if (p2) p2.popup("The server is restarting. Battles will be available again in a few minutes.");
 			return;
 		}
 
@@ -1521,19 +1527,18 @@ let Rooms = Object.assign(getRoom, {
 		// options.rated < 0 or falsy means "unrated", and will be converted to 0 here
 		// options.rated === true is converted to 1 (used in tests sometimes)
 		options.rated = Math.max(+options.rated || 0, 0);
-		const room = Rooms.createGameRoom(roomid, "" + p1.name + " vs. " + p2.name, options);
+		const p1name = p1 ? p1.name : "Player 1";
+		const p2name = p2 ? p2.name : "Player 2";
+		const room = Rooms.createGameRoom(roomid, "" + p1name + " vs. " + p2name, options);
 		// @ts-ignore TODO: make RoomBattle a subclass of RoomGame
-		const game = room.game = new Rooms.RoomBattle(room, formatid, options);
-		room.p1 = p1;
-		room.p2 = p2;
-		room.battle = room.game;
+		room.game = new Rooms.RoomBattle(room, formatid, options);
 
 		let inviteOnly = (options.inviteOnly || []);
-		if (p1.inviteOnlyNextBattle) {
+		if (p1 && p1.inviteOnlyNextBattle) {
 			inviteOnly.push(p1.userid);
 			p1.inviteOnlyNextBattle = false;
 		}
-		if (p2.inviteOnlyNextBattle) {
+		if (p2 && p2.inviteOnlyNextBattle) {
 			inviteOnly.push(p2.userid);
 			p2.inviteOnlyNextBattle = false;
 		}
@@ -1545,21 +1550,18 @@ let Rooms = Object.assign(getRoom, {
 			room.add(`|raw|<div class="broadcast-red"><strong>This battle is invite-only!</strong><br />Users must be rank + or invited with <code>/invite</code> to join</div>`);
 		}
 
-		game.addPlayer(p1, options.p1team);
-		game.addPlayer(p2, options.p2team);
-		p1.joinRoom(room);
-		p2.joinRoom(room);
-		Monitor.countBattle(p1.latestIp, p1.name);
-		Monitor.countBattle(p2.latestIp, p2.name);
-		Rooms.global.onCreateBattleRoom(p1, p2, room, options);
+		if (p1) p1.joinRoom(room);
+		if (p2) p2.joinRoom(room);
+		if (p1) Monitor.countBattle(p1.latestIp, p1.name);
+		if (p2) Monitor.countBattle(p2.latestIp, p2.name);
+		if (p1 && p2) Rooms.global.onCreateBattleRoom(p1, p2, room, options);
 		return room;
 	},
 
 	battleModlogStream: FS('logs/modlog/modlog_battle.txt').createAppendStream(),
 	groupchatModlogStream: FS('logs/modlog/modlog_groupchat.txt').createAppendStream(),
 
-	/** @type {GlobalRoom} */
-	global: /** @type {any} */ (null),
+	global: (/** @type {any} */ (null)),
 	/** @type {?ChatRoom} */
 	lobby: null,
 
@@ -1576,10 +1578,9 @@ let Rooms = Object.assign(getRoom, {
 
 	Roomlogs: Roomlogs,
 
-	RoomBattle: require(roomBattleLoc).RoomBattle,
-	RoomBattlePlayer: require(roomBattleLoc).RoomBattlePlayer,
-	SimulatorManager: require(roomBattleLoc).SimulatorManager,
-	SimulatorProcess: require(roomBattleLoc).SimulatorProcess,
+	RoomBattle: require('./room-battle').RoomBattle,
+	RoomBattlePlayer: require('./room-battle').RoomBattlePlayer,
+	PM: require('./room-battle').PM,
 });
 
 // initialize

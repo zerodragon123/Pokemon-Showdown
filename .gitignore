@@ -8,7 +8,7 @@
 /chat-plugins/*-private.js
 npm-debug.log
 .eslintcache
-/config/formats.js
+package-lock.json
 
 # boilerplate #
 ###############
@@ -51,4 +51,3 @@ local_settings.py
 .svn
 
 pip-log.txt
-

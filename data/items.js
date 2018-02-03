@@ -1037,7 +1037,7 @@ exports.BattleItems = {
 		onModifyPriority: function (priority, pokemon) {
 			if (pokemon.hp <= pokemon.maxhp / 4 || (pokemon.hp <= pokemon.maxhp / 2 && pokemon.hasAbility('gluttony'))) {
 				if (pokemon.eatItem()) {
-					this.add('-activate', pokemon, 'item: Custap Berry');
+					this.add('-activate', pokemon, 'item: Custap Berry', '[consumed]');
 					pokemon.removeVolatile('custapberry');
 					return Math.round(priority) + 0.1;
 				}
@@ -2814,7 +2814,7 @@ exports.BattleItems = {
 		},
 		onUpdate: function (pokemon) {
 			if (!pokemon.hp) return;
-			let moveSlot = pokemon.getMoveData(pokemon.lastMove);
+			let moveSlot = pokemon.lastMove && pokemon.getMoveData(pokemon.lastMove.id);
 			if (moveSlot && moveSlot.pp === 0) {
 				pokemon.addVolatile('leppaberry');
 				pokemon.volatiles['leppaberry'].moveSlot = moveSlot;
@@ -2837,7 +2837,7 @@ exports.BattleItems = {
 			}
 			moveSlot.pp += 10;
 			if (moveSlot.pp > moveSlot.maxpp) moveSlot.pp = moveSlot.maxpp;
-			this.add('-activate', pokemon, 'item: Leppa Berry', moveSlot.move);
+			this.add('-activate', pokemon, 'item: Leppa Berry', moveSlot.move, '[consumed]');
 			if (pokemon.item !== 'leppaberry') {
 				let foeActive = pokemon.side.foe.active;
 				let foeIsStale = false;
@@ -2896,7 +2896,7 @@ exports.BattleItems = {
 			return this.chainModify([0x14CC, 0x1000]);
 		},
 		onAfterMoveSecondarySelf: function (source, target, move) {
-			if (source && source !== target && move && move.category !== 'Status' && !move.ohko) {
+			if (source && source !== target && move && move.category !== 'Status') {
 				this.damage(source.maxhp / 10, source, source, this.getItem('lifeorb'));
 			}
 		},
@@ -4207,12 +4207,45 @@ exports.BattleItems = {
 		fling: {
 			basePower: 30,
 		},
-		onModifyMove: function (move) {
-			delete move.flags['contact'];
+		onAttractPriority: -1,
+		onAttract: function (target, source, effect) {
+			if (target !== source && target === this.activePokemon && this.activeMove.flags['contact']) return false;
+		},
+		onBoostPriority: -1,
+		onBoost: function (boost, target, source, effect) {
+			if (target !== source && target === this.activePokemon && this.activeMove.flags['contact']) {
+				if (effect && effect.effectType === 'Ability') {
+					// Ability activation always happens for boosts
+					this.add('-activate', target, 'item: Protective Pads');
+				}
+				return false;
+			}
+		},
+		onDamagePriority: -1,
+		onDamage: function (damage, target, source, effect) {
+			if (target !== source && target === this.activePokemon && this.activeMove.flags['contact']) {
+				if (effect && effect.effectType === 'Ability') {
+					this.add('-activate', source, effect.fullname);
+					this.add('-activate', target, 'item: Protective Pads');
+				}
+				return false;
+			}
+		},
+		onSetAbility: function (ability, target, source, effect) {
+			if (target !== source && target === this.activePokemon && this.activeMove.flags['contact']) {
+				if (effect && effect.effectType === 'Ability') {
+					this.add('-activate', source, effect.fullname);
+					this.add('-activate', target, 'item: Protective Pads');
+				}
+				return false;
+			}
+		},
+		onSetStatus: function (status, target, source, effect) {
+			if (target !== source && target === this.activePokemon && this.activeMove.flags['contact']) return false;
 		},
 		num: 880,
 		gen: 7,
-		desc: "Holder's attacks do not make contact with the target.",
+		desc: "Holder's moves are protected from adverse contact effects, except Pickpocket.",
 	},
 	"psychicgem": {
 		id: "psychicgem",
@@ -4447,7 +4480,7 @@ exports.BattleItems = {
 		onAfterMoveSecondary: function (target, source, move) {
 			if (source && source !== target && source.hp && target.hp && move && move.category !== 'Status') {
 				if (!source.isActive || !this.canSwitch(source.side) || source.forceSwitchFlag || target.forceSwitchFlag) return;
-				if (target.useItem(null, source)) { // This order is correct - the item is used up even against a pokemon with Ingrain or that otherwise can't be forced out
+				if (target.useItem(source)) { // This order is correct - the item is used up even against a pokemon with Ingrain or that otherwise can't be forced out
 					if (this.runEvent('DragOut', source, target, move)) {
 						source.forceSwitchFlag = true;
 					}
@@ -6061,7 +6094,7 @@ exports.BattleItems = {
 			type: "Fighting",
 		},
 		onUpdate: function (pokemon) {
-			let moveSlot = pokemon.getMoveData(pokemon.lastMove);
+			let moveSlot = pokemon.lastMove && pokemon.getMoveData(pokemon.lastMove.id);
 			if (moveSlot && moveSlot.pp === 0) {
 				pokemon.addVolatile('leppaberry');
 				pokemon.volatiles['leppaberry'].moveSlot = moveSlot;

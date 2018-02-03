@@ -463,7 +463,7 @@ exports.BattleAbilities = {
 				}
 			}
 			if (statsLowered) {
-				this.boost({spa: 2}, null, null, null, true);
+				this.boost({spa: 2}, target, target, null, true);
 			}
 		},
 		id: "competitive",
@@ -536,8 +536,8 @@ exports.BattleAbilities = {
 		num: 56,
 	},
 	"damp": {
-		desc: "While this Pokemon is active, Self-Destruct, Explosion, and the Ability Aftermath are prevented from having an effect.",
-		shortDesc: "While this Pokemon is active, Self-Destruct, Explosion, and Aftermath have no effect.",
+		desc: "While this Pokemon is active, Explosion, Mind Blown, Self-Destruct, and the Ability Aftermath are prevented from having an effect.",
+		shortDesc: "Prevents Explosion/Mind Blown/Self-Destruct/Aftermath while this Pokemon is active.",
 		id: "damp",
 		onAnyTryMove: function (target, source, effect) {
 			if (['explosion', 'mindblown', 'selfdestruct'].includes(effect.id)) {
@@ -630,7 +630,7 @@ exports.BattleAbilities = {
 				}
 			}
 			if (statsLowered) {
-				this.boost({atk: 2}, null, null, null, true);
+				this.boost({atk: 2}, target, target, null, true);
 			}
 		},
 		id: "defiant",
@@ -1268,6 +1268,7 @@ exports.BattleAbilities = {
 			if (this.isWeather(['sunnyday', 'desolateland']) || this.random(2) === 0) {
 				if (pokemon.hp && !pokemon.item && this.getItem(pokemon.lastItem).isBerry) {
 					pokemon.setItem(pokemon.lastItem);
+					pokemon.lastItem = '';
 					this.add('-item', pokemon, pokemon.getItem(), '[from] ability: Harvest');
 				}
 			}
@@ -2024,7 +2025,7 @@ exports.BattleAbilities = {
 		name: "Mummy",
 		onAfterDamage: function (damage, target, source, move) {
 			if (source && source !== target && move && move.flags['contact'] && source.ability !== 'mummy') {
-				let oldAbility = source.setAbility('mummy', source);
+				let oldAbility = source.setAbility('mummy');
 				if (oldAbility) {
 					this.add('-activate', target, 'ability: Mummy', this.getAbility(oldAbility).name, '[of] ' + source);
 				}
