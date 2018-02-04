@@ -247,7 +247,6 @@ exports.Formats = [
 		},
 	},
 	{
-<<<<<<< HEAD
 		name: "[Gen 7] Battle Tree 3v3",
 		desc: [
 			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3621042/\">OU Metagame Discussion</a>",
@@ -263,7 +262,9 @@ exports.Formats = [
 		mod: 'gen7',
 		ruleset: ['Pokemon', 'Standard'],
 		banlist: ['Uber', 'Power Construct'],
-=======
+    },
+    
+    {
 		name: "[Gen 7] Ultra Sinnoh Classic",
 		desc: [`&bullet; <a href="http://www.smogon.com/forums/threads/3627404/">Ultra Sinnoh Classic Discussion</a>`],
 
@@ -283,7 +284,6 @@ exports.Formats = [
 				return [`(${set.name} is holding ${item.name})`, `Z-Crystals are banned in Ultra Sinnoh Classic.`];
 			}
 		},
->>>>>>> 30cd0b41259f7233ee234434515bda3fa9801a63
 	},
 	{
 		name: "[Gen 7] Custom Game",
