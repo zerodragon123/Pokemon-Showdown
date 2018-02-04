@@ -249,16 +249,11 @@ const Monitor = module.exports = {
      */
     countNetworkUse(size) {
         if (!Config.emergency || typeof this.activeIp !== 'string') return;
-        // @ts-ignore
         if (this.activeIp in this.networkUse) {
-            // @ts-ignore
             this.networkUse[this.activeIp] += size;
-            // @ts-ignore
             this.networkCount[this.activeIp]++;
         } else {
-            // @ts-ignore
             this.networkUse[this.activeIp] = size;
-            // @ts-ignore
             this.networkCount[this.activeIp] = 1;
         }
     },
@@ -315,9 +310,9 @@ const Monitor = module.exports = {
         
         return bytes;
     },
-    
-    /** @type {{new(entries: [any, [number, number]]): TimedCounter}} */
-    TimedCounter,
+
+	/** @type {{new(entries: [any, [number, number]]): TimedCounter}} */
+	TimedCounter,
 };
 
 Monitor.cleanInterval = setInterval(() => Monitor.clean(), MONITOR_CLEAN_TIMEOUT);
