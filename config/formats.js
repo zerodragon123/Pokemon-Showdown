@@ -262,6 +262,9 @@ exports.Formats = [
 		mod: 'gen7',
 		ruleset: ['Pokemon', 'Standard'],
 		banlist: ['Uber', 'Power Construct'],
+    },
+    
+    {
 		name: "[Gen 7] Ultra Sinnoh Classic",
 		desc: [`&bullet; <a href="http://www.smogon.com/forums/threads/3627404/">Ultra Sinnoh Classic Discussion</a>`],
 
