@@ -99,17 +99,8 @@ exports.Formats = [
 		],
 
 		mod: 'gen7',
-		searchShow: false,
 		ruleset: ['[Gen 7] RU'],
 		banlist: ['RU', 'BL3', 'Drought'],
-	},
-	{
-		name: "[Gen 7] NU (suspect test)",
-		desc: [`&bullet; <a href="http://www.smogon.com/forums/threads/3628085/">NU Suspect Test</a>`],
-
-		mod: 'gen7',
-		challengeShow: false,
-		ruleset: ['[Gen 7] NU'],
 	},
 	{
 		name: "[Gen 7] PU",
@@ -120,16 +111,6 @@ exports.Formats = [
 		],
 
 		mod: 'gen7',
-		searchShow: false,
-		ruleset: ['[Gen 7] NU'],
-		banlist: ['NU', 'BL4'],
-	},
-	{
-		name: "[Gen 7] PU (suspect test)",
-		desc: [`&bullet; <a href="http://www.smogon.com/forums/threads/3625646/">PU Suspect Test</a>`],
-
-		mod: 'gen7',
-		challengeShow: false,
 		ruleset: ['[Gen 7] NU'],
 		banlist: ['NU', 'BL4'],
 	},
@@ -330,15 +311,25 @@ exports.Formats = [
 	{
 		name: "[Gen 7] Doubles OU",
 		desc: [
-			`&bullet; <a href="http://www.smogon.com/forums/threads/3623271/">Doubles OU Metagame Discussion</a>`,
+			`&bullet; <a href="http://www.smogon.com/forums/threads/3629155/">Doubles OU Metagame Discussion</a>`,
 			`&bullet; <a href="http://www.smogon.com/forums/threads/3623347/">Doubles OU Viability Rankings</a>`,
 			`&bullet; <a href="http://www.smogon.com/forums/threads/3590987/">Doubles OU Sample Teams</a>`,
 		],
 
 		mod: 'gen7',
 		gameType: 'doubles',
+		searchShow: false,
 		ruleset: ['Pokemon', 'Standard Doubles', 'Swagger Clause', 'Team Preview'],
 		banlist: ['DUber', 'Power Construct', 'Eevium Z', 'Dark Void', 'Gravity ++ Grass Whistle', 'Gravity ++ Hypnosis', 'Gravity ++ Lovely Kiss', 'Gravity ++ Sing', 'Gravity ++ Sleep Powder'],
+	},
+	{
+		name: "[Gen 7] Doubles OU (suspect test)",
+		desc: [`&bullet; <a href="http://www.smogon.com/forums/threads/3629155/">Doubles OU Suspect Test</a>`],
+
+		mod: 'gen7',
+		gameType: 'doubles',
+		challengeShow: false,
+		ruleset: ['[Gen 7] Doubles OU'],
 	},
 	{
 		name: "[Gen 7] Doubles Ubers",
@@ -445,12 +436,12 @@ exports.Formats = [
 
 		mod: 'sharedpower',
 		ruleset: ['[Gen 7] OU', 'Evasion Abilities Clause'],
-		banlist: ['Banette-Mega', 'Gyarados-Mega', 'Shedinja', 'Emergency Exit ++ Regenerator', 'Wimp Out ++ Regenerator'],
+		banlist: ['Banette-Mega', 'Gyarados-Mega', 'Shedinja', 'Prankster ++ Substitute'],
 		unbanlist: ['Aegislash', 'Blaziken', 'Blaziken-Mega', 'Deoxys-Defense'],
 		restrictedAbilities: [
-			'Chlorophyll', 'Comatose', 'Fluffy', 'Fur Coat', 'Huge Power', 'Illusion', 'Imposter', 'Innards Out', 'Magic Guard',
-			'Mold Breaker', 'Protean', 'Pure Power', 'Quick Feet', 'Rattled', 'Sand Rush', 'Simple', 'Skill Link', 'Slush Rush',
-			'Speed Boost', 'Surge Surfer', 'Swift Swim', 'Teravolt', 'Tinted Lens', 'Trace', 'Unburden', 'Water Bubble', 'Weak Armor',
+			'Chlorophyll', 'Comatose', 'Fluffy', 'Fur Coat', 'Huge Power', 'Illusion', 'Imposter', 'Innards Out', 'Magic Guard', 'Mold Breaker',
+			'Multiscale', 'Protean', 'Pure Power', 'Quick Feet', 'Rattled', 'Regenerator', 'Sand Rush', 'Simple', 'Skill Link', 'Slush Rush',
+			'Speed Boost', 'Sturdy', 'Surge Surfer', 'Swift Swim', 'Teravolt', 'Tinted Lens', 'Trace', 'Unburden', 'Water Bubble', 'Weak Armor',
 		],
 		getSharedPower: function (pokemon) {
 			let sharedPower = new Set();
@@ -542,8 +533,17 @@ exports.Formats = [
 		],
 
 		mod: 'gen7',
+		searchShow: false,
 		ruleset: ['Pokemon', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Groudon-Primal', 'Arena Trap', 'Huge Power', 'Innards Out', 'Magnet Pull', 'Moody', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Comatose + Sleep Talk'],
+	},
+	{
+		name: "[Gen 7] Balanced Hackmons (suspect test)",
+		desc: [`&bullet; <a href="http://www.smogon.com/forums/threads/3628905/">Balanced Hackmons Suspect Test</a>`],
+
+		mod: 'gen7',
+		ruleset: ['[Gen 7] Balanced Hackmons'],
+		banlist: ['Psychic Surge'],
 	},
 	{
 		name: "[Gen 7] 1v1",
@@ -578,11 +578,11 @@ exports.Formats = [
 		mod: 'mixandmega',
 		ruleset: ['Pokemon', 'Standard', 'Mega Rayquaza Clause', 'Team Preview'],
 		banlist: ['Shadow Tag', 'Gengarite', 'Baton Pass', 'Electrify'],
-		restrictedStones: ['Beedrillite', 'Blazikenite', 'Kangaskhanite', 'Mawilite', 'Medichamite', 'Ultranecrozium Z'],
+		restrictedStones: ['Beedrillite', 'Blazikenite', 'Kangaskhanite', 'Mawilite', 'Medichamite', 'Pidgeotite', 'Ultranecrozium Z'],
 		cannotMega: [
-			'Arceus', 'Darkrai', 'Deoxys', 'Deoxys-Attack', 'Deoxys-Speed', 'Dialga', 'Dragonite', 'Giratina', 'Groudon', 'Ho-Oh', 'Kyogre',
-			'Kyurem-Black', 'Kyurem-White', 'Lugia', 'Lunala', 'Marshadow', 'Mewtwo', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Palkia',
-			'Pheromosa', 'Rayquaza', 'Regigigas', 'Reshiram', 'Shaymin-Sky', 'Slaking', 'Solgaleo', 'Xerneas', 'Yveltal', 'Zekrom',
+			'Arceus', 'Deoxys', 'Deoxys-Attack', 'Deoxys-Speed', 'Dialga', 'Dragonite', 'Giratina', 'Groudon', 'Ho-Oh', 'Kyogre',
+			'Kyurem-Black', 'Kyurem-White', 'Lugia', 'Lunala', 'Marshadow', 'Mewtwo', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane',
+			'Palkia', 'Pheromosa', 'Rayquaza', 'Regigigas', 'Reshiram', 'Slaking', 'Solgaleo', 'Xerneas', 'Yveltal', 'Zekrom',
 		],
 		onValidateTeam: function (team) {
 			let itemTable = {};
