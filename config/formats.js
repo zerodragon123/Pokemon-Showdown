@@ -402,7 +402,7 @@ exports.Formats = [
 			battle: 4,
 		},
 		timer: {starting: 6 * 60 + 30 - 10, perTurn: 10, maxPerTurn: 55, maxFirstTurn: 90, timeoutAutoChoose: true},
-		ruleset: ['Pokemon', 'Minimal GBU'],
+		ruleset: ['Pokemon', 'Minimal GBU', 'Team Preview'],
   },
 	{
 		name: "[Gen 7] Doubles Custom Game",
