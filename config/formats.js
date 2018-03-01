@@ -351,7 +351,7 @@ exports.Formats = [
 		ruleset: ['Pokemon', 'Standard GBU'],
 		banlist: ['Unown'],
 		requirePlus: true,
-    },
+  },
 	{
 		name: "[Gen 7] VGC 2017",
 		desc: [
@@ -390,9 +390,9 @@ exports.Formats = [
 		},
 		ruleset: ['Pokemon', 'Standard GBU'],
 		requirePentagon: true,
-    },
-    {
-		name: "[Gen 7] Doubles Custum 64",
+  },
+  {
+	  name: "[Gen 7] Doubles Custum 64",
 
 		mod: 'gen7',
 		gameType: 'doubles',
@@ -403,7 +403,7 @@ exports.Formats = [
 		},
 		timer: {starting: 6 * 60 + 30 - 10, perTurn: 10, maxPerTurn: 55, maxFirstTurn: 90, timeoutAutoChoose: true},
 		ruleset: ['Pokemon', 'Minimal GBU'],
-    },
+  },
 	{
 		name: "[Gen 7] Doubles Custom Game",
 
