@@ -2,7 +2,7 @@
 
 // TODO more roles, ect
 
-exports.alignments = {
+exports.alignments = Object.assign(Object.create(null), {
 	town: {
 		name: 'Town',
 		plural: 'Town',
@@ -31,7 +31,7 @@ exports.alignments = {
 		memo: [
 			'Factional Communication: If there are other Werewolf-aligned players, you may PM them during the game.',
 			'Factional Kill: The Werewolves may kill one player per Night.',
-			'You are aligned with the <span style="color:$FFA500;font-weight:bold">Werewolves</span>. You win when all players without a Werewolf wincon are eliminated and at least one Werewolf-aligned player is still alive (or nothing can prevent the same).',
+			'You are aligned with the <span style="color:#FFA500;font-weight:bold">Werewolves</span>. You win when all players without a Werewolf wincon are eliminated and at least one Werewolf-aligned player is still alive (or nothing can prevent the same).',
 		],
 		image: '<img width="75" height="75" src="//play.pokemonshowdown.com/fx/mafia-werewolf.png"/>',
 	},
@@ -67,11 +67,12 @@ exports.alignments = {
 		id: 'solo',
 		image: '<img width="75" height="75" src="//play.pokemonshowdown.com/fx/mafia-goon.png"/>',
 	},
-};
+});
 
-exports.roles = {
+exports.roles = Object.assign(Object.create(null), {
 	vt: 'villager',
 	villy: 'villager',
+	'vanilla_townie': 'villager',
 	townie: 'villager',
 	villager: {
 		name: 'Villager',
@@ -95,14 +96,9 @@ exports.roles = {
 		memo: ['Doctor: During the Night, you may PM the host the name of another player. This player will be protected from all nightkills for that Night.'],
 		image: '<img width="75" height="75" src="//play.pokemonshowdown.com/fx/mafia-doctor.png"/>',
 	},
-};
+});
 
-exports.modifiers = {
-	// To support "Vanilla Townie"
-	vanilla: {
-		name: "Vanilla",
-		id: "vanilla",
-	},
+exports.modifiers = Object.assign(Object.create(null), {
 	bp: 'bulletproof',
 	bulletproof: {
 		name: 'Bulletproof',
@@ -115,4 +111,4 @@ exports.modifiers = {
 		id: 'xshot',
 		memo: ['X-Shot: You may only use this ability X times during the game.'],
 	},
-};
+});
