@@ -457,10 +457,10 @@ exports.Formats = [
 					var moveToUse = 'earthquake';
 					if (this.isTerrain('electricterrain')) {
 						moveToUse = 'thunderbolt';
-					} 
+					}
 					else if (this.isTerrain('grassyterrain')) {
 						moveToUse = 'energyball';
-					} 
+					}
 					else if (this.isTerrain('mistyterrain')) {
 						moveToUse = 'moonblast';
 					}
@@ -643,7 +643,7 @@ exports.Formats = [
 			"&bullet; <a href=\"http://pokemon-online.eu/threads/36170/\">BH Tiering Policy</a>",
 			"&bullet; <a href=\"http://pokemon-online.eu/threads/36018/\">BH Viability Rankings</a>",
 		],
-								
+
 		mod: 'bhplus',
 		ruleset: ['Pokemon', 'Swagger Clause', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Groudon-Primal', 'Arena Trap', 'Huge Power', 'Innards Out', 'Moody', 'Parental Bond', 'Pure Power', 'Shadow Tag', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Comatose + Sleep Talk', 'Assist'],
@@ -653,7 +653,7 @@ exports.Formats = [
 		desc: [
 				"PO version of Classic Hackmons in GEN 7.",
 		],
-						
+
 		mod: 'bhplus',
 		ruleset: ['Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: [],
@@ -686,12 +686,12 @@ exports.Formats = [
 				}
 			}
 			return problems;
-		}							 
+		}
 	},
 	{
 		name: "[Gen 6] Balanced Hackmons",
 		desc: ["&bullet; <a href=\"http://www.smogon.com/dex/xy/formats/bh/\">ORAS Balanced Hackmons</a>"],
-								
+
 		mod: 'gen6',
 		searchShow: false,
 		ruleset: ['Pokemon', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
@@ -724,7 +724,7 @@ exports.Formats = [
 	/*{
 				name: "[Gen 7] Super Staff Bros. Melee",
 				desc: ["&bullet; <a href=\"http://www.smogon.com/forums/threads/3491902/\">Seasonal Ladder</a>"],
-								
+
 				mod: 'seasonal',
 			searchShow: false,
 				challengeShow: false,
@@ -733,10 +733,10 @@ exports.Formats = [
 				onBegin: function () {
 				this.add("raw|Super Staff Bros. <b>MELEEEEEEEEEEEEEE</b>!!");
 				this.add('message', "SURVIVAL! GET READY FOR THE NEXT BATTLE!");
-				
+
 				let globalRenamedMoves = {};
 				let customRenamedMoves = {};
-								
+
 				let allPokemon = this.p1.pokemon.concat(this.p2.pokemon);
 				for (let i = 0, len = allPokemon.length; i < len; i++) {
 						let pokemon = allPokemon[i];
@@ -753,7 +753,7 @@ exports.Formats = [
 									 moveData.move = globalRenamedMoves[moveData.id];
 									 pokemon.baseMoveset[j].move = globalRenamedMoves[moveData.id];
 								}
-								
+
 								let customRenamedSet = customRenamedMoves[toId(pokemon.name)];
 								if (customRenamedSet && customRenamedSet[moveData.id]) {
 									 pokemon.moves[j] = toId(pokemon.set.signatureMove);
@@ -823,13 +823,13 @@ exports.Formats = [
 				onSwitchInPriority: 1,
 				onSwitchIn: function (pokemon) {
 				let name = toId(pokemon.illusion ? pokemon.illusion.name : pokemon.name);
-									 
+
 				// Wonder Guard is available, but it curses you.
 				if (pokemon.getAbility().id === 'wonderguard' && pokemon.baseTemplate.baseSpecies !== 'Shedinja' && pokemon.baseTemplate.baseSpecies !== 'Kakuna') {
 						pokemon.addVolatile('curse', pokemon);
 						this.add('-message', pokemon.name + "'s Wonder Guard has cursed it!");
 				}
-									 
+
 				// Add here more hacky stuff for mega abilities.
 				// This happens when the mega switches in, as opposed to mega-evolving on the turn.
 				if (pokemon.template.isMega) {
@@ -864,7 +864,7 @@ exports.Formats = [
 									 // Bypass one mega limit.
 									 pokemon.canMegaEvo = this.canMegaEvo(pokemon);
 									 }
-									 
+
 									 // Innate effects.
 									 if (name === 'ascriptmaster') {
 									 pokemon.addVolatile('ascriptinnate', pokemon);
@@ -1002,7 +1002,7 @@ exports.Formats = [
 									 // Sentences vary in style and how they are presented, so each Pokémon has its own way of sending them.
 									 let sentences = [];
 									 let sentence = '';
-									 
+
 									 if (name === 'acast') {
 									 this.add('c|%Acast|__A wild Castform appeared!__');
 									 }
@@ -1648,7 +1648,7 @@ exports.Formats = [
 									 },
 									 onFaint: function (pokemon, source, effect) {
 									 let name = toId(pokemon.name);
-									 
+
 									 if (name === 'innovamania') {
 									 pokemon.side.addSideCondition('healingwish', pokemon, this);
 									 }
@@ -2148,13 +2148,13 @@ exports.Formats = [
 									 // Special switch-out events for some mons.
 									 onSwitchOut: function (pokemon) {
 									 let name = toId(pokemon.name);
-									 
+
 									 if (!pokemon.illusion) {
 									 if (name === 'hippopotas') {
 									 this.add('-message', 'The sandstorm subsided.');
 									 }
 									 }
-									 
+
 									 // Transform
 									 if (pokemon.originalName) pokemon.name = pokemon.originalName;
 									 },
@@ -2188,7 +2188,7 @@ exports.Formats = [
 									 swapmon2 = battle.sides[1].pokemon[j];
 									 if (swapmon2.swapping && swapmon2.hp > 0) {
 									 swapmon2.swapping = false;
-									 
+
 									 this.add('message', "Link standby... Please wait.");
 									 swapmon1.side = battle.sides[1];
 									 swapmon1.fullname = swapmon1.side.id + ': ' + swapmon1.name;
@@ -2201,7 +2201,7 @@ exports.Formats = [
 									 swapmon2.position = oldpos;
 									 battle.sides[0].pokemon[i] = swapmon2;
 									 battle.sides[1].pokemon[j] = swapmon1;
-									 
+
 									 this.add("c|\u2605" + swapmon1.side.name + "|Bye-bye, " + swapmon2.name + "!");
 									 this.add("c|\u2605" + swapmon2.side.name + "|Bye-bye, " + swapmon1.name + "!");
 									 if (swapmon1.side.active[0].hp && swapmon2.side.active[0].hp) {
