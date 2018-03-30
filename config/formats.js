@@ -3082,10 +3082,6 @@ exports.Formats = [
 		mod: 'gen1',
 		searchShow: false,
 		debug: true,
-		teamLength: {
-			validate: [1, 24],
-			battle: 24,
-		},
 		ruleset: ['Pokemon', 'HP Percentage Mod', 'Cancel Mod'],
 	},
 ];
