@@ -24,7 +24,7 @@ const FS = require('./lib/fs');
 /** @typedef {[string, number, string, number, number, number, string]} LadderRow [userid, elo, username, w, l, t, lastUpdate] */
 /** @type {Map<string, LadderRow[] | Promise<LadderRow[]>>} formatid: ladder */
 let ladderCaches = new Map();
-let ladderDecayTime = Object.create(null);
+
 class LadderStore {
 	/**
 	 * @param {string} formatid
@@ -133,26 +133,10 @@ class LadderStore {
 		let formatid = this.formatid;
 		let name = Dex.getFormat(formatid).name;
 		const ladder = await this.getLadder();
-        const decayPeriod=3600*24*1000;
-        if(!ladderDecayTime[this.formatid] || new Date().getTime()-ladderDecayTime[this.formatid]>decayPeriod){
-            if(!ladderDecayTime[this.formatid])
-                ladderDecayTime[this.formatid]=new Date().getTime();
-            else
-                ladderDecayTime[this.formatid]+=decayPeriod;
-            for (let row of this.ladder) {
-                row[1]=(row[1]-1000)*0.99+1000;
-            }
-        }
 		let buf = `<h3>${name} Top 200</h3>`;
 		buf += `<table>`;
 		buf += `<tr><th>` + ['', 'Username', '<abbr title="Elo rating">Elo</abbr>', 'W', 'L', 'T'].join(`</th><th>`) + `</th></tr>`;
-<<<<<<< HEAD
-        let showLength = Math.min(200,ladder.length);
-		for (let i = 0; i < showLength; i++) {
-			let row = ladder[i];
-=======
 		for (const [i, row] of ladder.entries()) {
->>>>>>> Zarel/master
 			buf += `<tr><td>` + [
 				i + 1, row[2], `<strong>${Math.round(row[1])}</strong>`, row[3], row[4], row[5],
 			].join(`</td><td>`) + `</td></tr>`;
