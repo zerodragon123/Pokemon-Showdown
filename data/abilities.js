@@ -576,9 +576,10 @@ let BattleAbilities = {
 			this.add('-ability', pokemon, 'Dark Aura');
 		},
 		onAnyBasePower: function (basePower, source, target, move) {
-			if (target === source || move.category === 'Status' || move.type !== 'Dark' || move.auraBoost) return;
-			move.auraBoost = move.hasAuraBreak ? 0x0C00 : 0x1547;
-			return this.chainModify([move.auraBoost, 0x1000]);
+			if (target === source || move.category === 'Status' || move.type !== 'Dark') return;
+			if (!move.auraBooster) move.auraBooster = this.effectData.target;
+			if (move.auraBooster !== this.effectData.target) return;
+			return this.chainModify([move.hasAuraBreak ? 0x0C00 : 0x1547, 0x1000]);
 		},
 		isUnbreakable: true,
 		id: "darkaura",
@@ -880,9 +881,10 @@ let BattleAbilities = {
 			this.add('-ability', pokemon, 'Fairy Aura');
 		},
 		onAnyBasePower: function (basePower, source, target, move) {
-			if (target === source || move.category === 'Status' || move.type !== 'Fairy' || move.auraBoost) return;
-			move.auraBoost = move.hasAuraBreak ? 0x0C00 : 0x1547;
-			return this.chainModify([move.auraBoost, 0x1000]);
+			if (target === source || move.category === 'Status' || move.type !== 'Fairy') return;
+			if (!move.auraBooster) move.auraBooster = this.effectData.target;
+			if (move.auraBooster !== this.effectData.target) return;
+			return this.chainModify([move.hasAuraBreak ? 0x0C00 : 0x1547, 0x1000]);
 		},
 		isUnbreakable: true,
 		id: "fairyaura",
@@ -2463,12 +2465,8 @@ let BattleAbilities = {
 		shortDesc: "This Pokemon's Status moves have priority raised by 1, but Dark types are immune.",
 		onModifyPriority: function (priority, pokemon, target, move) {
 			if (move && move.category === 'Status') {
-				return priority + 1;
-			}
-		},
-		onModifyMove: function (move) {
-			if (move && move.category === 'Status') {
 				move.pranksterBoosted = true;
+				return priority + 1;
 			}
 		},
 		id: "prankster",

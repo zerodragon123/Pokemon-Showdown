@@ -18,15 +18,18 @@ let BattleScripts = {
 	 */
 	runMove: function (move, pokemon, targetLoc, sourceEffect, zMove, externalMove) {
 		let target = this.getTarget(pokemon, zMove || move, targetLoc);
+		let baseMove = this.getMoveCopy(move);
+		const pranksterBoosted = baseMove.pranksterBoosted;
 		if (!sourceEffect && toId(move) !== 'struggle' && !zMove) {
 			let changedMove = this.runEvent('OverrideAction', pokemon, target, move);
 			if (changedMove && changedMove !== true) {
-				move = changedMove;
+				baseMove = this.getMoveCopy(changedMove);
+				if (pranksterBoosted) baseMove.pranksterBoosted = pranksterBoosted;
 				target = null;
 			}
 		}
-		let baseMove = this.getMove(move);
 		move = zMove ? this.getZMoveCopy(baseMove, pokemon) : baseMove;
+
 		if (!target && target !== false) target = this.resolveTarget(pokemon, move);
 
 		// copy the priority for Quick Guard
@@ -146,7 +149,7 @@ let BattleScripts = {
 		}
 		if (this.activeMove) {
 			move.priority = this.activeMove.priority;
-			move.pranksterBoosted = move.hasBounced ? false : this.activeMove.pranksterBoosted;
+			if (!move.hasBounced) move.pranksterBoosted = this.activeMove.pranksterBoosted;
 		}
 		let baseTarget = move.target;
 		if (!target && target !== false) target = this.resolveTarget(pokemon, move);
@@ -373,7 +376,7 @@ let BattleScripts = {
 			this.add('-immune', target, '[msg]');
 			return false;
 		}
-		if (this.gen >= 7 && move.pranksterBoosted && target.side !== pokemon.side && !this.getImmunity('prankster', target)) {
+		if (this.gen >= 7 && move.pranksterBoosted && pokemon.hasAbility('prankster') && target.side !== pokemon.side && !this.getImmunity('prankster', target)) {
 			this.debug('natural prankster immunity');
 			if (!target.illusion) this.add('-hint', "In gen 7, Dark is immune to Prankster moves.");
 			this.add('-immune', target, '[msg]');
