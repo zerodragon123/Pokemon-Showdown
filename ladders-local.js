@@ -140,6 +140,8 @@ class LadderStore {
 			buf += `<tr><td>` + [
 				i + 1, row[2], `<strong>${Math.round(row[1])}</strong>`, row[3], row[4], row[5],
 			].join(`</td><td>`) + `</td></tr>`;
+            if(i>=200)
+                break;
 		}
 		return [formatid, buf];
 	}
