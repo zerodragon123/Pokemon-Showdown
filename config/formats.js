@@ -2496,17 +2496,6 @@ let Formats = [
 		banlist: ['Uber'],
 	},
 	{
-		name: "[Gen 2] OU PO",
-		desc: [
-			"&bullet; <a href=\"http://www.smogon.com/forums/threads/3556533/\">GSC OU Viability Ranking</a>",
-			"&bullet; <a href=\"http://www.smogon.com/forums/posts/6431086/\">GSC Sample Teams</a>",
-		],
-
-		mod: 'gen2',
-		ruleset: ['Pokemon', 'StandardPO'],
-		banlist: ['Uber'],
-	},
-	{
 		name: "[Gen 1] OU",
 		threads: [
 			`&bullet; <a href="http://www.smogon.com/forums/threads/3572352/">RBY OU Viability Ranking</a>`,
