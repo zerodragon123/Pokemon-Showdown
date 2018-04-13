@@ -4412,7 +4412,7 @@ let BattleMovedex = {
 			onStart: function (target) {
 				let noEncore = ['assist', 'copycat', 'encore', 'mefirst', 'metronome', 'mimic', 'mirrormove', 'naturepower', 'sketch', 'sleeptalk', 'struggle', 'transform'];
 				let moveIndex = target.lastMove ? target.moves.indexOf(target.lastMove.id) : -1;
-				if (!target.lastMove || target.lastMove.isZ || noEncore.includes(target.lastMove.id) || (target.moveSlots[moveIndex] && target.moveSlots[moveIndex].pp <= 0)) {
+				if (!target.lastMove || target.lastMove.isZ || noEncore.includes(target.lastMove.id) || !target.moveSlots[moveIndex] || target.moveSlots[moveIndex].pp <= 0) {
 					// it failed
 					delete target.volatiles['encore'];
 					return false;
@@ -18020,11 +18020,11 @@ let BattleMovedex = {
 		num: 376,
 		accuracy: true,
 		basePower: 0,
-		basePowerCallback: function (pokemon) {
+		basePowerCallback: function (source, target, move) {
+			const callerMoveId = move.sourceEffect || move.id;
+			const moveSlot = source.getMoveData(callerMoveId);
 			// @ts-ignore
-			let move = pokemon.getMoveData(pokemon.lastMove.id); // Account for calling Trump Card via other moves
-			// @ts-ignore
-			switch (move.pp) {
+			switch (moveSlot.pp) {
 			case 0:
 				return 200;
 			case 1:
@@ -18625,12 +18625,8 @@ let BattleMovedex = {
 		num: 311,
 		accuracy: 100,
 		basePower: 50,
-		basePowerCallback: function (pokemon, target, move) {
-			if (this.weather) return move.basePower * 2;
-			return move.basePower;
-		},
 		category: "Special",
-		desc: "Power doubles during weather effects and this move's type changes to match; Ice type during Hail, Water type during Rain Dance, Rock type during Sandstorm, and Fire type during Sunny Day.",
+		desc: "Power doubles during weather effects (except strong winds) and this move's type changes to match; Ice type during Hail, Water type during Rain Dance, Rock type during Sandstorm, and Fire type during Sunny Day.",
 		shortDesc: "Power doubles and type varies in each weather.",
 		id: "weatherball",
 		name: "Weather Ball",
@@ -18642,16 +18638,20 @@ let BattleMovedex = {
 			case 'sunnyday':
 			case 'desolateland':
 				move.type = 'Fire';
+				move.basePower *= 2;
 				break;
 			case 'raindance':
 			case 'primordialsea':
 				move.type = 'Water';
+				move.basePower *= 2;
 				break;
 			case 'sandstorm':
 				move.type = 'Rock';
+				move.basePower *= 2;
 				break;
 			case 'hail':
 				move.type = 'Ice';
+				move.basePower *= 2;
 				break;
 			}
 		},
