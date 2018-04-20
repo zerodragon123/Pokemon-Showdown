@@ -573,7 +573,7 @@ class MafiaTracker extends Rooms.RoomGame {
 			}
 			if (this.subs.includes(targetUser.userid)) this.subs.splice(this.subs.indexOf(targetUser.userid), 1);
 			this.players[targetUser.userid] = player;
-			this.sendRoom(`${Chat.escapeHTML(targetUser.name)} has been added to the game!`, {declare: true});
+			this.sendRoom(`${Chat.escapeHTML(targetUser.name)} has been added to the game by ${Chat.escapeHTML(user.name)}!`, {declare: true});
 		}
 		this.playerCount++;
 		this.updateRoleString();
@@ -907,10 +907,8 @@ exports.pages = {
 		if (!ladder) return `|deinit`;
 		if (['hosts', 'plays'].includes(ladder.section) && !user.can('mute', null, Rooms('mafia'))) return `|deinit`;
 		let buf = `|title|Mafia ${ladder.title} (${date.toLocaleString("en-us", {month: 'long'})} ${date.getFullYear()})\n|pagehtml|<div class="pad ladder">${query[1] === 'prev' ? '' : `<button class="button" name="send" value="/join view-mafialadder-${query[0]}" style="float:left"><i class="fa fa-refresh"></i> Refresh</button> <button class="button" name="send" value="/join view-mafialadder-${query[0]}-prev" style="float:left">View last month's ${ladder.title}</button>`}<br /><br />`;
-		buf += `<table style="margin-left: auto; margin-right: auto"><tbody><tr><th colspan="2"><h2 style="margin: 5px auto">Mafia ${ladder.title} for ${date.toLocaleString("en-us", {month: 'long'})} ${date.getFullYear()}</h1></th></tr>`;
-		buf += `<tr><th>User</th><th>${ladder.type}</th></tr>`;
-		if (!logs[ladder.section][month]) {
-			buf += `<tr><td colspan="2">${ladder.title} for ${date.toLocaleString("en-us", {month: 'long'})} ${date.getFullYear()} not found.</td></tr></table></div>`;
+		if (!logs[ladder.section][month] || !Object.keys(logs[ladder.section][month]).length) {
+			buf += `${ladder.title} for ${date.toLocaleString("en-us", {month: 'long'})} ${date.getFullYear()} not found.</div>`;
 			return buf;
 		}
 		const keys = Object.keys(logs[ladder.section][month]).sort((a, b) => {
@@ -918,8 +916,12 @@ exports.pages = {
 			b = logs[ladder.section][month][b];
 			return b - a;
 		});
+		const canViewPoints = user.can('mute', null, Rooms('mafia')) || month !== (new Date()).toLocaleString("en-us", {month: "numeric", year: "numeric"});
+		if (!canViewPoints) buf += `You cannot see point values until the month is over.`;
+		buf += `<table style="margin-left: auto; margin-right: auto"><tbody><tr><th colspan="2"><h2 style="margin: 5px auto">Mafia ${ladder.title} for ${date.toLocaleString("en-us", {month: 'long'})} ${date.getFullYear()}</h1></th></tr>`;
+		buf += `<tr><th>User</th>${canViewPoints ? `<th>${ladder.type}</th></tr>` : ``}`;
 		for (const key of keys) {
-			buf += `<tr><td>${key}</td><td>${logs[ladder.section][month][key]}</td></tr>`;
+			buf += `<tr><td>${key}</td>${canViewPoints ? `<td>${logs[ladder.section][month][key]}</td></tr>` : ''}`;
 		}
 		return buf + `</table></div>`;
 	},
@@ -974,6 +976,20 @@ exports.commands = {
 			targetRoom.game.leave(user);
 		},
 		leavehelp: [`/mafia leave - Leave the game. Can only be done while signups are open.`],
+
+		playercap: function (target, room, user) {
+			if (!room || !room.game || room.game.gameid !== 'mafia') return this.errorReply(`There is no game of mafia running in this room.`);
+			if (!user.can('mute', null, room) && room.game.hostid !== user.userid) return this.errorReply(`/mafia playercap - Access denied.`);
+			if (room.game.phase !== 'signups') return this.errorReply(`Signups are already closed.`);
+			if (toId(target) === 'none') target = 20;
+			target = parseInt(target);
+			if (!target || target > 20 || target < 2) return this.parse('/help mafia playercap');
+			if (target < room.game.playerCount) return this.errorReply(`Player cap has to be equal or more than the amount of players in game.`);
+			if (target === room.game.playerCap) return this.errorReply(`Player cap is already set at ${room.game.playerCap}.`);
+			room.game.playerCap = target;
+			room.game.sendRoom(`Player cap has been set to ${room.game.playerCap}`, {declare: true});
+		},
+		playercaphelp: [`/mafia playercap [cap|none]- Limit the number of players being able to join the game. Player cap cannot be more than 20 or less than 2.`],
 
 		'!close': true,
 		close: function (target, room, user) {
@@ -1057,7 +1073,7 @@ exports.commands = {
 			target = target.split(',');
 			if (Rooms(target[0]) && Rooms(target[0]).users[user.userid]) targetRoom = Rooms(target.shift());
 			if (!targetRoom || !targetRoom.game || targetRoom.game.gameid !== 'mafia') return this.errorReply(`There is no game of mafia running in this room.`);
-			if (!user.can('mute', null, room) && targetRoom.game.hostid !== user.userid) return user.sendTo(targetRoom, `/mafia ${cmd} - Access denied.`);
+			if (!user.can('mute', null, room) && targetRoom.game.hostid !== user.userid) return user.sendTo(targetRoom, `|error|/mafia ${cmd} - Access denied.`);
 			if (cmd === 'night') {
 				targetRoom.game.night();
 			} else {
@@ -1197,14 +1213,24 @@ exports.commands = {
 			target = target.split(',');
 			if (Rooms(target[0]) && Rooms(target[0]).users[user.userid]) targetRoom = Rooms(target.shift());
 			if (!targetRoom || !targetRoom.game || targetRoom.game.gameid !== 'mafia') return this.errorReply(`There is no game of mafia running in this room.`);
-			if (!user.can('mute', null, room) && targetRoom.game.hostid !== user.userid) return user.sendTo(targetRoom, `|error|/mafia deadline - Access denied.`);
+			if (!user.can('mute', null, room) && targetRoom.game.hostid !== user.userid && target) return user.sendTo(targetRoom, `|error|/mafia deadline - Access denied.`);
 			target = toId(target.join(''));
 			if (target === 'off') {
 				return targetRoom.game.setDeadline('off');
 			} else {
 				target = parseInt(target);
 				if (isNaN(target)) {
-					if (!this.runBroadcast()) return;
+					if (room.game.hostid === user.userid && this.cmdToken === "!") {
+						const broadcastMessage = this.message.toLowerCase().replace(/[^a-z0-9\s!,]/g, '');
+						if (room && room.lastBroadcast === broadcastMessage &&
+							room.lastBroadcastTime >= Date.now() - 20 * 1000) {
+							return this.errorReply("You can't broadcast this because it was just broadcasted.");
+						}
+						this.broadcasting = true;
+						room.lastBroadcastTime = Date.now();
+						room.lastBroadcast = broadcastMessage;
+					}
+					if (!this.runBroadcast()) return false;
 					if ((targetRoom.game.dlAt - Date.now()) > 0) {
 						return this.sendReply(`The deadline is in ${Chat.toDurationString(targetRoom.game.dlAt - Date.now()) || '0 seconds'}.`);
 					} else {
@@ -1273,6 +1299,16 @@ exports.commands = {
 		lynches: function (target, room, user) {
 			if (!room.game || room.game.gameid !== 'mafia') return this.errorReply(`There is no game of mafia running in this room.`);
 			if (!room.game.started) return this.errorReply(`The game of mafia has not started yet.`);
+			if (room.game.hostid === user.userid && this.cmdToken === "!") {
+				const broadcastMessage = this.message.toLowerCase().replace(/[^a-z0-9\s!,]/g, '');
+				if (room && room.lastBroadcast === broadcastMessage &&
+					room.lastBroadcastTime >= Date.now() - 20 * 1000) {
+					return this.errorReply("You can't broadcast this because it was just broadcasted.");
+				}
+				this.broadcasting = true;
+				room.lastBroadcastTime = Date.now();
+				room.lastBroadcast = broadcastMessage;
+			}
 			if (!this.runBroadcast()) return false;
 
 			let buf = `<strong>Lynches (Hammer: ${room.game.hammerCount})</strong><br />`;
@@ -1290,6 +1326,16 @@ exports.commands = {
 
 		players: function (target, room, user) {
 			if (!room.game || room.game.gameid !== 'mafia') return this.errorReply(`There is no game of mafia running in this room.`);
+			if (room.game.hostid === user.userid && this.cmdToken === "!") {
+				const broadcastMessage = this.message.toLowerCase().replace(/[^a-z0-9\s!,]/g, '');
+				if (room && room.lastBroadcast === broadcastMessage &&
+					room.lastBroadcastTime >= Date.now() - 20 * 1000) {
+					return this.errorReply("You can't broadcast this because it was just broadcasted.");
+				}
+				this.broadcasting = true;
+				room.lastBroadcastTime = Date.now();
+				room.lastBroadcast = broadcastMessage;
+			}
 			if (!this.runBroadcast()) return false;
 
 			if (this.broadcasting) {
@@ -1320,6 +1366,14 @@ exports.commands = {
 			}).map((role) => { return role.safeName; }).join(', ');
 
 			this.sendReplyBox(`${showOrl ? `Original Rolelist: ` : `Rolelist: `}${roleString}`);
+		},
+
+		spectate: 'view',
+		view: function (target, room, user, connection) {
+			if (!room.game || room.game.gameid !== 'mafia') return this.errorReply(`There is no game of mafia running in this room.`);
+			if (!this.runBroadcast()) return;
+			if (this.broadcasting) return this.sendReplyBox(`<button name="joinRoom" value="view-mafia-${room.id}" class="button"><strong>Spectate the game</strong></button>`);
+			return this.parse(`/join view-mafia-${room.id}`);
 		},
 
 		'!sub': true,
@@ -1419,7 +1473,7 @@ exports.commands = {
 			if (!targetRoom || !targetRoom.game || targetRoom.game.gameid !== 'mafia') return this.errorReply(`There is no game of mafia running in this room.`);
 			if (!user.can('mute', null, targetRoom) && targetRoom.game.hostid !== user.userid) return user.sendTo(targetRoom, `|error|/mafia end - Access denied.`);
 			targetRoom.game.end(true);
-			this.modlog('MAFIAEND');
+			targetRoom.modlog('MAFIAEND');
 		},
 		endhelp: [`/mafia end - End the current game of mafia. Requires host % @ * # & ~`],
 
@@ -1451,7 +1505,7 @@ exports.commands = {
 			if (!gavePoints) return this.parse('/help mafia win');
 			writeLogs();
 			this.modlog(`MAFIAPOINTS`, null, `${points} points were awarded to ${Chat.toListString(target)}`);
-			this.addModAction(`${points} points were awarded to: ${Chat.toListString(target)}`);
+			this.privateModAction(`(${points} points were awarded to: ${Chat.toListString(target)})`);
 		},
 		winhelp: [`/mafia win (points) [user1], [user2], [user3], ... - Award the specified users points to the mafia leaderboard for this month. The amount of points can be negative to take points. Defaults to 10 points.`],
 
@@ -1485,7 +1539,7 @@ exports.commands = {
 			if (!gavePoints) return this.parse('/help mafia mvp');
 			writeLogs();
 			this.modlog(`MAFIA${cmd.toUpperCase()}`, null, `MVP and 5 points were ${cmd === 'unmvp' ? 'taken from' : 'awarded to'} ${Chat.toListString(target)}`);
-			this.addModAction(`MVP and 5 points were ${cmd === 'unmvp' ? 'taken from' : 'awarded to'}: ${Chat.toListString(target)}`);
+			this.privateModAction(`(MVP and 5 points were ${cmd === 'unmvp' ? 'taken from' : 'awarded to'}: ${Chat.toListString(target)})`);
 		},
 		mvphelp: [
 			`/mafia mvp [user1], [user2], ... - Gives a MVP point and 5 leaderboard points to the users specified.`,
