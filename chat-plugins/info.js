@@ -12,7 +12,11 @@
 
 'use strict';
 
-exports.commands = {
+/** @typedef {(this: CommandContext, target: string, room: BasicChatRoom, user: User, connection: Connection, cmd: string, message: string) => (void)} ChatHandler */
+/** @typedef {{[k: string]: ChatHandler | string | true | string[]}} ChatCommands */
+
+/** @type {ChatCommands} */
+const commands = {
 
 	'!whois': true,
 	ip: 'whois',
@@ -290,7 +294,7 @@ exports.commands = {
 		let [ip, roomid] = this.splitOne(target);
 		let targetRoom = roomid ? Rooms(roomid) : null;
 		if (!targetRoom && targetRoom !== null) return this.errorReply(`The room "${roomid}" does not exist.`);
-		let results = [];
+		let results = /** @type {string[]} */ ([]);
 		let isAll = (cmd === 'ipsearchall');
 
 		if (/[a-z]/.test(ip)) {
@@ -336,7 +340,7 @@ exports.commands = {
 
 	checkchallenges: function (target, room, user) {
 		if (!this.can('ban', null, room)) return false;
-		if (!this.runBroadcast()) return;
+		if (!this.runBroadcast(true)) return;
 		if (!this.broadcasting) {
 			this.errorReply(`This command must be broadcast:`);
 			return this.parse(`/help checkchallenges`);
@@ -469,6 +473,7 @@ exports.commands = {
 		}
 
 		if (showDetails) {
+			/** @type {AnyObject} */
 			let details;
 			if (newTargets[0].searchType === 'pokemon') {
 				let pokemon = mod.getTemplate(newTargets[0].name);
@@ -492,9 +497,9 @@ exports.commands = {
 				};
 				if (pokemon.color && mod.gen >= 5) details["Dex Colour"] = pokemon.color;
 				if (pokemon.eggGroups && mod.gen >= 2) details["Egg Group(s)"] = pokemon.eggGroups.join(", ");
-				let evos = [];
-				pokemon.evos.forEach(evo => {
-					evo = mod.getTemplate(evo);
+				let evos = /** @type {string[]} */ ([]);
+				pokemon.evos.forEach(evoName => {
+					const evo = mod.getTemplate(evoName);
 					if (evo.gen <= mod.gen) {
 						evos.push(evo.name + " (" + evo.evoLevel + ")");
 					}
@@ -642,9 +647,10 @@ exports.commands = {
 		if (!target) return this.parse('/help weakness');
 		if (!this.runBroadcast()) return;
 		target = target.trim();
-		let mod = target.split(',');
-		mod = Dex.mod(toId(mod[mod.length - 1])) || Dex;
+		let modName = target.split(',');
+		let mod = Dex.mod(toId(modName[modName.length - 1])) || Dex;
 		let targets = target.split(/ ?[,/] ?/);
+		/** @type {{types: string[], [k: string]: any}} */
 		let pokemon = mod.getTemplate(targets[0]);
 		let type1 = mod.getType(targets[0]);
 		let type2 = mod.getType(targets[1]);
@@ -1520,10 +1526,10 @@ exports.commands = {
 
 	'!roomhelp': true,
 	roomhelp: function (target, room, user) {
-		if (!this.canBroadcast('!htmlbox')) return;
+		if (!this.canBroadcast(false, '!htmlbox')) return;
 		if (this.broadcastMessage && !this.can('declare', null, room)) return false;
 
-		if (!this.runBroadcast('!htmlbox')) return;
+		if (!this.runBroadcast(false, '!htmlbox')) return;
 		this.sendReplyBox(
 			`<strong>Room drivers (%)</strong> can use:<br />` +
 			`- /warn OR /k <em>username</em>: warn a user and show the Pok&eacute;mon Showdown rules<br />` +
@@ -1585,9 +1591,9 @@ exports.commands = {
 		if (!this.can('lockdown')) return false;
 
 		let buf = `<strong>${process.pid}</strong> - Main<br />`;
-		Sockets.workers.forEach(worker => {
+		for (const worker of Sockets.workers.values()) {
 			buf += `<strong>${worker.pid || worker.process.pid}</strong> - Sockets ${worker.id}<br />`;
-		});
+		}
 
 		const processManagers = require('../lib/process-manager').processManagers;
 		for (const manager of processManagers) {
@@ -1945,7 +1951,7 @@ exports.commands = {
 	roll: 'dice',
 	dice: function (target, room, user) {
 		if (!target || target.match(/[^\d\sdHL+-]/i)) return this.parse('/help dice');
-		if (!this.runBroadcast()) return;
+		if (!this.runBroadcast(true)) return;
 
 		// ~30 is widely regarded as the sample size required for sum to be a Gaussian distribution.
 		// This also sets a computation time constraint for safety.
@@ -2045,7 +2051,7 @@ exports.commands = {
 	pickrandom: function (target, room, user) {
 		let options = target.split(',');
 		if (options.length < 2) return this.parse('/help pick');
-		if (!this.runBroadcast()) return false;
+		if (!this.runBroadcast(true)) return false;
 		const pickedOption = options[Math.floor(Math.random() * options.length)].trim();
 		return this.sendReplyBox(Chat.html`<em>We randomly picked:</em> ${pickedOption}`);
 	},
@@ -2099,10 +2105,10 @@ exports.commands = {
 		target = this.canHTML(target);
 		if (!target) return;
 
-		if (!this.canBroadcast('!htmlbox')) return;
+		if (!this.canBroadcast(true, '!htmlbox')) return;
 		if (this.broadcastMessage && !this.can('declare', null, room)) return false;
 
-		if (!this.runBroadcast('!htmlbox')) return;
+		if (!this.runBroadcast(true, '!htmlbox')) return;
 
 		this.sendReplyBox(target);
 	},
@@ -2124,6 +2130,8 @@ exports.commands = {
 		`!htmlbox [message] - Shows everyone a message, parsing HTML code contained. Requires: ~ & #`,
 	],
 };
+
+exports.commands = commands;
 
 process.nextTick(() => {
 	Dex.includeData();

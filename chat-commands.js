@@ -26,7 +26,11 @@ const HOURMUTE_LENGTH = 60 * 60 * 1000;
 
 const MAX_CHATROOM_ID_LENGTH = 225;
 
-exports.commands = {
+/** @typedef {(this: Chat.CommandContext, target: string, room: Room, user: User, connection: Connection, cmd: string) => (void)} ChatHandler */
+/** @typedef {{[k: string]: ChatHandler | string | true | string[]}} ChatCommands */
+
+/** @type {ChatCommands} */
+const commands = {
 
 	'!version': true,
 	version: function (target, room, user) {
@@ -145,10 +149,10 @@ exports.commands = {
 			let code = `<div class="chat"><code style="white-space: pre-wrap; display: table">${output.join('<br />')}</code></div>`;
 			if (output.length > 3) code = `<details><summary>See code...</summary>${code}</details>`;
 
-			if (!this.canBroadcast('!code')) return;
+			if (!this.canBroadcast(true, '!code')) return;
 			if (this.broadcastMessage && !this.can('broadcast', null, room)) return false;
 
-			if (!this.runBroadcast('!code')) return;
+			if (!this.runBroadcast(true, '!code')) return;
 
 			this.sendReplyBox(code);
 		} else {
@@ -521,7 +525,6 @@ exports.commands = {
 	ignorepm: 'ignorepms',
 	ignorepms: function (target, room, user) {
 		if (user.ignorePMs === (target || true)) return this.errorReply("You are already blocking private messages! To unblock, use /unblockpms");
-		if (user.can('lock') && !user.can('declare')) return this.errorReply("You are not allowed to block private messages.");
 		user.ignorePMs = true;
 		if (target in Config.groups) {
 			user.ignorePMs = target;
@@ -1542,7 +1545,7 @@ exports.commands = {
 
 		if (name) {
 			this.addModAction("" + name + " was unbanned from " + room.title + " by " + user.name + ".");
-			if (!room.isPrivate && room.chatRoomData) {
+			if (room.isPrivate !== true && room.chatRoomData) {
 				this.globalModlog("UNROOMBAN", name, " by " + user.userid);
 			}
 		} else {
@@ -3340,7 +3343,7 @@ exports.commands = {
 		if (!user.hasConsoleAccess(connection)) {
 			return this.errorReply("/eval - Access denied.");
 		}
-		if (!this.runBroadcast()) return;
+		if (!this.runBroadcast(true)) return;
 
 		if (!this.broadcasting) this.sendReply('||>> ' + target);
 		try {
@@ -3365,7 +3368,7 @@ exports.commands = {
 		if (!user.hasConsoleAccess(connection)) {
 			return this.errorReply("/evalbattle - Access denied.");
 		}
-		if (!this.runBroadcast()) return;
+		if (!this.runBroadcast(true)) return;
 		if (!room.battle) {
 			return this.errorReply("/evalbattle - This isn't a battle room.");
 		}
@@ -4083,6 +4086,8 @@ exports.commands = {
 	},
 
 };
+
+exports.commands = commands;
 
 process.nextTick(() => {
 	// We might want to migrate most of this to a JSON schema of command attributes.
