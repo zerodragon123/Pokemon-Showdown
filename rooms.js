@@ -1279,6 +1279,11 @@ class BasicChatRoom extends BasicRoom {
 			delete this.users[i];
 		}
 
+		if (this.parent && this.parent.subRooms) {
+			this.parent.subRooms.delete(this.id);
+			if (!this.parent.subRooms.size) this.parent.subRooms = null;
+		}
+
 		Rooms.global.deregisterChatRoom(this.id);
 		Rooms.global.delistChatRoom(this.id);
 
