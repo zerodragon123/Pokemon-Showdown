@@ -91,14 +91,7 @@ let BattleStatuses = {
 				this.add('-status', target, 'frz');
 			}
 			if (target.template.species === 'Shaymin-Sky' && target.baseTemplate.baseSpecies === 'Shaymin') {
-				let template = this.getTemplate('Shaymin');
-				target.formeChange(template);
-				target.baseTemplate = template;
-				target.setAbility(template.abilities['0'], null, true);
-				target.baseAbility = target.ability;
-				target.details = template.species + (target.level === 100 ? '' : ', L' + target.level) + (target.gender === '' ? '' : ', ' + target.gender) + (target.set.shiny ? ', shiny' : '');
-				this.add('detailschange', target, target.details);
-				this.add('-formechange', target, 'Shaymin', '[msg]');
+				target.formeChange('Shaymin', this.effect, true);
 			}
 		},
 		onBeforeMovePriority: 10,
@@ -744,8 +737,8 @@ let BattleStatuses = {
 		name: 'Arceus',
 		id: 'arceus',
 		num: 493,
-		onSwitchInPriority: 101,
-		onSwitchIn: function (pokemon) {
+		onTypePriority: 1,
+		onType: function (types, pokemon) {
 			let type = 'Normal';
 			if (pokemon.ability === 'multitype') {
 				// @ts-ignore
@@ -755,15 +748,15 @@ let BattleStatuses = {
 					type = 'Normal';
 				}
 			}
-			pokemon.setType(type, true);
+			return [type];
 		},
 	},
 	silvally: {
 		name: 'Silvally',
 		id: 'silvally',
 		num: 773,
-		onSwitchInPriority: 101,
-		onSwitchIn: function (pokemon) {
+		onTypePriority: 1,
+		onType: function (types, pokemon) {
 			let type = 'Normal';
 			if (pokemon.ability === 'rkssystem') {
 				// @ts-ignore
@@ -773,7 +766,7 @@ let BattleStatuses = {
 					type = 'Normal';
 				}
 			}
-			pokemon.setType(type, true);
+			return [type];
 		},
 	},
 };
