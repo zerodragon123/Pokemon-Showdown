@@ -12589,12 +12589,14 @@ let BattleMovedex = {
 		pp: 10,
 		priority: 0,
 		flags: {protect: 1, mirror: 1},
-		onHit: function (target, pokemon) {
-			if (pokemon.status && !target.status && target.trySetStatus(pokemon.status)) {
+		onPrepareHit: function (target, source, move) {
+			if (!source.status) return false;
+			move.status = source.status;
+		},
+		self: {
+			onHit: function (pokemon) {
 				pokemon.cureStatus();
-			} else {
-				return false;
-			}
+			},
 		},
 		secondary: false,
 		target: "normal",
@@ -13319,8 +13321,12 @@ let BattleMovedex = {
 		pp: 10,
 		priority: 0,
 		flags: {snatch: 1, heal: 1},
+		onTryMove: function (pokemon) {
+			if (pokemon.hp < pokemon.maxhp && pokemon.status !== 'slp' && !pokemon.hasAbility('comatose')) return;
+			this.add('-fail', pokemon);
+			return null;
+		},
 		onHit: function (target) {
-			if (target.hp >= target.maxhp) return false;
 			if (!target.setStatus('slp')) return false;
 			target.statusData.time = 3;
 			target.statusData.startTime = 3;
@@ -13802,6 +13808,7 @@ let BattleMovedex = {
 			onResidualOrder: 20,
 			onTypePriority: -1,
 			onType: function (types, pokemon) {
+				this.effectData.typeWas = types;
 				return types.filter(type => type !== 'Flying');
 			},
 		},
