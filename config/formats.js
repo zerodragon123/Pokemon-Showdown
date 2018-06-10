@@ -68,14 +68,23 @@ let Formats = [
 	{
 		name: "[Gen 7] UU",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3630113/">UU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3636383/">UU Metagame Discussion</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3626124/">UU Viability Rankings</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3621217/">UU Sample Teams</a>`,
 		],
 
 		mod: 'gen7',
+		searchShow: false,
 		ruleset: ['[Gen 7] OU'],
 		banlist: ['OU', 'UUBL', 'Drizzle', 'Drought', 'Kommonium Z', 'Mewnium Z'],
+	},
+	{
+		name: "[Gen 7] UU (suspect test)",
+		threads: [`&bullet; <a href="http://www.smogon.com/forums/threads/3636383/">UU Suspect Test</a>`],
+
+		mod: 'gen7',
+		challengeShow: false,
+		ruleset: ['[Gen 7] UU'],
 	},
 	{
 		name: "[Gen 7] RU",
@@ -463,7 +472,7 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['Pokemon', 'Standard', 'Team Preview'],
 		banlist: [
-			'Gengar-Mega', 'Mawile-Mega', 'Medicham-Mega', 'Shedinja', 'Arena Trap', 'Shadow Tag', 'Deep Sea Scale',
+			'Carvanha', 'Gengar-Mega', 'Mawile-Mega', 'Medicham-Mega', 'Shedinja', 'Arena Trap', 'Shadow Tag', 'Deep Sea Scale',
 			'Deep Sea Tooth', 'Eevium Z', 'Eviolite', 'Light Ball', 'Thick Club', 'Baton Pass',
 		],
 		onModifyTemplate: function (template, target, source) {

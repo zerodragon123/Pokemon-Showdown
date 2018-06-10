@@ -1737,11 +1737,11 @@ const commands = {
 		if (!this.can('mute', null, room)) return false;
 
 		let targetUser = this.targetUser;
-		let successfullyUnmuted = room.unmute(targetUser ? targetUser.userid : this.targetUsername, `Your mute in '${room.title}' has been lifted.`);
+		let successfullyUnmuted = room.unmute(targetUser ? targetUser.userid : toId(this.targetUsername), `Your mute in '${room.title}' has been lifted.`);
 
 		if (successfullyUnmuted) {
 			this.addModAction(`${(targetUser ? targetUser.name : successfullyUnmuted)} was unmuted by ${user.name}.`);
-			this.modlog('UNMUTE', targetUser, null, {noip: 1, noalts: 1});
+			this.modlog('UNMUTE', (targetUser || successfullyUnmuted), null, {noip: 1, noalts: 1});
 		} else {
 			this.errorReply(`${(targetUser ? targetUser.name : this.targetUsername)} is not muted.`);
 		}
@@ -2534,11 +2534,12 @@ const commands = {
 				this.privateModAction(displayMessage);
 			}
 		}
-		this.add(`|unlink|hide|${userid}`);
-		if (userid !== toId(this.inputUsername)) this.add(`|unlink|hide|${toId(this.inputUsername)}`);
 
 		if (!room.isPrivate && room.chatRoomData) {
 			this.globalModlog("BLACKLIST", targetUser, ` by ${user.userid}${(target ? `: ${target}` : '')}`);
+		} else {
+			// Room modlog only
+			this.modlog("BLACKLIST", targetUser, ` by ${user.userid}${(target ? `: ${target}` : '')}`);
 		}
 		return true;
 	},
