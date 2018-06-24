@@ -1,6 +1,21 @@
 'use strict';
+/** @typedef {{name: string, plural: string, id: string, color?: string, memo: string[], image?: string}} MafiaAlignment */
+/** @typedef {{[k: string]: MafiaAlignment | string}} MafiaAlignments */
 
-exports.alignments = Object.assign(Object.create(null), {
+/** @typedef {{name: string, id: string, memo: string[], alignment?: string, image?: string}} MafiaRole */
+/** @typedef {{[k: string]: MafiaRole | string}} MafiaRoles */
+
+/** @typedef {{name: string, id: string, memo: string[]}} MafiaModifier */
+/** @typedef {{[k: string]: MafiaModifier | string}} MafiaModifiers */
+
+/** @typedef {{name: string, desc: string, [k: number]: string}} MafiaTheme */
+/** @typedef {{[k: string]: MafiaTheme | string}} MafiaThemes */
+
+/** @typedef {{name: string, roles: string[], picks: string[], choices: number}} MafiaIDEA */
+/** @typedef {{[k: string]: MafiaIDEA | string}} MafiaIDEAs */
+
+/** @type {MafiaAlignments} */
+const alignments = {
 	//  Do not add Mafia variants, unless they are supported in a major theme (Werewolves, Replicants).
 	//  Do not add Solo alignments.
 	town: {
@@ -157,9 +172,10 @@ exports.alignments = Object.assign(Object.create(null), {
 		image: `<img width="75" height="75" src="//play.pokemonshowdown.com/fx/mafia-goon.png"/>`,
 		memo: [],
 	},
-});
+};
 
-exports.roles = Object.assign(Object.create(null), {
+/** @type {MafiaRoles} */
+const roles = {
 	// active abilities and alignment indicating abilities
 	vt: `villager`,
 	vanilla_townie: `villager`,
@@ -170,10 +186,12 @@ exports.roles = Object.assign(Object.create(null), {
 		name: `Villager`,
 		id: `villager`,
 		image: `<img width="75" height="75" src="//play.pokemonshowdown.com/fx/mafia-villager.png"/>`,
+		memo: [`Vanilla Townie: Town player without any additional abilities.`],
 	},
 	goon: {
 		name: `Goon`,
 		id: `goon`,
+		memo: [`Goon: Mafia player without any additional abilities.`],
 	},
 	assassin: {
 		name: `Assassin`,
@@ -628,9 +646,10 @@ exports.roles = Object.assign(Object.create(null), {
 		memo: [`Watcher: During the Night, you may PM the host the name of another player. You will be told who, if anyone, targeted this player.`],
 		image: `<img width="75" height="75" src="//play.pokemonshowdown.com/fx/mafia-cop.png"/>`,
 	},
-});
+};
 
-exports.modifiers = Object.assign(Object.create(null), {
+/** @type {MafiaModifiers} */
+const modifiers = {
 	// passive abilities
 	active: {
 		name: `Active`,
@@ -938,9 +957,10 @@ exports.modifiers = Object.assign(Object.create(null), {
 		id: `xshot`,
 		memo: [`X-Shot: You may only use this ability X times during the game.`],
 	},
-});
+};
 
-exports.themes = Object.assign(Object.create(null), {
+/** @type {MafiaThemes} */
+const themes = {
 	aitc: `assassin_in_the_court`,
 	aitp: `assassin_in_the_court`,
 	assassin_in_the_castle: `assassin_in_the_court`,
@@ -977,6 +997,7 @@ exports.themes = Object.assign(Object.create(null), {
 		desc: `Dethy: Four Cops against one Mafia Goon. They just won't always get the correct results...`,
 		5: `Mafia Goon, Cop, Cop, Cop, Cop`,
 	},
+	esun: 'eternal_sun',
 	eternal_sun: {
 		name: `Eternal Sun`,
 		desc: `Eternal Sun: A theme without nights! Everyone can use their action once a day.`,
@@ -1089,9 +1110,10 @@ exports.themes = Object.assign(Object.create(null), {
 		desc: `We Need a Fifth: When a Vanilla Townie is lynched Day 1, they shoot another player instead. When a Mafia Goon is lynched, they have to clear a Vanilla Townie.`,
 		4: `Mafia Goon, Mafia Goon, Vanilla Townie, Vanilla Townie`,
 	},
-});
+};
 
-exports.IDEAs = Object.assign(Object.create(null), {
+/** @type {MafiaIDEAs} */
+const IDEAs = {
 	gi: `greater_idea`,
 	greater_idea: {
 		name: `Greater Idea`,
@@ -1197,7 +1219,7 @@ exports.IDEAs = Object.assign(Object.create(null), {
 			`Mafia One-Shot Day Vigilante`,
 			`Mafia One-Shot Governor`,
 			`Mafia Reflexive Doctor`,
-			`Hirsute Goon`,
+			`Hirsute Mafia Goon`,
 			`Mafia Cupid`,
 			`Werewolf`,
 			`Werewolf`,
@@ -1347,7 +1369,7 @@ exports.IDEAs = Object.assign(Object.create(null), {
 			`Mafia One-Shot Day Vigilante`,
 			`Mafia One-Shot Governor`,
 			`Mafia Reflexive Doctor`,
-			`Hirsute Goon`,
+			`Hirsute Mafia Goon`,
 			`Mafia Cupid`,
 			`Werewolf`,
 			`Werewolf`,
@@ -1497,7 +1519,7 @@ exports.IDEAs = Object.assign(Object.create(null), {
 			`Mafia One-Shot Day Vigilante`,
 			`Mafia One-Shot Governor`,
 			`Mafia Reflexive Doctor`,
-			`Hirsute Goon`,
+			`Hirsute Mafia Goon`,
 			`Mafia Cupid`,
 			`Werewolf`,
 			`Werewolf`,
@@ -2064,4 +2086,12 @@ exports.IDEAs = Object.assign(Object.create(null), {
 		picks: [`role`],
 		choices: 2,
 	},
-});
+};
+
+module.exports = {
+	alignments: Object.assign(Object.create(null), alignments),
+	roles: Object.assign(Object.create(null), roles),
+	modifiers: Object.assign(Object.create(null), modifiers),
+	themes: Object.assign(Object.create(null), themes),
+	IDEAs: Object.assign(Object.create(null), IDEAs),
+};
