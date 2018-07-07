@@ -85,8 +85,8 @@ const commands = {
 		buf += '<br />';
 		if (user.can('alts', targetUser) || user.can('alts') && user === targetUser) {
 			let prevNames = Object.keys(targetUser.prevNames).join(", ");
-			if (prevNames) buf += Chat.html`<br />Previous names: ${prevNames}`;
 			if (!targetUser.noTrace) {
+				if (prevNames) buf += Chat.html`<br />Previous names: ${prevNames}`;
 				for (const targetAlt of targetUser.getAltUsers(true)) {
 					if (!targetAlt.named && !targetAlt.connected) continue;
 					if (targetAlt.group === '~' && user.group !== '~') continue;
@@ -2214,12 +2214,8 @@ const commands = {
 			return this.errorReply("User " + this.targetUsername + " not found.");
 		}
 		let prevNames = Object.keys(targetUser.prevNames).join(", ");
-		let buf = 'Hiding!';
-		if (prevNames) buf += `Previous names: ${prevNames}`;
 		targetUser.clearPrev();
-		let nowPrevNames = Object.keys(targetUser.prevNames).join(", ");
-		if (nowPrevNames) buf += ` After clear, names: ${nowPrevNames}`;
-		return this.sendReply(buf);
+		return this.sendReply(`Hided previous names: ${prevNames}`);
 	},
 };
 

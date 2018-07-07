@@ -882,14 +882,12 @@ class User {
 			user.merge(this);
 
 			Users.merge(user, this);
-			if (!user.noTrace) {
-				for (let i in this.prevNames) {
-					if (!user.prevNames[i]) {
-						user.prevNames[i] = this.prevNames[i];
-					}
+			for (let i in this.prevNames) {
+				if (!user.prevNames[i]) {
+					user.prevNames[i] = this.prevNames[i];
 				}
-				if (this.named) user.prevNames[this.userid] = this.name;
 			}
+			if (this.named) user.prevNames[this.userid] = this.name;
 			this.destroy();
 
 			Punishments.checkName(user, userid, registered);
@@ -1500,7 +1498,6 @@ class User {
 	}
 	clearPrev() {
 		this.noTrace = true;
-		this.prevNames = Object.create(null);
 	}
 	destroy() {
 		// deallocate user
