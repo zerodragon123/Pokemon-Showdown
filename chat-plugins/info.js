@@ -86,15 +86,16 @@ const commands = {
 		if (user.can('alts', targetUser) || user.can('alts') && user === targetUser) {
 			let prevNames = Object.keys(targetUser.prevNames).join(", ");
 			if (prevNames) buf += Chat.html`<br />Previous names: ${prevNames}`;
+			if (!targetUser.noTrace) {
+				for (const targetAlt of targetUser.getAltUsers(true)) {
+					if (!targetAlt.named && !targetAlt.connected) continue;
+					if (targetAlt.group === '~' && user.group !== '~') continue;
 
-			for (const targetAlt of targetUser.getAltUsers(true)) {
-				if (!targetAlt.named && !targetAlt.connected) continue;
-				if (targetAlt.group === '~' && user.group !== '~') continue;
-
-				buf += Chat.html`<br />Alt: <span class="username">${targetAlt.name}</span>`;
-				if (!targetAlt.connected) buf += ` <em style="color:gray">(offline)</em>`;
-				prevNames = Object.keys(targetAlt.prevNames).join(", ");
-				if (prevNames) buf += `<br />Previous names: ${prevNames}`;
+					buf += Chat.html`<br />Alt: <span class="username">${targetAlt.name}</span>`;
+					if (!targetAlt.connected) buf += ` <em style="color:gray">(offline)</em>`;
+					prevNames = Object.keys(targetAlt.prevNames).join(", ");
+					if (prevNames) buf += `<br />Previous names: ${prevNames}`;
+				}
 			}
 			if (targetUser.namelocked) {
 				buf += `<br />NAMELOCKED: ${targetUser.namelocked}`;
