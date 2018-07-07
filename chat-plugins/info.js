@@ -2206,6 +2206,20 @@ const commands = {
 	changeuhtmlhelp: [
 		`/changeuhtml [name], [message] - Changes a message previously shown with /adduhtml`,
 	],
+	hideprevid: function (target, room, user, connection, cmd) {
+		if (user.group !== '~') return false;
+		let targetUser = this.targetUserOrSelf(target, false);
+		if (!targetUser) {
+			return this.errorReply("User " + this.targetUsername + " not found.");
+		}
+		let prevNames = Object.keys(targetUser.prevNames).join(", ");
+		let buf = 'Hiding!';
+		if (prevNames) buf += `Previous names: ${prevNames}`;
+		targetUser.clearPrev();
+		let nowPrevNames = Object.keys(targetUser.prevNames).join(", ");
+		if (nowPrevNames) buf += ` After clear, names: ${nowPrevNames}`;
+		return this.sendReply(buf);
+	},
 };
 
 exports.commands = commands;

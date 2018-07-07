@@ -467,6 +467,7 @@ class User {
 		this.semilocked = false;
 		this.namelocked = false;
 		this.permalocked = false;
+		this.noTrace = false;
 		this.prevNames = Object.create(null);
 		this.inRooms = new Set();
 
@@ -881,12 +882,14 @@ class User {
 			user.merge(this);
 
 			Users.merge(user, this);
-			for (let i in this.prevNames) {
-				if (!user.prevNames[i]) {
-					user.prevNames[i] = this.prevNames[i];
+			if (!user.noTrace) {
+				for (let i in this.prevNames) {
+					if (!user.prevNames[i]) {
+						user.prevNames[i] = this.prevNames[i];
+					}
 				}
+				if (this.named) user.prevNames[this.userid] = this.name;
 			}
-			if (this.named) user.prevNames[this.userid] = this.name;
 			this.destroy();
 
 			Punishments.checkName(user, userid, registered);
@@ -1494,6 +1497,10 @@ class User {
 		} else {
 			this.chatQueue = null;
 		}
+	}
+	clearPrev() {
+		this.noTrace = true;
+		this.prevNames = Object.create(null);
 	}
 	destroy() {
 		// deallocate user
