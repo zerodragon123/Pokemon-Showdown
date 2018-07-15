@@ -46,7 +46,7 @@ let Formats = [
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3621042/">OU Metagame Discussion</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3621329/">OU Viability Rankings</a>`,
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3626219/">OU Sample Teams</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3638845/">OU Sample Teams</a>`,
 		],
 
 		mod: 'gen7',
@@ -62,16 +62,6 @@ let Formats = [
 		],
 
 		mod: 'gen7',
-		searchShow: false,
-		ruleset: ['Pokemon', 'Standard', 'Team Preview', 'Mega Rayquaza Clause'],
-		banlist: ['Baton Pass'],
-	},
-	{
-		name: "[Gen 7] Ubers (suspect test)",
-		threads: [`&bullet; <a href="https://www.smogon.com/forums/threads/3637068/">Ubers Suspect Test</a>`],
-
-		mod: 'gen7',
-		challengeShow: false,
 		ruleset: ['Pokemon', 'Standard', 'Team Preview', 'Mega Rayquaza Clause'],
 		banlist: ['Baton Pass'],
 	},
