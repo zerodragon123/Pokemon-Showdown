@@ -6601,7 +6601,7 @@ let BattleMovedex = {
 				}
 			},
 			onEnd: function () {
-				this.eachEvent('Terrain');
+				if (!this.effectData.duration) this.eachEvent('Terrain');
 				this.add('-fieldend', 'move: Grassy Terrain');
 			},
 		},
@@ -18052,7 +18052,7 @@ let BattleMovedex = {
 		basePower: 0,
 		basePowerCallback: function (source, target, move) {
 			const callerMoveId = move.sourceEffect || move.id;
-			const moveSlot = source.getMoveData(callerMoveId);
+			const moveSlot = callerMoveId === 'instruct' ? source.getMoveData(move.id) : source.getMoveData(callerMoveId);
 			// @ts-ignore
 			switch (moveSlot.pp) {
 			case 0:

@@ -814,7 +814,7 @@ const commands = {
 		}
 
 		if (room.subRooms) {
-			for (const subRoom of room.subRooms) subRoom.parent = null;
+			for (const subRoom of room.subRooms.values()) subRoom.parent = null;
 		}
 
 		room.add(`|raw|<div class="broadcast-red"><b>This room has been deleted.</b></div>`);
@@ -3613,7 +3613,7 @@ const commands = {
 		// retrieve spectator log (0) if there are privacy concerns
 		const format = Dex.getFormat(room.format, true);
 		let hideDetails = !format.id.includes('customgame');
-		if (format.team && room.game.ended) hideDetails = false;
+		if (format.team && room.battle.ended) hideDetails = false;
 		const data = room.getLog(hideDetails ? 0 : 3);
 		const datahash = crypto.createHash('md5').update(data.replace(/[^(\x20-\x7F)]+/g, '')).digest('hex');
 		let players = room.battle.playerNames;
@@ -3627,6 +3627,7 @@ const commands = {
 			format: format.id,
 			rating: rating,
 			hidden: room.isPrivate ? '1' : '',
+			inputLog: room.battle.inputLog,
 		});
 		if (success && success.errorip) {
 			connection.popup(`This server's request IP ${success.errorip} is not a registered server.`);
