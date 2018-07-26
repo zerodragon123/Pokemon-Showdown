@@ -3,7 +3,7 @@
  * Pokemon Showdown - http://pokemonshowdown.com/
  *
  * This handles chat and chat commands sent from users to chatrooms
- * and PMs. The main function you're lookoing for is Chat.parse
+ * and PMs. The main function you're looking for is Chat.parse
  * (scroll down to its definition for details)
  *
  * Individual commands are put in:
@@ -24,6 +24,7 @@ To reload chat commands:
 */
 
 'use strict';
+/** @typedef {GlobalRoom | GameRoom | ChatRoom} Room */
 
 const LINK_WHITELIST = ['*.pokemonshowdown.com', 'psim.us', 'smogtours.psim.us', '*.smogon.com', '*.pastebin.com', '*.hastebin.com'];
 
@@ -188,7 +189,7 @@ Chat.hostfilter = function (host, user, connection) {
 Chat.loginfilters = [];
 /**
  * @param {User} user
- * @param {User} oldUser
+ * @param {User?} oldUser
  * @param {string} usertype
  */
 Chat.loginfilter = function (user, oldUser, usertype) {
@@ -338,6 +339,8 @@ class CommandContext {
 			target = '';
 		}
 
+		if (cmd.endsWith(',')) cmd = cmd.slice(0, -1);
+
 		let curCommands = Chat.commands;
 		let commandHandler;
 		let fullCmd = cmd;
@@ -433,7 +436,7 @@ class CommandContext {
 	}
 
 	/**
-	 * @param {?Room} room
+	 * @param {BasicChatRoom?} room
 	 * @param {User} user
 	 * @param {string} message
 	 */
@@ -468,7 +471,7 @@ class CommandContext {
 	}
 
 	/**
-	 * @param {?Room} room
+	 * @param {BasicChatRoom?} room
 	 * @param {User} user
 	 */
 	checkSlowchat(room, user) {
@@ -479,7 +482,7 @@ class CommandContext {
 	}
 
 	/**
-	 * @param {?Room} room
+	 * @param {BasicChatRoom?} room
 	 * @param {string} message
 	 */
 	checkBanwords(room, message) {
@@ -501,7 +504,7 @@ class CommandContext {
 		// @ts-ignore
 		if (!this.room || !this.room.game || !this.room.game.onChatMessage) return false;
 		// @ts-ignore
-		return this.room.game.onChatMessage(this.message);
+		return this.room.game.onChatMessage(this.message, this.user);
 	}
 	/**
 	 * @param {string} message
@@ -619,7 +622,7 @@ class CommandContext {
 	globalModlog(action, user, note) {
 		let buf = `(${this.room.id}) ${action}: `;
 		if (typeof user === 'string') {
-			buf += `[${toId(user)}]`;
+			buf += `[${user}]`;
 		} else {
 			let userid = user.getLastId();
 			buf += `[${userid}]`;
@@ -635,11 +638,11 @@ class CommandContext {
 	}
 	/**
 	 * @param {string} action
-	 * @param {string | User} user
-	 * @param {string} note
+	 * @param {string | User?} [user]
+	 * @param {string?} [note]
 	 * @param {object} options
 	 */
-	modlog(action, user, note, options = {}) {
+	modlog(action, user = null, note = null, options = {}) {
 		let buf = `(${this.room.id}) ${action}: `;
 		if (user) {
 			if (typeof user === 'string') {
@@ -684,10 +687,10 @@ class CommandContext {
 	}
 	/**
 	 * @param {string} permission
-	 * @param {string | User} target
-	 * @param {Room} room
+	 * @param {string | User?} target
+	 * @param {BasicChatRoom?} room
 	 */
-	can(permission, target, room) {
+	can(permission, target = null, room = null) {
 		if (!this.user.can(permission, target, room)) {
 			this.errorReply(this.cmdToken + this.fullCmd + " - Access denied.");
 			return false;
@@ -695,27 +698,30 @@ class CommandContext {
 		return true;
 	}
 	/**
+	 * @param {?boolean} ignoreCooldown
 	 * @param {?string} suppressMessage
 	 */
-	canBroadcast(suppressMessage) {
+	canBroadcast(ignoreCooldown, suppressMessage) {
 		if (!this.broadcasting && this.cmdToken === BROADCAST_TOKEN) {
+			// @ts-ignore
 			if (!this.pmTarget && !this.user.can('broadcast', null, this.room)) {
 				this.errorReply("You need to be voiced to broadcast this command's information.");
 				this.errorReply("To see it for yourself, use: /" + this.message.substr(1));
 				return false;
 			}
 
-			if (this.room && this.room.lastBroadcast === this.broadcastMessage &&
-					this.room.lastBroadcastTime >= Date.now() - BROADCAST_COOLDOWN) {
+			// broadcast cooldown
+			const broadcastMessage = (suppressMessage || this.message).toLowerCase().replace(/[^a-z0-9\s!,]/g, '');
+
+			if (!ignoreCooldown && this.room && this.room.lastBroadcast === broadcastMessage &&
+					this.room.lastBroadcastTime >= Date.now() - BROADCAST_COOLDOWN &&
+					!this.user.can('bypassall')) {
 				this.errorReply("You can't broadcast this because it was just broadcasted.");
 				return false;
 			}
 
-			let message = this.canTalk(suppressMessage || this.message);
+			const message = this.canTalk(suppressMessage || this.message);
 			if (!message) return false;
-
-			// broadcast cooldown
-			let broadcastMessage = message.toLowerCase().replace(/[^a-z0-9\s!,]/g, '');
 
 			this.message = message;
 			this.broadcastMessage = broadcastMessage;
@@ -723,9 +729,10 @@ class CommandContext {
 		return true;
 	}
 	/**
-	 * @param {?string} suppressMessage
+	 * @param {boolean} [ignoreCooldown = false]
+	 * @param {?string} [suppressMessage = null]
 	 */
-	runBroadcast(suppressMessage) {
+	runBroadcast(ignoreCooldown = false, suppressMessage = null) {
 		if (this.broadcasting || this.cmdToken !== BROADCAST_TOKEN) {
 			// Already being broadcast, or the user doesn't intend to broadcast.
 			return true;
@@ -733,7 +740,7 @@ class CommandContext {
 
 		if (!this.broadcastMessage) {
 			// Permission hasn't been checked yet. Do it now.
-			if (!this.canBroadcast(suppressMessage)) return false;
+			if (!this.canBroadcast(ignoreCooldown, suppressMessage)) return false;
 		}
 
 		this.broadcasting = true;
@@ -743,7 +750,7 @@ class CommandContext {
 		} else {
 			this.sendReply('|c|' + this.user.getIdentity(this.room.id) + '|' + (suppressMessage || this.message));
 		}
-		if (!this.pmTarget) {
+		if (!ignoreCooldown && !this.pmTarget) {
 			this.room.lastBroadcast = this.broadcastMessage;
 			this.room.lastBroadcastTime = Date.now();
 		}
@@ -771,11 +778,12 @@ class CommandContext {
 		return false;
 	}
 	/**
-	 * @param {string} message
-	 * @param {Room?} [room]
+	 * @param {string?} message
+	 * @param {BasicChatRoom?} [room]
 	 * @param {User?} [targetUser]
 	 */
-	canTalk(message, room, targetUser) {
+	canTalk(message = null, room = null, targetUser = null) {
+		// @ts-ignore
 		if (!room) room = this.room;
 		if (!targetUser && this.pmTarget) {
 			room = null;
@@ -799,6 +807,7 @@ class CommandContext {
 			if (room) {
 				if (lockType && !room.isHelp) {
 					this.errorReply(`You are ${lockType} and can't talk in chat. ${lockExpiration}`);
+					this.sendReply(`|html|<a href="view-help-request--appeal" class="button">Get help with this</a>`);
 					return false;
 				}
 				if (room.isMuted(user)) {
@@ -837,8 +846,9 @@ class CommandContext {
 				if (targetUser.ignorePMs && targetUser.ignorePMs !== user.group && !user.can('lock')) {
 					if (!targetUser.can('lock')) {
 						return this.errorReply(`This user is blocking private messages right now.`);
-					} else if (targetUser.can('bypassall')) {
-						return this.errorReply(`This admin is too busy to answer private messages right now. Please contact a different staff member.`);
+					} else {
+						this.errorReply(`This ${Config.groups[targetUser.group].name} is too busy to answer private messages right now. Please contact a different staff member.`);
+						return this.sendReply(`|html|If you need help, try opening a <a href="view-help-request" class="button">help ticket</a>`);
 					}
 				}
 				if (user.ignorePMs && user.ignorePMs !== targetUser.group && !targetUser.can('lock')) {
@@ -847,99 +857,99 @@ class CommandContext {
 			}
 		}
 
-		if (typeof message === 'string') {
-			if (!message) {
-				connection.popup("Your message can't be blank.");
-				return false;
-			}
-			let length = message.length;
-			length += 10 * message.replace(/[^\ufdfd]*/g, '').length;
-			if (length > MAX_MESSAGE_LENGTH && !user.can('ignorelimits')) {
-				this.errorReply("Your message is too long: " + message);
-				return false;
-			}
+		if (typeof message !== 'string') return true;
 
-			// remove zalgo
-			message = message.replace(/[\u0300-\u036f\u0483-\u0489\u0610-\u0615\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06ED\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{3,}/g, '');
-			if (/[\u239b-\u23b9]/.test(message)) {
-				this.errorReply("Your message contains banned characters.");
-				return false;
-			}
-
-			// If the corresponding config option is set, non-AC users cannot send links, except to staff.
-			if (Config.restrictLinks && !user.autoconfirmed) {
-				const links = message.match(Chat.linkRegex);
-				const allLinksWhitelisted = !links || links.every(link => {
-					link = link.toLowerCase();
-					const domainMatches = /^(?:http:\/\/|https:\/\/)?(?:[^/]*\.)?([^/.]*\.[^/.]*)\.?($|\/|:)/.exec(link);
-					const domain = domainMatches && domainMatches[1];
-					const hostMatches = /^(?:http:\/\/|https:\/\/)?([^/]*[^/.])\.?($|\/|:)/.exec(link);
-					let host = hostMatches && hostMatches[1];
-					if (host && host.startsWith('www.')) host = host.slice(4);
-					if (!domain || !host) return false;
-					return LINK_WHITELIST.includes(host) || LINK_WHITELIST.includes(`*.${domain}`);
-				});
-				if (!allLinksWhitelisted && !(targetUser && targetUser.can('lock'))) {
-					this.errorReply("Your account must be autoconfirmed to send links to other users, except for global staff.");
-					return false;
-				}
-			}
-
-			if (!this.checkFormat(room, user, message)) {
-				return false;
-			}
-
-			if (!this.checkSlowchat(room, user) && !user.can('mute', null, room)) {
-				// @ts-ignore
-				this.errorReply("This room has slow-chat enabled. You can only talk once every " + room.slowchat + " seconds.");
-				return false;
-			}
-
-			if (!this.checkBanwords(room, user.name) && !user.can('bypassall')) {
-				this.errorReply(`Your username contains a phrase banned by this room.`);
-				return false;
-			}
-			if (!this.checkBanwords(room, message) && !user.can('mute', null, room)) {
-				this.errorReply("Your message contained banned words.");
-				return false;
-			}
-
-			let gameFilter = this.checkGameFilter();
-			if (gameFilter && !user.can('bypassall')) {
-				this.errorReply(gameFilter);
-				return false;
-			}
-
-			if (room) {
-				let normalized = message.trim();
-				if (!user.can('bypassall') && (room.id === 'lobby' || room.id === 'help') && (normalized === user.lastMessage) &&
-						((Date.now() - user.lastMessageTime) < MESSAGE_COOLDOWN)) {
-					this.errorReply("You can't send the same message again so soon.");
-					return false;
-				}
-				user.lastMessage = message;
-				user.lastMessageTime = Date.now();
-			}
-
-			if (Chat.filters.length) {
-				return Chat.filter.call(this, message, user, room, connection, targetUser);
-			}
-			return message;
+		if (!message) {
+			connection.popup("Your message can't be blank.");
+			return false;
+		}
+		let length = message.length;
+		length += 10 * message.replace(/[^\ufdfd]*/g, '').length;
+		if (length > MAX_MESSAGE_LENGTH && !user.can('ignorelimits')) {
+			this.errorReply("Your message is too long: " + message);
+			return false;
 		}
 
-		return true;
+		// remove zalgo
+		message = message.replace(/[\u0300-\u036f\u0483-\u0489\u0610-\u0615\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06ED\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]{3,}/g, '');
+		if (/[\u115f\u1160\u239b-\u23b9]/.test(message)) {
+			this.errorReply("Your message contains banned characters.");
+			return false;
+		}
+
+		// If the corresponding config option is set, non-AC users cannot send links, except to staff.
+		if (Config.restrictLinks && !user.autoconfirmed) {
+			const links = message.match(Chat.linkRegex);
+			const allLinksWhitelisted = !links || links.every(link => {
+				link = link.toLowerCase();
+				const domainMatches = /^(?:http:\/\/|https:\/\/)?(?:[^/]*\.)?([^/.]*\.[^/.]*)\.?($|\/|:)/.exec(link);
+				const domain = domainMatches && domainMatches[1];
+				const hostMatches = /^(?:http:\/\/|https:\/\/)?([^/]*[^/.])\.?($|\/|:)/.exec(link);
+				let host = hostMatches && hostMatches[1];
+				if (host && host.startsWith('www.')) host = host.slice(4);
+				if (!domain || !host) return false;
+				return LINK_WHITELIST.includes(host) || LINK_WHITELIST.includes(`*.${domain}`);
+			});
+			if (!allLinksWhitelisted && !(targetUser && targetUser.can('lock'))) {
+				this.errorReply("Your account must be autoconfirmed to send links to other users, except for global staff.");
+				return false;
+			}
+		}
+
+		if (!this.checkFormat(room, user, message)) {
+			return false;
+		}
+
+		if (!this.checkSlowchat(room, user) && !user.can('mute', null, room)) {
+			// @ts-ignore
+			this.errorReply("This room has slow-chat enabled. You can only talk once every " + room.slowchat + " seconds.");
+			return false;
+		}
+
+		if (!this.checkBanwords(room, user.name) && !user.can('bypassall')) {
+			this.errorReply(`Your username contains a phrase banned by this room.`);
+			return false;
+		}
+		if (!this.checkBanwords(room, message) && !user.can('mute', null, room)) {
+			this.errorReply("Your message contained banned words.");
+			return false;
+		}
+
+		let gameFilter = this.checkGameFilter();
+		if (gameFilter && !user.can('bypassall')) {
+			this.errorReply(gameFilter);
+			return false;
+		}
+
+		if (room) {
+			let normalized = message.trim();
+			if (!user.can('bypassall') && (room.id === 'lobby' || room.id === 'help') && (normalized === user.lastMessage) &&
+					((Date.now() - user.lastMessageTime) < MESSAGE_COOLDOWN)) {
+				this.errorReply("You can't send the same message again so soon.");
+				return false;
+			}
+			user.lastMessage = message;
+			user.lastMessageTime = Date.now();
+		}
+
+		if (Chat.filters.length) {
+			return Chat.filter.call(this, message, user, room, connection, targetUser);
+		}
+
+		return message;
 	}
 	/**
 	 * @param {string} uri
 	 * @param {boolean} isRelative
 	 */
-	canEmbedURI(uri, isRelative) {
+	canEmbedURI(uri, isRelative = false) {
 		if (uri.startsWith('https://')) return uri;
 		if (uri.startsWith('//')) return uri;
 		if (uri.startsWith('data:')) return uri;
 		if (!uri.startsWith('http://')) {
 			if (/^[a-z]+:\/\//.test(uri) || isRelative) {
-				return this.errorReply("URIs must begin with 'https://' or 'http://' or 'data:'");
+				this.errorReply("URIs must begin with 'https://' or 'http://' or 'data:'");
+				return null;
 			}
 		} else {
 			uri = uri.slice(7);
@@ -968,7 +978,8 @@ class CommandContext {
 			return '//' + uri;
 		}
 		if (domain === 'bit.ly') {
-			return this.errorReply("Please don't use URL shorteners.");
+			this.errorReply("Please don't use URL shorteners.");
+			return null;
 		}
 		// unknown URI, allow HTTP to be safe
 		return 'http://' + uri;
@@ -984,7 +995,7 @@ class CommandContext {
 		while ((match = images.exec(html))) {
 			if (this.room.isPersonal && !this.user.can('announce')) {
 				this.errorReply("Images are not allowed in personal rooms.");
-				return false;
+				return null;
 			}
 			if (!/width=([0-9]+|"[0-9]+")/i.test(match[0]) || !/height=([0-9]+|"[0-9]+")/i.test(match[0])) {
 				// Width and height are required because most browsers insert the
@@ -992,12 +1003,12 @@ class CommandContext {
 				// image is loaded, this changes the height of the chat area, which
 				// messes up autoscrolling.
 				this.errorReply('All images must have a width and height attribute');
-				return false;
+				return null;
 			}
 			let srcMatch = /src\s*=\s*"?([^ "]+)(\s*")?/i.exec(match[0]);
 			if (srcMatch) {
 				let uri = this.canEmbedURI(srcMatch[1], true);
-				if (!uri) return false;
+				if (!uri) return null;
 				html = html.slice(0, match.index + srcMatch.index) + 'src="' + uri + '"' + html.slice(match.index + srcMatch.index + srcMatch[0].length);
 				// lastIndex is inaccurate since html was changed
 				images.lastIndex = match.index + 11;
@@ -1006,11 +1017,11 @@ class CommandContext {
 		if ((this.room.isPersonal || this.room.isPrivate === true) && !this.user.can('lock') && html.replace(/\s*style\s*=\s*"?[^"]*"\s*>/g, '>').match(/<button[^>]/)) {
 			this.errorReply('You do not have permission to use scripted buttons in HTML.');
 			this.errorReply('If you just want to link to a room, you can do this: <a href="/roomid"><button>button contents</button></a>');
-			return false;
+			return null;
 		}
 		if (/>here.?</i.test(html) || /click here/i.test(html)) {
 			this.errorReply('Do not use "click here"');
-			return false;
+			return null;
 		}
 
 		// check for mismatched tags
@@ -1021,11 +1032,11 @@ class CommandContext {
 				if (tag.charAt(1) === '/') {
 					if (!stack.length) {
 						this.errorReply("Extraneous </" + tag.substr(2) + "> without an opening tag.");
-						return false;
+						return null;
 					}
 					if (tag.substr(2) !== stack.pop()) {
 						this.errorReply("Missing </" + tag.substr(2) + "> or it's in the wrong place.");
-						return false;
+						return null;
 					}
 				} else {
 					stack.push(tag.substr(1));
@@ -1033,7 +1044,7 @@ class CommandContext {
 			}
 			if (stack.length) {
 				this.errorReply("Missing </" + stack.pop() + ">.");
-				return false;
+				return null;
 			}
 		}
 
@@ -1078,9 +1089,9 @@ class CommandContext {
 	 *   message has no comma)
 	 *
 	 * @param {string} target
-	 * @param {boolean} exactName
+	 * @param {boolean} [exactName]
 	 */
-	splitTarget(target, exactName) {
+	splitTarget(target, exactName = false) {
 		let [name, rest] = this.splitOne(target);
 
 		this.targetUser = Users.get(name, exactName);
@@ -1149,14 +1160,14 @@ Chat.uncacheTree = function (root) {
 	do {
 		/** @type {string[]} */
 		let newuncache = [];
-		for (let i = 0; i < uncache.length; ++i) {
-			if (require.cache[uncache[i]]) {
+		for (const target of uncache) {
+			if (require.cache[target]) {
 				newuncache.push.apply(newuncache,
-					require.cache[uncache[i]].children
+					require.cache[target].children
 						.filter(/** @param {{id: string}} cachedModule */ cachedModule => !cachedModule.id.endsWith('.node'))
 						.map(/** @param {{id: string}} cachedModule */ cachedModule => cachedModule.id)
 				);
-				delete require.cache[uncache[i]];
+				delete require.cache[target];
 			}
 		}
 		uncache = newuncache;
@@ -1248,7 +1259,7 @@ Chat.stripHTML = function (html) {
 /**
  * Template string tag function for escaping HTML
  *
- * @param  {string[]} strings
+ * @param  {TemplateStringsArray} strings
  * @param  {...any} args
  * @return {string}
  */
@@ -1281,6 +1292,39 @@ Chat.plural = function (num, plural = 's', singular = '') {
 		num = Number(num);
 	}
 	return (num !== 1 ? plural : singular);
+};
+
+/**
+ * Counts the thing passed.
+ *
+ *     Chat.count(2, "days") === "2 days"
+ *     Chat.count(1, "days") === "1 day"
+ *     Chat.count(["foo"], "things are") === "1 thing is"
+ *
+ * @param  {any} num
+ * @param  {string} singular
+ * @param  {string} plural
+ * @return {string}
+ */
+Chat.count = function (num, plural, singular = "") {
+	if (num && typeof num.length === 'number') {
+		num = num.length;
+	} else if (num && typeof num.size === 'number') {
+		num = num.size;
+	} else {
+		num = Number(num);
+	}
+	if (!singular) {
+		if (plural.endsWith("s")) {
+			singular = plural.slice(0, -1);
+		} else if (plural.endsWith("s have")) {
+			singular = plural.slice(0, -6) + " has";
+		} else if (plural.endsWith("s were")) {
+			singular = plural.slice(0, -6) + " was";
+		}
+	}
+	const space = singular.startsWith('<') ? '' : ' ';
+	return `${num}${space}${num > 1 ? plural : singular}`;
 };
 
 /**
@@ -1319,10 +1363,10 @@ Chat.splitFirst = function (str, delimiter, limit = 1) {
  * options.human = true will reports hours human-readable
  *
  * @param  {Date} date
- * @param  {object} options
+ * @param  {AnyObject} options
  * @return {string}
  */
-Chat.toTimestamp = function (date, options) {
+Chat.toTimestamp = function (date, options = {}) {
 	const human = options && options.human;
 	/** @type {any[]} */
 	let parts = [date.getFullYear(), date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds()];
@@ -1340,10 +1384,10 @@ Chat.toTimestamp = function (date, options) {
  * options.hhmmss = true will instead report the duration in 00:00:00 format
  *
  * @param  {number} number
- * @param  {object} options
+ * @param  {AnyObject} options
  * @return {string}
  */
-Chat.toDurationString = function (number, options) {
+Chat.toDurationString = function (number, options = {}) {
 	// TODO: replace by Intl.DurationFormat or equivalent when it becomes available (ECMA-402)
 	// https://github.com/tc39/ecma402/issues/47
 	const date = new Date(+number);
@@ -1411,6 +1455,7 @@ Chat.getDataPokemonHTML = function (template, gen = 7, tier = '') {
 	}
 	let bst = 0;
 	for (let i in template.baseStats) {
+		// @ts-ignore
 		bst += template.baseStats[i];
 	}
 	buf += '<span style="float:left;min-height:26px">';
@@ -1527,3 +1572,4 @@ Chat.stringify = function (value, depth = 0) {
 
 Chat.formatText = require('./chat-formatter').formatText;
 Chat.linkRegex = require('./chat-formatter').linkRegex;
+Chat.updateServerLock = false;

@@ -1,6 +1,7 @@
 'use strict';
 
-exports.BattleAliases = {
+/**@type {{[k: string]: string}} */
+let BattleAliases = {
 	// formats
 	"randbats": "[Gen 7] Random Battle",
 	"uber": "[Gen 7] Ubers",
@@ -23,7 +24,8 @@ exports.BattleAliases = {
 	"cc2v2": "[Gen 7] Challenge Cup 2v2",
 	"hc": "[Gen 7] Hackmons Cup",
 	"monorandom": "[Gen 7] Monotype Random Battle",
-	"bf": "[Gen 6] Battle Factory",
+	"bf": "[Gen 7] Battle Factory",
+	"gen6bf": "[Gen 6] Battle Factory",
 
 	// mega evos
 	"fabio": "Ampharos-Mega",
@@ -414,6 +416,15 @@ exports.BattleAliases = {
 	"florgesorange": "Florges",
 	"florgeswhite": "Florges",
 	"florgesyellow": "Florges",
+	"furfroudandy": "Furfrou",
+	"furfroudebutante": "Furfrou",
+	"furfroudiamond": "Furfrou",
+	"furfrouheart": "Furfrou",
+	"furfroukabuki": "Furfrou",
+	"furfroulareine": "Furfrou",
+	"furfroumatron": "Furfrou",
+	"furfroupharaoh": "Furfrou",
+	"furfroustar": "Furfrou",
 	"miniorred": "Minior",
 	"miniororange": "Minior",
 	"minioryellow": "Minior",
@@ -497,29 +508,21 @@ exports.BattleAliases = {
 	// items
 	"assvest": "Assault Vest",
 	"av": "Assault Vest",
+	"balloon": "Air Balloon",
 	"band": "Choice Band",
 	"cb": "Choice Band",
-	"chesto": "Chesto Berry",
-	"chople": "Chople Berry",
-	"custap": "Custap Berry",
 	"ebelt": "Expert Belt",
 	"fightgem": "Fighting Gem",
 	"flightgem": "Flying Gem",
 	"goggles": "Safety Goggles",
+	"helmet": "Rocky Helmet",
 	"lefties": "Leftovers",
-	"leppa": "Leppa Berry",
 	"lo": "Life Orb",
 	"lorb": "Life Orb",
-	"lum": "Lum Berry",
-	"occa": "Occa Berry",
-	"petaya": "Petaya Berry",
-	"salac": "Salac Berry",
 	"sash": "Focus Sash",
 	"scarf": "Choice Scarf",
-	"sitrus": "Sitrus Berry",
 	"specs": "Choice Specs",
 	"wp": "Weakness Policy",
-	"yache": "Yache Berry",
 
 	// pokemon
 	"aboma": "Abomasnow",
@@ -535,6 +538,7 @@ exports.BattleAliases = {
 	"bdrill": "Beedrill",
 	"bee": "Beedrill",
 	"birdjesus": "Pidgeot",
+	"bish": "Bisharp",
 	"blace": "Blacephalon",
 	"bliss": "Blissey",
 	"bulu": "Tapu Bulu",
@@ -676,8 +680,10 @@ exports.BattleAliases = {
 	"dv": "Dark Void",
 	"eq": "Earthquake",
 	"espeed": "ExtremeSpeed",
+	"eterrain": "Electric Terrain",
 	"faintattack": "Feint Attack",
 	"glowpunch": "Power-up Punch",
+	"gterrain": "Grassy Terrain",
 	"hp": "Hidden Power",
 	"hpbug": "Hidden Power Bug",
 	"hpdark": "Hidden Power Dark",
@@ -697,9 +703,11 @@ exports.BattleAliases = {
 	"hpwater": "Hidden Power Water",
 	"hjk": "High Jump Kick",
 	"hijumpkick": "High Jump Kick",
+	"mterrain": "Misty Terrain",
 	"np": "Nasty Plot",
 	"pfists": "Plasma Fists",
 	"playaround": "Play Rough",
+	"pterrain": "Psychic Terrain",
 	"pup": "Power-up Punch",
 	"qd": "Quiver Dance",
 	"rocks": "Stealth Rock",
@@ -831,3 +839,5 @@ exports.BattleAliases = {
 	// there's no need to type out the other Japanese names
 	// I'll autogenerate them at some point
 };
+
+exports.BattleAliases = BattleAliases;

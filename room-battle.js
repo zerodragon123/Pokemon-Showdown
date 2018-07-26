@@ -138,6 +138,8 @@ class BattleTimer {
 		const hasLongTurns = Dex.getFormat(battle.format, true).gameType !== 'singles';
 		const isChallenge = (!battle.rated && !battle.room.tour);
 		const timerSettings = Dex.getFormat(battle.format, true).timer;
+		/**@type {{perTurnTicks: number, startingTicks: number, maxPerTurnTicks: number, maxFirstTurnTicks: number, dcTimer: boolean, starting?: number, perTurn?: number, maxPerTurn?: number, maxFirstTurn?: number, timeoutAutoChoose?: boolean, accelerate?: boolean}} */
+		// @ts-ignore
 		this.settings = Object.assign({}, timerSettings);
 		if (this.settings.perTurn === undefined) {
 			this.settings.perTurn = hasLongTurns ? 25 : 10;
@@ -167,8 +169,8 @@ class BattleTimer {
 	start(/** @type {User} */ requester) {
 		let userid = requester ? requester.userid : 'staff';
 		if (this.timerRequesters.has(userid)) return false;
-		if (this.timer && requester) {
-			this.battle.room.add(`|inactive|${requester.name} also wants the timer to be on.`).update();
+		if (this.timer) {
+			this.battle.room.add(`|inactive|${requester ? requester.name : userid} also wants the timer to be on.`).update();
 			this.timerRequesters.add(userid);
 			return false;
 		}
@@ -271,7 +273,6 @@ class BattleTimer {
 		}
 	}
 	checkActivity() {
-		if (!this.settings.dcTimer) return;
 		for (const slotNum of this.ticksLeft.keys()) {
 			const slot = /** @type {PlayerSlot} */ ('p' + (slotNum + 1));
 			const player = this.battle[slot];
@@ -281,9 +282,17 @@ class BattleTimer {
 
 			if (!isConnected) {
 				// player has disconnected: don't wait longer than 6 ticks (1 minute)
-				this.dcTicksLeft[slotNum] = DISCONNECTION_TICKS;
+				if (this.settings.dcTimer) {
+					this.dcTicksLeft[slotNum] = DISCONNECTION_TICKS;
+				} else {
+					this.dcTicksLeft[slotNum] = NOT_DISCONNECTED - 1;
+				}
 				if (this.timerRequesters.size) {
-					this.battle.room.add(`|inactive|${this.battle.playerNames[slotNum]} disconnected and has a minute to reconnect!`).update();
+					if (this.settings.dcTimer) {
+						this.battle.room.add(`|inactive|${this.battle.playerNames[slotNum]} disconnected and has a minute to reconnect!`).update();
+					} else {
+						this.battle.room.add(`|inactive|${this.battle.playerNames[slotNum]} disconnected!`).update();
+					}
 				}
 			} else {
 				// player has reconnected
@@ -341,7 +350,7 @@ class Battle {
 		this.room = room;
 		this.title = format.name;
 		if (!this.title.endsWith(" Battle")) this.title += " Battle";
-		this.allowRenames = (!options.rated && !options.tour);
+		this.allowRenames = options.allowRenames !== undefined ? !!options.allowRenames : (!options.rated && !options.tour);
 
 		this.format = formatid;
 		/**
@@ -875,7 +884,14 @@ class Battle {
 		}
 		this.stream.write(`>player ${slot} ` + JSON.stringify(options));
 		if (this.started) this.onUpdateConnection(user);
-		if (this.p1 && this.p2) this.started = true;
+		if (this.p1 && this.p2) {
+			this.started = true;
+			const user1 = Users(this.p1.userid);
+			const user2 = Users(this.p2.userid);
+			if (!user1) throw new Error(`User ${this.p1.userid} not found on ${this.id} battle creation`);
+			if (!user2) throw new Error(`User ${this.p2.userid} not found on ${this.id} battle creation`);
+			Rooms.global.onCreateBattleRoom(user1, user2, this.room, {rated: this.rated});
+		}
 		return player;
 	}
 
@@ -940,10 +956,14 @@ if (!PM.isParentProcess) {
 	// @ts-ignore
 	global.Config = require('./config/config');
 	global.Chat = require('./chat');
-	global.__version = require('child_process')
-		.execSync('git merge-base master HEAD')
-		.toString()
-		.trim();
+	global.__version = '';
+	try {
+		const execSync = require('child_process').execSync;
+		const out = execSync('git merge-base master HEAD', {
+			stdio: ['ignore', 'pipe', 'ignore'],
+		});
+		global.__version = ('' + out).trim();
+	} catch (e) {}
 
 	if (Config.crashguard) {
 		// graceful crash - allow current battles to finish before restarting

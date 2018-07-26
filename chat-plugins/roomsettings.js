@@ -123,7 +123,7 @@ class RoomSettings {
 		return slowchatOutput.join(' ');
 	}
 	tourStatus() {
-		if (!this.user.can('tournamentsmanagement', null, this.room)) return this.button(this.room.toursEnabled === true ? '@' : this.room.toursEnabled === '%' ? '%' : '#', true);
+		if (!this.user.can('gamemanagement', null, this.room)) return this.button(this.room.toursEnabled === true ? '@' : this.room.toursEnabled === '%' ? '%' : '#', true);
 
 		if (this.room.toursEnabled === true) {
 			return `${this.button('%', null, 'tournament enable %')} ${this.button('@', true)} ${this.button('#', null, 'tournament disable')}`;
@@ -149,6 +149,14 @@ class RoomSettings {
 			return `${this.button('Hangman enabled', true)} ${this.button('off', null, 'hangman disable')}`;
 		}
 	}
+	mafia() {
+		if (!this.user.can('editroom', null, this.room)) return this.button(this.room.mafiaEnabled ? 'Mafia enabled' : 'off', true);
+		if (this.room.mafiaEnabled) {
+			return `${this.button('Mafia enabled', true)} ${this.button('off', null, 'mafia disable')}`;
+		} else {
+			return `${this.button('Mafia enabled', null, 'mafia enable')} ${this.button('off', true)}`;
+		}
+	}
 	generateDisplay(user, room, connection) {
 		let output = Chat.html`<div class="infobox">Room Settings for ${this.room.title}<br />`;
 		output += `<strong>Modchat:</strong> <br />${this.modchat()}<br />`;
@@ -160,6 +168,7 @@ class RoomSettings {
 		output += `<strong>Tournaments:</strong> <br />${this.tourStatus()}<br />`;
 		output += `<strong>UNO:</strong> <br />${this.uno()}<br />`;
 		output += `<strong>Hangman:</strong> <br />${this.hangman()}<br />`;
+		output += `<strong>Mafia:</strong> <br />${this.mafia()}<br />`;
 		output += '</div>';
 
 		this.user.sendTo(this.room, `|uhtml${(this.sameCommand ? '' : 'change')}|roomsettings|${output}`);
@@ -507,12 +516,13 @@ exports.commands = {
 			if (words.length > 1) {
 				this.privateModAction(`(The banwords ${words.map(w => `'${w}'`).join(', ')} were added by ${user.name}.)`);
 				this.modlog('BANWORD', null, words.map(w => `'${w}'`).join(', '));
-				this.sendReply(`Banned phrases succesfully added. The list is currently: ${room.banwords.join(', ')}`);
+				this.sendReply(`Banned phrases succesfully added.`);
 			} else {
 				this.privateModAction(`(The banword '${words[0]}' was added by ${user.name}.)`);
 				this.modlog('BANWORD', null, words[0]);
-				this.sendReply(`Banned phrase succesfully added. The list is currently: ${room.banwords.join(', ')}`);
+				this.sendReply(`Banned phrase succesfully added.`);
 			}
+			this.sendReply(`The list is currently: ${room.banwords.join(', ')}`);
 
 			if (room.chatRoomData) {
 				room.chatRoomData.banwords = room.banwords;
@@ -536,19 +546,22 @@ exports.commands = {
 			}
 
 			room.banwords = room.banwords.filter(w => !words.includes(w));
+			if (!room.banwords.length) room.banwords = null;
 			room.banwordRegex = null;
 			if (words.length > 1) {
 				this.privateModAction(`(The banwords ${words.map(w => `'${w}'`).join(', ')} were removed by ${user.name}.)`);
 				this.modlog('UNBANWORD', null, words.map(w => `'${w}'`).join(', '));
-				this.sendReply(`Banned phrases succesfully deleted. The list is currently: ${room.banwords.join(', ')}`);
+				this.sendReply(`Banned phrases succesfully deleted.`);
 			} else {
 				this.privateModAction(`(The banword '${words[0]}' was removed by ${user.name}.)`);
 				this.modlog('UNBANWORD', null, words[0]);
-				this.sendReply(`Banned phrase succesfully deleted. The list is currently: ${room.banwords.join(', ')}`);
+				this.sendReply(`Banned phrase succesfully deleted.`);
 			}
+			this.sendReply(room.banwords ? `The list is currently: ${room.banwords.join(', ')}` : `The list is now empty.`);
 
 			if (room.chatRoomData) {
 				room.chatRoomData.banwords = room.banwords;
+				if (!room.banwords) delete room.chatRoomData.banwords;
 				Rooms.global.writeChatRoomData();
 			}
 		},

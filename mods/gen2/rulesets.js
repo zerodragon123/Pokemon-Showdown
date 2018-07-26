@@ -1,6 +1,7 @@
 'use strict';
 
-exports.BattleFormats = {
+/**@type {{[k: string]: ModdedFormatsData}} */
+let BattleFormats = {
 	pokemon: {
 		effectType: 'ValidatorRule',
 		name: 'Pokemon',
@@ -41,7 +42,7 @@ exports.BattleFormats = {
 			// Automatically set ability to None
 			set.ability = 'None';
 
-			if (toId(set.item) === 'thickclub' && set.species === 'Marowak' && hasSD) {
+			if (set.ivs && toId(set.item) === 'thickclub' && set.species === 'Marowak' && hasSD) {
 				set.ivs.atk = 26;
 			}
 
@@ -55,38 +56,6 @@ exports.BattleFormats = {
 		effectType: 'ValidatorRule',
 		name: 'Standard',
 		ruleset: ['Sleep Clause Mod', 'Freeze Clause Mod', 'Species Clause', 'OHKO Clause', 'Evasion Moves Clause', 'HP Percentage Mod', 'Cancel Mod'],
-		banlist: ['Unreleased', 'Illegal',
-			'Hypnosis + Perish Song + Mean Look',
-			'Hypnosis + Perish Song + Spider Web',
-			'Lovely Kiss + Perish Song + Mean Look',
-			'Lovely Kiss + Perish Song + Spider Web',
-			'Sing + Perish Song + Mean Look',
-			'Sing + Perish Song + Spider Web',
-			'Sleep Powder + Perish Song + Mean Look',
-			'Sleep Powder + Perish Song + Spider Web',
-			'Spore + Perish Song + Mean Look',
-			'Spore + Perish Song + Spider Web',
-		],
-		onValidateSet: function (set) {
-			// limit one of each move in Standard
-			let moves = [];
-			if (set.moves) {
-				let hasMove = {};
-				for (const setMoveid of set.moves) {
-					let move = this.getMove(setMoveid);
-					let moveid = move.id;
-					if (hasMove[moveid]) continue;
-					hasMove[moveid] = true;
-					moves.push(setMoveid);
-				}
-			}
-			set.moves = moves;
-		},
-	},
-	standardpo: {
-		effectType: 'ValidatorRule',
-		name: 'StandardPO',
-		ruleset: ['Sleep Clause Mod', 'Species Clause', 'Freeze Clause Mod', 'OHKO Clause', 'Evasion Moves Clause', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Unreleased', 'Illegal',
 			'Hypnosis + Mean Look',
 			'Hypnosis + Spider Web',
@@ -104,15 +73,17 @@ exports.BattleFormats = {
 			let moves = [];
 			if (set.moves) {
 				let hasMove = {};
-				for (let i = 0; i < set.moves.length; i++) {
-					let move = this.getMove(set.moves[i]);
+				for (const setMoveid of set.moves) {
+					let move = this.getMove(setMoveid);
 					let moveid = move.id;
 					if (hasMove[moveid]) continue;
 					hasMove[moveid] = true;
-					moves.push(set.moves[i]);
+					moves.push(setMoveid);
 				}
 			}
 			set.moves = moves;
 		},
 	},
 };
+
+exports.BattleFormats = BattleFormats;

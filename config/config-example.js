@@ -323,11 +323,10 @@ exports.disablehotpatchall = false;
 //     - forcewin: /forcewin command.
 //     - battlemessage: /a command.
 //     - tournaments: creating tournaments (/tour new, settype etc.)
-//     - tournamentsmoderation: /tour dq, autodq, end etc.
-//     - tournamentsmanagement: enable/disable tournaments.
+//     - gamemoderation: /tour dq, autodq, end etc.
+//     - gamemanagement: enable/disable games, minigames, and tournaments.
 //     - minigame: make minigames (hangman, polls, etc.).
 //     - game: make games.
-//     - gamemanagement: enable/disable games and minigames.
 exports.grouplist = [
 	{
 		symbol: '~',
@@ -356,8 +355,8 @@ exports.grouplist = [
 		potd: true,
 		disableladder: true,
 		globalonly: true,
-		tournamentsmanagement: true,
 		gamemanagement: true,
+		exportinputlog: true,
 	},
 	{
 		symbol: '#',
@@ -372,7 +371,6 @@ exports.grouplist = [
 		declare: true,
 		modchatall: true,
 		roomonly: true,
-		tournamentsmanagement: true,
 		gamemanagement: true,
 	},
 	{
@@ -381,14 +379,11 @@ exports.grouplist = [
 		name: "Host",
 		inherit: '@',
 		jurisdiction: 'u',
-		roommod: true,
-		roomdriver: true,
-		editroom: true,
 		declare: true,
 		modchat: true,
 		roomonly: true,
-		tournamentsmanagement: true,
 		gamemanagement: true,
+		joinbattle: true,
 	},
 	{
 		symbol: '\u2606',
@@ -443,7 +438,7 @@ exports.grouplist = [
 		alts: '%u',
 		bypassblocks: 'u%@&~',
 		receiveauthmessages: true,
-		tournamentsmoderation: true,
+		gamemoderation: true,
 		jeopardy: true,
 		joinbattle: true,
 		minigame: true,

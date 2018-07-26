@@ -24,6 +24,7 @@
  */
 
 'use strict';
+/** @typedef {GlobalRoom | GameRoom | ChatRoom} Room */
 
 const PLAYER_SYMBOL = '\u2606';
 const HOST_SYMBOL = '\u2605';
@@ -40,12 +41,8 @@ const DEFAULT_TRAINER_SPRITES = [1, 2, 101, 102, 169, 170, 265, 266];
 const FS = require('./lib/fs');
 
 /*********************************************************
- * Users map
+ * Utility functions
  *********************************************************/
-
-let users = new Map();
-let prevUsers = new Map();
-let numUsers = 0;
 
 // Low-level functions for manipulating Users.users and Users.prevUsers
 // Keeping them all here makes it easy to ensure they stay consistent
@@ -124,11 +121,12 @@ function getUser(name, exactName = false) {
 	let i = 0;
 	if (!exactName) {
 		while (userid && !users.has(userid) && i < 1000) {
+			// @ts-ignore
 			userid = prevUsers.get(userid);
 			i++;
 		}
 	}
-	return users.get(userid);
+	return users.get(userid) || null;
 }
 
 /**
@@ -155,14 +153,14 @@ function getExactUser(name) {
  *   Users.findUsers([userids], [ips])
  * @param {string[]} userids
  * @param {string[]} ips
- * @param {{forPunishment: boolean, includeTrusted: boolean}} options
+ * @param {{forPunishment?: boolean, includeTrusted?: boolean}} options
  */
-function findUsers(userids, ips, options) {
+function findUsers(userids, ips, options = {}) {
 	let matches = /** @type {User[]} */ ([]);
-	if (options && options.forPunishment) ips = ips.filter(ip => !Punishments.sharedIps.has(ip));
+	if (options.forPunishment) ips = ips.filter(ip => !Punishments.sharedIps.has(ip));
 	for (const user of users.values()) {
-		if (!(options && options.forPunishment) && !user.named && !user.connected) continue;
-		if (!(options && options.includeTrusted) && user.trusted) continue;
+		if (!options.forPunishment && !user.named && !user.connected) continue;
+		if (!options.includeTrusted && user.trusted) continue;
 		if (userids.includes(user.userid)) {
 			matches.push(user);
 			continue;
@@ -427,6 +425,9 @@ class Connection {
 			Sockets.channelRemove(this.worker, room.id, this.socketid);
 		}
 	}
+	toString() {
+		return (this.user ? this.user.userid + '[' + this.user.connections.indexOf(this) + ']' : '[disconnected]') + ':' + this.ip + (this.protocol !== 'websocket' ? ':' + this.protocol : '');
+	}
 }
 
 /** @typedef {[string, string, Connection]} ChatQueueEntry */
@@ -466,6 +467,7 @@ class User {
 		this.semilocked = false;
 		this.namelocked = false;
 		this.permalocked = false;
+		this.noTrace = false;
 		this.prevNames = Object.create(null);
 		this.inRooms = new Set();
 
@@ -570,7 +572,7 @@ class User {
 	}
 	/**
 	 * @param {string} minAuth
-	 * @param {Room?} room
+	 * @param {BasicChatRoom?} room
 	 */
 	authAtLeast(minAuth, room = null) {
 		if (!minAuth || minAuth === ' ') return true;
@@ -587,7 +589,7 @@ class User {
 	/**
 	 * @param {string} permission
 	 * @param {string | User?} target user or group symbol
-	 * @param {Room?} room
+	 * @param {BasicChatRoom?} room
 	 * @return {boolean}
 	 */
 	can(permission, target = null, room = null) {
@@ -718,7 +720,7 @@ class User {
 			const game = Rooms(roomid).game;
 			if (!game || game.ended) continue; // should never happen
 			if (game.allowRenames || !this.named) continue;
-			this.popup(`You can't change your name right now because you're in ${Rooms(roomid).title}, which doesn't allow renaming.`);
+			this.popup(`You can't change your name right now because you're in ${game.title}, which doesn't allow renaming.`);
 			return false;
 		}
 
@@ -1048,22 +1050,13 @@ class User {
 		this.updateReady(connection);
 	}
 	debugData() {
-		let str = '' + this.group + this.name + ' (' + this.userid + ')';
-		for (let i = 0; i < this.connections.length; i++) {
-			let connection = this.connections[i];
-			str += ' socket' + i + '[';
-			let first = true;
-			for (let j of connection.inRooms) {
-				if (first) {
-					first = false;
-				} else {
-					str += ', ';
-				}
-				str += j;
-			}
-			str += ']';
+		let str = `${this.group}${this.name} (${this.userid})`;
+		for (const [i, connection] of this.connections.entries()) {
+			str += ` socket${i}[`;
+			str += [...connection.inRooms].join(`, `);
+			str += `]`;
 		}
-		if (!this.connected) str += ' (DISCONNECTED)';
+		if (!this.connected) str += ` (DISCONNECTED)`;
 		return str;
 	}
 	/**
@@ -1180,8 +1173,8 @@ class User {
 	 * @param {Connection} connection
 	 */
 	onDisconnect(connection) {
-		for (let i = 0; i < this.connections.length; i++) {
-			if (this.connections[i] === connection) {
+		for (const [i, connected] of this.connections.entries()) {
+			if (connected === connection) {
 				// console.log('DISCONNECT: ' + this.userid);
 				if (this.connections.length <= 1) {
 					this.markInactive();
@@ -1236,12 +1229,14 @@ class User {
 		this.inRooms.clear();
 	}
 	/**
+	 * If this user is included in the returned list of alts (i.e. when forPunishment is true), they will always be the first element of that list.
 	 * @param {boolean} includeTrusted
 	 * @param {boolean} forPunishment
 	 */
-	getAltUsers(includeTrusted, forPunishment) {
+	getAltUsers(includeTrusted = false, forPunishment = false) {
 		let alts = findUsers([this.getLastId()], Object.keys(this.ips), {includeTrusted: includeTrusted, forPunishment: forPunishment});
-		if (!forPunishment) alts = alts.filter(user => user !== this);
+		alts = alts.filter(user => user !== this);
+		if (forPunishment) alts.unshift(this);
 		return alts;
 	}
 	getLastName() {
@@ -1265,6 +1260,7 @@ class User {
 		if (!room && roomid.startsWith('view-')) {
 			// it's a page!
 			let parts = roomid.split('-');
+			/** @type {any} */
 			let handler = Chat.pages;
 			parts.shift();
 			while (handler) {
@@ -1303,35 +1299,25 @@ class User {
 			}
 		}
 
+		if (!this.can('bypassall') && Punishments.isRoomBanned(this, room.id)) {
+			connection.sendTo(roomid, `|noinit|joinfailed|You are banned from the room "${roomid}".`);
+			return false;
+		}
+
 		if (Rooms.aliases.get(roomid) === room.id) {
 			connection.send(`>${roomid}\n|deinit`);
 		}
 
-		let joinResult = this.joinRoom(room, connection);
-		if (!joinResult) {
-			if (joinResult === null) {
-				connection.sendTo(roomid, `|noinit|joinfailed|You are banned from the room "${roomid}".`);
-				return false;
-			}
-			connection.sendTo(roomid, `|noinit|joinfailed|You do not have permission to join "${roomid}".`);
-			return false;
-		}
+		this.joinRoom(room, connection);
 		return true;
 	}
 	/**
-	 * @param {string | GlobalRoom | GameRoom | ChatRoom} room
-	 * @param {Connection?} connection
+	 * @param {string | Room} roomid
+	 * @param {Connection?} [connection]
 	 */
-	joinRoom(room, connection = null) {
-		room = Rooms(room);
-		if (!room) return false;
-		if (!this.can('bypassall')) {
-			// check if user has permission to join
-			if (room.staffRoom && !this.isStaff) return false;
-			if (Punishments.isRoomBanned(this, room.id)) {
-				return null;
-			}
-		}
+	joinRoom(roomid, connection = null) {
+		const room = Rooms(roomid);
+		if (!room) throw new Error(`Room not found: ${roomid}`);
 		if (!connection) {
 			for (const curConnection of this.connections) {
 				// only join full clients, not pop-out single-room
@@ -1341,7 +1327,7 @@ class User {
 					this.joinRoom(room, curConnection);
 				}
 			}
-			return true;
+			return;
 		}
 		if (!connection.inRooms.has(room.id)) {
 			if (!this.inRooms.has(room.id)) {
@@ -1351,11 +1337,10 @@ class User {
 			connection.joinRoom(room);
 			room.onConnect(this, connection);
 		}
-		return true;
 	}
 	/**
 	 * @param {GlobalRoom | GameRoom | ChatRoom | string} room
-	 * @param {?Connection} connection
+	 * @param {Connection?} connection
 	 * @param {boolean} force
 	 */
 	leaveRoom(room, connection = null, force = false) {
@@ -1510,6 +1495,9 @@ class User {
 		} else {
 			this.chatQueue = null;
 		}
+	}
+	clearPrev() {
+		this.noTrace = true;
 	}
 	destroy() {
 		// deallocate user
@@ -1675,6 +1663,12 @@ function socketReceive(worker, workerid, socketid, message) {
 		Monitor.warn(`[slow] ${deltaTime}ms - ${user.name} <${connection.ip}>: ${roomId}|${message}`);
 	}
 }
+
+/** @type {Map<string, User>} */
+let users = new Map();
+/** @type {Map<string, string>} */
+let prevUsers = new Map();
+let numUsers = 0;
 
 let Users = Object.assign(getUser, {
 	delete: deleteUser,

@@ -75,6 +75,8 @@ class BasicRoom {
 		this.muteTimer = null;
 
 		this.lastUpdate = 0;
+		this.lastBroadcast = '';
+		this.lastBroadcastTime = 0;
 
 		// room settings
 
@@ -103,10 +105,12 @@ class BasicRoom {
 		this.filterStretching = false;
 		this.filterEmojis = false;
 		this.filterCaps = false;
+		this.mafiaEnabled = false;
 		/** @type {Set<string>?} */
 		this.privacySetter = null;
 		/** @type {Map<string, ChatRoom>?} */
 		this.subRooms = null;
+		this.gameNumber = 0;
 	}
 
 	/**
@@ -347,8 +351,7 @@ class BasicRoom {
 			autoconfirmed = user.autoconfirmed;
 		}
 
-		for (let i = 0; i < this.muteQueue.length; i++) {
-			let entry = this.muteQueue[i];
+		for (const [i, entry] of this.muteQueue.entries()) {
 			if (entry.userid === userid ||
 				(user && entry.guestNum === user.guestNum) ||
 				(autoconfirmed && entry.autoconfirmed === autoconfirmed)) {
@@ -391,6 +394,8 @@ class GlobalRoom extends BasicRoom {
 		this.active = false;
 		/** @type {null} */
 		this.chatRoomData = null;
+		/**@type {boolean | 'pre' | 'ddos'} */
+		this.lockdown = false;
 
 		this.battleCount = 0;
 		this.lastReportedCrash = 0;
@@ -428,14 +433,14 @@ class GlobalRoom extends BasicRoom {
 		 * @type {string[]}
 		 */
 		this.staffAutojoinList = [];
-		for (let i = 0; i < this.chatRoomDataList.length; i++) {
-			if (!this.chatRoomDataList[i] || !this.chatRoomDataList[i].title) {
+		for (const [i, chatRoomData] of this.chatRoomDataList.entries()) {
+			if (!chatRoomData || !chatRoomData.title) {
 				Monitor.warn(`ERROR: Room number ${i} has no data and could not be loaded.`);
 				continue;
 			}
-			let id = toId(this.chatRoomDataList[i].title);
+			let id = toId(chatRoomData.title);
 			Monitor.notice("NEW CHATROOM: " + id);
-			let room = Rooms.createChatRoom(id, this.chatRoomDataList[i].title, this.chatRoomDataList[i]);
+			let room = Rooms.createChatRoom(id, chatRoomData.title, chatRoomData);
 			if (room.aliases) {
 				for (const alias of room.aliases) {
 					Rooms.aliases.set(alias, id);
@@ -776,12 +781,12 @@ class GlobalRoom extends BasicRoom {
 	}
 	/**
 	 * @param {User} user
-	 * @param {Connection} connection
+	 * @param {Connection} [connection]
 	 */
 	checkAutojoin(user, connection) {
 		if (!user.named) return;
-		for (let i = 0; i < this.staffAutojoinList.length; i++) {
-			let room = /** @type {ChatRoom} */ (Rooms(this.staffAutojoinList[i]));
+		for (let [i, staffAutojoin] of this.staffAutojoinList.entries()) {
+			let room = /** @type {ChatRoom} */ (Rooms(staffAutojoin));
 			if (!room) {
 				this.staffAutojoinList.splice(i, 1);
 				i--;
@@ -860,6 +865,7 @@ class GlobalRoom extends BasicRoom {
 	startLockdown(err, slow = false) {
 		if (this.lockdown && err) return;
 		let devRoom = Rooms('development');
+		// @ts-ignore
 		const stack = (err ? Chat.escapeHTML(err.stack).split(`\n`).slice(0, 2).join(`<br />`) : ``);
 		for (const [id, curRoom] of Rooms.rooms) {
 			if (id === 'global') continue;
@@ -926,7 +932,7 @@ class GlobalRoom extends BasicRoom {
 	 */
 	notifyRooms(rooms, message) {
 		if (!rooms || !message) return;
-		for (let roomid of rooms) {
+		for (const roomid of rooms) {
 			let curRoom = Rooms(roomid);
 			if (curRoom) curRoom.add(message).update();
 		}
@@ -941,6 +947,7 @@ class GlobalRoom extends BasicRoom {
 			return;
 		}
 		this.lastReportedCrash = time;
+		// @ts-ignore
 		const stack = (err ? Chat.escapeHTML(err.stack).split(`\n`).slice(0, 2).join(`<br />`) : ``);
 		const crashMessage = `|html|<div class="broadcast-red"><b>The server has crashed:</b> ${stack}</div>`;
 		const devRoom = Rooms('development');
@@ -1064,7 +1071,7 @@ class BasicChatRoom extends BasicRoom {
 		let total = 0;
 		let guests = 0;
 		let groups = {};
-		for (let group of Config.groupsranking) {
+		for (const group of Config.groupsranking) {
 			groups[group] = 0;
 		}
 		for (let i in this.users) {
@@ -1195,6 +1202,7 @@ class BasicChatRoom extends BasicRoom {
 		this.users[user.userid] = user;
 		this.userCount++;
 
+		if (this.poll) this.poll.onConnect(user, connection);
 		if (this.game && this.game.onJoin) this.game.onJoin(user, connection);
 		return true;
 	}
@@ -1271,6 +1279,11 @@ class BasicChatRoom extends BasicRoom {
 			// @ts-ignore
 			this.users[i].leaveRoom(this, null, true);
 			delete this.users[i];
+		}
+
+		if (this.parent && this.parent.subRooms) {
+			this.parent.subRooms.delete(this.id);
+			if (!this.parent.subRooms.size) this.parent.subRooms = null;
 		}
 
 		Rooms.global.deregisterChatRoom(this.id);
@@ -1449,7 +1462,7 @@ class GameRoom extends BasicChatRoom {
 }
 
 /**
- * @param {string | Room | undefined} roomid
+ * @param {string | Room} [roomid]
  * @return {Room}
  */
 function getRoom(roomid) {
@@ -1554,14 +1567,14 @@ let Rooms = Object.assign(getRoom, {
 		if (p2) p2.joinRoom(room);
 		if (p1) Monitor.countBattle(p1.latestIp, p1.name);
 		if (p2) Monitor.countBattle(p2.latestIp, p2.name);
-		if (p1 && p2) Rooms.global.onCreateBattleRoom(p1, p2, room, options);
 		return room;
 	},
 
 	battleModlogStream: FS('logs/modlog/modlog_battle.txt').createAppendStream(),
 	groupchatModlogStream: FS('logs/modlog/modlog_groupchat.txt').createAppendStream(),
 
-	global: (/** @type {any} */ (null)),
+	// @ts-ignore
+	global: (/** @type {GlobalRoom} */ (null)),
 	/** @type {?ChatRoom} */
 	lobby: null,
 
