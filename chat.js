@@ -1236,7 +1236,7 @@ Chat.loadPlugins = function () {
 
 	for (const customfile of customfiles) {
 		if (customfile.substr(-3) !== '.js') continue;
-		const serverplugin = require(`./server-plugins/${file}`);
+		const serverplugin = require(`./server-plugins/${customfile}`);
 
 		Object.assign(commands, serverplugin.commands);
 
