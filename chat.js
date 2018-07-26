@@ -1232,6 +1232,18 @@ Chat.loadPlugins = function () {
 		if (plugin.hostfilter) Chat.hostfilters.push(plugin.hostfilter);
 		if (plugin.loginfilter) Chat.loginfilters.push(plugin.loginfilter);
 	}
+	let customfiles = FS('server-plugins/').readdirSync();
+
+	for (const customfile of customfiles) {
+		if (customfile.substr(-3) !== '.js') continue;
+		const serverplugin = require(`./server-plugins/${file}`);
+
+		Object.assign(commands, serverplugin.commands);
+
+		if (serverplugin.chatfilter) Chat.filters.push(serverplugin.chatfilter);
+		if (serverplugin.namefilter) Chat.namefilters.push(serverplugin.namefilter);
+		if (serverplugin.hostfilter) Chat.hostfilters.push(serverplugin.hostfilter);
+	}
 };
 
 /**
