@@ -244,6 +244,14 @@ let Formats = [
 		},
 	},
 	{
+		name: "[Gen 7] NP OU",
+
+		mod: 'gen7',
+		searchShow: false,
+		ruleset: ['Pokemon', 'Standard'],
+		banlist: ['Uber', 'Arena Trap', 'Power Construct', 'Shadow Tag', 'Baton Pass'],
+	},
+	{
 		name: "[Gen 7] Battle Tree 3v3",
 
 		mod: 'gen7',
@@ -2495,8 +2503,6 @@ let Formats = [
 
 		mod: 'gen1',
 		team: 'randomCC',
-		// searchShow: false,
-		challengeShow: false,
 		ruleset: ['Pokemon', 'HP Percentage Mod', 'Cancel Mod'],
 	},
 
