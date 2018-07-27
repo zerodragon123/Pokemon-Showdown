@@ -25,7 +25,7 @@ const STARTING_TIME_CHALLENGE = 280;
 const MAX_TURN_TIME_CHALLENGE = 300;
 
 const NOT_DISCONNECTED = 100;
-const DISCONNECTION_TICKS = 13;
+const DISCONNECTION_TICKS = 30;
 
 // time after a player disabling the timer before they can re-enable it
 const TIMER_COOLDOWN = 20 * 1000;

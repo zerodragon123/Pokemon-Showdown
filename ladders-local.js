@@ -94,7 +94,7 @@ class LadderStore {
 			return;
 		}
 		let stream = FS(`config/ladders/${this.formatid}.tsv`).createWriteStream();
-		stream.write('Elo\tUsername\tW\tL\tT\tLast update\r\n');
+		//stream.write('Elo\tUsername\tW\tL\tT\tLast update\r\n');
 		for (const row of ladder) {
 			stream.write(row.slice(1).join('\t') + '\r\n');
 		}
