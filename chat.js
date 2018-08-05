@@ -476,6 +476,7 @@ class CommandContext {
 	 */
 	checkSlowchat(room, user) {
 		if (!room || !room.slowchat) return true;
+		if (user.can('broadcast', null, room)) return true;
 		let lastActiveSeconds = (Date.now() - user.lastMessageTime) / 1000;
 		if (lastActiveSeconds < room.slowchat) return false;
 		return true;
@@ -900,7 +901,7 @@ class CommandContext {
 			return false;
 		}
 
-		if (!this.checkSlowchat(room, user) && !user.can('mute', null, room)) {
+		if (!this.checkSlowchat(room, user)) {
 			// @ts-ignore
 			this.errorReply("This room has slow-chat enabled. You can only talk once every " + room.slowchat + " seconds.");
 			return false;
@@ -1568,15 +1569,16 @@ Chat.stringify = function (value, depth = 0) {
 		} catch (e) {}
 	}
 	let buf = '';
-	for (let k in value) {
-		if (!Object.prototype.hasOwnProperty.call(value, k)) continue;
+	for (let key in value) {
+		if (!Object.prototype.hasOwnProperty.call(value, key)) continue;
 		if (depth > 2 || (depth && constructor)) {
 			buf = '...';
 			break;
 		}
 		if (buf) buf += `, `;
-		if (!/^[A-Za-z0-9_$]+$/.test(k)) k = JSON.stringify(k);
-		buf += `${k}: ` + Chat.stringify(value[k], depth + 1);
+		let displayedKey = key;
+		if (!/^[A-Za-z0-9_$]+$/.test(key)) displayedKey = JSON.stringify(key);
+		buf += `${displayedKey}: ` + Chat.stringify(value[key], depth + 1);
 	}
 	if (constructor && !buf && constructor !== 'null') return constructor;
 	return `${constructor}{${buf}}`;
