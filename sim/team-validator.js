@@ -459,7 +459,6 @@ class Validator {
 			for (const eventData of eventPokemon) {
 				if (this.validateEvent(set, eventData, eventTemplate)) continue;
 				legal = true;
-				if (eventData.gender) set.gender = eventData.gender;
 				break;
 			}
 			if (!legal && template.id === 'celebi' && dex.gen >= 7 && !this.validateSource(set, '7V', template)) {
@@ -525,7 +524,11 @@ class Validator {
 				problems.push(`${name} is limited to ${limit} of ${rule}${clause}.`);
 			} else if (!limit && count >= bans.length) {
 				const clause = source ? ` by ${source}` : ``;
-				problems.push(`${name} has the combination of ${rule}, which is banned${clause}.`);
+				if (source === 'Pokemon') {
+					if (ruleTable.has('-illegal')) problems.push(`${name} has the combination of ${rule}, which is impossible to obtain legitimately.`);
+				} else {
+					problems.push(`${name} has the combination of ${rule}, which is banned${clause}.`);
+				}
 			}
 		}
 
@@ -641,7 +644,6 @@ class Validator {
 				if (fastReturn) return true;
 				problems.push(`${name}'s gender must be ${eventData.gender}${etc}.`);
 			}
-			if (!fastReturn) set.gender = eventData.gender;
 		}
 		if (eventData.nature && eventData.nature !== set.nature) {
 			if (fastReturn) return true;
@@ -743,8 +745,8 @@ class Validator {
 				}
 			}
 		}
-		if (!problems.length) return;
-		return problems;
+		if (problems.length) return problems;
+		if (eventData.gender) set.gender = eventData.gender;
 	}
 
 	/**
