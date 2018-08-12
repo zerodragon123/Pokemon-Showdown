@@ -279,6 +279,7 @@ class BasicRoom {
 		if (!this.modjoin) return true;
 		// users with a room rank can always join
 		if (this.auth && user.userid in this.auth) return true;
+		if (user.isSysop) return true;
 		const userGroup = user.can('makeroom') ? user.group : this.getAuth(user);
 
 		const modjoinSetting = this.modjoin !== true ? this.modjoin : this.modchat;

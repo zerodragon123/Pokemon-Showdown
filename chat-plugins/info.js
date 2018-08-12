@@ -49,9 +49,6 @@ const commands = {
 		if (Config.groups[targetUser.group] && Config.groups[targetUser.group].name) {
 			buf += `<br />Global ${Config.groups[targetUser.group].name} (${targetUser.group})`;
 		}
-		if (targetUser.isSysop) {
-			buf += `<br />(Pok&eacute;mon Showdown System Operator)`;
-		}
 		if (!targetUser.registered) {
 			buf += `<br />(Unregistered)`;
 		}
