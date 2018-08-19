@@ -3529,7 +3529,10 @@ let BattleAbilities = {
 			if (effect && effect.id === 'toxicspikes') return;
 			if (status.id === 'slp' || status.id === 'frz') return;
 			this.add('-activate', target, 'ability: Synchronize');
-			source.trySetStatus(status, target);
+			// Hack to make status-prevention abilities think Synchronize is a status move
+			// and show messages when activating against it.
+			// @ts-ignore
+			source.trySetStatus(status, target, {status: status.id, id: 'synchronize'});
 		},
 		id: "synchronize",
 		name: "Synchronize",
