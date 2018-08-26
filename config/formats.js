@@ -114,7 +114,7 @@ let Formats = [
 		ruleset: ['[Gen 7] NU'],
 		banlist: ['NU', 'PUBL'],
 		onBegin: function () {
-			if (this.rated) this.add('html', `<div class="broadcast-blue"><strong>PU is currently suspecting Kingler! For information on how to participate check out the <a href="https://www.smogon.com/forums/posts/7872605/">suspect thread</a>.</strong></div>`);
+			if (this.rated) this.add('html', `<div class="broadcast-red"><strong>PU is currently suspecting Pyroar! For information on how to participate check out the <a href="https://www.smogon.com/forums/posts/7889792/">suspect thread</a>.</strong></div>`);
 		},
 	},
 	{
@@ -723,6 +723,12 @@ let Formats = [
 			let types = [...new Set(target.baseMoveSlots.slice(0, 2).map(move => this.getMove(move.id).type))];
 			return Object.assign({}, template, {types: types});
 		},
+		onSwitchIn: function (pokemon) {
+			this.add('-start', pokemon, 'typechange', pokemon.types.join('/'), '[silent]');
+		},
+		onAfterMega: function (pokemon) {
+			this.add('-start', pokemon, 'typechange', pokemon.types.join('/'), '[silent]');
+		},
 	},
 	{
 		name: "[Gen 7] 2v2 Doubles",
@@ -739,7 +745,10 @@ let Formats = [
 			battle: 2,
 		},
 		ruleset: ['[Gen 7] Doubles OU'],
-		banlist: ['Salamence-Mega', 'Tapu Lele', 'Focus Sash', 'Final Gambit', 'Perish Song'],
+		banlist: [
+			'Salamence-Mega', 'Tapu Lele', 'Focus Sash', 'Final Gambit', 'Perish Song',
+			'Flash', 'Kinesis', 'Leaf Tornado', 'Mirror Shot', 'Mud Bomb', 'Mud-Slap', 'Muddy Water', 'Night Daze', 'Octazooka', 'Sand Attack', 'Smokescreen',
+		],
 	},
 	{
 		name: "[Gen 6] Gen-NEXT OU",
