@@ -4110,6 +4110,18 @@ const commands = {
 			}
 		}
 	},
+	pschinascore: function (target,room,user){
+		if (!this.can('ban')) return false;
+		let username=target.split(',')[0];
+		let score=target.split(',')[1];
+		let reason=target.split(',')[2];
+		if(!username||!score||username.length==0||score.length==0)
+			return this.parse("/pschinascorehelp");
+		Ladders("ps").updateScore(username,score,reason);
+	},
+	pschinascorehelp: [
+		`/pschinascore user,score,reason - 给user用户的国服积分增加score分，可以说明原因. Requires: & ~`,
+	],
 
 };
 

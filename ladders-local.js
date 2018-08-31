@@ -309,7 +309,41 @@ class LadderStore {
 
 		return [p1score, p1newElo, p2newElo];
 	}
+	async updateScore(user,score,reason){
+		const ladder = await this.getLadder();
+		let formatid = this.formatid;
+		let p1newElo, p2newElo;
+		let p1index = this.indexOfUser(user, true);
+		p1newElo = ladder[p1index][1] + parseInt(score);
+		ladder[p1index][1] = p1newElo;
+		ladder[p1index][6]+=reason;
 
+
+		// console.log('L: ' + ladder.map(r => ''+Math.round(r[1])+' '+r[2]).join('\n'));
+
+		// move p1 to its new location
+		let newIndex = p1index;
+		while (newIndex > 0 && ladder[newIndex - 1][1] <= p1newElo) newIndex--;
+		while (newIndex === p1index || (ladder[newIndex] && ladder[newIndex][1] > p1newElo)) newIndex++;
+		// console.log('ni='+newIndex+', p1i='+p1index);
+		if (newIndex !== p1index && newIndex !== p1index + 1) {
+			let row = ladder.splice(p1index, 1)[0];
+			// adjust for removed row
+			if (newIndex > p1index) newIndex--;
+
+			ladder.splice(newIndex, 0, row);
+			// adjust for inserted row
+		}
+
+		// move p2
+
+		let p1 = Users.getExact(user);
+		if (p1) p1.mmrCache[formatid] = +p1newElo;
+		this.save();
+
+		
+		
+	}
 	/**
 	 * Returns a promise for a <tr> with all ratings for the current format.
 	 * @param {string} username
