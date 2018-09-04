@@ -586,6 +586,15 @@ let BattleFormats = {
 			this.add('rule', 'Evasion Moves Clause: Evasion moves are banned');
 		},
 	},
+	accuracymovesclause: {
+		effectType: 'ValidatorRule',
+		name: 'Accuracy Moves Clause',
+		desc: "Bans moves that have a chance to lower the target's accuracy when used",
+		banlist: ['Flash', 'Kinesis', 'Leaf Tornado', 'Mirror Shot', 'Mud Bomb', 'Mud-Slap', 'Muddy Water', 'Night Daze', 'Octazooka', 'Sand Attack', 'Smokescreen'],
+		onStart: function () {
+			this.add('rule', 'Accuracy Moves Clause: Accuracy-lowering moves are banned');
+		},
+	},
 	endlessbattleclause: {
 		effectType: 'Rule',
 		name: 'Endless Battle Clause',
@@ -882,12 +891,6 @@ let BattleFormats = {
 			}
 			return this.checkLearnset(move, template, lsetData, set);
 		},
-	},
-	allowonesketch: {
-		effectType: 'ValidatorRule',
-		name: 'Allow One Sketch',
-		desc: "Allows each Pok&eacute;mon to use one move they don't normally have access to via Sketch",
-		// Implemented in team-validator.js
 	},
 	allowcap: {
 		effectType: 'ValidatorRule',

@@ -2167,7 +2167,7 @@ const commands = {
 	},
 	showimagehelp: [`/showimage [url], [width], [height] - Show an image. Any CSS units may be used for the width or height (default: px). Requires: # & ~`],
 
-	htmlbox: function (target, room, user, connection, cmd, message) {
+	htmlbox: function (target, room, user) {
 		if (!target) return this.parse('/help htmlbox');
 		target = this.canHTML(target);
 		if (!target) return;
@@ -2179,8 +2179,13 @@ const commands = {
 
 		this.sendReplyBox(target);
 	},
-	addhtmlbox: function (target, room, user, connection, cmd, message) {
-		if (!target) return this.parse('/help htmlbox');
+	htmlboxhelp: [
+		`/htmlbox [message] - Displays a message, parsing HTML code contained.`,
+		`!htmlbox [message] - Shows everyone a message, parsing HTML code contained. Requires: ~ & #`,
+	],
+	addmodhtmlbox: 'addhtmlbox',
+	addhtmlbox: function (target, room, user, connection, cmd) {
+		if (!target) return this.parse('/help ' + cmd);
 		if (!this.canTalk()) return;
 		target = this.canHTML(target);
 		if (!target) return;
@@ -2190,12 +2195,20 @@ const commands = {
 			target += Chat.html`<div style="float:right;color:#888;font-size:8pt">[${user.name}]</div><div style="clear:both"></div>`;
 		}
 
-		this.addBox(target);
+		if (cmd === 'addmodhtmlbox') {
+			this.addModBox(target);
+		} else {
+			this.addBox(target);
+		}
 	},
-	htmlboxhelp: [
-		`/htmlbox [message] - Displays a message, parsing HTML code contained.`,
-		`!htmlbox [message] - Shows everyone a message, parsing HTML code contained. Requires: ~ & #`,
+	addhtmlboxhelp: [
+		`/addhtmlbox [message] - Shows everyone a message, parsing HTML code contained. Requires: ~ & #`,
 	],
+	addmodhtmlboxhelp: [
+		`/addmodhtmlbox [message] - Shows staff a message, parsing HTML code contained. Requires: ~ & #`,
+	],
+	changemoduhtml: 'adduhtml',
+	addmoduhtml: 'adduhtml',
 	changeuhtml: 'adduhtml',
 	adduhtml: function (target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help ' + cmd);
@@ -2211,13 +2224,24 @@ const commands = {
 			html += Chat.html`<div style="float:right;color:#888;font-size:8pt">[${user.name}]</div><div style="clear:both"></div>`;
 		}
 
-		this.add(`|uhtml${(cmd === 'changeuhtml' ? 'change' : '')}|${name}|${html}`);
+		html = `|uhtml${(cmd === 'changeuhtml' || cmd === 'changemoduhtml' ? 'change' : '')}|${name}|${html}`;
+		if (cmd === 'addmoduhtml' || cmd === 'changemoduhtml') {
+			this.room.sendMods(html);
+		} else {
+			this.add(html);
+		}
 	},
 	adduhtmlhelp: [
-		`/adduhtml [name], [message] - Shows everyone a message that can change, parsing HTML code contained.`,
+		`/adduhtml [name], [message] - Shows everyone a message that can change, parsing HTML code contained.  Requires: ~ & #`,
 	],
 	changeuhtmlhelp: [
-		`/changeuhtml [name], [message] - Changes a message previously shown with /adduhtml`,
+		`/changeuhtml [name], [message] - Changes the message previously shown with /adduhtml [name]. Requires: ~ & #`,
+	],
+	addmoduhtmlhelp: [
+		`/addmoduhtml [name], [message] - Shows staff a message that can change, parsing HTML code contained. Requires: ~ & #`,
+	],
+	changemoduhtmlhelp: [
+		`/changemoduhtml [name], [message] - Changes the staff message previously shown with /addmoduhtml [name]. Requires: ~ & #`,
 	],
 	hideprevid: function (target, room, user, connection, cmd) {
 		if (user.group !== '~') return false;
