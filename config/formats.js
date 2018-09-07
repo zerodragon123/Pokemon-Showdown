@@ -37,6 +37,20 @@ let Formats = [
 		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
 	},
 	{
+		name: "[Gen 7] Random Formats",
+		desc: `Randomized teams of level-balanced Pok&eacute;mon with sets that are generated to be competitively viable.`,
+
+		//mod: new PRNG().sample(['gen7','gen3']),
+		team: 'randomFormats',
+		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		mod: 'gen7',
+		formatsList:['gen2nu','gen3uu','gen3pu','gen4uu','gen4lc','gen5pu'],
+		realFormat:'',
+		onBegin: function () {
+			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: `+this.realFormat+` </strong></div>`);
+		},
+	},
+	{
 		name: "[Gen 7] Unrated Random Battle",
 
 		mod: 'gen7',
