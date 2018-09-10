@@ -404,13 +404,12 @@ const commands = {
 		target = sep[0].trim();
 		let targetId = toId(target);
 		if (!targetId) return this.parse('/help data');
-		let targetNum = parseInt(targetId);
+		let targetNum = parseInt(target);
 		if (!isNaN(targetNum) && '' + targetNum === target) {
 			for (let p in Dex.data.Pokedex) {
 				let pokemon = Dex.getTemplate(p);
 				if (pokemon.num === targetNum) {
 					target = pokemon.species;
-					targetId = pokemon.id;
 					break;
 				}
 			}
@@ -550,6 +549,7 @@ const commands = {
 					if (move.flags['powder']) details["&#10003; Powder"] = "";
 					if (move.flags['reflectable']) details["&#10003; Bounceable"] = "";
 					if (move.flags['gravity'] && mod.gen >= 4) details["&#10007; Suppressed by Gravity"] = "";
+					if (move.flags['dance'] && mod.gen >= 7) details["&#10003; Dance move"] = "";
 
 					if (mod.gen >= 7) {
 						if (move.zMovePower) {
@@ -812,46 +812,54 @@ const commands = {
 			bestCoverage[type] = -5;
 		}
 
-		for (const arg of targets) {
-			let move = arg.trim();
-			if (toId(move) === mod.currentMod) continue;
-			move = move.charAt(0).toUpperCase() + move.slice(1).toLowerCase();
-			if (move === 'Table' || move === 'All') {
+		for (let arg of targets) {
+			arg = toId(arg);
+
+			// arg is the gen?
+			if (arg === mod.currentMod) continue;
+
+			// arg is 'table' or 'all'?
+			if (arg === 'table' || arg === 'all') {
 				if (this.broadcasting) return this.sendReplyBox("The full table cannot be broadcast.");
 				dispTable = true;
 				continue;
 			}
 
+			// arg is a type?
+			let type = arg.charAt(0).toUpperCase() + arg.slice(1);
 			let eff;
-			if (move in mod.data.TypeChart) {
-				sources.push(move);
+			if (type in mod.data.TypeChart) {
+				sources.push(type);
 				for (let type in bestCoverage) {
-					if (!mod.getImmunity(move, type) && !move.ignoreImmunity) continue;
-					eff = mod.getEffectiveness(move, type);
-					if (eff > bestCoverage[type]) bestCoverage[type] = eff;
-				}
-				continue;
-			}
-			move = mod.getMove(move);
-			if (move.exists && move.gen <= mod.gen) {
-				if (!move.basePower && !move.basePowerCallback) continue;
-				if (move.id === 'thousandarrows') hasThousandArrows = true;
-				sources.push(move);
-				for (let type in bestCoverage) {
-					if (move.id === "struggle") {
-						eff = 0;
-					} else {
-						if (!mod.getImmunity(move.type, type) && !move.ignoreImmunity) continue;
-						let baseMod = mod.getEffectiveness(move, type);
-						let moveMod = move.onEffectiveness && move.onEffectiveness.call(mod, baseMod, type, move);
-						eff = typeof moveMod === 'number' ? moveMod : baseMod;
-					}
+					if (!mod.getImmunity(type, type) && !type.ignoreImmunity) continue;
+					eff = mod.getEffectiveness(type, type);
 					if (eff > bestCoverage[type]) bestCoverage[type] = eff;
 				}
 				continue;
 			}
 
-			return this.errorReply(`No type or move '${arg}' found${Dex.gen > mod.gen ? ` in Gen ${mod.gen}` : ""}.`);
+			// arg is a move?
+			let move = mod.getMove(arg);
+			if (!move.exists) {
+				return this.errorReply(`Type or move '${arg}' not found.`);
+			} else if (move.gen > mod.gen) {
+				return this.errorReply(`Move '${arg}' is not available in Gen ${mod.gen}.`);
+			}
+
+			if (!move.basePower && !move.basePowerCallback) continue;
+			if (move.id === 'thousandarrows') hasThousandArrows = true;
+			sources.push(move);
+			for (let type in bestCoverage) {
+				if (move.id === "struggle") {
+					eff = 0;
+				} else {
+					if (!mod.getImmunity(move.type, type) && !move.ignoreImmunity) continue;
+					let baseMod = mod.getEffectiveness(move, type);
+					let moveMod = move.onEffectiveness && move.onEffectiveness.call(mod, baseMod, type, move);
+					eff = typeof moveMod === 'number' ? moveMod : baseMod;
+				}
+				if (eff > bestCoverage[type]) bestCoverage[type] = eff;
+			}
 		}
 		if (sources.length === 0) return this.errorReply("No moves using a type table for determining damage were specified.");
 		if (sources.length > 4) return this.errorReply("Specify a maximum of 4 moves or types.");
@@ -1526,7 +1534,7 @@ const commands = {
 			break;
 		}
 
-		if (!totalMatches) return this.errorReply("No " + (target ? "matched " : "") + "formats found.");
+		if (!totalMatches) return this.errorReply("No matched formats found.");
 		if (totalMatches === 1) {
 			let rules = [];
 			let rulesetHtml = '';

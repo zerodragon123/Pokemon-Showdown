@@ -4055,7 +4055,7 @@ let BattleFormatsData = {
 		tier: "NFE",
 	},
 	empoleon: {
-		randomBattleMoves: ["hydropump", "flashcannon", "grassknot", "hiddenpowerfire", "icebeam", "scald", "toxic", "roar", "stealthrock"],
+		randomBattleMoves: ["hydropump", "flashcannon", "grassknot", "defog", "icebeam", "scald", "toxic", "roar", "stealthrock"],
 		randomDoubleBattleMoves: ["icywind", "scald", "surf", "icebeam", "hiddenpowerelectric", "protect", "grassknot", "flashcannon"],
 		eventPokemon: [
 			{"generation": 5, "level": 100, "gender": "M", "isHidden": false, "moves": ["hydropump", "icebeam", "aquajet", "grassknot"], "pokeball": "cherishball"},
@@ -7530,6 +7530,10 @@ let BattleFormatsData = {
 		tier: "CAP LC",
 	},
 	voodoll: {
+		isNonstandard: true,
+		tier: "CAP LC",
+	},
+	mumbao: {
 		isNonstandard: true,
 		tier: "CAP LC",
 	},
