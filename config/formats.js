@@ -38,16 +38,17 @@ let Formats = [
 	},
 	{
 		name: "[Gen 7] Random Formats",
-		desc: `Randomized teams of level-balanced Pok&eacute;mon with sets that are generated to be competitively viable.`,
+		desc: `Randomized competitive lower tiers teams of mutiple generations.`,
 
 		//mod: new PRNG().sample(['gen7','gen3']),
 		team: 'randomFormats',
 		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
 		mod: 'gen7',
-		formatsList:['gen2nu','gen3uu','gen3pu','gen4uu','gen4lc','gen5pu'],
-		realFormat:'',
+		// @ts-ignore
+		formatsList: ['gen2nu', 'gen3uu', 'gen3pu', 'gen4uu', 'gen4lc', 'gen5pu'],
+		realFormat: '',
 		onBegin: function () {
-			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: `+this.realFormat+` </strong></div>`);
+			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: ` + this.realFormat + ` </strong></div>`);
 		},
 	},
 	{

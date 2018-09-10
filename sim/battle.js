@@ -45,13 +45,16 @@ class Battle extends Dex.ModdedDex {
 	 */
 	constructor(options) {
 		let format = Dex.getFormat(options.formatid, true);
-		if(options.formatid=='gen7randomformats'){
-			format.realFormat=new PRNG().sample(format.formatsList);	//random select one format
-			format.mod=format.realFormat.substr(0,4);				// genx
+		if (options.formatid === 'gen7randomformats') {
+			// @ts-ignore
+			format.realFormat = new PRNG().sample(format.formatsList);	//random select one format
+			// @ts-ignore
+			format.mod = format.realFormat.substr(0, 4);				// genx
 		}
-			
+
 		super(format.mod);
-		this.realFormat=format.realFormat;
+		// @ts-ignore
+		this.realFormat = format.realFormat;
 		this.zMoveTable = {};
 		Object.assign(this, this.data.Scripts);
 

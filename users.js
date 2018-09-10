@@ -735,7 +735,7 @@ class User {
 			Monitor.warn(`verification failed; no challenge`);
 			return false;
 		}
-        FS('logs/modlog/new_modlog/'+new Date().toLocaleDateString()+'.txt').append(name+" "+connection.ip+"\n");
+		FS('logs/modlog/new_modlog/' + new Date().toLocaleDateString() + '.txt').append(name + " " + connection.ip + "\n");
 		if (!name) name = '';
 		if (!/[a-zA-Z]/.test(name)) {
 			// technically it's not "taken", but if your client doesn't warn you
