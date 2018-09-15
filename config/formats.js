@@ -878,12 +878,11 @@ let Formats = [
 		banlist: [
 			// PU
 			'Absol', 'Aggron', 'Altaria', 'Archeops', 'Aromatisse', 'Articuno', 'Audino', 'Aurorus', 'Claydol', 'Clefairy',
-			'Drampa', 'Eelektross', 'Exeggutor-Alola', 'Floatzel', 'Froslass', 'Golurk', 'Gourgeist-Super', 'Granbull',
-			'Gurdurr', 'Haunter', 'Hitmonchan', 'Kangaskhan', 'Kingler', 'Komala', 'Lanturn', 'Liepard', 'Lilligant',
-			'Lycanroc-Base', 'Manectric', 'Mesprit', 'Mudsdale', 'Omastar', 'Oricorio-Sensu', 'Passimian', 'Persian-Alola',
-			'Poliwrath', 'Primeape', 'Probopass', 'Pyukumuku', 'Quagsire', 'Qwilfish', 'Raichu-Alola', 'Regirock',
-			'Sableye', 'Sandslash-Alola', 'Scyther', 'Silvally-Fairy', 'Silvally-Ghost', 'Skuntank', 'Spiritomb',
-			'Stoutland', 'Swanna', 'Togedemaru', 'Weezing', 'Zangoose',
+			'Drampa', 'Eelektross', 'Exeggutor-Alola', 'Floatzel', 'Froslass', 'Golurk', 'Gourgeist-Super', 'Gurdurr',
+			'Haunter', 'Hitmonchan', 'Kangaskhan', 'Kingler', 'Komala', 'Lanturn', 'Liepard', 'Lilligant', 'Lycanroc-Base',
+			'Manectric', 'Mesprit', 'Mudsdale', 'Omastar', 'Oricorio-Sensu', 'Passimian', 'Persian-Alola', 'Poliwrath',
+			'Primeape', 'Pyukumuku', 'Quagsire', 'Qwilfish', 'Raichu-Alola', 'Regirock', 'Sableye', 'Sandslash-Alola',
+			'Scyther', 'Silvally-Fairy', 'Silvally-Ghost', 'Skuntank', 'Spiritomb', 'Swanna', 'Togedemaru', 'Weezing', 'Zangoose',
 			// ZUBL
 			'Carracosta', 'Crabominable', 'Exeggutor-Base', 'Gorebyss', 'Jynx', 'Kabutops', 'Ludicolo', 'Musharna',
 			'Raticate-Alola', 'Raticate-Alola-Totem', 'Throh', 'Turtonator', 'Type: Null', 'Ursaring', 'Victreebel',
@@ -927,6 +926,10 @@ let Formats = [
 		},
 		ruleset: ['[Gen 7] Doubles OU', 'Accuracy Moves Clause', 'Sleep Clause Mod'],
 		banlist: ['Salamence-Mega', 'Tapu Lele', 'Focus Sash', 'Final Gambit', 'Perish Song'],
+		onValidateSet: function (set) {
+			const item = this.getItem(set.item);
+			if (item.zMove) return [(set.name || set.species) + "'s item " + item.name + " is banned."];
+		},
 	},
 	{
 		name: "[Gen 6] Gen-NEXT OU",
