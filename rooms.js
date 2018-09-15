@@ -101,6 +101,7 @@ class BasicRoom {
 		/** @type {string?} */
 		this.modchat = null;
 		this.staffRoom = false;
+		this.logRoom = false;
 		/** @type {false | number} */
 		this.slowchat = false;
 		this.filterStretching = false;
@@ -285,6 +286,7 @@ class BasicRoom {
 	 */
 	checkModjoin(user) {
 		if (this.staffRoom && !user.isStaff && (!this.auth || (this.auth[user.userid] || ' ') === ' ')) return false;
+		if (this.logRoom && !(this.auth && user.userid in this.auth) && !user.isSysop) return false;
 		if (user.userid in this.users) return true;
 		if (!this.modjoin) return true;
 		// users with a room rank can always join
