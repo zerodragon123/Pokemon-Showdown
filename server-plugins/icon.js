@@ -53,7 +53,7 @@ exports.commands = {
 	customicon: "icon",
 	icon: {
 		set: function (target, room, user) {
-			if (!this.can("ban")) return false;
+			if (!this.can('updateserver')) return false;
 			target = target.split(",");
 			for (let u in target) target[u] = target[u].trim();
 			if (target.length !== 2) return this.parse("/help icon");
@@ -70,7 +70,7 @@ exports.commands = {
 
 		remove: "delete",
 		delete: function (target, room, user) {
-			if (!this.can("ban")) return false;
+			if (!this.can('updateserver')) return false;
 			target = toId(target);
 			if (!icons[toId(target)]) return this.errorReply(`/icon - ${target} does not have an icon.`);
 			delete icons[toId(target)];
@@ -92,5 +92,6 @@ exports.commands = {
 		"Commands Include:",
 		"/icon set [user], [image url] - Gives [user] an icon of [image url]",
 		"/icon delete [user] - Deletes a user's icon",
+		"both commands require: ~",
 	],
 };
