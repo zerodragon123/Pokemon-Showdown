@@ -514,6 +514,9 @@ class User {
 		this.lockNotified = false;
 		/**@type {string} */
 		this.autoconfirmed = '';
+		// Used in punishments
+		/** @type {string} */
+		this.trackRename = '';
 		// initialize
 		Users.add(this);
 	}
@@ -602,7 +605,8 @@ class User {
 			return true;
 		}
 
-		let group = ' ';
+		/** @type {string} */
+		let group;
 		let targetGroup = '';
 		let targetUser = null;
 
@@ -719,7 +723,9 @@ class User {
 	 * @param {Connection} connection The connection asking for the rename
 	 */
 	async rename(name, token, newlyRegistered, connection) {
+		let userid = toId(name);
 		for (const roomid of this.games) {
+			if (userid === this.userid) break;
 			const game = Rooms(roomid).game;
 			if (!game || game.ended) continue; // should never happen
 			if (game.allowRenames || !this.named) continue;
@@ -745,7 +751,6 @@ class User {
 			return false;
 		}
 
-		let userid = toId(name);
 		if (userid.length > 18) {
 			this.send(`|nametaken||Your name must be 18 characters or shorter.`);
 			return false;

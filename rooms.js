@@ -102,6 +102,8 @@ class BasicRoom {
 		this.modchat = null;
 		this.staffRoom = false;
 		this.logRoom = false;
+		/** @type {string | false} */
+		this.language = false;
 		/** @type {false | number} */
 		this.slowchat = false;
 		this.filterStretching = false;
@@ -132,15 +134,23 @@ class BasicRoom {
 	 * @param {string} data
 	 */
 	sendMods(data) {
+		this.sendRankedUsers(data, '%');
+	}
+	/**
+	 * @param {string} data
+	 * @param {string} [minRank]
+	 */
+	sendRankedUsers(data, minRank = '+') {
 		if (this.staffRoom) {
 			if (!this.log) throw new Error(`Staff room ${this.id} has no log`);
 			this.log.add(data);
 			return;
 		}
+
 		for (let i in this.users) {
 			let user = this.users[i];
 			// hardcoded for performance reasons (this is an inner loop)
-			if (user.isStaff || (this.auth && (this.auth[user.userid] || '+') !== '+')) {
+			if (user.isStaff || (this.auth && this.auth[user.userid] && this.auth[user.userid] in Config.groups && Config.groups[this.auth[user.userid]].rank >= Config.groups[minRank].rank)) {
 				user.sendTo(this, data);
 			}
 		}

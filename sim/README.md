@@ -14,7 +14,7 @@ stream = new Sim.BattleStream();
     }
 })();
 
-stream.write(`>start {"format":"gen7randombattle"}`);
+stream.write(`>start {"formatid":"gen7randombattle"}`);
 stream.write(`>player p1 {"name":"Alice"}`);
 stream.write(`>player p2 {"name":"Bob"}`);
 ```
@@ -35,7 +35,7 @@ Writing to the simulator
 In a standard battle, what you write to the simulator looks something like this:
 
 ```
->start {"format":"gen7ou"}
+>start {"formatid":"gen7ou"}
 >player p1 {"name":"Alice","team":"insert packed team here"}
 >player p2 {"name":"Bob","team":"insert packed team here"}
 >p1 team 123456

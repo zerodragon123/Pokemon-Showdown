@@ -34,7 +34,7 @@ let Formats = [
 
 		mod: 'gen7',
 		team: 'random',
-		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod', 'Illusion Level Mod'],
 	},
 	{
 		name: "[Gen 7] Random Formats",
@@ -58,7 +58,7 @@ let Formats = [
 		team: 'random',
 		challengeShow: false,
 		rated: false,
-		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod', 'Illusion Level Mod'],
 	},
 	{
 		name: "[Gen 7] 3DS 6V6",
@@ -302,7 +302,7 @@ let Formats = [
 		mod: 'gen7',
 		gameType: 'doubles',
 		team: 'random',
-		ruleset: ['PotD', 'Pokemon', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['PotD', 'Pokemon', 'HP Percentage Mod', 'Cancel Mod', 'Illusion Level Mod'],
 	},
 	{
 		name: "[Gen 7] Doubles OU",
@@ -574,7 +574,7 @@ let Formats = [
 		ruleset: ['[Gen 7] OU'],
 		banlist: ['Kartana', 'Porygon-Z', 'Battle Bond'],
 		restrictedMoves: [
-			'Belly Drum', 'Celebrate', 'Chatter', 'Conversion', "Forest's Curse", 'Geomancy', 'Happy Hour', 'Hold Hands',
+			'Belly Drum', 'Celebrate', 'Chatter', 'Conversion', 'Extreme Speed', "Forest's Curse", 'Geomancy', 'Happy Hour', 'Hold Hands',
 			'Lovely Kiss', 'Purify', 'Quiver Dance', 'Shell Smash', 'Shift Gear', 'Sketch', 'Spore', 'Sticky Web', 'Trick-or-Treat',
 		],
 		checkLearnset: function (move, template, lsetData, set) {
@@ -2563,7 +2563,7 @@ let Formats = [
 		mod: 'gen7',
 		team: 'random',
 		searchShow: false,
-		ruleset: ['Pokemon', 'Same Type Clause', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Pokemon', 'Same Type Clause', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod', 'Illusion Level Mod'],
 	},
 	{
 		name: "[Gen 7] Challenge Cup 1v1",
@@ -2593,7 +2593,7 @@ let Formats = [
 
 		mod: 'gen7',
 		team: 'randomHC',
-		ruleset: ['Pokemon', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Pokemon', 'HP Percentage Mod', 'Cancel Mod', 'Illusion Level Mod'],
 	},
 	{
 		name: "[Gen 7] Doubles Hackmons Cup",
@@ -2602,14 +2602,14 @@ let Formats = [
 		gameType: 'doubles',
 		team: 'randomHC',
 		searchShow: false,
-		ruleset: ['Pokemon', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Pokemon', 'HP Percentage Mod', 'Cancel Mod', 'Illusion Level Mod'],
 	},
 	{
 		name: "[Gen 6] Random Battle",
 
 		mod: 'gen6',
 		team: 'random',
-		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod', 'Illusion Level Mod'],
 	},
 	{
 		name: "[Gen 6] Battle Factory",
@@ -2625,7 +2625,7 @@ let Formats = [
 
 		mod: 'gen5',
 		team: 'random',
-		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod', 'Illusion Level Mod'],
 	},
 	{
 		name: "[Gen 4] Random Battle",

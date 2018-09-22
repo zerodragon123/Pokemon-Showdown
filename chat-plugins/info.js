@@ -1680,11 +1680,27 @@ const commands = {
 	rule: 'rules',
 	rules: function (target, room, user) {
 		if (!target) {
+			const languageTable = {
+				portuguese: ['Por favor siga as regras:', 'pages/rules-pt', 'Regras Globais', room ? `Regras da sala ${room.title}` : ``],
+				spanish: ['Por favor sigue las reglas:', 'pages/rules-es', 'Reglas Globales', room ? `Reglas de la sala ${room.title}` : ``],
+				italian: ['Per favore, rispetta le seguenti regole:', 'pages/rules-it', 'Regole Globali', room ? `Regole della room ${room.title}` : ``],
+				french: ['Veuillez suivre ces règles:', 'pages/rules-fr', 'Règles Générales', room ? `Règles de la room ${room.title}` : ``],
+				simplifiedchinese: ['请遵守规则:', 'pages/rules-zh', '全站规则', room ? `${room.title}房间规则` : ``],
+				traditionalchinese: ['請遵守規則:', 'pages/rules-tw', '全站規則', room ? `${room.title}房間規則` : ``],
+				japanese: ['ルールを守ってください:', 'pages/rules-ja', '全部屋共通ルール', room ? `${room.title}部屋のルール` : ``],
+				hindi: ['कृपया इन नियमों का पालन करें:', 'pages/rules-hi', 'आप सभी के लिए नियम:', room ? `${room.title} इस Room के नियम:` : ``],
+				turkish: ['Lütfen kurallara uyun:', 'pages/rules-tr', 'Genel kurallar', room ? `${room.title} odası kuralları` : ``],
+				dutch: ['Volg de regels:', 'pages/rules-nl', 'Globale Regels ', room ? `Regels van de ${room.title} room` : ``],
+				german: ['Bitte befolgt die Regeln:', 'pages/rules-de', 'Globale Regeln', room ? `Regeln des ${room.title} Raumes` : ``],
+				english: ['Please follow the rules:', 'rules', 'Global Rules', room ? `${room.title} room rules` : ``],
+			};
 			if (!this.runBroadcast()) return;
+			const globalRulesLink = `https://pokemonshowdown.com/${languageTable[room && room.language ? room.language : 'english'][1]}`;
+			const globalRulesLinkText = languageTable[room && room.language ? room.language : 'english'][2];
 			this.sendReplyBox(
-				`Please follow the rules:<br />` +
-				(room && room.rulesLink ? Chat.html`- <a href="${room.rulesLink}">${room.title} room rules</a><br />` : ``) +
-				`- <a href="https://pokemonshowdown.com/rules">${room && room.rulesLink ? "Global rules" : "Rules"}</a>`
+				`${room ? languageTable[room.language || 'english'][0] + '<br />' : ``}` +
+				(room && room.rulesLink ? Chat.html`- <a href="${room.rulesLink}">${languageTable[room.language || 'english'][3]}</a><br />` : ``) +
+				`- <a href="${globalRulesLink}">${globalRulesLinkText}</a>`
 			);
 			return;
 		}
@@ -1843,11 +1859,23 @@ const commands = {
 			} else if (extraFormat.effectType !== 'Format') {
 				formatName = formatId = '';
 			}
+			const supportedLanguages = {
+				spanish: 'es',
+				french: 'fr',
+				italian: 'ita',
+				german: 'ger',
+				portuguese: 'por',
+			};
 			let speciesid = pokemon.speciesid;
 			// Special case for Meowstic-M
 			if (speciesid === 'meowstic') speciesid = 'meowsticm';
 			if (pokemon.tier === 'CAP') {
 				this.sendReplyBox(`<a href="https://www.smogon.com/cap/pokemon/strategies/${speciesid}">${generation.toUpperCase()} ${Chat.escapeHTML(formatName)} ${pokemon.name} analysis preview</a>, brought to you by <a href="https://www.smogon.com">Smogon University</a> <a href="http://smogon.com/cap/">CAP Project</a>`);
+			} else if (formatId === 'ou' && generation === 'sm' && room && room.language in supportedLanguages) {
+				// Limited support for translated analysis
+				// Translated analysis do not support automatic redirects from a speciesid to the proper page
+				let pageid = pokemon.name.toLowerCase().replace(' ', '_');
+				this.sendReplyBox(`<a href="https://www.smogon.com/translations/${supportedLanguages[room.language]}/analyses/ou/${pageid}">${generation.toUpperCase()} ${Chat.escapeHTML(formatName)} ${pokemon.name} analysis</a>, brought to you by <a href="https://www.smogon.com">Smogon University</a>`);
 			} else {
 				this.sendReplyBox(`<a href="https://www.smogon.com/dex/${generation}/pokemon/${speciesid}${(formatId ? '/' + formatId : '')}">${generation.toUpperCase()} ${Chat.escapeHTML(formatName)} ${pokemon.name} analysis</a>, brought to you by <a href="https://www.smogon.com">Smogon University</a>`);
 			}
@@ -2189,9 +2217,8 @@ const commands = {
 	},
 	htmlboxhelp: [
 		`/htmlbox [message] - Displays a message, parsing HTML code contained.`,
-		`!htmlbox [message] - Shows everyone a message, parsing HTML code contained. Requires: ~ & #`,
+		`!htmlbox [message] - Shows everyone a message, parsing HTML code contained. Requires: * # & ~`,
 	],
-	addmodhtmlbox: 'addhtmlbox',
 	addhtmlbox: function (target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help ' + cmd);
 		if (!this.canTalk()) return;
@@ -2203,20 +2230,29 @@ const commands = {
 			target += Chat.html`<div style="float:right;color:#888;font-size:8pt">[${user.name}]</div><div style="clear:both"></div>`;
 		}
 
-		if (cmd === 'addmodhtmlbox') {
-			this.addModBox(target);
-		} else {
-			this.addBox(target);
-		}
+		this.addBox(target);
 	},
 	addhtmlboxhelp: [
-		`/addhtmlbox [message] - Shows everyone a message, parsing HTML code contained. Requires: ~ & #`,
+		`/addhtmlbox [message] - Shows everyone a message, parsing HTML code contained. Requires: * & ~`,
 	],
-	addmodhtmlboxhelp: [
-		`/addmodhtmlbox [message] - Shows staff a message, parsing HTML code contained. Requires: ~ & #`,
+	addrankhtmlbox: function (target, room, user, connection, cmd) {
+		if (!target) return this.parse('/help ' + cmd);
+		if (!this.canTalk()) return;
+		let [rank, html] = this.splitOne(target);
+		if (!(rank in Config.groups)) return this.errorReply(`Group '${rank}' does not exist.`);
+		html = this.canHTML(html);
+		if (!html) return;
+		if (!this.can('addhtml', null, room)) return;
+
+		if (!user.can('addhtml')) {
+			html += Chat.html`<div style="float:right;color:#888;font-size:8pt">[${user.name}]</div><div style="clear:both"></div>`;
+		}
+
+		this.room.sendRankedUsers(`|html|<div class="infobox">${html}</div>`, rank);
+	},
+	addrankhtmlboxhelp: [
+		`/addrankhtmlbox [rank], [message] - Shows everyone with the specified rank or higher a message, parsing HTML code contained. Requires: * & ~`,
 	],
-	changemoduhtml: 'adduhtml',
-	addmoduhtml: 'adduhtml',
 	changeuhtml: 'adduhtml',
 	adduhtml: function (target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help ' + cmd);
@@ -2232,24 +2268,40 @@ const commands = {
 			html += Chat.html`<div style="float:right;color:#888;font-size:8pt">[${user.name}]</div><div style="clear:both"></div>`;
 		}
 
-		html = `|uhtml${(cmd === 'changeuhtml' || cmd === 'changemoduhtml' ? 'change' : '')}|${name}|${html}`;
-		if (cmd === 'addmoduhtml' || cmd === 'changemoduhtml') {
-			this.room.sendMods(html);
-		} else {
-			this.add(html);
-		}
+		html = `|uhtml${(cmd === 'changeuhtml' ? 'change' : '')}|${name}|${html}`;
+		this.add(html);
 	},
 	adduhtmlhelp: [
-		`/adduhtml [name], [message] - Shows everyone a message that can change, parsing HTML code contained.  Requires: ~ & #`,
+		`/adduhtml [name], [message] - Shows everyone a message that can change, parsing HTML code contained.  Requires: * & ~`,
 	],
 	changeuhtmlhelp: [
-		`/changeuhtml [name], [message] - Changes the message previously shown with /adduhtml [name]. Requires: ~ & #`,
+		`/changeuhtml [name], [message] - Changes the message previously shown with /adduhtml [name]. Requires: * & ~`,
 	],
-	addmoduhtmlhelp: [
-		`/addmoduhtml [name], [message] - Shows staff a message that can change, parsing HTML code contained. Requires: ~ & #`,
+	changerankuhtml: 'addrankuhtml',
+	addrankuhtml: function (target, room, user, connection, cmd) {
+		if (!target) return this.parse('/help ' + cmd);
+		if (!this.canTalk()) return;
+
+		let [rank, uhtml] = this.splitOne(target);
+		if (!(rank in Config.groups)) return this.errorReply(`Group '${rank}' does not exist.`);
+		let [name, html] = this.splitOne(uhtml);
+		name = toId(name);
+		html = this.canHTML(html);
+		if (!html) return;
+		if (!this.can('addhtml', null, room)) return;
+
+		if (!user.can('addhtml')) {
+			html += Chat.html`<div style="float:right;color:#888;font-size:8pt">[${user.name}]</div><div style="clear:both"></div>`;
+		}
+
+		html = `|uhtml${(cmd === 'changerankuhtml' ? 'change' : '')}|${name}|${html}`;
+		this.room.sendRankedUsers(html, rank);
+	},
+	addrankuhtmlhelp: [
+		`/addrankuhtml [rank], [name], [message] - Shows everyone with the specified rank or higher a message that can change, parsing HTML code contained.  Requires: * & ~`,
 	],
-	changemoduhtmlhelp: [
-		`/changemoduhtml [name], [message] - Changes the staff message previously shown with /addmoduhtml [name]. Requires: ~ & #`,
+	changerankuhtmlhelp: [
+		`/changerankuhtml [rank], [name], [message] - Changes the message previously shown with /addrankuhtml [rank], [name]. Requires: * & ~`,
 	],
 	hideprevid: function (target, room, user, connection, cmd) {
 		if (user.group !== '~') return false;
