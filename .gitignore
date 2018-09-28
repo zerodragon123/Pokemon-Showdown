@@ -55,3 +55,5 @@ local_settings.py
 
 pip-log.txt
 config/ipbans.txt
+config.zip
+logs.zip
