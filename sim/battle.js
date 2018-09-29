@@ -50,6 +50,10 @@ class Battle extends Dex.ModdedDex {
 			format.realFormat = new PRNG().sample(format.formatsList);	//random select one format
 			// @ts-ignore
 			format.mod = format.realFormat.substr(0, 4);				// genx
+			if(format.realFormat==='gen7monotype'&&format.ruleset.indexOf('Team Preview')==-1)
+				format.ruleset.push('Team Preview');
+			if(format.realFormat!=='gen7monotype'&&format.ruleset.indexOf('Team Preview')!=-1)
+				format.ruleset.splice(format.ruleset.indexOf('Team Preview'),1);
 		}
 
 		super(format.mod);
