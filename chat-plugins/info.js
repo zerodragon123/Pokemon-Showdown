@@ -81,16 +81,24 @@ const commands = {
 		}
 		buf += '<br />';
 		if (user.can('alts', targetUser) || user.can('alts') && user === targetUser) {
-			let prevNames = Object.keys(targetUser.prevNames).join(", ");
+			let prevNames = Object.keys(targetUser.prevNames).map(userid => {
+				const punishment = Punishments.userids.get(userid);
+				return userid + (punishment ? ` (${Punishments.punishmentTypes.get(punishment[0]) || 'punished'}${punishment[1] !== targetUser.userid ? ` as ${punishment[1]}` : ''})` : '');
+			}).join(", ");
 			if (!targetUser.noTrace) {
 				if (prevNames) buf += Chat.html`<br />Previous names: ${prevNames}`;
 				for (const targetAlt of targetUser.getAltUsers(true)) {
 					if (!targetAlt.named && !targetAlt.connected) continue;
 					if (targetAlt.group === '~' && user.group !== '~') continue;
 
-					buf += Chat.html`<br />Alt: <span class="username">${targetAlt.name}</span>`;
+					const punishment = Punishments.userids.get(targetAlt.userid);
+					const punishMsg = punishment ? ` (${Punishments.punishmentTypes.get(punishment[0]) || 'punished'}${punishment[1] !== targetAlt.userid ? ` as ${punishment[1]}` : ''})` : '';
+					buf += Chat.html`<br />Alt: <span class="username">${targetAlt.name}</span>${punishMsg}`;
 					if (!targetAlt.connected) buf += ` <em style="color:gray">(offline)</em>`;
-					prevNames = Object.keys(targetAlt.prevNames).join(", ");
+					prevNames = Object.keys(targetAlt.prevNames).map(userid => {
+						const punishment = Punishments.userids.get(userid);
+						return userid + (punishment ? ` (${Punishments.punishmentTypes.get(punishment[0]) || 'punished'}${punishment[1] !== targetAlt.userid ? ` as ${punishment[1]}` : ''})` : '');
+					}).join(", ");
 					if (prevNames) buf += `<br />Previous names: ${prevNames}`;
 				}
 			}
@@ -1688,7 +1696,7 @@ const commands = {
 				simplifiedchinese: ['请遵守规则:', 'pages/rules-zh', '全站规则', room ? `${room.title}房间规则` : ``],
 				traditionalchinese: ['請遵守規則:', 'pages/rules-tw', '全站規則', room ? `${room.title}房間規則` : ``],
 				japanese: ['ルールを守ってください:', 'pages/rules-ja', '全部屋共通ルール', room ? `${room.title}部屋のルール` : ``],
-				hindi: ['कृपया इन नियमों का पालन करें:', 'pages/rules-hi', 'आप सभी के लिए नियम:', room ? `${room.title} इस Room के नियम:` : ``],
+				hindi: ['कृपया इन नियमों का पालन करें:', 'pages/rules-hi', 'सामान्य नियम', room ? `${room.title} Room के नियम` : ``],
 				turkish: ['Lütfen kurallara uyun:', 'pages/rules-tr', 'Genel kurallar', room ? `${room.title} odası kuralları` : ``],
 				dutch: ['Volg de regels:', 'pages/rules-nl', 'Globale Regels ', room ? `Regels van de ${room.title} room` : ``],
 				german: ['Bitte befolgt die Regeln:', 'pages/rules-de', 'Globale Regeln', room ? `Regeln des ${room.title} Raumes` : ``],
