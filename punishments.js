@@ -32,6 +32,7 @@ const BLACKLIST_DURATION = 365 * 24 * 60 * 60 * 1000; // 1 year
 const USERID_REGEX = /^[a-z0-9]+$/;
 const PUNISH_TRUSTED = false;
 
+/**@type {{[k: string]: number}} */
 const PUNISHMENT_POINT_VALUES = {MUTE: 2, BLACKLIST: 3, BATTLEBAN: 4, ROOMBAN: 4};
 const AUTOLOCK_POINT_THRESHOLD = 8;
 
@@ -761,7 +762,8 @@ Punishments.autolock = function (user, room, source, reason, message, week = fal
 		Punishments.lock(user, expires, toId(user), `Autolock: ${user.name || toId(user)}: ${reason}`);
 	}
 	Monitor.log(`[${source}] ${punishment}: ${message}`);
-	Rooms.global.modlog(`(${toId(room)}) AUTO${name ? `NAME` : ''}LOCK: [${toId(user)}]: ${reason}`);
+	const ipStr = typeof user !== 'string' ? ` [${user.latestIp}]` : '';
+	Rooms.global.modlog(`(${toId(room)}) AUTO${name ? `NAME` : ''}LOCK: [${toId(user)}]${ipStr}: ${reason}`);
 };
 /**
  * @param {string} name

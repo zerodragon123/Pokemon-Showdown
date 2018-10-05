@@ -26,9 +26,6 @@ const HOURMUTE_LENGTH = 60 * 60 * 1000;
 
 const MAX_CHATROOM_ID_LENGTH = 225;
 
-/** @typedef {(this: Chat.CommandContext, target: string, room: Room, user: User, connection: Connection, cmd: string) => (void)} ChatHandler */
-/** @typedef {{[k: string]: ChatHandler | string | true | string[]}} ChatCommands */
-
 /** @type {ChatCommands} */
 const commands = {
 
@@ -1922,7 +1919,13 @@ const commands = {
 			}
 		}
 		this.globalModlog("UNLOCKNAME", userid, ` by ${user.name}`);
-		this.addModAction(`The name '${target}' was unlocked by ${user.name}.`);
+
+		const unlockMessage = `The name '${target}' was unlocked by ${user.name}.`;
+
+		this.addModAction(unlockMessage);
+		if (room.id !== 'staff' && Rooms('staff')) {
+			Rooms('staff').addByUser(user, `<<${room.id}>> ${unlockMessage}`);
+		}
 	},
 	unlockip: function (target, room, user) {
 		target = target.trim();
@@ -1947,7 +1950,9 @@ const commands = {
 			}
 		}
 		this.globalModlog(`UNLOCK${range ? 'RANGE' : 'IP'}`, target, ` by ${user.name}`);
-		this.addModAction(`${user.name} unlocked the ${range ? "IP range" : "IP"}: ${target}`);
+
+		const broadcastRoom = Rooms('staff') || room;
+		broadcastRoom.addByUser(user, `${user.name} unlocked the ${range ? "IP range" : "IP"}: ${target}`);
 	},
 	unlockhelp: [
 		`/unlock [username] - Unlocks the user. Requires: % @ * & ~`,
