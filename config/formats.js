@@ -48,7 +48,7 @@ let Formats = [
 		formatsList: [
 			//'gen2nu', 
 			'gen3uu', 'gen3pu', 'gen4uu', 'gen4lc', 'gen5pu', 
-			'gen5uu', 'gen7monotype', 'gen7monotype', 'gen7monotype'],
+			'gen5uu', 'gen7monotype'],
 		realFormat: '',
 		onBegin: function () {
 			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: ` + this.realFormat + ` </strong></div>`);
