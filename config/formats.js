@@ -621,8 +621,9 @@ let Formats = [
 			let types = /** @type {string[]} */ ([]);
 			for (const [i, set] of team.entries()) {
 				let item = this.getItem(set.item);
+				let template = this.getTemplate(set.species);
+				if (!template.exists) return [`The Pok\u00e9mon "${set.name || set.species}" does not exist.`];
 				if (i === 0) {
-					let template = this.getTemplate(set.species);
 					types = template.types;
 					if (template.species.substr(0, 9) === 'Necrozma-' && item.id === 'ultranecroziumz') types = ['Psychic'];
 					if (item.megaStone && template.species === item.megaEvolves) {
@@ -635,12 +636,13 @@ let Formats = [
 				} else {
 					let problems = TeamValidator('gen7ou').validateSet(set, teamHas);
 					if (problems) problemsArray = problemsArray.concat(problems);
-					let template = this.getTemplate(set.species);
 					let followerTypes = template.types;
 					if (item.megaStone && template.species === item.megaEvolves) {
 						template = this.getTemplate(item.megaStone);
 						let baseTemplate = this.getTemplate(item.megaEvolves);
-						followerTypes = baseTemplate.types.filter(type => template.types.includes(type)).concat(template.types.filter(type => types.includes(type)));
+						if (baseTemplate.types.some(type => types.includes(type)) && template.types.some(type => types.includes(type))) {
+							followerTypes = baseTemplate.types.concat(template.types).filter(type => template.types.concat(baseTemplate.types).includes(type));
+						}
 					}
 					if (!followerTypes.some(type => types.includes(type))) problemsArray.push("Followers must share a type with the God.", `(${template.isMega ? template.baseSpecies : template.species} doesn't share a type with ${team[0].species}.)`);
 				}
@@ -846,16 +848,8 @@ let Formats = [
 		searchShow: false,
 		ruleset: ['[Gen 7] PU'],
 		banlist: [
-			// PU
-			'Absol', 'Aggron', 'Archeops', 'Aromatisse', 'Articuno', 'Audino', 'Aurorus', 'Claydol', 'Clefairy', 'Dodrio',
-			'Drampa', 'Eelektross', 'Exeggutor-Alola', 'Froslass', 'Golurk', 'Gurdurr', 'Haunter', 'Hitmonchan', 'Kabutops',
-			'Kangaskhan', 'Kingler', 'Lanturn', 'Liepard', 'Lilligant', 'Ludicolo', 'Lurantis', 'Lycanroc-Base', 'Manectric',
-			'Mesprit', 'Mudsdale', 'Omastar', 'Oricorio-Sensu', 'Passimian', 'Persian-Alola', 'Poliwrath', 'Primeape',
-			'Quagsire', 'Qwilfish', 'Raichu-Alola', 'Regirock', 'Rotom-Frost', 'Sableye', 'Sandslash-Alola', 'Scyther',
-			'Silvally-Fairy', 'Silvally-Ghost', 'Skuntank', 'Spiritomb', 'Stoutland', 'Togedemaru', 'Type: Null', 'Weezing',
-			// ZUBL
-			'Carracosta', 'Crabominable', 'Exeggutor-Base', 'Gorebyss', 'Jynx', 'Musharna', 'Raticate-Alola',
-			'Raticate-Alola-Totem', 'Throh', 'Turtonator', 'Ursaring', 'Victreebel', 'Zangoose',
+			'PU', 'Carracosta', 'Crabominable', 'Exeggutor-Base', 'Gorebyss', 'Jynx', 'Musharna',
+			'Raticate-Alola', 'Raticate-Alola-Totem', 'Throh', 'Turtonator', 'Ursaring', 'Victreebel', 'Zangoose',
 		],
 	},
 	{
