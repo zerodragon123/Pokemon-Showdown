@@ -111,7 +111,7 @@ let Formats = [
 			if (set.species === 'Necrozma-Dusk-Mane' && set.moves.includes('swordsdance')) {
 				return [`携带剑舞的奈克洛兹玛-黄昏之鬃在该分级下不可用。`];
 			}
-			if (set.item === 'Red Orb' && set.moves.includes('swordsdance') && set.moves.includes('rockpolish')) {
+			if (set.item === 'Red Orb' && (set.moves.includes('swordsdance') || set.moves.includes('rockpolish'))) {
 				return [`携带剑舞和岩切的原始固拉多在该分级下不可用。`];
 			}
 		},
