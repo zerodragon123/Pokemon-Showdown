@@ -1031,8 +1031,17 @@ let BattleAbilities = {
 			if (showMsg && !effect.secondaries) this.add('-fail', this.effectData.target, 'unboost', '[from] ability: Flower Veil', '[of] ' + target);
 		},
 		onAllySetStatus: function (status, target, source, effect) {
-			if (target.hasType('Grass')) {
-				if (!effect || !effect.status) return false;
+			if (target.hasType('Grass') && source && target !== source && effect) {
+				this.debug('interrupting setStatus with Flower Veil');
+				if (effect.id === 'synchronize' || (effect.effectType === 'Move' && !effect.secondaries)) {
+					this.add('-activate', this.effectData.target, 'ability: Flower Veil', '[of] ' + target);
+				}
+				return null;
+			}
+		},
+		onAllyTryAddVolatile: function (status, target) {
+			if (target.hasType('Grass') && status.id === 'yawn') {
+				this.debug('Flower Veil blocking yawn');
 				this.add('-activate', this.effectData.target, 'ability: Flower Veil', '[of] ' + target);
 				return null;
 			}
@@ -1771,7 +1780,7 @@ let BattleAbilities = {
 			if (target === source || move.hasBounced || !move.flags['reflectable']) {
 				return;
 			}
-			let newMove = this.getMoveCopy(move.id);
+			let newMove = this.getActiveMove(move.id);
 			newMove.hasBounced = true;
 			newMove.pranksterBoosted = false;
 			this.useMove(newMove, target, source);
@@ -1781,7 +1790,7 @@ let BattleAbilities = {
 			if (target.side === source.side || move.hasBounced || !move.flags['reflectable']) {
 				return;
 			}
-			let newMove = this.getMoveCopy(move.id);
+			let newMove = this.getActiveMove(move.id);
 			newMove.hasBounced = true;
 			newMove.pranksterBoosted = false;
 			this.useMove(newMove, this.effectData.target, source);
@@ -2041,6 +2050,9 @@ let BattleAbilities = {
 				}
 			}
 		},
+		onBasePower: function (basePower, pokemon, target, move) {
+			if (move.multihitType === 'parentalbond' && move.hit > 1) return this.chainModify(0.25);
+		},
 		rating: 2,
 		num: 152,
 	},
@@ -2268,16 +2280,15 @@ let BattleAbilities = {
 			if (['iceball', 'rollout'].includes(move.id)) return;
 			if (move.category !== 'Status' && !move.selfdestruct && !move.multihit && !move.flags['charge'] && !move.spreadHit && !move.isZ) {
 				move.multihit = 2;
-				move.hasParentalBond = true;
-				move.hit = 0;
+				move.multihitType = 'parentalbond';
 			}
 		},
 		onBasePowerPriority: 8,
 		onBasePower: function (basePower, pokemon, target, move) {
-			if (move.hasParentalBond && typeof move.hit === 'number' && ++move.hit > 1) return this.chainModify(0.25);
+			if (move.multihitType === 'parentalbond' && move.hit > 1) return this.chainModify(0.25);
 		},
 		onSourceModifySecondaries: function (secondaries, target, source, move) {
-			if (move.hasParentalBond && move.id === 'secretpower' && move.hit && move.hit < 2) {
+			if (move.multihitType === 'parentalbond' && move.id === 'secretpower' && move.hit < 2) {
 				// hack to prevent accidentally suppressing King's Rock/Razor Fang
 				return secondaries.filter(effect => effect.volatileStatus === 'flinch');
 			}
@@ -4121,7 +4132,7 @@ let BattleAbilities = {
 			if (target === source || move.hasBounced || !move.flags['reflectable']) {
 				return;
 			}
-			let newMove = this.getMoveCopy(move.id);
+			let newMove = this.getActiveMove(move.id);
 			newMove.hasBounced = true;
 			this.useMove(newMove, target, source);
 			return null;
@@ -4132,7 +4143,7 @@ let BattleAbilities = {
 			if (target.side === source.side || move.hasBounced || !move.flags['reflectable']) {
 				return;
 			}
-			let newMove = this.getMoveCopy(move.id);
+			let newMove = this.getActiveMove(move.id);
 			newMove.hasBounced = true;
 			this.useMove(newMove, this.effectData.target, source);
 			return null;

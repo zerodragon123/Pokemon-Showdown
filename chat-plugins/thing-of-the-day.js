@@ -5,16 +5,21 @@ const FS = require('./../lib/fs');
 const MINUTE = 60 * 1000;
 const YEAR = 365 * 24 * 60 * MINUTE;
 
-const theStudio = /** @type {ChatRoom} */ (Rooms.get('thestudio'));
-const tvbf = /** @type {ChatRoom} */ (Rooms.get('jubilifetvfilms'));
-const yt = /** @type {ChatRoom} */ (Rooms.get('youtube'));
-const library = /** @type {ChatRoom} */ (Rooms.get('thelibrary'));
+const ROOMIDS = ['thestudio', 'jubilifetvfilms', 'youtube', 'thelibrary', 'prowrestling'];
+
+/** @type {{[k: string]: ChatRoom}} */
+const rooms = {};
+
+for (const roomid of ROOMIDS) {
+	rooms[roomid] = /** @type {ChatRoom} */ (Rooms.get(roomid));
+}
 
 const AOTDS_FILE = 'config/chat-plugins/thestudio.tsv';
 const FOTDS_FILE = 'config/chat-plugins/tvbf-films.tsv';
 const SOTDS_FILE = 'config/chat-plugins/tvbf-shows.tsv';
 const COTDS_FILE = 'config/chat-plugins/youtube-channels.tsv';
 const BOTWS_FILE = 'config/chat-plugins/thelibrary.tsv';
+const MOTWS_FILE = 'config/chat-plugins/prowrestling-matches.tsv';
 const PRENOMS_FILE = 'config/chat-plugins/otd-prenoms.json';
 
 /** @type {{[k: string]: [string, AnyObject][]}} */
@@ -111,7 +116,7 @@ class OtdHandler {
 	addNomination(user, nomination) {
 		const id = toNominationId(nomination);
 
-		if (this.winners.slice(this.room === tvbf ? -15 : -30).some(entry => toNominationId(entry[this.keys[0]]) === id)) return user.sendTo(this.room, `This ${this.name.toLowerCase()} has already been ${this.id} in the past month.`);
+		if (this.winners.slice(this.room === rooms.jubilifetvfilms ? -15 : -30).some(entry => toNominationId(entry[this.keys[0]]) === id)) return user.sendTo(this.room, `This ${this.name.toLowerCase()} has already been ${this.id} in the past month.`);
 
 		for (const value of this.removedNominations.values()) {
 			if (toId(user) in value.userids || user.latestIp in value.ips) return user.sendTo(this.room, `Since your nomination has been removed by staff, you cannot submit another ${this.name.toLowerCase()} until the next round.`);
@@ -269,7 +274,7 @@ class OtdHandler {
 		this.file.write(buf);
 	}
 
-	generateWinnerDisplay() {
+	async generateWinnerDisplay() {
 		if (!this.winners.length) return false;
 		let winner = this.winners[this.winners.length - 1];
 
@@ -277,8 +282,12 @@ class OtdHandler {
 		if (winner.quote) output += Chat.html `<br/><span style="font-style:italic;">"${winner.quote}"</span>`;
 		if (winner.tagline) output += Chat.html `<br/>${winner.tagline}`;
 		output += `</p><table style="margin:auto;"><tr>`;
-		if (winner.image) output += Chat.html `<td><img src="${winner.image}" width=100 height=100></td>`;
+		if (winner.image) {
+			const [width, height] = await Chat.fitImage(winner.image, 100, 100);
+			output += Chat.html `<td><img src="${winner.image}" width=${width} height=${height}></td>`;
+		}
 		output += `<td style="text-align:right;margin:5px;">`;
+		if (winner.event) output += Chat.html `<b>Event:</b> ${winner.event}<br/>`;
 		if (winner.song) {
 			output += `<b>Song:</b> `;
 			if (winner.link) {
@@ -318,6 +327,7 @@ class OtdHandler {
 			const pad = num => num < 10 ? '0' + num : num;
 
 			output += Chat.html `[${pad(date.getMonth() + 1)}-${pad(date.getDate())}-${date.getFullYear()}] ${this.winners[i][this.keys[0]]}${this.winners[i].author ? ` by ${this.winners[i].author}` : ''}`;
+			if (this.winners[i].event) output += Chat.html `(Event: ${this.winners[i].event}) `;
 			if (this.winners[i].song) {
 				output += `: `;
 				if (this.winners[i].link) {
@@ -336,11 +346,12 @@ class OtdHandler {
 	}
 }
 
-const aotd = new OtdHandler('aotd', 'Artist', theStudio, AOTDS_FILE, ['artist', 'nominator', 'quote', 'song', 'link', 'image', 'time'], ['Artist', 'Nominator', 'Quote', 'Song', 'Link', 'Image', 'Timestamp']);
-const fotd = new OtdHandler('fotd', 'Film', tvbf, FOTDS_FILE, ['film', 'nominator', 'quote', 'link', 'image', 'time'], ['Film', 'Nominator', 'Quote', 'Link', 'Image', 'Timestamp']);
-const sotd = new OtdHandler('sotd', 'Show', tvbf, SOTDS_FILE, ['show', 'nominator', 'quote', 'link', 'image', 'time'], ['Show', 'Nominator', 'Quote', 'Link', 'Image', 'Timestamp']);
-const cotd = new OtdHandler('cotd', 'Channel', yt, COTDS_FILE, ['channel', 'nominator', 'link', 'tagline', 'image', 'time'], ['Show', 'Nominator', 'Link', 'Tagline', 'Image', 'Timestamp']);
-const botw = new OtdHandler('botw', 'Book', library, BOTWS_FILE, ['book', 'nominator', 'link', 'quote', 'author', 'image', 'time'], ['Book', 'Nominator', 'Link', 'Quote', 'Author', 'Image', 'Timestamp'], true);
+const aotd = new OtdHandler('aotd', 'Artist', rooms.thestudio, AOTDS_FILE, ['artist', 'nominator', 'quote', 'song', 'link', 'image', 'time'], ['Artist', 'Nominator', 'Quote', 'Song', 'Link', 'Image', 'Timestamp']);
+const fotd = new OtdHandler('fotd', 'Film', rooms.jubilifetvfilms, FOTDS_FILE, ['film', 'nominator', 'quote', 'link', 'image', 'time'], ['Film', 'Nominator', 'Quote', 'Link', 'Image', 'Timestamp']);
+const sotd = new OtdHandler('sotd', 'Show', rooms.jubilifetvfilms, SOTDS_FILE, ['show', 'nominator', 'quote', 'link', 'image', 'time'], ['Show', 'Nominator', 'Quote', 'Link', 'Image', 'Timestamp']);
+const cotd = new OtdHandler('cotd', 'Channel', rooms.youtube, COTDS_FILE, ['channel', 'nominator', 'link', 'tagline', 'image', 'time'], ['Show', 'Nominator', 'Link', 'Tagline', 'Image', 'Timestamp']);
+const botw = new OtdHandler('botw', 'Book', rooms.thelibrary, BOTWS_FILE, ['book', 'nominator', 'link', 'quote', 'author', 'image', 'time'], ['Book', 'Nominator', 'Link', 'Quote', 'Author', 'Image', 'Timestamp'], true);
+const motw = new OtdHandler('motw', 'Match', rooms.prowrestling, MOTWS_FILE, ['match', 'nominator', 'link', 'tagline', 'event', 'image', 'time'], ['Match', 'Nominator', 'Link', 'Tagline', 'Event', 'Image', 'Timestamp'], true);
 
 /**
  * @param {string} message
@@ -358,6 +369,8 @@ function selectHandler(message) {
 		return cotd;
 	case 'botw':
 		return botw;
+	case 'motw':
+		return motw;
 	default:
 		throw new Error("Invalid type for otd handler.");
 	}
@@ -438,16 +451,14 @@ let commands = {
 		if (room !== handler.room) return this.errorReply(`This command can only be used in ${handler.room.title}.`);
 		if (!this.can('mute', null, room)) return false;
 
-		target = this.splitTarget(target);
-		let name = this.targetUsername;
-		let userid = toId(name);
-		if (!userid) return this.errorReply(`'${name}' is not a valid username.`);
+		let userid = toId(target);
+		if (!userid) return this.errorReply(`'${target}' is not a valid username.`);
 
 		if (handler.removeNomination(userid)) {
 			this.privateModAction(`(${user.name} removed ${this.targetUsername}'s nomination for the ${handler.name} of the ${handler.timeLabel}.)`);
 			this.modlog(`${handler.id.toUpperCase()} REMOVENOM`, userid);
 		} else {
-			this.sendReply(`User '${name}' has no nomination for the ${handler.name} of the ${handler.timeLabel}.`);
+			this.sendReply(`User '${target}' has no nomination for the ${handler.name} of the ${handler.timeLabel}.`);
 		}
 	},
 	removehelp: [`/-otd remove [username] - Remove a user's nomination for the Thing of the Day and prevent them from voting again until the next round. Requires: % @ * # & ~`],
@@ -519,6 +530,8 @@ let commands = {
 				break;
 			case 'quote':
 			case 'tagline':
+			case 'match':
+			case 'event':
 				if (!value.length || value.length > 150) return this.errorReply(`Please enter a valid ${key}.`);
 				break;
 			case 'song':
@@ -565,14 +578,15 @@ let commands = {
 
 		if (room !== handler.room) return this.errorReply(`This command can only be used in ${handler.room.title}.`);
 
-		let text = handler.generateWinnerDisplay();
-		if (!text) return this.errorReply("There is no winner yet.");
-		return this.sendReplyBox(text);
+		handler.generateWinnerDisplay().then(text => {
+			if (!text) return this.errorReply("There is no winner yet.");
+			return this.sendReplyBox(text);
+		});
 	},
 };
 
 const help = [
-	`Thing of the Day plugin commands (aotd, fotd, sotd, cotd):`,
+	`Thing of the Day plugin commands (aotd, fotd, sotd, cotd, botw, motw):`,
 	`- /-otd - View the current Thing of the Day.`,
 	`- /-otd start - Starts nominations for the Thing of the Day. Requires: % @ # & ~`,
 	`- /-otd nom [nomination] - Nominate something for Thing of the Day.`,
@@ -590,6 +604,7 @@ exports.commands = {
 	sotd: commands,
 	cotd: commands,
 	botw: commands,
+	motw: commands,
 	aotdhelp: help,
 	otdhelp: help,
 };
