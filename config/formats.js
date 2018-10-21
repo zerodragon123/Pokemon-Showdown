@@ -148,7 +148,7 @@ let Formats = [
 	{
 		name: "[Gen 7] NU",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3639192/">NU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3642884/">NU Metagame Discussion</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3622107/">NU Viability Rankings</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3612396/">NU Sample Teams</a>`,
 		],
@@ -156,6 +156,9 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] RU'],
 		banlist: ['RU', 'NUBL', 'Drought'],
+		onBegin: function () {
+			if (this.rated) this.add('html', `<div class="broadcast-blue"><strong>NU is currently suspecting Slowbro! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3642884/">suspect thread</a>.</strong></div>`);
+		},
 	},
 	{
 		name: "[Gen 7] PU",
@@ -2551,6 +2554,38 @@ let Formats = [
 		team: 'random',
 		searchShow: false,
 		ruleset: ['Pokemon', 'Same Type Clause', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+	},
+	{
+		name: "[Gen 7] Super Staff Bros Brawl",
+		desc: "Super Staff Bros returns for another round! Battle with a random team of pokemon created by the sim staff.",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/articles/super-staff-bros-brawl">Introduction &amp; Roster</a>`,
+		],
+
+		mod: 'ssb',
+		team: 'randomStaffBros',
+		ruleset: ['HP Percentage Mod', 'Cancel Mod', 'Sleep Clause Mod'],
+		onBegin: function () {
+			this.add('raw|SUPER STAFF BROS <b>BRAWL</b>!!');
+			this.add('message', 'GET READY FOR THE NEXT BATTLE!');
+			this.add(`raw|<div class='broadcast-green'><b>Wondering what all these custom moves, abilities, and items do?<br />Check out the <a href="https://www.smogon.com/articles/super-staff-bros-brawl" target="_blank">Super Staff Bros Brawl Guide</a> and find out!</b></div>`);
+		},
+		onSwitchIn: function (pokemon) {
+			let name = toId(pokemon.illusion ? pokemon.illusion.name : pokemon.name);
+			if (this.getTemplate(name).exists) {
+				// Certain pokemon have volatiles named after their speciesid
+				// To prevent overwriting those, and to prevent accidentaly leaking
+				// that a pokemon is on a team through the onStart even triggering
+				// at the start of a match, users with pokemon names will need their
+				// statuse's to end in "user".
+				name += 'user';
+			}
+			// Add the mon's status effect to it as a volatile.
+			let status = this.getEffect(name);
+			if (status && status.exists) {
+				pokemon.addVolatile(name, pokemon);
+			}
+		},
 	},
 	{
 		name: "[Gen 7] Challenge Cup 1v1",
