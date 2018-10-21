@@ -719,8 +719,8 @@ let Formats = [
 	},
 	{
 		name: "[Gen 7] Balanced Hackmons Plus",
-		desc: [
-			"Balanced Hackmons with special Arceus forms mechanics in GEN 7.",
+		desc: `Balanced Hackmons with special Arceus forms mechanics in GEN 7.`,
+		threads: [
 			"&bullet; <a href=\"http://pokemon-online.eu/threads/35426/\">Balanced Hackmons</a>",
 			"&bullet; <a href=\"http://pokemon-online.eu/threads/36170/\">BH Tiering Policy</a>",
 			"&bullet; <a href=\"http://pokemon-online.eu/threads/36018/\">BH Viability Rankings</a>",
@@ -931,8 +931,8 @@ let Formats = [
 	},
 	{
 		name: "[Gen 7] Relic PO Balanced Hackmons",
-		desc: [
-			"Relic PO version of Balanced Hackmons in GEN 7 allowing Protean, Magpull and Stakeout",
+		desc: `Relic PO version of Balanced Hackmons in GEN 7 allowing Protean, Magpull and Stakeout`,
+		threads: [
 			"&bullet; <a href=\"http://pokemon-online.eu/threads/35426/\">Balanced Hackmons</a>",
 			"&bullet; <a href=\"http://pokemon-online.eu/threads/36170/\">BH Tiering Policy</a>",
 			"&bullet; <a href=\"http://pokemon-online.eu/threads/36018/\">BH Viability Rankings</a>",
@@ -944,9 +944,7 @@ let Formats = [
 	},
 	{
 		name: "[Gen 7] PO No Rule Hackmons",
-		desc: [
-			"PO version of Classic Hackmons in GEN 7.",
-		],
+		desc: `PO version of Classic Hackmons in GEN 7.`,
 
 		mod: 'bhplus',
 		ruleset: ['Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
@@ -984,7 +982,8 @@ let Formats = [
 	},
 	{
 		name: "[Gen 6] Balanced Hackmons",
-		desc: ["&bullet; <a href=\"http://www.smogon.com/dex/xy/formats/bh/\">ORAS Balanced Hackmons</a>"],
+		desc: `Anything that can be hacked in-game and is usable in local battles is allowed.`,
+		threads: ["&bullet; <a href=\"http://www.smogon.com/dex/xy/formats/bh/\">ORAS Balanced Hackmons</a>"],
 
 		mod: 'gen6',
 		searchShow: false,
@@ -993,8 +992,8 @@ let Formats = [
 	},
 	{
 		name: "[Gen 5] Balanced Hackmons",
-		desc: [
-			"Anything that can be hacked in-game and is usable in local battles is allowed.",
+		desc: `Anything that can be hacked in-game and is usable in local battles is allowed.`,
+		threads: [
 			"&bullet; <a href=\"http://www.smogon.com/forums/threads/gen-v-balanced-hackmons.3463764/\">Balanced Hackmons</a>",
 		],
 
@@ -1005,8 +1004,8 @@ let Formats = [
 	},
 	{
 		name: "[Gen 4] Balanced Hackmons",
-		desc: [
-			"Anything that can be hacked in-game and is usable in local battles is allowed.",
+		desc: `Anything that can be hacked in-game and is usable in local battles is allowed.`,
+		threads: [
 			"&bullet; <a href=\"http://www.smogon.com/forums/posts/7258505/\">Balanced Hackmons</a>",
 		],
 
