@@ -445,7 +445,7 @@ let BattleMovedex = {
 		basePower: 100,
 		category: "Special",
 		desc: "This move's type depends on the user's held Plate. If the target has the same type as this move, its Base Power is boosted by 1.5x.",
-		shortDesc: "Type = Plate. 1.5x base power if foe has the move's type.",
+		shortDesc: "Type = Plate. 1.5x power if foe has the move's type.",
 		id: "comeonyougunners",
 		name: "Come on you Gunners",
 		isNonstandard: true,
@@ -737,6 +737,7 @@ let BattleMovedex = {
 				carryOver.push({
 					hp: pokemon.hp / pokemon.maxhp,
 					status: pokemon.status,
+					statusData: pokemon.statusData,
 					pp: pokemon.moveSlots.slice().map(m => {
 						return m.pp / m.maxpp;
 					}),
@@ -767,6 +768,7 @@ let BattleMovedex = {
 
 				pokemon.hp = Math.floor(pokemon.maxhp * oldSet.hp) || 1;
 				pokemon.status = oldSet.status;
+				if (oldSet.statusData) pokemon.statusData = oldSet.statusData;
 				for (const [j, moveSlot] of pokemon.moveSlots.entries()) {
 					moveSlot.pp = Math.floor(moveSlot.maxpp * oldSet.pp[j]);
 				}
@@ -802,6 +804,10 @@ let BattleMovedex = {
 		},
 		onHit: function () {
 			this.setTerrain('grassyterrain');
+		},
+		onAfterMove: function (pokemon) {
+			if (pokemon.template.baseSpecies !== 'Aegislash' || pokemon.transformed) return;
+			if (pokemon.template.species !== 'Aegislash') pokemon.formeChange('Aegislash');
 		},
 		target: "normal",
 		type: "Steel",
@@ -1078,7 +1084,7 @@ let BattleMovedex = {
 	// duck
 	holyduck: {
 		accuracy: 95,
-		basePower: 75,
+		basePower: 90,
 		category: "Physical",
 		desc: "If this attack hits, the effects of Reflect, Light Screen, and Aurora Veil end on the target's side of the field before damage is calculated.",
 		shortDesc: "Destroys screens, unless the target is immune.",
@@ -1113,8 +1119,8 @@ let BattleMovedex = {
 		basePower: 0,
 		damage: 111,
 		category: "Physical",
-		desc: "Deals 111 HP of damage and burns the target.",
-		shortDesc: "Always does 111 HP of damage; burns.",
+		desc: "Deals 111 HP of damage and burns the target. If the target already has a status ailment, it is replaced with a burn. Fails if the target is a Fire-type, or if the user is not a Fire-type.",
+		shortDesc: "Dmg=111HP; replace status w/burn; fail if foe=Fire.",
 		id: "fangofthefireking",
 		name: "Fang of the Fire King",
 		isNonstandard: true,
@@ -1296,10 +1302,10 @@ let BattleMovedex = {
 	// False
 	frck: {
 		accuracy: true,
-		basePower: 1000,
+		basePower: 0,
 		category: "Physical",
-		desc: "Does not check accuracy. User faints if move hits.",
-		shortDesc: "Does not check accuracy. User faints if move hits.",
+		desc: "Does not check accuracy. KOes the foe. User faints afterwards if move hits.",
+		shortDesc: "KOes foe. Always hits. User faints after on success.",
 		id: "frck",
 		name: "fr*ck",
 		isNonstandard: true,
@@ -1307,7 +1313,6 @@ let BattleMovedex = {
 		noPPBoosts: true,
 		priority: 0,
 		flags: {protect: 1},
-		selfdestruct: "ifHit",
 		onTryMovePriority: 100,
 		onTryMove: function () {
 			this.attrLastMove('[still]');
@@ -1316,6 +1321,10 @@ let BattleMovedex = {
 			this.add('-activate', source, 'move: Celebrate');
 			this.add('-anim', source, 'Searing Sunraze Smash', target);
 			this.add('-anim', source, 'Explosion', target);
+		},
+		onHit: function (target, source) {
+			target.faint();
+			source.faint();
 		},
 		secondary: null,
 		target: "normal",
@@ -1687,8 +1696,11 @@ let BattleMovedex = {
 		pp: 10,
 		priority: 0,
 		flags: {protect: 1, mirror: 1},
-		onPrepareHit: function (target, source) {
+		onTryMovePriority: 100,
+		onTryMove: function () {
 			this.attrLastMove('[still]');
+		},
+		onPrepareHit: function (target, source) {
 			this.add('-anim', source, 'Gunk Shot', target);
 		},
 		onHit: function (target) {
@@ -1737,7 +1749,7 @@ let BattleMovedex = {
 		basePower: 120,
 		category: "Physical",
 		desc: "The user takes recoil damage equal to 33% the HP lost by the target, rounded half up, but not less than 1 HP.",
-		shortDesc: "Usually goes first. Has 33% recoil.",
+		shortDesc: "Has 33% recoil.",
 		id: "boi",
 		name: "B O I",
 		isNonstandard: true,
@@ -1836,7 +1848,7 @@ let BattleMovedex = {
 		flags: {protect: 1, mirror: 1, contact: 1},
 		secondary: null,
 		target: "normal",
-		type: "Dragon",
+		type: "Flying",
 	},
 	// kalalokki
 	maelstrm: {
@@ -1851,7 +1863,7 @@ let BattleMovedex = {
 		pp: 5,
 		priority: 0,
 		flags: {protect: 1, mirror: 1},
-		volatileStatus: 'partiallytrapped',
+		volatileStatus: 'maelstrm',
 		onTryMovePriority: 100,
 		onTryMove: function () {
 			this.attrLastMove('[still]');
@@ -1860,9 +1872,6 @@ let BattleMovedex = {
 			this.add('-anim', source, 'Dark Void', target);
 			this.add('-anim', source, 'Surf', target);
 		},
-		onHit: function (target, source) {
-			target.addVolatile('maelstrm', source);
-		},
 		effect: {
 			duration: 5,
 			durationCallback: function (target, source) {
@@ -1870,10 +1879,10 @@ let BattleMovedex = {
 					this.debug('maelstrm grip claw duration boost');
 					return 8;
 				}
-				return 5;
+				return this.random(5, 7);
 			},
 			onStart: function () {
-				this.add('message', 'It became trapped in an enormous maelström!');
+				this.add('-message', 'It became trapped in an enormous maelström!');
 			},
 			onResidualOrder: 11,
 			onResidual: function (pokemon) {
@@ -1885,7 +1894,7 @@ let BattleMovedex = {
 				}
 			},
 			onEnd: function () {
-				this.add('message', 'The maelström dissipated.');
+				this.add('-message', 'The maelström dissipated.');
 			},
 			onTrapPokemon: function (pokemon) {
 				pokemon.tryTrap();
@@ -2001,7 +2010,7 @@ let BattleMovedex = {
 		accuracy: 100,
 		basePower: 10,
 		category: "Physical",
-		desc: "Raises the user and target's Attack and Defense by 3 stages and confuses them. This move fails if used in succession.",
+		desc: "Raises both the user's and the target's Attack by 3 stages, lowers the Defense of both by 3 stages, confuses both Pokemon, and has a 100% chance to cause the target to flinch.",
 		shortDesc: "+3 Atk, -3 Def, confusion to user & target. Priority.",
 		id: "barfight",
 		name: "Bar Fight",
@@ -2176,7 +2185,7 @@ let BattleMovedex = {
 				const move2 = offMove2[this.random(offMove2.length)];
 				newMovep.push(move1);
 				newMovep.push(move2);
-				newMovep.push(statMove[this.random(statMove.length)]);
+				newMovep.push(!statMove.length ? 'moonlight' : statMove[this.random(statMove.length)]);
 				newMovep.push('purplepills');
 				// Replace Moveset
 				pokemon.moveSlots = [];
@@ -2295,9 +2304,13 @@ let BattleMovedex = {
 	blazeofglory: {
 		accuracy: true,
 		basePower: 0,
-		damageCallback: function (pokemon) {
+		damageCallback: function (pokemon, target) {
 			let damage = pokemon.hp;
 			pokemon.faint();
+			if (target.volatiles['banefulbunker'] || target.volatiles['kingsshield'] || target.side.sideConditions['matblock'] || target.volatiles['protect'] || target.volatiles['spikyshield'] || target.volatiles['lilypadshield']) {
+				this.add('-zbroken', target);
+				return Math.floor(damage / 4);
+			}
 			return damage;
 		},
 		category: "Physical",
@@ -2990,8 +3003,8 @@ let BattleMovedex = {
 	literallycheating: {
 		accuracy: true,
 		category: "Status",
-		desc: "For seven turns, any Pokemon that has a stat boosted (even if not through a move) loses all PP on the move it used last.",
-		shortDesc: "7 turns: stat boosted: lose all PP from last move.",
+		desc: "For seven turns, any Pokemon that has one of their stats boosted through any manner loses all PP on the last move they used.",
+		shortDesc: "7 turns: boosting stat: lose all PP from last move.",
 		id: "literallycheating",
 		name: "Literally Cheating",
 		isNonstandard: true,
@@ -3378,7 +3391,7 @@ let BattleMovedex = {
 		isNonstandard: true,
 		pp: 1,
 		priority: 0,
-		flags: {protect: 1, mirror: 1},
+		flags: {},
 		onTryMovePriority: 100,
 		onTryMove: function () {
 			this.attrLastMove('[still]');
@@ -3455,8 +3468,8 @@ let BattleMovedex = {
 	rotate: {
 		accuracy: 100,
 		category: "Status",
-		desc: "The next Pokemon will switch out after using its move if the move is successful.",
-		shortDesc: "Next Pokemon will switch after using its move.",
+		desc: "The user's replacement will switch out after using their move on the next turn if the replacement's move is successful.",
+		shortDesc: "User's replacement will switch after using its move.",
 		id: "rotate",
 		name: "Rotate",
 		isNonstandard: true,
@@ -3474,7 +3487,7 @@ let BattleMovedex = {
 		effect: {
 			duration: 2,
 			onStart: function () {
-				this.add('-message', `The next pokemon is going to rotate!`);
+				this.add('-message', `The user's replacement is going to rotate!`);
 			},
 			onModifyMove: function (move) {
 				move.selfSwitch = true;
@@ -3490,30 +3503,33 @@ let BattleMovedex = {
 	},
 	// The Immortal
 	ultrasucc: {
-		accuracy: 100,
-		basePower: 90,
+		accuracy: true,
+		basePower: 140,
 		category: "Physical",
-		desc: "This move has a 50% chance to boost the user's Speed by 1 stage, and this move recovers half the HP lost by the target, rounded half up. If Big Root is held, the user recovers 1.3x the normal amount of HP, rounded half down.",
-		shortDesc: "Heals 50% of the damage dealt, 50% boost Spe.",
+		desc: "Has a 100% chance to raise the user's Speed by 1 stage.",
+		shortDesc: "100% chance to raise the user's Speed by 1.",
 		id: "ultrasucc",
 		name: "Ultra Succ",
 		isNonstandard: true,
-		pp: 10,
+		pp: 1,
 		priority: 0,
-		flags: {protect: 1, mirror: 1, heal: 1, contact: 1},
+		flags: {},
 		onTryMovePriority: 100,
 		onTryMove: function () {
 			this.attrLastMove('[still]');
 		},
 		onPrepareHit: function (target, source) {
 			this.add('-anim', source, "Dragon Ascent", target);
-			this.add('-anim', source, "Draining Kiss", target);
 		},
 		secondary: {
-			chance: 50,
-			self: {boosts: {spe: 1}},
+			chance: 100,
+			self: {
+				boosts: {
+					spe: 1,
+				},
+			},
 		},
-		drain: [1, 2],
+		isZ: "buzzniumz",
 		target: "normal",
 		type: "Fighting",
 	},
@@ -3657,7 +3673,7 @@ let BattleMovedex = {
 		accuracy: true,
 		category: "Status",
 		desc: "Moves all hazards that are on the user's side of the field to the foe's side of the field. Sets Stealth Rock on the foe's side, after which the user switches out.",
-		shortDesc: "Moves hazards to foe's side. Switches out.",
+		shortDesc: "Hazards -> foe side. Set SR. User switches out.",
 		id: "smokebomb",
 		name: "Smoke Bomb",
 		isNonstandard: true,

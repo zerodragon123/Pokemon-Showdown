@@ -143,6 +143,7 @@ interface SecondaryEffect {
 	ability?: Ability
 	boosts?: SparseBoostsTable
 	dustproof?: boolean
+	kingsrock?: boolean
 	self?: SelfEffect
 	status?: string
 	volatileStatus?: string
@@ -506,6 +507,7 @@ interface MoveData extends EffectData {
 	volatileStatus?: string
 	weather?: string
 	willCrit?: boolean
+	forceSTAB?: boolean
 	zMovePower?: number
 	zMoveEffect?: string
 	zMoveBoost?: SparseBoostsTable
@@ -536,8 +538,8 @@ interface ActiveMove extends Effect, MoveData {
 	hasAuraBreak?: boolean
 	hasBounced?: boolean
 	hasSheerForce?: boolean
-	hasSTAB?: boolean
 	isExternal?: boolean
+	lastHit?: boolean
 	magnitude?: number
 	negateSecondary?: boolean
 	normalizeBoosted?: boolean
@@ -550,6 +552,11 @@ interface ActiveMove extends Effect, MoveData {
 	statusRoll?: string
 	totalDamage?: number | false
 	willChangeForme?: boolean
+	/**
+	 * Whether or not this move is a Z-Move that broke protect
+	 * (affects damage calculation).
+	 * @type {boolean}
+	 */
 	zBrokeProtect?: boolean
 	/**
 	 * Has this move been boosted by a Z-crystal? Usually the same as
