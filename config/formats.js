@@ -152,9 +152,6 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] RU'],
 		banlist: ['RU', 'NUBL', 'Drought'],
-		onBegin: function () {
-			if (this.rated) this.add('html', `<div class="broadcast-blue"><strong>NU is currently suspecting Slowbro! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3642884/">suspect thread</a>.</strong></div>`);
-		},
 	},
 	{
 		name: "[Gen 7] PU",
@@ -607,12 +604,12 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] OU'],
 		banlist: ['Serene Grace'],
-		restrictedMoves: ['Bide', 'Chatter', 'Dynamic Punch', 'Fake Out', 'Inferno', 'Power Trip', 'Power-Up Punch', 'Pursuit', 'Stored Power', 'Zap Cannon'],
+		restrictedMoves: ['Bide', 'Chatter', 'Dynamic Punch', 'Fake Out', 'Frustration', 'Inferno', 'Power Trip', 'Power-Up Punch', 'Pursuit', 'Return', 'Stored Power', 'Zap Cannon'],
 		validateSet: function (set, teamHas) {
 			const restrictedMoves = this.format.restrictedMoves || [];
 			let item = set.item;
 			let move = this.dex.getMove(set.item);
-			if (!move.exists || move.type === 'Status' || restrictedMoves.includes(move.name) || move.flags['charge']) return this.validateSet(set, teamHas);
+			if (!move.exists || move.type === 'Status' || restrictedMoves.includes(move.name) || move.flags['charge'] || move.priority > 0) return this.validateSet(set, teamHas);
 			set.item = '';
 			let problems = this.validateSet(set, teamHas) || [];
 			set.item = item;
@@ -638,7 +635,13 @@ let Formats = [
 		},
 		onModifyPriority: function (priority, pokemon, target, move) {
 			// @ts-ignore
-			if (move.category !== 'Status' && pokemon && pokemon.forte) return priority + pokemon.forte.priority;
+			if (move.category !== 'Status' && pokemon && pokemon.forte) {
+				let ability = pokemon.getAbility();
+				// @ts-ignore
+				if (ability.id === 'triage' && pokemon.forte.flags['heal']) return priority + (move.flags['heal'] ? 0 : 3);
+				// @ts-ignore
+				return priority + pokemon.forte.priority;
+			}
 		},
 		onModifyMovePriority: 1,
 		onModifyMove: function (move, pokemon) {
@@ -649,23 +652,23 @@ let Formats = [
 				// @ts-ignore
 				if (pokemon.forte.self) {
 					// @ts-ignore
-					if (pokemon.forte.self.onHit) {
-						if (move.self && move.self.onHit) {
+					if (pokemon.forte.self.onHit && move.self && move.self.onHit) {
+						// @ts-ignore
+						for (let i in pokemon.forte.self) {
+							if (i.startsWith('onHit')) continue;
 							// @ts-ignore
-							for (let i in pokemon.forte.self) {
-								if (i.startsWith('onHit')) continue;
-								// @ts-ignore
-								move.self[i] = pokemon.forte.self[i];
-							}
-						} else {
-							// @ts-ignore
-							move.self = Object.assign(move.self || {}, pokemon.forte.self);
+							move.self[i] = pokemon.forte.self[i];
 						}
+					} else {
+						// @ts-ignore
+						move.self = Object.assign(move.self || {}, pokemon.forte.self);
 					}
 				}
 				// @ts-ignore
 				if (pokemon.forte.secondaries) move.secondaries = (move.secondaries || []).concat(pokemon.forte.secondaries);
-				for (let prop of ['basePowerCallback', 'breaksProtect', 'critRatio', 'defensiveCategory', 'drain', 'forceSwitch', 'ignoreAbility', 'ignoreDefensive', 'ignoreEvasion', 'ignoreImmunity', 'pseudoWeather', 'recoil', 'selfSwitch', 'sleepUsable', 'stealsBoosts', 'thawsTarget', 'useTargetOffensive', 'volatileStatus', 'willCrit']) {
+				// @ts-ignore
+				move.critRatio = (move.critRatio - 1) + (pokemon.forte.critRatio - 1) + 1;
+				for (let prop of ['basePowerCallback', 'breaksProtect', 'defensiveCategory', 'drain', 'forceSwitch', 'ignoreAbility', 'ignoreDefensive', 'ignoreEvasion', 'ignoreImmunity', 'pseudoWeather', 'recoil', 'selfSwitch', 'sleepUsable', 'stealsBoosts', 'thawsTarget', 'useTargetOffensive', 'volatileStatus', 'willCrit']) {
 					// @ts-ignore
 					if (pokemon.forte[prop]) {
 						// @ts-ignore
@@ -686,15 +689,29 @@ let Formats = [
 		onHitPriority: 1,
 		onHit: function (target, source, move) {
 			// @ts-ignore
-			if (move && move.category !== 'Status' && source.forte && source.forte.onHit) this.singleEvent('Hit', source.forte, {}, target, source, move);
-			// @ts-ignore
-			if (move && move.category !== 'Status' && source.forte && source.forte.self && source.forte.self.onHit) this.singleEvent('Hit', source.forte, {}, target, source, move);
+			if (move && move.category !== 'Status' && source.forte) {
+				// @ts-ignore
+				if (source.forte.onHit) this.singleEvent('Hit', source.forte, {}, target, source, move);
+				// @ts-ignore
+				if (source.forte.self && source.forte.self.onHit) this.singleEvent('Hit', source.forte.self, {}, source, source, move);
+				// @ts-ignore
+				if (source.forte.onAfterHit) this.singleEvent('AfterHit', source.forte, {}, target, source, move);
+			}
 		},
 		// @ts-ignore
 		onAfterSubDamagePriority: 1,
 		onAfterSubDamage: function (damage, target, source, move) {
 			// @ts-ignore
 			if (move && move.category !== 'Status' && source.forte && source.forte.onAfterSubDamage) this.singleEvent('AfterSubDamage', source.forte, null, target, source, move);
+		},
+		onModifySecondaries: function (secondaries, target, source, move) {
+			if (secondaries.some(s => !!s.self)) move.selfDropped = false;
+		},
+		// @ts-ignore
+		onAfterMoveSecondarySelfPriority: 1,
+		onAfterMoveSecondarySelf: function (source, target, move) {
+			// @ts-ignore
+			if (move && move.category !== 'Status' && source.forte && source.forte.onAfterMoveSecondarySelf) this.singleEvent('AfterMoveSecondarySelf', source.forte, null, source, target, move);
 		},
 	},
 	{
