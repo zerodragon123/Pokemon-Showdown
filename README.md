@@ -166,6 +166,7 @@ Major Contributors
 Contributors
 
 - Andrew Goodsell [Zracknel] - Art (battle weather backdrops)
+- Austin Couturier - Development
 - Avery Zimmer [Lyren, SolarisFox] - Development
 - Ben Davies [Morfent] - Development
 - Ben Frengley [TalkTakesTime] - Development
@@ -174,6 +175,7 @@ Contributors
 - Ian Clail [Layell] - Art (battle graphics, sprites)
 - Jeremy Piemonte [panpawn] - Development
 - Kris Johnson [Kris] - Development
+- Leonard Craft III [DaWoblefet] - Research (game mechanics)
 - Neil Rashbrook [urkerab] - Development
 - Robin Vandenbrande [Quinella] - Development
 - [Ridaz] - Art (battle animations)
