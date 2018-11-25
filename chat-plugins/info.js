@@ -402,6 +402,9 @@ const commands = {
 	pokedex: 'data',
 	data: function (target, room, user, connection, cmd) {
 		if (!this.runBroadcast()) return;
+		if (this.broadcasting) {
+			[, target] = Chat.splitFirst(this.message, ' ');
+		}
 
 		let buffer = '';
 		let sep = target.split(',');
