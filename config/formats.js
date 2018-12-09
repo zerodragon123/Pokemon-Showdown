@@ -152,10 +152,6 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] RU'],
 		banlist: ['RU', 'NUBL', 'Drought'],
-		unbanlist: ['Abomasnow-Mega'],
-		onBegin: function () {
-			if (this.rated) this.add('html', `<div class="broadcast-green"><strong>NU is currently suspecting Mega Abomasnow! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3643951/">suspect thread</a>.</strong></div>`);
-		},
 	},
 	{
 		name: "[Gen 7] PU",
@@ -167,7 +163,7 @@ let Formats = [
 
 		mod: 'gen7',
 		ruleset: ['[Gen 7] NU'],
-		banlist: ['NU', 'PUBL', 'Abomasnow-Mega'],
+		banlist: ['NU', 'PUBL'],
 	},
 	{
 		name: "[Gen 7] LC",
@@ -642,9 +638,12 @@ let Formats = [
 			}
 
 			this.format.noChangeForme = false;
+			/** @type {string[]} */
 			let problems = [];
 			let pkmnRule = Dex.getFormat('pokemon');
-			if (pkmnRule.exists && pkmnRule.onChangeSet && pkmnRule.onChangeSet.call(Dex, set, this.format)) problems = pkmnRule.onChangeSet.call(Dex, set, this.format);
+			if (pkmnRule.exists && pkmnRule.onChangeSet && pkmnRule.onChangeSet.call(Dex, set, this.format)) {
+				problems = pkmnRule.onChangeSet.call(Dex, set, this.format) || [];
+			}
 			this.format.noChangeForme = true;
 
 			if (problems.length) return problems;
@@ -3398,8 +3397,8 @@ let Formats = [
 
 		mod: 'gen5',
 		searchShow: false,
-		ruleset: ['[Gen 5] OU'],
-		banlist: ['OU', 'UUBL', 'Drought', 'Sand Stream', 'Snow Warning'],
+		ruleset: ['Pokemon', 'Standard', 'Evasion Abilities Clause', 'Baton Pass Clause', 'Swagger Clause', 'Team Preview'],
+		banlist: ['Uber', 'OU', 'UUBL', 'Arena Trap', 'Drought', 'Sand Stream', 'Snow Warning'],
 	},
 	{
 		name: "[Gen 5] RU",
@@ -3411,7 +3410,7 @@ let Formats = [
 		mod: 'gen5',
 		searchShow: false,
 		ruleset: ['[Gen 5] UU'],
-		banlist: ['UU', 'RUBL', 'Shell Smash + Baton Pass', 'Snow Warning'],
+		banlist: ['UU', 'RUBL', 'Shell Smash + Baton Pass'],
 	},
 	{
 		name: "[Gen 5] NU",
