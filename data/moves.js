@@ -3259,7 +3259,7 @@ let BattleMovedex = {
 			for (const targetCondition of removeTarget) {
 				if (target.side.removeSideCondition(targetCondition)) {
 					if (!removeAll.includes(targetCondition)) continue;
-					this.add('-sideend', target.side, this.getEffect(targetCondition).name, '[from] move: Defog', '[of] ' + target);
+					this.add('-sideend', target.side, this.getEffect(targetCondition).name, '[from] move: Defog', '[of] ' + source);
 					success = true;
 				}
 			}
@@ -19336,7 +19336,7 @@ let BattleMovedex = {
 			},
 			onEnd: function (target) {
 				this.add('-end', target, 'move: Yawn', '[silent]');
-				target.trySetStatus('slp');
+				target.trySetStatus('slp', this.effectData.source);
 			},
 		},
 		secondary: null,
