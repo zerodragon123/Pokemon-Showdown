@@ -625,7 +625,7 @@ let Formats = [
 				let abilityMap = Object.create(null);
 				for (let speciesid in Dex.data.Pokedex) {
 					let pokemon = Dex.getTemplate(speciesid);
-					if (pokemon.num < 1 || pokemon.species === 'Smeargle') continue;
+					if (pokemon.num < 1 || pokemon.species === 'Murkrow' || pokemon.species === 'Smeargle') continue;
 					if (pokemon.requiredItem || pokemon.requiredMove) continue;
 					for (const key of Object.values(pokemon.abilities)) {
 						let abilityId = toId(key);
@@ -1052,6 +1052,9 @@ let Formats = [
 				}
 				if (!legalAbility) return ['The ability ' + set.ability + ' is banned on Pok\u00e9mon that do not naturally have it.'];
 			}
+		},
+		onBegin: function () {
+			if (this.rated) this.add('html', `<div class="broadcast-green"><strong>AAA is currently suspecting Weavile! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3645196/">suspect thread</a>.</strong></div>`);
 		},
 	},
 	{
