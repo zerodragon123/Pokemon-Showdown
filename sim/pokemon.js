@@ -340,7 +340,7 @@ class Pokemon {
 	 */
 	getDetailsInner(side) {
 		if (this.illusion) {
-			let illusionDetails = this.illusion.species + (this.level === 100 ? '' : ', L' + this.level) + (this.illusion.gender === '' ? '' : ', ' + this.illusion.gender) + (this.illusion.set.shiny ? ', shiny' : '');
+			let illusionDetails = this.illusion.template.species + (this.level === 100 ? '' : ', L' + this.level) + (this.illusion.gender === '' ? '' : ', ' + this.illusion.gender) + (this.illusion.set.shiny ? ', shiny' : '');
 			return illusionDetails + '|' + this.getHealthInner(side);
 		}
 		return this.details + '|' + this.getHealthInner(side);
@@ -525,6 +525,9 @@ class Pokemon {
 					}
 				}
 			}
+			if (targets.length && !targets.includes(target)) {
+				this.battle.retargetLastMove(targets[targets.length - 1]);
+			}
 			break;
 		case 'allAdjacent':
 		case 'allAdjacentFoes':
@@ -539,6 +542,9 @@ class Pokemon {
 				if (this.battle.isAdjacent(this, foeActive)) {
 					targets.push(foeActive);
 				}
+			}
+			if (targets.length && !targets.includes(target)) {
+				this.battle.retargetLastMove(targets[targets.length - 1]);
 			}
 			break;
 		default:
@@ -1172,7 +1178,6 @@ class Pokemon {
 			if (moveSlot.id === moveid && moveSlot.disabled !== true) {
 				moveSlot.disabled = (isHidden || true);
 				moveSlot.disabledSource = (sourceEffect ? sourceEffect.fullname : '');
-				break;
 			}
 		}
 	}
