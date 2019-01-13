@@ -327,47 +327,56 @@ if (cluster.isMaster) {
 	}
 
 	// Static server
-	const StaticServer = require('node-static').Server;
-	const roomidRegex = /^\/(?:[A-Za-z0-9][A-Za-z0-9-]*)\/?$/;
-	const cssServer = new StaticServer('./config');
-	const avatarServer = new StaticServer('./config/avatars');
-	const staticServer = new StaticServer('./static');
-	/**
-	 * @param {import('http').IncomingMessage} req
-	 * @param {import('http').ServerResponse} res
-	 */
-	const staticRequestHandler = (req, res) => {
-		// console.log(`static rq: ${req.socket.remoteAddress}:${req.socket.remotePort} -> ${req.socket.localAddress}:${req.socket.localPort} - ${req.method} ${req.url} ${req.httpVersion} - ${req.rawHeaders.join('|')}`);
-		req.resume();
-		req.addListener('end', () => {
-			if (Config.customhttpresponse &&
-					Config.customhttpresponse(req, res)) {
-				return;
-			}
-
-			let server = staticServer;
-			if (req.url) {
-				if (req.url === '/custom.css') {
-					server = cssServer;
-				} else if (req.url.startsWith('/avatars/')) {
-					req.url = req.url.substr(8);
-					server = avatarServer;
-				} else if (roomidRegex.test(req.url)) {
-					req.url = '/';
+	try {
+		if (Config.disablenodestatic) throw new Error("disablenodestatic");
+		const StaticServer = require('node-static').Server;
+		const roomidRegex = /^\/(?:[A-Za-z0-9][A-Za-z0-9-]*)\/?$/;
+		const cssServer = new StaticServer('./config');
+		const avatarServer = new StaticServer('./config/avatars');
+		const staticServer = new StaticServer('./static');
+		/**
+		 * @param {import('http').IncomingMessage} req
+		 * @param {import('http').ServerResponse} res
+		 */
+		const staticRequestHandler = (req, res) => {
+			// console.log(`static rq: ${req.socket.remoteAddress}:${req.socket.remotePort} -> ${req.socket.localAddress}:${req.socket.localPort} - ${req.method} ${req.url} ${req.httpVersion} - ${req.rawHeaders.join('|')}`);
+			req.resume();
+			req.addListener('end', () => {
+				if (Config.customhttpresponse &&
+						Config.customhttpresponse(req, res)) {
+					return;
 				}
-			}
 
-			server.serve(req, res, e => {
-				// @ts-ignore
-				if (e && e.status === 404) {
-					staticServer.serveFile('404.html', 404, {}, req, res);
+				let server = staticServer;
+				if (req.url) {
+					if (req.url === '/custom.css') {
+						server = cssServer;
+					} else if (req.url.startsWith('/avatars/')) {
+						req.url = req.url.substr(8);
+						server = avatarServer;
+					} else if (roomidRegex.test(req.url)) {
+						req.url = '/';
+					}
 				}
+
+				server.serve(req, res, e => {
+					// @ts-ignore
+					if (e && e.status === 404) {
+						staticServer.serveFile('404.html', 404, {}, req, res);
+					}
+				});
 			});
-		});
-	};
+		};
 
-	app.on('request', staticRequestHandler);
-	if (appssl) appssl.on('request', staticRequestHandler);
+		app.on('request', staticRequestHandler);
+		if (appssl) appssl.on('request', staticRequestHandler);
+	} catch (e) {
+		if (e.message === 'disablenodestatic') {
+			console.log('node-static is disabled');
+		} else {
+			console.log('Could not start node-static - try `npm install` if you want to use it');
+		}
+	}
 
 	// SockJS server
 
@@ -399,22 +408,31 @@ if (cluster.isMaster) {
 	}
 
 	const server = sockjs.createServer(options);
-	/** @type {Map<string, import('sockjs').Connection>} */
+	/**
+	 * socketid:Connection
+	 * @type {Map<string, import('sockjs').Connection>}
+	 */
 	const sockets = new Map();
-	/** @type {Map<string, Map<string, import('sockjs').Connection>>} */
+	/**
+	 * channelid:socketid:Connection
+	 * @type {Map<string, Map<string, import('sockjs').Connection>>}
+	 */
 	const channels = new Map();
-	/** @type {Map<string, Map<string, string>>} */
+	/**
+	 * channelid:socketid:subchannelid
+	 * @type {Map<string, Map<string, string>>}
+	 */
 	const subchannels = new Map();
+
 	/** @type {WriteStream} */
 	const logger = FS(`logs/sockets-${process.pid}`).createAppendStream();
 
 	// Deal with phantom connections.
 	const sweepSocketInterval = setInterval(() => {
 		sockets.forEach(socket => {
-			logger.write(`Found a ghost connection with a protocol of ${socket.protocol}\n`);
-
 			// @ts-ignore
 			if (socket.protocol === 'xhr-streaming' && socket._session && socket._session.recv) {
+				logger.write('Found a ghost connection with protocol xhr-streaming');
 				// @ts-ignore
 				socket._session.recv.didClose();
 			}
@@ -427,6 +445,7 @@ if (cluster.isMaster) {
 			// that sockjs sets to wait for users to reconnect within that time to continue their session.
 			// @ts-ignore
 			if (socket._session && socket._session.to_tref && !socket._session.to_tref._idlePrev) {
+				logger.write(`Found a ghost connection with protocol ${socket.protocol}`);
 				// @ts-ignore
 				socket._session.timeout_cb();
 			}
@@ -459,7 +478,15 @@ if (cluster.isMaster) {
 			if (!socket) return;
 			socket.destroy();
 			sockets.delete(socketid);
-			channels.forEach(channel => channel.delete(socketid));
+			channels.forEach((channel, channelid) => {
+				channel.delete(socketid);
+				subchannel = subchannels.get(channelid);
+				if (subchannel) subchannel.delete(socketid);
+				if (!channel.size) {
+					channels.delete(channelid);
+					if (subchannel) subchannels.delete(channelid);
+				}
+			});
 			break;
 
 		case '>':
