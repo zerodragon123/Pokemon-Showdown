@@ -149,6 +149,8 @@ class Battle extends Dex.ModdedDex {
 		this.lastDamage = 0;
 
 		this.abilityOrder = 0;
+		/** @type {''} */
+		this.NOT_FAILURE = '';
 		/** @type {boolean} */
 		this.LEGACY_API_DO_NOT_USE = false;
 
@@ -1941,7 +1943,7 @@ class Battle extends Dex.ModdedDex {
 	 * @param {number} damage
 	 * @param {Pokemon?} [target]
 	 * @param {Pokemon?} [source]
-	 * @param {'drain' | 'recoil' | 'crash' | Effect?} [effect]
+	 * @param {'drain' | 'recoil' | Effect?} [effect]
 	 * @param {boolean} [instafaint]
 	 */
 	damage(damage, target = null, source = null, effect = null, instafaint = false) {
@@ -3498,7 +3500,7 @@ class Battle extends Dex.ModdedDex {
 	 * @param {Pokemon} target
 	 * @param {Pokemon} pokemon
 	 * @param {Move} move
-	 * @return {number | undefined | false}
+	 * @return {number | undefined | false | ''}
 	 */
 	tryMoveHit(target, pokemon, move) {
 		throw new Error(`The tryMoveHit function needs to be implemented in scripts.js or the battle format.`);

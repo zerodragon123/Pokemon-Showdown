@@ -70,7 +70,7 @@ const LIMBO_PHASE = 'limbo';
 
 const MINIMUM_PLAYERS = 3;
 const START_TIMEOUT = 30 * 1000;
-const INTERMISSION_INTERVAL = 30 * 1000;
+const INTERMISSION_INTERVAL = 20 * 1000;
 
 const MAX_QUESTION_LENGTH = 252;
 const MAX_ANSWER_LENGTH = 32;
@@ -807,7 +807,7 @@ class FirstModeTrivia extends Trivia {
 		let buffer = Chat.html`Correct: ${user.name}<br />` +
 			`Answer(s): ${this.curAnswers.join(', ')}<br />` +
 			'They gained <strong>5</strong> points!<br />' +
-			`The top 5 players are: ${this.formatPlayerList({count: 5})}`;
+			`The top 5 players are: ${this.formatPlayerList({max: 5})}`;
 		if (player.points >= this.getCap()) {
 			this.win(buffer);
 			return;
@@ -841,7 +841,7 @@ class FirstModeTrivia extends Trivia {
 			'Correct: no one...<br />' +
 			`Answers: ${this.curAnswers.join(', ')}<br />` +
 			'Nobody gained any points.<br />' +
-			`The top 5 players are: ${this.formatPlayerList({count: 5})}`
+			`The top 5 players are: ${this.formatPlayerList({max: 5})}`
 		);
 
 		this.phaseTimeout = setTimeout(() => this.askQuestion(), INTERMISSION_INTERVAL);
@@ -949,7 +949,7 @@ class TimerModeTrivia extends Trivia {
 
 		if (winner) return this.win(buffer);
 
-		buffer += `<br />The top 5 players are: ${this.formatPlayerList({count: 5})}`;
+		buffer += `<br />The top 5 players are: ${this.formatPlayerList({max: 5})}`;
 		this.broadcast('The answering period has ended!', buffer);
 		this.phaseTimeout = setTimeout(() => this.askQuestion(), INTERMISSION_INTERVAL);
 	}
@@ -1017,7 +1017,7 @@ class NumberModeTrivia extends Trivia {
 				`Answer(s): ${this.curAnswers.join(', ')}<br />` +
 				`${Chat.plural(innerBuffer, "Each of them", "They")} gained <strong>${points}</strong> point(s)!`;
 
-			if (winner) return this.win(winner, buffer);
+			if (winner) return this.win(buffer);
 		} else {
 			for (let i in this.players) {
 				let player = this.players[i];
@@ -1029,7 +1029,7 @@ class NumberModeTrivia extends Trivia {
 				'Nobody gained any points.';
 		}
 
-		buffer += `<br />The top 5 players are: ${this.formatPlayerList({count: 5})}.`;
+		buffer += `<br />The top 5 players are: ${this.formatPlayerList({max: 5})}.`;
 		this.broadcast('The answering period has ended!', buffer);
 		this.phaseTimeout = setTimeout(() => this.askQuestion(), INTERMISSION_INTERVAL);
 	}
