@@ -1619,11 +1619,13 @@ const commands = {
 		if (!target) return this.parse('/help warn');
 		if (!this.canTalk()) return;
 		if (room.isPersonal && !user.can('warn')) return this.errorReply("Warning is unavailable in group chats.");
+		// If used in staff, help tickets or battles, log the warn to the global modlog.
+		const global = room.id === 'staff' || room.id.startsWith('help-') || (room.battle && !room.parent);
 
 		target = this.splitTarget(target);
 		let targetUser = this.targetUser;
 		if (!targetUser || !targetUser.connected) return this.errorReply(`User '${this.targetUsername}' not found.`);
-		if (!(targetUser in room.users)) {
+		if (!(targetUser in room.users) && room.id !== 'staff') {
 			return this.errorReply(`User ${this.targetUsername} is not in the room ${room.id}.`);
 		}
 		if (target.length > MAX_REASON_LENGTH) {
@@ -1634,6 +1636,9 @@ const commands = {
 
 		this.addModAction(`${targetUser.name} was warned by ${user.name}.${(target ? ` (${target})` : ``)}`);
 		this.modlog('WARN', targetUser, target, {noalts: 1});
+		if (global) {
+			this.globalModlog('WARN', targetUser, ` by ${user.userid}${(target ? `: ${target}` : ``)}`);
+		}
 		targetUser.send(`|c|~|/warn ${target}`);
 		let userid = targetUser.getLastId();
 		this.add(`|unlink|${userid}`);
@@ -2191,7 +2196,9 @@ const commands = {
 			return this.errorReply(`The note is too long. It cannot exceed ${MAX_REASON_LENGTH} characters.`);
 		}
 		if (!this.can('receiveauthmessages', null, room)) return false;
+		target = target.replace(/\n/g, "; ");
 		this.modlog('NOTE', null, target);
+		if (room.id === 'staff' || room.id === 'upperstaff') this.globalModlog('NOTE', null, ` by ${user.userid}: ${target}`);
 		return this.privateModAction(`(${user.name} notes: ${target})`);
 	},
 	modnotehelp: [`/modnote [note] - Adds a moderator note that can be read through modlog. Requires: % @ * # & ~`],
@@ -2447,8 +2454,8 @@ const commands = {
 		}
 		if (!this.can('forcerename', targetUser)) return false;
 
-		let entry = `${targetUser.name} was forced to choose a new name by ${user.name}${(reason ? `: ${reason}` : ``)}`;
-		this.privateModAction(`(${entry})`);
+		this.privateModAction(`(${targetUser.name} was forced to choose a new name by ${user.name}${(reason ? `: ${reason}` : ``)})`);
+		this.globalModlog('FORCERENAME', targetUser, ` by ${user.name}${(reason ? `: ${reason}` : ``)}`);
 		this.modlog('FORCERENAME', targetUser, reason, {noip: 1, noalts: 1});
 		Ladders.cancelSearches(targetUser);
 		targetUser.resetName(true);
@@ -4223,7 +4230,7 @@ exports.commands = commands;
 process.nextTick(() => {
 	// We might want to migrate most of this to a JSON schema of command attributes.
 	Chat.multiLinePattern.register(
-		'>>>? ', '/(?:room|staff)intro ', '/(?:staff)?topic ', '/(?:add|widen)datacenters ', '/bash ', '!code ', '/code ',
+		'>>>? ', '/(?:room|staff)intro ', '/(?:staff)?topic ', '/(?:add|widen)datacenters ', '/bash ', '!code ', '/code ', '/modnote ', '/mn ',
 		'/importinputlog '
 	);
 });
