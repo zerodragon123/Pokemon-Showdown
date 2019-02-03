@@ -41,7 +41,6 @@ const TYPES = {
 	weakestlink: 'Weakest Link',
 };
 
-// NOTE: trivia code depends on this object's values being divisible by 5.
 const LENGTHS = {
 	short: {
 		cap: 20,
@@ -752,8 +751,8 @@ class Trivia extends Rooms.RoomGame {
 				` mode trivia under the ${this.category} category with a cap of ` +
 				`${this.getCap()} points, with ${winner.player.points} points and ` +
 				`${winner.player.correctAnswers} correct answers!`,
-			winner => ` Second place: ${mapper(winner)}`,
-			winner => `, third place: ${mapper(winner)}`,
+			winner => ` Second place: ${mapper(winner)} (${winner.player.points} points)`,
+			winner => `, third place: ${mapper(winner)} (${winner.player.points} points)`,
 		];
 		for (let i = 0; i < winners.length; i++) {
 			message += winnerParts[i](winners[i]);

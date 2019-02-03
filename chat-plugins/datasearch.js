@@ -622,7 +622,7 @@ function runDexsearch(target, cmd, canAll, message) {
 				if (alts.tiers[tier]) continue;
 				if (Object.values(alts.tiers).includes(false) && alts.tiers[tier] !== false) continue;
 				// some LC Pokemon are also in other tiers and need to be handled separately
-				if (alts.tiers.LC && !dex[mon].prevo && dex[mon].evos.some(evo => mod.getTemplate(evo).gen <= dex.gen) && !Dex.formats.gen7lc.banlist.includes(dex[mon].species) && !Dex.formats.gen7lc.banlist.includes(dex[mon].species + "-Base") && tier !== 'NFE') continue;
+				if (alts.tiers.LC && !dex[mon].prevo && dex[mon].evos.some(evo => mod.getTemplate(evo).gen <= mod.gen) && !Dex.formats.gen7lc.banlist.includes(dex[mon].species) && !Dex.formats.gen7lc.banlist.includes(dex[mon].species + "-Base") && tier !== 'NFE') continue;
 			}
 
 			if (alts.doublesTiers && Object.keys(alts.doublesTiers).length) {
@@ -722,7 +722,8 @@ function runDexsearch(target, cmd, canAll, message) {
 	}
 	let results = [];
 	for (const mon of Object.keys(dex).sort()) {
-		if (dex[mon].baseSpecies && results.includes(dex[mon].baseSpecies)) continue;
+		const isAlola = dex[mon].forme === "Alola" && dex[mon].species !== "Pikachu-Alola";
+		if (!isAlola && dex[mon].baseSpecies && results.includes(dex[mon].baseSpecies)) continue;
 		results.push(dex[mon].species);
 	}
 

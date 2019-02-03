@@ -10098,10 +10098,10 @@ let BattleMovedex = {
 			let action = this.willMove(target);
 			if (action) {
 				let noMeFirst = [
-					'chatter', 'counter', 'covet', 'focuspunch', 'mefirst', 'metalburst', 'mirrorcoat', 'struggle', 'thief',
+					'beakblast', 'chatter', 'counter', 'covet', 'focuspunch', 'mefirst', 'metalburst', 'mirrorcoat', 'shelltrap', 'struggle', 'thief',
 				];
 				let move = this.getActiveMove(action.move.id);
-				if (move.category !== 'Status' && !noMeFirst.includes(move.id)) {
+				if (!action.zmove && !move.isZ && move.category !== 'Status' && !noMeFirst.includes(move.id)) {
 					pokemon.addVolatile('mefirst');
 					this.useMove(move, pokemon, target);
 					return null;
@@ -18057,7 +18057,7 @@ let BattleMovedex = {
 		priority: 0,
 		flags: {mystery: 1},
 		onHit: function (target, pokemon) {
-			if (!pokemon.transformInto(target, pokemon)) {
+			if (!pokemon.transformInto(target)) {
 				return false;
 			}
 		},
@@ -18187,7 +18187,7 @@ let BattleMovedex = {
 		basePower: 0,
 		category: "Status",
 		desc: "For 5 turns, the Speed of every Pokemon is recalculated for the purposes of determining turn order. During the effect, each Pokemon's Speed is considered to be (10000 - its normal Speed), and if this value is greater than 8191, 8192 is subtracted from it. If this move is used during the effect, the effect ends.",
-		shortDesc: "For 5 turns, slower Pokemon move first.",
+		shortDesc: "Goes last. For 5 turns, turn order is reversed.",
 		id: "trickroom",
 		name: "Trick Room",
 		pp: 5,

@@ -395,7 +395,11 @@ class BattleTimer {
 }
 
 /**
- * @typedef {{rqid: number, request: string, isWait: 'cantUndo' | true | false, choice: string}} BattleRequestTracker
+ * @typedef {object} BattleRequestTracker
+ * @property {number} rqid
+ * @property {string} request
+ * @property {'cantUndo' | true | false} isWait true = user has decided, false = user has yet to decide, 'cantUndo' = waiting on other user (U-turn, faint-switch) or uncancellable (trapping ability)
+ * @property {string} choice
  */
 
 class Battle {
@@ -468,7 +472,9 @@ class Battle {
 		this.stream = PM.createStream();
 
 		let ratedMessage = '';
-		if (this.rated) {
+		if (options.ratedMessage) {
+			ratedMessage = options.ratedMessage;
+		} if (this.rated) {
 			ratedMessage = 'Rated battle';
 		} else if (this.room.tour) {
 			ratedMessage = 'Tournament battle';
@@ -529,6 +535,7 @@ class Battle {
 			player.sendRoom(`|error|[Invalid choice] Sorry, too late to make a different move; the next turn has already started`);
 			return;
 		}
+		user.lastDecision = Date.now();
 		request.isWait = true;
 		request.choice = choice;
 
