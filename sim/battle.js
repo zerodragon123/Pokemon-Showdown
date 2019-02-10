@@ -323,14 +323,12 @@ class Battle extends Dex.ModdedDex {
 		let prevTerrain = this.terrain;
 		let prevTerrainData = this.terrainData;
 		this.terrain = status.id;
-		this.terrainData = {id: status.id};
-		if (source) {
-			this.terrainData.source = source;
-			this.terrainData.sourcePosition = source.position;
-		}
-		if (status.duration) {
-			this.terrainData.duration = status.duration;
-		}
+		this.terrainData = {
+			id: status.id,
+			source,
+			sourcePosition: source.position,
+			duration: status.duration,
+		};
 		if (status.durationCallback) {
 			this.terrainData.duration = status.durationCallback.call(this, source, source, sourceEffect);
 		}
@@ -400,14 +398,12 @@ class Battle extends Dex.ModdedDex {
 			if (!status.onRestart) return false;
 			return this.singleEvent('Restart', status, this.pseudoWeather[status.id], this, source, sourceEffect);
 		}
-		this.pseudoWeather[status.id] = {id: status.id};
-		if (source) {
-			this.pseudoWeather[status.id].source = source;
-			this.pseudoWeather[status.id].sourcePosition = source.position;
-		}
-		if (status.duration) {
-			this.pseudoWeather[status.id].duration = status.duration;
-		}
+		this.pseudoWeather[status.id] = {
+			id: status.id,
+			source: source,
+			sourcePosition: source && source.position,
+			duration: status.duration,
+		};
 		if (status.durationCallback) {
 			if (!source) throw new Error(`setting fieldcond without a source`);
 			this.pseudoWeather[status.id].duration = status.durationCallback.call(this, source, source, sourceEffect);
@@ -1305,6 +1301,8 @@ class Battle extends Dex.ModdedDex {
 	}
 
 	tiebreak() {
+		if (this.ended) return false;
+
 		this.inputLog.push(`>tiebreak`);
 		this.add('message', "Time's up! Going to tiebreaker...");
 		const notFainted = this.sides.map(side => (
@@ -1342,23 +1340,25 @@ class Battle extends Dex.ModdedDex {
 		if (tiedSides.length <= 1) {
 			return this.win(tiedSides[0]);
 		}
-		this.tie();
+		return this.tie();
 	}
 
 	/**
 	 * @param {PlayerSlot?} [side]
 	 */
 	forceWin(side = null) {
+		if (this.ended) return false;
+
 		if (side) {
 			this.inputLog.push(`>forcewin ${side}`);
 		} else {
 			this.inputLog.push(`>forcetie`);
 		}
-		this.win(side);
+		return this.win(side);
 	}
 
 	tie() {
-		this.win();
+		return this.win();
 	}
 
 	/**
@@ -1488,6 +1488,7 @@ class Battle extends Dex.ModdedDex {
 		if (pos >= side.active.length) return false;
 		let pokemon = this.getRandomSwitchable(side);
 		if (!pokemon || pokemon.isActive) return false;
+		pokemon.isActive = true;
 		this.runEvent('BeforeSwitchIn', pokemon);
 		if (side.active[pos]) {
 			let oldActive = side.active[pos];
@@ -1519,7 +1520,6 @@ class Battle extends Dex.ModdedDex {
 			oldActive.clearVolatile();
 		}
 		side.active[pos] = pokemon;
-		pokemon.isActive = true;
 		pokemon.activeTurns = 0;
 		if (this.gen === 2) pokemon.draggedIn = this.turn;
 		for (let m in pokemon.moveSlots) {

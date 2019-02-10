@@ -206,15 +206,13 @@ class Side {
 			if (!status.onRestart) return false;
 			return this.battle.singleEvent('Restart', status, this.sideConditions[status.id], this, source, sourceEffect);
 		}
-		this.sideConditions[status.id] = {id: status.id};
-		this.sideConditions[status.id].target = this;
-		if (source) {
-			this.sideConditions[status.id].source = source;
-			this.sideConditions[status.id].sourcePosition = source.position;
-		}
-		if (status.duration) {
-			this.sideConditions[status.id].duration = status.duration;
-		}
+		this.sideConditions[status.id] = {
+			id: status.id,
+			target: this,
+			source: source,
+			sourcePosition: source.position,
+			duration: status.duration,
+		};
 		if (status.durationCallback) {
 			this.sideConditions[status.id].duration = status.durationCallback.call(this.battle, this.active[0], source, sourceEffect);
 		}
@@ -304,7 +302,7 @@ class Side {
 		}
 		const index = this.getChoiceIndex();
 		if (index >= this.active.length) {
-			return this.emitChoiceError(`Can't move: You do not have a Pokémon in slot ${index + 1}`);
+			return this.emitChoiceError(`Can't move: You sent more choices than unfainted Pokémon.`);
 		}
 		const autoChoose = !moveText;
 		/**@type {Pokemon} */
@@ -483,7 +481,10 @@ class Side {
 		}
 		const index = this.getChoiceIndex();
 		if (index >= this.active.length) {
-			return this.emitChoiceError(`Can't switch: You do not have a Pokémon in slot ${index + 1}`);
+			if (this.currentRequest === 'switch') {
+				return this.emitChoiceError(`Can't switch: You sent more switches than Pokémon that need to switch`);
+			}
+			return this.emitChoiceError(`Can't switch: You sent more choices than unfainted Pokémon`);
 		}
 		const pokemon = this.active[index];
 		const autoChoose = !slotText;
@@ -668,6 +669,10 @@ class Side {
 		this.clearChoice();
 
 		const choiceStrings = (input.startsWith('team ') ? [input] : input.split(','));
+
+		if (choiceStrings.length > this.active.length) {
+			this.emitChoiceError(`Can't make choices: You sent choices for ${choiceStrings.length} Pokémon, but this is a ${this.battle.gameType} game!`);
+		}
 
 		for (let choiceString of choiceStrings) {
 			let choiceType = '';

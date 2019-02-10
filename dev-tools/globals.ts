@@ -3,27 +3,28 @@ type ModdedDex = typeof import('./../sim/dex')
 type Pokemon = import('./../sim/pokemon')
 type Side = import('./../sim/side')
 type Validator = ReturnType<typeof import('./../sim/team-validator')>
-type PageTable = import('./../chat').PageTable
-type ChatCommands = import('./../chat').ChatCommands
-type ChatFilter = import('./../chat').ChatFilter
-type NameFilter = import('./../chat').NameFilter
+
+type PageTable = import('./../server/chat').PageTable
+type ChatCommands = import('./../server/chat').ChatCommands
+type ChatFilter = import('./../server/chat').ChatFilter
+type NameFilter = import('./../server/chat').NameFilter
 
 interface AnyObject {[k: string]: any}
 type DexTable<T> = {[key: string]: T}
 
-let Config = require('../config/config');
+declare let Config: {[k: string]: any};
 
-let Monitor = require('../monitor');
+declare let Monitor: typeof import("../server/monitor");
 
-let LoginServer = require('../loginserver');
+declare let LoginServer: typeof import('../server/loginserver');
 
 // type RoomBattle = AnyObject;
 
-let Verifier = require('../verifier');
-let Dnsbl = require('../dnsbl');
-let Sockets = require('../sockets');
-// let TeamValidator = require('../sim/team-validator');
-let TeamValidatorAsync = require('../team-validator-async');
+declare let Verifier: typeof import('../server/verifier');
+declare let Dnsbl: typeof import('../server/dnsbl');
+declare let Sockets: typeof import('../server/sockets');
+// let TeamValidator: typeof import('../sim/team-validator');
+declare let TeamValidatorAsync: typeof import('../server/team-validator-async');
 
 type GenderName = 'M' | 'F' | 'N' | '';
 type StatName = 'hp' | 'atk' | 'def' | 'spa' | 'spd' | 'spe';

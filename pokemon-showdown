@@ -11,7 +11,7 @@ true /*
 if nodepath="$(command -v node || command -v nodejs)"; then
 	exec "$nodepath" "--trace-warnings" "$0" "$@"
 fi
-echo "We require Node.js version 8 or later; Node.js not found"
+echo "We require Node.js version 10 or later; Node.js not found"
 exit 1
 */;
 
@@ -19,12 +19,12 @@ var child_process = require('child_process');
 var fs = require('fs');
 var path = require('path');
 
-// # Make sure we're Node 8+
+// # Make sure we're Node 10+
 
 try {
-	eval('{ let a = async () => {}; }');
+	RegExp("\\p{Emoji}", "u");
 } catch (e) {
-	console.log("We require Node.js version 8 or later; you're using " + process.version);
+	console.log("We require Node.js version 10 or later; you're using " + process.version);
 	process.exit(1);
 }
 
@@ -54,18 +54,14 @@ try {
 }
 
 if (!process.argv[2] || /^[0-9]+$/.test(process.argv[2])) {
-	// Start the server. We manually load app.js so it can be configured to run as
-	// the main module, rather than this file being considered the main module.
-	// This ensures any dependencies that were just installed can be found when
-	// running on Windows and avoids any other potential side effects of the main
-	// module not being app.js like it is assumed to be.
+	// Start the server.
 	//
 	// The port the server should host on can be passed using the second argument
 	// when launching with this file the same way app.js normally allows, e.g. to
 	// host on port 9000:
 	// $ ./pokemon-showdown 9000
 
-	require('module')._load('./app', module, true);
+	require('module')._load('./server', module, true);
 } else switch (process.argv[2]) {
 	case 'help':
 	case 'h':
@@ -73,7 +69,7 @@ if (!process.argv[2] || /^[0-9]+$/.test(process.argv[2])) {
 	case '-h':
 	case '--help':
 	case '-?':
-		console.log('pokemon-showdown [PORT]');
+		console.log('pokemon-showdown start [PORT]');
 		console.log('');
 		console.log('  Starts a PS server on the specified port');
 		console.log('  (Defaults to the port setting in config/config.js)');
@@ -110,6 +106,12 @@ if (!process.argv[2] || /^[0-9]+$/.test(process.argv[2])) {
 		console.log('');
 		console.log('  Displays this reference');
 		break;
+	case 'start':
+		{
+			process.argv[2] = process.argv[3];
+			require('module')._load('./server', module, true);
+			break;
+		}
 	case 'generate-team':
 		{
 			var Dex = require('./sim/dex');
