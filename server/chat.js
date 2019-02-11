@@ -1314,7 +1314,7 @@ Chat.loadPlugins = function () {
 		if (plugin.loginfilter) Chat.loginfilters.push(plugin.loginfilter);
 		if (plugin.nicknamefilter) Chat.nicknamefilters.push(plugin.nicknamefilter);
 	}
-	let customfiles = FS('server-plugins/').readdirSync();
+	let customfiles = FS('server/server-plugins/').readdirSync();
 
 	for (const customfile of customfiles) {
 		if (customfile.substr(-3) !== '.js') continue;
