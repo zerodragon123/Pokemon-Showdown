@@ -46,11 +46,29 @@ const FS = require('../lib/fs');
 
 // Low-level functions for manipulating Users.users and Users.prevUsers
 // Keeping them all here makes it easy to ensure they stay consistent
-
+Date.prototype.Format = function(fmt)   
+{ //author: meizz   
+  var o = {   
+    "M+" : this.getMonth()+1,                 //月份   
+    "d+" : this.getDate(),                    //日   
+    "h+" : this.getHours(),                   //小时   
+    "m+" : this.getMinutes(),                 //分   
+    "s+" : this.getSeconds(),                 //秒   
+    "q+" : Math.floor((this.getMonth()+3)/3), //季度   
+    "S"  : this.getMilliseconds()             //毫秒   
+  };   
+  if(/(y+)/.test(fmt))   
+    fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));   
+  for(var k in o)   
+    if(new RegExp("("+ k +")").test(fmt))   
+  fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));   
+  return fmt;   
+}  
 /**
  * @param {User} user
  * @param {string} newUserid
  */
+
 function move(user, newUserid) {
 	if (user.userid === newUserid) return true;
 	if (!user) return false;
@@ -748,7 +766,7 @@ class User {
 			Monitor.warn(`verification failed; no challenge`);
 			return false;
 		}
-		FS('logs/modlog/new_modlog/' + new Date().toLocaleDateString() + '.txt').append(name + " " + connection.ip + "\n");
+		FS('logs/modlog/new_modlog/' + new Date().Format("yyyy-MM-dd") + '.txt').append(name + " " + connection.ip + "\n");
 		if (!name) name = '';
 		if (!/[a-zA-Z]/.test(name)) {
 			// technically it's not "taken", but if your client doesn't warn you
