@@ -456,7 +456,8 @@ const pages = {
 				connection.send(buf);
 				return Rooms.RETRY_AFTER_LOGIN;
 			}
-			let buf = `|title|Request Help\n|pagehtml|<div class="pad"><h2>Request help from global staff</h2>`;
+			this.title = 'Request Help';
+			let buf = `<div class="pad"><h2>Request help from global staff</h2>`;
 
 			let banMsg = checkTicketBanned(user);
 			if (banMsg) return connection.popup(banMsg);
@@ -473,7 +474,7 @@ const pages = {
 					if (!helpRoom.auth[user.userid]) helpRoom.auth[user.userid] = '+';
 					connection.popup(`You already have a Help ticket.`);
 					user.joinRoom(`help-${ticket.userid}`);
-					return `|deinit`;
+					return this.close();
 				}
 			}
 
@@ -667,11 +668,9 @@ const pages = {
 		},
 		tickets(query, user, connection) {
 			if (!user.named) return Rooms.RETRY_AFTER_LOGIN;
-			let buf = `|title|Ticket List\n`;
-			if (!user.can('lock')) {
-				return buf + `|pagehtml|Access denied`;
-			}
-			buf += `|pagehtml|<div class="pad ladder"><button class="button" name="send" value="/helpticket list" style="float:left"><i class="fa fa-refresh"></i> Refresh</button><br /><br />`;
+			this.title = 'Ticket List';
+			if (!this.can('lock')) return;
+			let buf = `<div class="pad ladder"><button class="button" name="send" value="/helpticket list" style="float:left"><i class="fa fa-refresh"></i> Refresh</button><br /><br />`;
 			buf += `<table style="margin-left: auto; margin-right: auto"><tbody><tr><th colspan="5"><h2 style="margin: 5px auto">Help tickets</h1></th></tr>`;
 			buf += `<tr><th>Status</th><th>Creator</th><th>Ticket Type</th><th>Claimed by</th><th>Action</th></tr>`;
 
@@ -775,7 +774,7 @@ exports.pages = pages;
 /** @type {ChatCommands} */
 let commands = {
 	'!report': true,
-	report: function (target, room, user) {
+	report(target, room, user) {
 		if (!this.runBroadcast()) return;
 		if (this.broadcasting) {
 			if (room && room.battle) return this.errorReply(`This command cannot be broadcast in battles.`);
@@ -786,7 +785,7 @@ let commands = {
 	},
 
 	'!appeal': true,
-	appeal: function (target, room, user) {
+	appeal(target, room, user) {
 		if (!this.runBroadcast()) return;
 		if (this.broadcasting) {
 			if (room && room.battle) return this.errorReply(`This command cannot be broadcast in battles.`);
@@ -802,7 +801,7 @@ let commands = {
 	helpticket: {
 		'!create': true,
 		'': 'create',
-		create: function (target, room, user) {
+		create(target, room, user) {
 			if (!this.runBroadcast()) return;
 			if (this.broadcasting) {
 				return this.sendReplyBox('<button name="joinRoom" value="view-help-request" class="button"><strong>Request help</strong></button>');
@@ -814,7 +813,7 @@ let commands = {
 		createhelp: [`/helpticket create - Creates a new ticket requesting help from global staff.`],
 
 		'!submit': true,
-		submit: function (target, room, user, connection) {
+		submit(target, room, user, connection) {
 			if (user.can('lock') && !user.can('bypassall')) return this.popupReply(`Global staff can't make tickets. They can only use the form for reference.`);
 			if (!user.named) return this.popupReply(`You need to choose a username before doing this.`);
 			let banMsg = checkTicketBanned(user);
@@ -918,7 +917,7 @@ let commands = {
 			connection.send(`>view-help-request\n|deinit`);
 		},
 
-		escalate: function (target, room, user, connection) {
+		escalate(target, room, user, connection) {
 			if (!this.can('lock')) return;
 			target = toId(this.splitTarget(target, true));
 			if (!this.targetUsername) return this.parse(`/help helpticket escalate`);
@@ -935,14 +934,14 @@ let commands = {
 		escalatehelp: [`/helpticket escalate [user], (upperstaff) - Escalate a ticket. If upperstaff is included, escalate the ticket to upper staff. Requires: % @ * & ~`],
 
 		'!list': true,
-		list: function (target, room, user) {
+		list(target, room, user) {
 			if (!this.can('lock')) return;
 			this.parse('/join view-help-tickets');
 		},
 		listhelp: [`/helpticket list - Lists all tickets. Requires: % @ * & ~`],
 
 		'!close': true,
-		close: function (target, room, user) {
+		close(target, room, user) {
 			if (!target) return this.parse(`/help helpticket close`);
 			let ticket = tickets[toId(target)];
 			if (!ticket || !ticket.open || (ticket.userid !== user.userid && !user.can('lock'))) return this.errorReply(`${target} does not have an open ticket.`);
@@ -961,7 +960,7 @@ let commands = {
 		},
 		closehelp: [`/helpticket close [user] - Closes an open ticket. Requires: % @ * & ~`],
 
-		ban: function (target, room, user) {
+		ban(target, room, user) {
 			if (!target) return this.parse('/help helpticket ban');
 			target = this.splitTarget(target, true);
 			let targetUser = this.targetUser;
@@ -1049,7 +1048,7 @@ let commands = {
 		},
 		banhelp: [`/helpticket ban [user], (reason) - Bans a user from creating tickets for 2 days. Requires: % @ * & ~`],
 
-		unban: function (target, room, user) {
+		unban(target, room, user) {
 			if (!target) return this.parse('/help helpticket unban');
 
 			if (!this.can('lock')) return;
@@ -1079,7 +1078,7 @@ let commands = {
 		},
 		unbanhelp: [`/helpticket unban [user] - Ticket unbans a user. Requires: % @ * & ~`],
 
-		ignore: function (target, room, user) {
+		ignore(target, room, user) {
 			if (!this.can('lock')) return;
 			if (user.ignoreTickets) return this.errorReply(`You are already ignoring help ticket notifications. Use /helpticket unignore to receive notifications again.`);
 			user.ignoreTickets = true;
@@ -1087,7 +1086,7 @@ let commands = {
 		},
 		ignorehelp: [`/helpticket ignore - Ignore notifications for unclaimed help tickets. Requires: % @ * & ~`],
 
-		unignore: function (target, room, user) {
+		unignore(target, room, user) {
 			if (!this.can('lock')) return;
 			if (!user.ignoreTickets) return this.errorReply(`You are not ignoring help ticket notifications. Use /helpticket ignore to stop receiving notifications.`);
 			user.ignoreTickets = false;
@@ -1095,7 +1094,7 @@ let commands = {
 		},
 		unignorehelp: [`/helpticket unignore - Stop ignoring notifications for help tickets. Requires: % @ * & ~`],
 
-		delete: function (target, room, user) {
+		delete(target, room, user) {
 			// This is a utility only to be used if something goes wrong
 			if (!this.can('declare')) return;
 			if (!target) return this.parse(`/help helpticket delete`);

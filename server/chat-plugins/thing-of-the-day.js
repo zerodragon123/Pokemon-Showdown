@@ -42,9 +42,6 @@ function toNominationId(nomination) {
 	return nomination.toLowerCase().replace(/\s/g, '').replace(/\b&\b/g, '');
 }
 
-/** @typedef {(query: string[], user: User, connection: Connection) => (string | null | void)} PageHandler */
-/** @typedef {{[k: string]: PageHandler | PageTable}} PageTable */
-
 class OtdHandler {
 	/**
 	 * @param {string} id
@@ -329,10 +326,11 @@ class OtdHandler {
 	}
 
 	/**
-	 * @type {PageHandler}
+	 * @param {PageContext} context
 	 */
-	generateWinnerList() {
-		let buf = `|title|${this.id.toUpperCase()} Winners\n|pagehtml|<div class="pad ladder"><h2>${this.name} of the ${this.timeLabel} Winners</h2>`;
+	generateWinnerList(context) {
+		context.title = `${this.id.toUpperCase()} Winners`;
+		let buf = `<div class="pad ladder"><h2>${this.name} of the ${this.timeLabel} Winners</h2>`;
 
 		// Only use specific fields for displaying in winners list.
 		/** @type {string[]} */
@@ -419,7 +417,7 @@ function selectHandler(message) {
 
 /** @type {ChatCommands} */
 let commands = {
-	start: function (target, room, user, connection, cmd) {
+	start(target, room, user, connection, cmd) {
 		if (!this.canTalk()) return;
 
 		const handler = selectHandler(this.message);
@@ -436,7 +434,7 @@ let commands = {
 	},
 	starthelp: [`/-otd start - Starts nominations for the Thing of the Day. Requires: % @ # & ~`],
 
-	end: function (target, room, user) {
+	end(target, room, user) {
 		if (!this.canTalk()) return;
 
 		const handler = selectHandler(this.message);
@@ -456,7 +454,7 @@ let commands = {
 	},
 	endhelp: [`/-otd end - End nominations for the Thing of the Day and set it to a randomly selected nomination. Requires: % @ # & ~`],
 
-	nom: function (target, room, user) {
+	nom(target, room, user) {
 		if (!this.canTalk()) return;
 		if (!target) return this.parse('/help otd');
 
@@ -471,7 +469,7 @@ let commands = {
 	},
 	nomhelp: [`/-otd nom [nomination] - Nominate something for Thing of the Day.`],
 
-	view: function (target, room, user, connection) {
+	view(target, room, user, connection) {
 		if (!this.canTalk()) return;
 		if (!this.runBroadcast()) return false;
 
@@ -488,7 +486,7 @@ let commands = {
 	},
 	viewhelp: [`/-otd view - View the current nominations for the Thing of the Day.`],
 
-	remove: function (target, room, user) {
+	remove(target, room, user) {
 		if (!this.canTalk()) return;
 
 		const handler = selectHandler(this.message);
@@ -509,7 +507,7 @@ let commands = {
 	},
 	removehelp: [`/-otd remove [username] - Remove a user's nomination for the Thing of the Day and prevent them from voting again until the next round. Requires: % @ * # & ~`],
 
-	force: function (target, room, user) {
+	force(target, room, user) {
 		if (!this.canTalk()) return;
 		if (!target) return this.parse('/help aotd force');
 
@@ -528,7 +526,7 @@ let commands = {
 	},
 	forcehelp: [`/-otd force [nomination] - Forcibly sets the Thing of the Day without a nomination round. Requires: # & ~`],
 
-	delay: function (target, room, user) {
+	delay(target, room, user) {
 		if (!this.canTalk()) return;
 
 		const handler = selectHandler(this.message);
@@ -545,7 +543,7 @@ let commands = {
 	},
 	delayhelp: [`/-otd delay - Turns off the automatic 20 minute timer for Thing of the Day voting rounds. Requires: % @ # & ~`],
 
-	set: function (target, room, user) {
+	set(target, room, user) {
 		if (!this.canTalk()) return;
 
 		const handler = selectHandler(this.message);
@@ -608,7 +606,7 @@ let commands = {
 	},
 	sethelp: [`/-otd set property: value[, property: value] - Set the winner, quote, song, link or image for the current Thing of the Day. Requires: % @ * # & ~`],
 
-	winners: function (target, room, user, connection) {
+	winners(target, room, user, connection) {
 		if (!this.canTalk()) return;
 
 		const handler = selectHandler(this.message);
@@ -620,7 +618,7 @@ let commands = {
 	},
 	winnershelp: [`/-otd winners - Displays a list of previous things of the day.`],
 
-	'': function (target, room) {
+	''(target, room) {
 		if (!this.canTalk()) return;
 		if (!this.runBroadcast()) return false;
 
@@ -639,12 +637,24 @@ let commands = {
 
 /** @type {PageTable} */
 const pages = {
-	aotd: aotd.generateWinnerList.bind(aotd),
-	fotd: fotd.generateWinnerList.bind(fotd),
-	sotd: sotd.generateWinnerList.bind(sotd),
-	cotd: cotd.generateWinnerList.bind(cotd),
-	botw: botw.generateWinnerList.bind(botw),
-	motw: motw.generateWinnerList.bind(motw),
+	aotd() {
+		return aotd.generateWinnerList(this);
+	},
+	fotd() {
+		return fotd.generateWinnerList(this);
+	},
+	sotd() {
+		return sotd.generateWinnerList(this);
+	},
+	cotd() {
+		return cotd.generateWinnerList(this);
+	},
+	botw() {
+		return botw.generateWinnerList(this);
+	},
+	motw() {
+		return motw.generateWinnerList(this);
+	},
 };
 exports.pages = pages;
 
