@@ -1,5 +1,0 @@
-
-        "./server/punishments.js",
-        "./server/tournaments/generator-round-robin.js"
-    ]
-}
