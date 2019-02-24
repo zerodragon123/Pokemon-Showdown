@@ -572,8 +572,10 @@ interface TemplateData {
 	baseSpecies?: string
 	evoLevel?: number
 	evoMove?: string
+	evoCondition?: string
+	evoItem?: string
 	evos?: string[]
-	evoType?: 'trade' | 'stone' | 'levelMove' | 'levelExtra'
+	evoType?: 'trade' | 'stone' | 'levelMove' | 'levelExtra' | 'levelFriendship' | 'levelHold'
 	forme?: string
 	formeLetter?: string
 	gender?: GenderName

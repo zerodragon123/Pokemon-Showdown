@@ -158,13 +158,12 @@ class RoomSettings {
 		}
 	}
 	language() {
-		const languageList = ['Portuguese', 'Spanish', 'Italian', 'French', 'Simplified Chinese', 'Traditional Chinese', 'Japanese', 'Hindi', 'Turkish', 'Dutch', 'German'];
-		if (!this.user.can('editroom', null, this.room)) return this.button(this.room.language ? this.room.language : 'English', true);
+		if (!this.user.can('editroom', null, this.room)) return this.button(this.room.language ? Chat.languages.get(this.room.language) : 'English', true);
 
 		let languageOutput = [];
 		languageOutput.push(this.button(`English`, !this.room.language, 'roomlanguage english'));
-		for (let language of languageList) {
-			languageOutput.push(this.button(`${language}`, this.room.language === toId(language), `roomlanguage ${toId(language)}`));
+		for (let [id, text] of Chat.languages) {
+			languageOutput.push(this.button(text, this.room.language === id, `roomlanguage ${id}`));
 		}
 		return languageOutput.join(' ');
 	}
@@ -280,6 +279,8 @@ exports.commands = {
 	'!ionext': true,
 	inviteonlynext: 'ionext',
 	ionext(target, room, user) {
+		const groupConfig = Config.groups[Users.PLAYER_SYMBOL];
+		if (!(groupConfig && groupConfig.editprivacy)) return this.errorReply(`/ionext - Access denied.`);
 		if (this.meansNo(target)) {
 			user.inviteOnlyNextBattle = false;
 			this.sendReply("Your next battle will be publicly visible.");
@@ -371,27 +372,11 @@ exports.commands = {
 	],
 
 	roomlanguage(target, room, user) {
-		const languageTable = {
-			__proto__: null,
-			portuguese: 'Portuguese',
-			spanish: 'Spanish',
-			italian: 'Italian',
-			french: 'French',
-			simplifiedchinese: 'Simplified Chinese',
-			traditionalchinese: 'Traditional Chinese',
-			japanese: 'Japanese',
-			hindi: 'Hindi',
-			turkish: 'Turkish',
-			dutch: 'Dutch',
-			german: 'German',
-			// Listed as "false" under room.language
-			english: 'English',
-		};
-		if (!target) return this.sendReply(`This room's primary language is ${languageTable[room.language] || 'English'}`);
+		if (!target) return this.sendReply(`This room's primary language is ${Chat.languages.get(room.language) || 'English'}`);
 		if (!this.can('editroom', null, room)) return false;
 
 		let targetLanguage = toId(target);
-		if (!(targetLanguage in languageTable)) return this.errorReply(`"${target}" is not a supported language.`);
+		if (!Chat.languages.has(targetLanguage)) return this.errorReply(`"${target}" is not a supported language.`);
 
 		room.language = targetLanguage === 'english' ? false : targetLanguage;
 
@@ -399,8 +384,8 @@ exports.commands = {
 			room.chatRoomData.language = room.language;
 			Rooms.global.writeChatRoomData();
 		}
-		this.modlog(`LANGUAGE`, null, languageTable[targetLanguage]);
-		this.sendReply(`The room's language has been set to ${languageTable[targetLanguage]}`);
+		this.modlog(`LANGUAGE`, null, Chat.languages.get(targetLanguage));
+		this.sendReply(`The room's language has been set to ${Chat.languages.get(targetLanguage)}`);
 	},
 	roomlanguagehelp: [
 		`/roomlanguage [language] - Sets the the language for the room, which changes language of a few commands. Requires # & ~`,
@@ -438,8 +423,8 @@ exports.commands = {
 		}
 	},
 	slowchathelp: [
-		`/slowchat [number] - Sets a limit on how often users in the room can send messages, between 2 and 60 seconds. Requires @ * # & ~`,
-		`/slowchat off - Disables slowchat in the room. Requires @ * # & ~`,
+		`/slowchat [number] - Sets a limit on how often users in the room can send messages, between 2 and 60 seconds. Requires @ # & ~`,
+		`/slowchat off - Disables slowchat in the room. Requires @ # & ~`,
 	],
 
 	stretching: 'stretchfilter',
@@ -637,7 +622,7 @@ exports.commands = {
 	banwordhelp: [
 		`/banword add [words] - Adds the comma-separated list of phrases (& or ~ can also input regex) to the banword list of the current room. Requires: # & ~`,
 		`/banword delete [words] - Removes the comma-separated list of phrases from the banword list. Requires: # & ~`,
-		`/banword list - Shows the list of banned words in the current room. Requires: % @ * # & ~`,
+		`/banword list - Shows the list of banned words in the current room. Requires: % @ # & ~`,
 	],
 
 	hightraffic(target, room, user) {

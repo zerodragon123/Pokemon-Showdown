@@ -284,7 +284,7 @@ let nicknamefilter = function (name, user) {
 			}
 			if (matched) {
 				if (Chat.monitors[list].punishment === 'AUTOLOCK') {
-					Punishments.autolock(user, Rooms('staff'), `NameMonitor`, `inappropriate Pokémon nickname: ${name}`, `${user.name} - using an inappropriate Pokémon nickname: ${name}`, false, user.name);
+					Punishments.autolock(user, Rooms('staff'), `NameMonitor`, `inappropriate Pokémon nickname: ${name}`, `${user.name} - using an inappropriate Pokémon nickname: ${name}`, true);
 				}
 				line[3]++;
 				saveFilters();
@@ -424,7 +424,7 @@ let commands = {
 	filterhelp: [
 		`- /filter add list, word, reason - Adds a word to the given filter list. Requires: ~`,
 		`- /filter remove list, words - Removes words from the given filter list. Requires: ~`,
-		`- /filter view - Opens the list of filtered words. Requires: % @ * & ~`,
+		`- /filter view - Opens the list of filtered words. Requires: % @ & ~`,
 	],
 	allowname(target, room, user) {
 		if (!this.can('forcerename')) return false;
