@@ -2716,6 +2716,7 @@ let Formats = [
 		],
 
 		mod: 'letsgo',
+		searchShow: false,
 		ruleset: ['Pokemon', 'Allow AVs', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Illegal', 'Unreleased'],
 	},
@@ -2739,6 +2740,7 @@ let Formats = [
 
 		mod: 'letsgo',
 		gameType: 'doubles',
+		searchShow: false,
 		ruleset: ['Pokemon', 'Allow AVs', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Illegal', 'Unreleased'],
 	},
@@ -2778,7 +2780,6 @@ let Formats = [
 
 		mod: 'gen7',
 		team: 'random',
-		searchShow: false,
 		ruleset: ['Pokemon', 'Same Type Clause', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
 	},
 	{
