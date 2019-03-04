@@ -214,9 +214,6 @@ let Formats = [
 			'Mimikyu', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Palkia', 'Rayquaza', 'Reshiram', 'Salamence-Mega', 'Shaymin-Sky',
 			'Snorlax', 'Solgaleo', 'Tapu Koko', 'Xerneas', 'Yveltal', 'Zekrom', 'Focus Sash', 'Perish Song', 'Detect + Fightinium Z',
 		],
-		onBegin() {
-			if (this.rated) this.add('html', `<div class="broadcast-blue"><strong>1v1 is currently suspecting Kyurem-Black! For more information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3647326/">suspect thread</a>.</strong></div>`);
-		},
 	},
 	{
 		name: "[Gen 7] ZU",
@@ -809,7 +806,7 @@ let Formats = [
 
 		mod: 'gen7',
 		ruleset: ['Species Clause', 'Nickname Clause', 'Moody Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Swagger Clause', 'Mega Rayquaza Clause', 'Sleep Clause Mod', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
-		banlist: ['Unreleased', 'Illegal', 'Blaziken-Mega', 'Gengar-Mega', 'Mewtwo-Mega-Y', 'Rayquaza-Mega'],
+		banlist: ['Unreleased', 'Illegal', 'Baton Pass'],
 		onChangeSet(set, format) {
 			let item = this.getItem(set.item);
 			let template = this.getTemplate(set.species);
@@ -991,6 +988,11 @@ let Formats = [
 
 			return problems;
 		},
+		onValidateSet(set) {
+			if (set.species in {'Blaziken-Mega': 1, 'Gengar-Mega': 1, 'Mewtwo-Mega-Y': 1, 'Rayquaza-Mega': 1}) {
+				return [`${set.species} is banned.`];
+			}
+		},
 		onSwitchIn(pokemon) {
 			let item = pokemon.getItem();
 			if (item.megaEvolves && pokemon.template.species === item.megaEvolves) {
@@ -1011,28 +1013,34 @@ let Formats = [
 			battle: 6,
 		},
 		ruleset: ['Pokemon', 'Moody Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
-		banlist: ['Illegal', 'Unreleased', 'Shedinja', 'Smeargle', 'Huge Power', 'Pure Power', 'Focus Sash', 'Dark Void', 'Grass Whistle', 'Hypnosis', 'Lovely Kiss', 'Perish Song', 'Sing', 'Sleep Powder', 'Spore', 'Transform'],
+		banlist: [
+			'Illegal', 'Unreleased', 'Shedinja', 'Smeargle', 'Huge Power', 'Pure Power', 'Deep Sea Tooth', 'Eviolite', 'Focus Sash', 'Light Ball', 'Lucky Punch',
+			'Stick', 'Thick Club', 'Dark Void', 'Grass Whistle', 'Hypnosis', 'Lovely Kiss', 'Perish Song', 'Sing', 'Sleep Powder', 'Spore', 'Transform',
+		],
+		onValidateSet(set) {
+			if (set && set.item) {
+				let item = this.getItem(set.item);
+				if (item.zMoveUser || item.megaStone) return [`${set.name || set.species}'s item ${set.item} is banned.`];
+			}
+		},
 		onBeforeSwitchIn(pokemon) {
 			let allies = pokemon.side.pokemon.splice(1);
 			pokemon.side.pokemonLeft = 1;
 			let template = this.deepClone(pokemon.baseTemplate);
 			pokemon.item = allies[0].item;
+			template.abilities = allies[1].baseTemplate.abilities;
+			pokemon.ability = pokemon.baseAbility = allies[1].ability;
 
 			// Stats
 			template.baseStats = allies[2].baseTemplate.baseStats;
-			pokemon.maxhp = allies[2].maxhp;
-			pokemon.hp = allies[2].maxhp;
+			pokemon.hp = pokemon.maxhp = template.maxHP = allies[2].maxhp;
 			pokemon.set.evs = allies[2].set.evs;
 			pokemon.set.nature = allies[2].getNature().name;
 			pokemon.set.ivs = pokemon.baseIvs = allies[2].set.ivs;
 			pokemon.hpType = pokemon.baseHpType = allies[2].baseHpType;
 
 			pokemon.moveSlots = pokemon.baseMoveSlots = allies[3].baseMoveSlots.slice(0, 2).concat(allies[4].baseMoveSlots.slice(2)).filter((move, index, moveSlots) => moveSlots.find(othermove => othermove.id === move.id) === move);
-			pokemon.canMegaEvo = null;
-			template.baseSpecies = template.species += '-Chimera';
-			template.speciesid += 'chimera';
-			pokemon.formeChange(template);
-			pokemon.ability = pokemon.baseAbility = allies[1].ability;
+			pokemon.setTemplate(template);
 		},
 	},
 
@@ -1125,6 +1133,7 @@ let Formats = [
 			for (const pokemon of this.p1.pokemon.concat(this.p2.pokemon)) {
 				pokemon.originalSpecies = pokemon.baseTemplate.species;
 			}
+			if (this.rated) this.add('html', `<div class="broadcast-blue"><strong>Mix and Mega is currently suspecting Landorus-Therian! For more information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3647835/">suspect thread</a>.</strong></div>`);
 		},
 		onSwitchIn(pokemon) {
 			let oMegaTemplate = this.getTemplate(pokemon.template.originalMega);
