@@ -5,7 +5,7 @@
 "use strict";
 
 let https = require("https");
-const FS = require("../../lib/fs.js");
+const FS = require('../../.lib-dist/fs').FS;
 
 let icons = FS("config/icons.json").readIfExistsSync();
 
