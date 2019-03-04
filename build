@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+
+try {
+	RegExp("\\p{Emoji}", "u");
+} catch (e) {
+	console.log("We require Node.js version 10 or later; you're using " + process.version);
+	process.exit(1);
+}
+
+var child_process = require('child_process');
+var fs = require('fs');
+var path = require('path');
+
+function shell(cmd) { child_process.execSync(cmd, {stdio: 'inherit', cwd: __dirname}); }
+function sucrase(src, out) {
+  shell(`npx sucrase -q ${src} -d ${out} --transforms typescript,imports --enable-legacy-typescript-module-interop`);
+}
+
+try {
+	require.resolve('replace');
+} catch (e) {
+	console.log('Installing dependencies...');
+	shell('npm install');
+}
+
+sucrase('./sim', './.sim-dist');
+sucrase('./lib', './.lib-dist');
+shell('npx replace --silent \'(require\\\(.*?)(lib)(.*?\\\))\' \'$1.lib-dist$3\' .sim-dist/*');
+
+// Make sure config.js exists. If not, copy it over synchronously from
+// config-example.js, since it's needed before we can start the server
+try {
+	require.resolve('./config/config');
+} catch (err) {
+	if (err.code !== 'MODULE_NOT_FOUND') throw err; // should never happen
+
+	console.log('config.js does not exist. Creating one with default settings...');
+	fs.writeFileSync(
+		path.resolve(__dirname, 'config/config.js'),
+		fs.readFileSync(path.resolve(__dirname, 'config/config-example.js'))
+	);
+}

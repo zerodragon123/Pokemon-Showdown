@@ -11,7 +11,7 @@
     },
     "types": ["node"],
     "exclude": [
-        "./data/mods/gen1/pokedex.js",
+        "./.*-dist/*",
         "./server/index.js",
         "./server/chat-commands.js"
     ],

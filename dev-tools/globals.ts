@@ -1,8 +1,8 @@
-type Battle = import('./../sim/battle')
+type Battle = import('./../sim/battle').Battle
 type ModdedDex = typeof import('./../sim/dex')
-type Pokemon = import('./../sim/pokemon')
-type Side = import('./../sim/side')
-type Validator = ReturnType<typeof import('./../sim/team-validator')>
+type Pokemon = import('./../sim/pokemon').Pokemon
+type Side = import('./../sim/side').Side
+type Validator = import('./../sim/team-validator').Validator
 
 type PageTable = import('./../server/chat').PageTable
 type ChatCommands = import('./../server/chat').ChatCommands
@@ -304,7 +304,7 @@ interface EffectData extends EventMethods {
 	affectsFainted?: boolean
 	counterMax?: number
 	desc?: string
-	drain?: number[]
+	drain?: [number, number]
 	duration?: number
 	effect?: Partial<EffectData>
 	effectType?: string
@@ -372,10 +372,10 @@ interface ModdedEffectData extends Partial<EffectData> {
 	inherit?: boolean
 }
 
-type EffectTypes = 'Effect' | 'Pokemon' | 'Move' | 'Item' | 'Ability' | 'Format' | 'Ruleset' | 'Weather' | 'Status' | 'Rule' | 'ValidatorRule'
+type EffectType = 'Effect' | 'Pokemon' | 'Move' | 'Item' | 'Ability' | 'Format' | 'Ruleset' | 'Weather' | 'Status' | 'Rule' | 'ValidatorRule'
 
 interface BasicEffect extends EffectData {
-	effectType: EffectTypes
+	effectType: EffectType
 	exists: boolean
 	flags: AnyObject
 	fullname: string
@@ -698,7 +698,7 @@ interface FormatsData extends EventMethods {
 	onAfterMega?: (this: Battle, pokemon: Pokemon) => void
 	onBegin?: (this: Battle) => void
 	onChangeSet?: (this: ModdedDex, set: PokemonSet, format: Format, setHas?: AnyObject, teamHas?: AnyObject) => string[] | void
-	onModifyTemplate?: (this: Battle, template: Template, target: Pokemon, source: Pokemon) => Template | void
+	onModifyTemplate?: (this: Battle, template: Template, target: Pokemon, source: Pokemon, effect: Effect) => Template | void
 	onTeamPreview?: (this: Battle) => void
 	onValidateSet?: (this: ModdedDex, set: PokemonSet, format: Format, setHas: AnyObject, teamHas: AnyObject) => string[] | void
 	onValidateTeam?: (this: ModdedDex, team: PokemonSet[], format: Format, teamHas: AnyObject) => string[] | void
@@ -720,17 +720,17 @@ interface RuleTable extends Map<string, string> {
 	getReason: (key: string) => string
 }
 
-interface Format extends BasicEffect, FormatsData {
-	effectType: 'Format' | 'Ruleset' | 'Rule' | 'ValidatorRule'
-	baseRuleset: string[]
-	banlist: string[]
-	customRules: string[] | null
-	defaultLevel: number
-	maxLevel: number
-	noLog: boolean
-	ruleset: string[]
+interface Format extends Readonly<BasicEffect & FormatsData> {
+	readonly effectType: 'Format' | 'Ruleset' | 'Rule' | 'ValidatorRule'
+	readonly baseRuleset: string[]
+	readonly banlist: string[]
+	readonly customRules: string[] | null
+	readonly defaultLevel: number
+	readonly maxLevel: number
+	readonly noLog: boolean
+	readonly ruleset: string[]
+	readonly unbanlist: string[]
 	ruleTable: RuleTable | null
-	unbanlist: string[]
 }
 
 interface BattleScriptsData {
@@ -782,7 +782,7 @@ interface ModdedBattleScriptsData extends Partial<BattleScriptsData> {
 	side?: ModdedBattleSide
 	boost?: (this: Battle, boost: SparseBoostsTable, target: Pokemon, source?: Pokemon | null, effect?: Effect | string | null, isSecondary?: boolean, isSelf?: boolean) => boolean | null | 0
 	debug?: (this: Battle, activity: string) => void
-	getDamage?: (this: Battle, pokemon: Pokemon, target: Pokemon, move: string | number | ActiveMove, suppressMessages: boolean) => number
+	getDamage?: (this: Battle, pokemon: Pokemon, target: Pokemon, move: string | number | ActiveMove, suppressMessages: boolean) => number | undefined | null | false
 	getEffect?: (this: Battle, name: string | Effect | null) => Effect
 	init?: (this: Battle) => void
 	modifyDamage?: (this: Battle, baseDamage: number, pokemon: Pokemon, target: Pokemon, move: ActiveMove, suppressMessages?: boolean) => void
@@ -807,15 +807,15 @@ interface ModdedTypeData extends Partial<TypeData> {
 	inherit?: boolean
 }
 
-interface TypeInfo extends TypeData {
-	effectType: 'Type' | 'EffectType'
-	exists: boolean
-	gen: number
-	HPdvs: SparseStatsTable
-	HPivs: SparseStatsTable
-	id: string
-	name: string
-	toString: () => string
+interface TypeInfo extends Readonly<TypeData> {
+	readonly effectType: 'Type' | 'EffectType'
+	readonly exists: boolean
+	readonly gen: number
+	readonly HPdvs: SparseStatsTable
+	readonly HPivs: SparseStatsTable
+	readonly id: string
+	readonly name: string
+	readonly toString: () => string
 }
 
 interface Actions {

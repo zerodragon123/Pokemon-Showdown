@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const TeamValidator = require('../../sim/team-validator');
+const TeamValidator = require('../../.sim-dist/team-validator').TeamValidator;
 
 describe('Team Validator', function () {
 	it('should have valid formats to work with', function () {
@@ -122,6 +122,12 @@ describe('Team Validator', function () {
 
 		team = [
 			{species: 'blissey', moves: ['present', 'healbell']},
+		];
+		illegal = TeamValidator('gen2ou').validateTeam(team);
+		assert.strictEqual(illegal, null);
+
+		team = [
+			{species: 'marowak', moves: ['swordsdance', 'rockslide', 'bodyslam']},
 		];
 		illegal = TeamValidator('gen2ou').validateTeam(team);
 		assert.strictEqual(illegal, null);

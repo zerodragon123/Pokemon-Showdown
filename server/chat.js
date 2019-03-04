@@ -55,7 +55,8 @@ const BROADCAST_TOKEN = '!';
 
 const TRANSLATION_DIRECTORY = 'translations/';
 
-const FS = require('../lib/fs');
+/** @type {typeof import('../lib/fs').FS} */
+const FS = require(/** @type {any} */('../.lib-dist/fs')).FS;
 
 /** @type {(url: string) => Promise<{width: number, height: number}>} */
 // @ts-ignore ignoring until there is a ts typedef available for this module.
@@ -317,7 +318,8 @@ Chat.tr = function (language, strings, ...keys) {
 	let string = Array.isArray(strings) ? strings.join('${}') : strings;
 
 	const entry = Chat.translations.get(language).get(string);
-	let [translated, keyLabels, valLabels] = entry || [string, [], []];
+	let [translated, keyLabels, valLabels] = entry;
+	if (!translated) translated = string;
 
 	// Replace the gaps in the template string
 	if (keys.length) {
@@ -1748,10 +1750,13 @@ Chat.getDataPokemonHTML = function (template, gen = 7, tier = '') {
 		} else {
 			buf += '<span class="col abilitycol">' + template.abilities['0'] + '</span>';
 		}
-		if (template.abilities['S']) {
-			buf += '<span class="col twoabilitycol' + (template.unreleasedHidden ? ' unreleasedhacol' : '') + '"><em>' + template.abilities['H'] + '<br />' + template.abilities['S'] + '</em></span>';
+		if (template.abilities['H'] && template.abilities['S']) {
+			buf += '<span class="col twoabilitycol' + (template.unreleasedHidden ? ' unreleasedhacol' : '') + '"><em>' + template.abilities['H'] + '<br />(' + template.abilities['S'] + ')</em></span>';
 		} else if (template.abilities['H']) {
 			buf += '<span class="col abilitycol' + (template.unreleasedHidden ? ' unreleasedhacol' : '') + '"><em>' + template.abilities['H'] + '</em></span>';
+		} else if (template.abilities['S']) {
+			// special case for Zygarde
+			buf += '<span class="col abilitycol"><em>(' + template.abilities['S'] + ')</em></span>';
 		} else {
 			buf += '<span class="col abilitycol"></span>';
 		}
