@@ -352,7 +352,7 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['Pokemon', 'Standard', 'Team Preview', 'Mega Rayquaza Clause'],
 		banlist: ['Baton Pass', 'Gothorita', 'Gothitelle'],
-		onValidateSet: function (set) {
+		onValidateSet(set) {
 			if (set.species === 'Necrozma-Dusk-Mane' && set.moves.includes('swordsdance')) {
 				return [`携带剑舞的奈克洛兹玛-黄昏之鬃在该分级下不可用。`];
 			}
@@ -360,6 +360,17 @@ let Formats = [
 				return [`携带剑舞和岩切的原始固拉多在该分级下不可用。`];
 			}
 		},
+	},
+	{
+		name: "[Gen 7] Pure Hackmons",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/om-mashup-megathread.3635904/#post-7802586">HM Sample Teams</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/om-mashup-megathread.3635904/page-4#post-7866923">HM Viability Rankings</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/om-mashup-megathread.3635904/page-4#post-7871849">HM Sample Sets</a>`,
+		],
+
+		mod: 'gen7',
+		ruleset: ['Pokemon', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 	},
 	{
 		name: "[Gen 7] Fortemons",
