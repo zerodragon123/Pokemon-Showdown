@@ -1155,6 +1155,7 @@ class RandomTeams extends Dex.ModdedDex {
 					(hasType['Ground'] && !counter['Ground'] && !hasMove['rest'] && !hasMove['sleeptalk']) ||
 					(hasType['Ice'] && !counter['Ice'] && !hasAbility['Refrigerate']) ||
 					(hasType['Psychic'] && !!counter['Psychic'] && !hasType['Flying'] && !hasAbility['Pixilate'] && template.types.length > 1 && counter.stab < 2) ||
+					(hasType['Rock'] && !counter['Rock'] && counter.setupType === 'Physical') ||
 					(((hasType['Steel'] && hasAbility['Technician']) || hasAbility['Steelworker']) && !counter['Steel']) ||
 					(hasType['Water'] && (!counter['Water'] || !counter.stab) && !hasAbility['Protean']) ||
 					// @ts-ignore
@@ -1792,6 +1793,11 @@ class RandomTeams extends Dex.ModdedDex {
 				if (typeComboCount[typeCombo] >= (isMonotype ? 2 : 1)) continue;
 			}
 
+			let item = this.getItem(set.item);
+
+			// Limit 1 Z-Move per team
+			if (teamDetails['zMove'] && item.zMove) continue;
+
 			// Okay, the set passes, add it to our team
 			pokemon.push(set);
 
@@ -1821,7 +1827,6 @@ class RandomTeams extends Dex.ModdedDex {
 			}
 
 			// Team has Mega/weather/hazards
-			let item = this.getItem(set.item);
 			if (item.megaStone) teamDetails['megaStone'] = 1;
 			if (item.zMove) teamDetails['zMove'] = 1;
 			if (set.ability === 'Snow Warning') teamDetails['hail'] = 1;
