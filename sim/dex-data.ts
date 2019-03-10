@@ -117,7 +117,7 @@ export class BasicEffect implements EffectData {
 	/** The status that the effect may cause. */
 	status?: string;
 	/** The weather that the effect may cause. */
-	weather?: undefined;
+	weather?: string;
 	/** HP that the effect may drain. */
 	drain?: [number, number];
 	flags: AnyObject;
@@ -154,8 +154,8 @@ export class BasicEffect implements EffectData {
 }
 
 /** rule, source, limit, bans */
-type ComplexBan = [string, string, number, string[]];
-type ComplexTeamBan = ComplexBan;
+export type ComplexBan = [string, string, number, string[]];
+export type ComplexTeamBan = ComplexBan;
 
 /**
  * A RuleTable keeps track of the rules that a format has. The key can be:

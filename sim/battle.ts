@@ -1756,7 +1756,7 @@ export class Battle extends Dex.ModdedDex {
 					break;
 				case 'bellydrum2':
 					this.add(msg, target, i, boostBy, '[silent]');
-					this.add('-hint', "In Gen 2, Belly Drum boosts by 2 when it fails.");
+					this.hint("In Gen 2, Belly Drum boosts by 2 when it fails.");
 					break;
 				case 'intimidate': case 'gooey': case 'tanglinghair':
 					this.add(msg, target, i, boostBy);
@@ -1894,14 +1894,22 @@ export class Battle extends Dex.ModdedDex {
 		// In Gen 1 BUT NOT STADIUM, Substitute also takes confusion and HJK recoil damage
 		if (this.gen <= 1 && this.currentMod !== 'stadium' &&
 			['confusion', 'jumpkick', 'highjumpkick'].includes(effect.id) && target.volatiles['substitute']) {
-			target.volatiles['substitute'].hp -= damage;
-			if (target.volatiles['substitute'].hp <= 0) {
-				target.removeVolatile('substitute');
-				target.subFainted = true;
+
+			const hint = "In Gen 1, if a Pokemon with a Substitute hurts itself due to confusion or Jump Kick/Hi Jump Kick recoil and the target";
+			if (source && source.volatiles['substitute']) {
+				source.volatiles['substitute'].hp -= damage;
+				if (source.volatiles['substitute'].hp <= 0) {
+					source.removeVolatile('substitute');
+					source.subFainted = true;
+				} else {
+					this.add('-activate', source, 'Substitute', '[damage]');
+				}
+				this.hint(hint + " has a Substitute, the target's Substitute takes the damage.");
+				return damage;
 			} else {
-				this.add('-activate', target, 'Substitute', '[damage]');
+				this.hint(hint + " does not have a Substitute there is no damage dealt.");
+				return 0;
 			}
-			return damage;
 		}
 
 		damage = target.damage(damage, source, effect);
@@ -2105,8 +2113,8 @@ export class Battle extends Dex.ModdedDex {
 
 		let attacker = pokemon;
 		let defender = target;
-		let attackStat = category === 'Physical' ? 'atk' : 'spa';
-		let defenseStat = defensiveCategory === 'Physical' ? 'def' : 'spd';
+		let attackStat: StatNameExceptHP = category === 'Physical' ? 'atk' : 'spa';
+		let defenseStat: StatNameExceptHP = defensiveCategory === 'Physical' ? 'def' : 'spd';
 		let statTable = {atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe'};
 		let attack;
 		let defense;
@@ -2734,7 +2742,7 @@ export class Battle extends Dex.ModdedDex {
 					// in gen 2-4, the switch still happens
 					action.priority = -101;
 					this.queue.unshift(action);
-					this.add('-hint', 'Pursuit target fainted, switch continues in gen 2-4');
+					this.hint("Previously chosen switches continue in Gen 2-4 after a Pursuit target faints.");
 					break;
 				}
 				// in gen 5+, the switch is cancelled
@@ -2742,7 +2750,7 @@ export class Battle extends Dex.ModdedDex {
 				break;
 			}
 			if (action.target.isActive) {
-				this.add('-hint', 'Switch failed; switch target is already active');
+				this.hint("A switch failed because the Pokémon trying to switch in is already in.");
 				break;
 			}
 			if (action.choice === 'switch' && action.pokemon.activeTurns === 1) {
@@ -2771,6 +2779,11 @@ export class Battle extends Dex.ModdedDex {
 				this.singleEvent('Start', action.pokemon.getAbility(), action.pokemon.abilityData, action.pokemon);
 				action.pokemon.abilityOrder = this.abilityOrder++;
 				this.singleEvent('Start', action.pokemon.getItem(), action.pokemon.itemData, action.pokemon);
+			}
+			if (this.gen === 4) {
+				for (const foeActive of action.pokemon.side.foe.active) {
+					foeActive.removeVolatile('substitutebroken');
+				}
 			}
 			delete action.pokemon.draggedIn;
 			break;
@@ -3006,13 +3019,13 @@ export class Battle extends Dex.ModdedDex {
 		return false;
 	}
 
-	hint(hint: string, once?: boolean, sideid?: 'p1' | 'p2') {
+	hint(hint: string, once?: boolean, side?: Side) {
 		if (this.hints.has(hint)) return;
 
-		if (sideid) {
+		if (side) {
 			this.add('split');
 			for (const line of [false, this.sides[0], this.sides[1], true]) {
-				if (line === true || (line && line.id === sideid)) {
+				if (line === true || line === side) {
 					this.add('-hint', hint);
 				} else {
 					this.log.push('');
@@ -3051,13 +3064,13 @@ export class Battle extends Dex.ModdedDex {
 		}
 	}
 
-// tslint:disable-next-line:ban-types
+	// tslint:disable-next-line:ban-types
 	addMove(...args: (string | number | Function | AnyObject)[]) {
 		this.lastMoveLine = this.log.length;
 		this.log.push(`|${args.join('|')}`);
 	}
 
-// tslint:disable-next-line:ban-types
+	// tslint:disable-next-line:ban-types
 	attrLastMove(...args: (string | number | Function | AnyObject)[]) {
 		if (this.lastMoveLine < 0) return;
 		if (this.log[this.lastMoveLine].startsWith('|-anim|')) {

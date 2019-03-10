@@ -40,7 +40,9 @@ let BattleMovedex = {
 		inherit: true,
 		onHit(target, source) {
 			this.add('-cureteam', source, '[from] move: Aromatherapy');
-			source.side.pokemon.forEach(pokemon => pokemon.clearStatus());
+			for (const pokemon of source.side.pokemon) {
+				pokemon.clearStatus();
+			}
 		},
 	},
 	aquaring: {
@@ -763,9 +765,9 @@ let BattleMovedex = {
 		desc: "Every Pokemon in the user's party is cured of its major status condition. Pokemon with the Soundproof Ability are not cured.",
 		onHit(target, source) {
 			this.add('-activate', source, 'move: Heal Bell');
-			source.side.pokemon.forEach(pokemon => {
+			for (const pokemon of source.side.pokemon) {
 				if (!pokemon.hasAbility('soundproof')) pokemon.cureStatus(true);
-			});
+			}
 		},
 	},
 	healblock: {
@@ -1472,6 +1474,55 @@ let BattleMovedex = {
 	submission: {
 		inherit: true,
 		desc: "If the target lost HP, the user takes recoil damage equal to 1/4 the HP lost by the target, rounded down, but not less than 1 HP.",
+	},
+	substitute: {
+		inherit: true,
+		effect: {
+			onStart(target) {
+				this.add('-start', target, 'Substitute');
+				this.effectData.hp = Math.floor(target.maxhp / 4);
+				delete target.volatiles['partiallytrapped'];
+			},
+			onTryPrimaryHitPriority: -1,
+			onTryPrimaryHit(target, source, move) {
+				if (target === source || move.flags['authentic']) {
+					return;
+				}
+				let damage = this.getDamage(source, target, move);
+				if (!damage && damage !== 0) {
+					this.add('-fail', source);
+					this.attrLastMove('[still]');
+					return null;
+				}
+				damage = this.runEvent('SubDamage', target, source, move, damage);
+				if (!damage) {
+					return damage;
+				}
+				if (damage > target.volatiles['substitute'].hp) {
+					damage = /** @type {number} */ (target.volatiles['substitute'].hp);
+				}
+				target.volatiles['substitute'].hp -= damage;
+				source.lastDamage = damage;
+				if (target.volatiles['substitute'].hp <= 0) {
+					target.removeVolatile('substitute');
+					target.addVolatile('substitutebroken');
+					if (target.volatiles['substitutebroken']) target.volatiles['substitutebroken'].move = move.id;
+				} else {
+					this.add('-activate', target, 'Substitute', '[damage]');
+				}
+				if (move.recoil && damage) {
+					this.damage(this.calcRecoilDamage(damage, move), source, target, 'recoil');
+				}
+				if (move.drain) {
+					this.heal(Math.ceil(damage * move.drain[0] / move.drain[1]), source, target, 'drain');
+				}
+				this.runEvent('AfterSubDamage', target, source, move, damage);
+				return 0; // hit
+			},
+			onEnd(target) {
+				this.add('-end', target, 'Substitute');
+			},
+		},
 	},
 	suckerpunch: {
 		inherit: true,

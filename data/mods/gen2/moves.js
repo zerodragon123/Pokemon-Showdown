@@ -374,7 +374,9 @@ let BattleMovedex = {
 		desc: "Every Pokemon in the user's party is cured of its major status condition.",
 		onHit(target, source) {
 			this.add('-cureteam', source, '[from] move: Heal Bell');
-			source.side.pokemon.forEach(pokemon => pokemon.clearStatus());
+			for (const pokemon of source.side.pokemon) {
+				pokemon.clearStatus();
+			}
 		},
 	},
 	highjumpkick: {
@@ -852,8 +854,8 @@ let BattleMovedex = {
 					move.secondaries = move.secondaries.filter(p => !p.kingsrock);
 				}
 				if (move.drain) {
-					this.add('-hint', "In Gold/Silver/Crystal, draining moves always miss against Substitute.");
 					this.add('-miss', source);
+					this.hint("In Gen 2, draining moves always miss against Substitute.");
 					return null;
 				}
 				if (move.category === 'Status') {

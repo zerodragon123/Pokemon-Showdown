@@ -717,7 +717,7 @@ let Formats = [
 		},
 		ruleset: ['Pokemon', 'Standard Doubles', 'Accuracy Moves Clause', 'Swagger Clause', 'Z-Move Clause', 'Sleep Clause Mod', 'Team Preview'],
 		banlist: [
-			'Arceus', 'Dialga', 'Gengar-Mega', 'Giratina', 'Groudon', 'Ho-Oh', 'Jirachi', 'Kangaskhan-Mega', 'Kyogre', 'Kyurem-White',
+			'Arceus', 'Dialga', 'Giratina', 'Groudon', 'Ho-Oh', 'Jirachi', 'Kangaskhan-Mega', 'Kyogre', 'Kyurem-White',
 			'Lugia', 'Lunala', 'Magearna', 'Marshadow', 'Mewtwo', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Palkia',
 			'Rayquaza', 'Reshiram', 'Salamence-Mega', 'Snorlax', 'Solgaleo', 'Tapu Lele', 'Xerneas', 'Yveltal', 'Zekrom',
 			'Power Construct', 'Eevium Z', 'Focus Sash', 'Dark Void', 'Final Gambit', 'Perish Song',
@@ -1022,7 +1022,7 @@ let Formats = [
 			validate: [6, 6],
 			battle: 6,
 		},
-		ruleset: ['Pokemon', 'Moody Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
+		ruleset: ['Pokemon', 'Moody Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview', 'Mega Rayquaza Clause'],
 		banlist: [
 			'Illegal', 'Unreleased', 'Shedinja', 'Smeargle', 'Huge Power', 'Pure Power', 'Deep Sea Tooth', 'Eviolite', 'Focus Sash', 'Light Ball', 'Lucky Punch',
 			'Stick', 'Thick Club', 'Dark Void', 'Grass Whistle', 'Hypnosis', 'Lovely Kiss', 'Perish Song', 'Sing', 'Sleep Powder', 'Spore', 'Transform',
@@ -1030,7 +1030,7 @@ let Formats = [
 		onValidateSet(set) {
 			if (set && set.item) {
 				let item = this.getItem(set.item);
-				if (item.zMoveUser || item.megaStone) return [`${set.name || set.species}'s item ${set.item} is banned.`];
+				if (item.zMoveUser || item.megaStone || item.onPrimal) return [`${set.name || set.species}'s item ${set.item} is banned.`];
 			}
 		},
 		onBeforeSwitchIn(pokemon) {
@@ -1046,9 +1046,12 @@ let Formats = [
 			pokemon.hp = pokemon.maxhp = template.maxHP = allies[2].maxhp;
 			pokemon.set.evs = allies[2].set.evs;
 			pokemon.set.nature = allies[2].getNature().name;
+			// @ts-ignore
 			pokemon.set.ivs = pokemon.baseIvs = allies[2].set.ivs;
+			// @ts-ignore
 			pokemon.hpType = pokemon.baseHpType = allies[2].baseHpType;
 
+			// @ts-ignore
 			pokemon.moveSlots = pokemon.baseMoveSlots = allies[3].baseMoveSlots.slice(0, 2).concat(allies[4].baseMoveSlots.slice(2)).filter((move, index, moveSlots) => moveSlots.find(othermove => othermove.id === move.id) === move);
 			pokemon.setTemplate(template);
 		},
@@ -1146,6 +1149,7 @@ let Formats = [
 			if (this.rated) this.add('html', `<div class="broadcast-blue"><strong>Mix and Mega is currently suspecting Landorus-Therian! For more information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3647835/">suspect thread</a>.</strong></div>`);
 		},
 		onSwitchIn(pokemon) {
+			// @ts-ignore
 			let oMegaTemplate = this.getTemplate(pokemon.template.originalMega);
 			if (oMegaTemplate.exists && pokemon.originalSpecies !== oMegaTemplate.baseSpecies) {
 				// Place volatiles on the Pokémon to show its mega-evolved condition and details
@@ -1157,6 +1161,7 @@ let Formats = [
 			}
 		},
 		onSwitchOut(pokemon) {
+			// @ts-ignore
 			let oMegaTemplate = this.getTemplate(pokemon.template.originalMega);
 			if (oMegaTemplate.exists && pokemon.originalSpecies !== oMegaTemplate.baseSpecies) {
 				this.add('-end', pokemon, oMegaTemplate.requiredItem || oMegaTemplate.requiredMove, '[silent]');
