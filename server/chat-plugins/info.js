@@ -176,7 +176,7 @@ const commands = {
 				buf += Chat.html`<br />Host: ${targetUser.latestHost}`;
 			}
 		}
-		if (canViewAlts && hiddenrooms) {
+		if (canViewSecretRooms && hiddenrooms) {
 			buf += `<br />Hidden rooms: ${hiddenrooms}`;
 		}
 		if (canViewSecretRooms && privaterooms) {
@@ -188,7 +188,7 @@ const commands = {
 			if (!room.game) continue;
 			if ((targetUser.userid in room.game.players && !targetUser.inRooms.has(room.id)) ||
 				room.auth[targetUser.userid] === Users.PLAYER_SYMBOL) {
-				if (room.isPrivate && !canViewAlts) {
+				if (room.isPrivate && !canViewSecretRooms) {
 					continue;
 				}
 				gameRooms.push(room.id);

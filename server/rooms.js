@@ -612,7 +612,7 @@ class GlobalRoom extends BasicRoom {
 		const typeOrder = ['punishment', 'normal', 'staff', 'leadership'];
 
 		//rankList = rankList.sort((a, b) => typeOrder.indexOf(b.type) - typeOrder.indexOf(a.type));
-		rankList = MSort(rankList, function(a, b) {return typeOrder.indexOf(b.type) - typeOrder.indexOf(a.type)});
+		rankList = MSort(rankList, (a, b) => typeOrder.indexOf(b.type) - typeOrder.indexOf(a.type));
 		// add the punishment types at the very end.
 		for (let rank in Config.punishgroups) {
 			rankList.push({symbol: Config.punishgroups[rank].symbol, name: Config.punishgroups[rank].name, type: 'punishment'});
@@ -1655,13 +1655,19 @@ let Rooms = Object.assign(getRoom, {
 		room.game = new Rooms.RoomBattle(room, formatid, options);
 
 		let inviteOnly = (options.inviteOnly || []);
-		if (p1 && p1.inviteOnlyNextBattle) {
+		const whiteList = ["yjh971203", "unowndragon", "dragonitenb", "drogbainshenhua", "jiuer",
+			"gg disconnect", "gggguang", "no41st", "kitoothe", "blastedpoppie", "popoling",
+			"line38324", "sstj", "masterorigami", "dudutest", "johnxyiu", "lzaaaaa", "neveal",
+			"mmrrk", "xujing691691", "erqiao99", "chengduoldsuperbro", "osgoode", "yoppie",
+			"yubaibai", "mewtwo927", "separation", "angellore", "sceam", "curepersona",
+			"beiyingtest", "freedomsk", "fskse"];
+		if ((p1 && p1.inviteOnlyNextBattle) || (p1 && whiteList.includes(p1.userid))) {
 			inviteOnly.push(p1.userid);
-			p1.inviteOnlyNextBattle = false;
+			p1.inviteOnlyNextBattle = whiteList.includes(p1.userid);
 		}
-		if (p2 && p2.inviteOnlyNextBattle) {
+		if ((p2 && p2.inviteOnlyNextBattle) || (p2 && whiteList.includes(p2.userid))) {
 			inviteOnly.push(p2.userid);
-			p2.inviteOnlyNextBattle = false;
+			p2.inviteOnlyNextBattle = whiteList.includes(p2.userid);
 		}
 		if (options.tour && !room.tour.modjoin) inviteOnly = [];
 		if (inviteOnly.length) {
