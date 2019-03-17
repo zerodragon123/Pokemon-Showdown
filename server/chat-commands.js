@@ -4205,6 +4205,7 @@ const commands = {
 				userid: targetUser.userid,
 				avatar: targetUser.avatar,
 				group: targetUser.group,
+				autoconfirmed: !!targetUser.autoconfirmed,
 				rooms: roomList,
 			};
 			connection.send('|queryresponse|userdetails|' + JSON.stringify(userdetails));
@@ -4228,13 +4229,13 @@ const commands = {
 
 			let targetRoom = Rooms.get(target);
 			if (!targetRoom) return false;
-			if (targetRoom.isPrivate && !user.inRooms.has(room.id) && !user.games.has(room.id)) {
+			if (targetRoom.isPrivate && !user.inRooms.has(targetRoom.id) && !user.games.has(targetRoom.id)) {
 				return false;
 			}
 
 			let visibility;
 			if (targetRoom.isPrivate) {
-				visibility = (targetRoom.isPrivate === 'hidden') ? 'hidden' : 'private';
+				visibility = (targetRoom.isPrivate === 'hidden') ? 'hidden' : 'secret';
 			} else {
 				visibility = 'public';
 			}
