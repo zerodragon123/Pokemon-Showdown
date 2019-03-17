@@ -20,7 +20,7 @@ let Formats = [
 		challengeShow: false,
 		rated: false,
 		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
-		onBegin: function () {
+		onBegin() {
 			this.add('html', `<div class="broadcast-red"><strong>本分级仅用于国服论坛积分显示，天梯对战不计分。具体积分规则见<a href="http://chinapsim.org./topic/63/">国服积分说明帖</a>.</strong></div>`);
 		},
 	},
@@ -35,24 +35,6 @@ let Formats = [
 		mod: 'gen7',
 		team: 'random',
 		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
-	},
-	{
-		name: "[Gen 7] Random Formats",
-		desc: `Randomized competitive lower tiers teams of mutiple generations.`,
-
-		//mod: new PRNG().sample(['gen7','gen3']),
-		team: 'randomFormats',
-		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
-		mod: 'gen7',
-		// @ts-ignore
-		formatsList: [
-			//'gen2nu',
-			'gen3uu', 'gen3pu', 'gen4uu', 'gen4lc', 'gen5pu',
-			'gen5uu', 'gen7monotype', 'gen5nu'],
-		realFormat: '',
-		onBegin: function () {
-			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: ` + this.realFormat + ` </strong></div>`);
-		},
 	},
 	{
 		name: "[Gen 7] Unrated Random Battle",
@@ -340,6 +322,26 @@ let Formats = [
 		ruleset: ['Pokemon', 'Standard'],
 		banlist: ['Uber', 'Power Construct'],
 	},
+	/*
+	{
+		name: "[Gen 7] Random Formats",
+		desc: `Randomized competitive lower tiers teams of mutiple generations.`,
+
+		//mod: new PRNG().sample(['gen7','gen3']),
+		team: 'randomFormats',
+		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		mod: 'gen7',
+		// @ts-ignore
+		formatsList: [
+			//'gen2nu',
+			'gen3uu', 'gen3pu', 'gen4uu', 'gen4lc', 'gen5pu',
+			'gen5uu', 'gen7monotype', 'gen5nu'],
+		realFormat: '',
+		onBegin() {
+			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: ` + this.realFormat + ` </strong></div>`);
+		},
+	},
+	*/
 	{
 		name: "[Gen 7] Ubers Special",
 		threads: [
