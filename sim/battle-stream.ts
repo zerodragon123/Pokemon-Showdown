@@ -69,11 +69,12 @@ export class BattleStream extends Streams.ObjectReadWriteStream<string> {
 			});
 
 			this.push(`update\n|html|<div class="broadcast-red"><b>The battle crashed</b><br />Don't worry, we're working on fixing it.</div>`);
-			if (battle && battle.p1 && battle.p1.currentRequest) {
-				this.push(`sideupdate\np1\n|error|[Invalid choice] The battle crashed`);
-			}
-			if (battle && battle.p2 && battle.p2.currentRequest) {
-				this.push(`sideupdate\np2\n|error|[Invalid choice] The battle crashed`);
+			if (battle) {
+				for (const side of battle.sides) {
+					if (side && side.currentRequest) {
+						this.push(`sideupdate\n${side.id}\n|error|[Invalid choice] The battle crashed`);
+					}
+				}
 			}
 		}
 		if (this.battle) this.battle.sendUpdates();
@@ -101,10 +102,12 @@ export class BattleStream extends Streams.ObjectReadWriteStream<string> {
 			break;
 		case 'player':
 			const [slot, optionsText] = splitFirst(message, ' ');
-			this.battle!.setPlayer(slot as PlayerSlot, JSON.parse(optionsText));
+			this.battle!.setPlayer(slot as SideID, JSON.parse(optionsText));
 			break;
 		case 'p1':
 		case 'p2':
+		case 'p3':
+		case 'p4':
 			if (message === 'undo') {
 				this.battle!.undoChoice(type);
 			} else {
@@ -113,7 +116,7 @@ export class BattleStream extends Streams.ObjectReadWriteStream<string> {
 			break;
 		case 'forcewin':
 		case 'forcetie':
-			this.battle!.win(type === 'forcewin' ? message : null);
+			this.battle!.win(type === 'forcewin' ? message as SideID : null);
 			break;
 		case 'tiebreak':
 			this.battle!.tiebreak();
@@ -121,10 +124,14 @@ export class BattleStream extends Streams.ObjectReadWriteStream<string> {
 		case 'eval':
 			/* tslint:disable:no-eval */
 			const battle = this.battle!;
-			const p1 = battle && battle.p1;
-			const p2 = battle && battle.p2;
+			const p1 = battle && battle.sides[0];
+			const p2 = battle && battle.sides[1];
+			const p3 = battle && battle.sides[2];
+			const p4 = battle && battle.sides[3];
 			const p1active = p1 && p1.active[0];
 			const p2active = p2 && p2.active[0];
+			const p3active = p3 && p3.active[0];
+			const p4active = p4 && p4.active[0];
 			battle.inputLog.push(line);
 			message = message.replace(/\f/g, '\n');
 			battle.add('', '>>> ' + message.replace(/\n/g, '\n||'));
@@ -165,31 +172,43 @@ export class BattleStream extends Streams.ObjectReadWriteStream<string> {
 }
 
 /**
- * Splits a BattleStream into omniscient, spectator, p1, and p2
+ * Splits a BattleStream into omniscient, spectator, p1, p2, p3 and p4
  * streams, for ease of consumption.
  */
 export function getPlayerStreams(stream: BattleStream) {
-	const omniscient = new Streams.ObjectReadWriteStream({
-		write(data: string) {
-			stream.write(data);
-		},
-		end() {
-			stream.end();
-		},
-	});
-	const spectator = new Streams.ObjectReadStream({
-		read() {},
-	});
-	const p1 = new Streams.ObjectReadWriteStream({
-		write(data: string) {
-			stream.write(data.replace(/(^|\n)/g, `$1>p1 `));
-		},
-	});
-	const p2 = new Streams.ObjectReadWriteStream({
-		write(data: string) {
-			stream.write(data.replace(/(^|\n)/g, `$1>p2 `));
-		},
-	});
+	const streams = {
+		omniscient: new Streams.ObjectReadWriteStream({
+			write(data: string) {
+				stream.write(data);
+			},
+			end() {
+				return stream.end();
+			},
+		}),
+		spectator: new Streams.ObjectReadStream({
+			read() {},
+		}),
+		p1: new Streams.ObjectReadWriteStream({
+			write(data: string) {
+				stream.write(data.replace(/(^|\n)/g, `$1>p1 `));
+			},
+		}),
+		p2: new Streams.ObjectReadWriteStream({
+			write(data: string) {
+				stream.write(data.replace(/(^|\n)/g, `$1>p2 `));
+			},
+		}),
+		p3: new Streams.ObjectReadWriteStream({
+			write(data: string) {
+				stream.write(data.replace(/(^|\n)/g, `$1>p3 `));
+			},
+		}),
+		p4: new Streams.ObjectReadWriteStream({
+			write(data: string) {
+				stream.write(data.replace(/(^|\n)/g, `$1>p4 `));
+			},
+		}),
+	};
 	(async () => {
 		let chunk;
 		// tslint:disable-next-line:no-conditional-assignment
@@ -198,29 +217,35 @@ export function getPlayerStreams(stream: BattleStream) {
 			switch (type) {
 			case 'update':
 				const p1Update = data.replace(/\n\|split\n[^\n]*\n([^\n]*)\n[^\n]*\n[^\n]*/g, '\n$1').replace(/\n\n/g, '\n');
-				p1.push(p1Update);
+				streams.p1.push(p1Update);
 				const p2Update = data.replace(/\n\|split\n[^\n]*\n[^\n]*\n([^\n]*)\n[^\n]*/g, '\n$1').replace(/\n\n/g, '\n');
-				p2.push(p2Update);
+				streams.p2.push(p2Update);
+				// p3 and p4 share update information with p1 and p2 respectively.
+				streams.p3.push(p1Update);
+				streams.p4.push(p2Update);
 				const specUpdate = data.replace(/\n\|split\n([^\n]*)\n[^\n]*\n[^\n]*\n[^\n]*/g, '\n$1').replace(/\n\n/g, '\n');
-				spectator.push(specUpdate);
+				streams.spectator.push(specUpdate);
 				const omniUpdate = data.replace(/\n\|split\n[^\n]*\n[^\n]*\n[^\n]*/g, '');
-				omniscient.push(omniUpdate);
+				streams.omniscient.push(omniUpdate);
 				break;
 			case 'sideupdate':
 				const [side, sideData] = splitFirst(data, `\n`);
-				(side === 'p1' ? p1 : p2).push(sideData);
+				streams[side as SideID].push(sideData);
 				break;
 			case 'end':
 				// ignore
 				break;
 			}
 		}
-		omniscient.push(null);
-		spectator.push(null);
-		p1.push(null);
-		p2.push(null);
-	})();
-	return {omniscient, spectator, p1, p2};
+		for (const s of Object.values(streams)) {
+			s.push(null);
+		}
+	})().catch(err => {
+		for (const s of Object.values(streams)) {
+			s.pushError(err);
+		}
+	});
+	return streams;
 }
 
 export class BattlePlayer {
@@ -232,9 +257,9 @@ export class BattlePlayer {
 		this.stream = playerStream;
 		this.log = [];
 		this.debug = debug;
-		this.listen();
 	}
-	async listen() {
+
+	async start() {
 		let chunk;
 		// tslint:disable-next-line:no-conditional-assignment
 		while ((chunk = await this.stream.read())) {
@@ -256,13 +281,17 @@ export class BattlePlayer {
 			return this.receiveRequest(JSON.parse(rest));
 		}
 		if (cmd === 'error') {
-			throw new Error(rest);
+			return this.receiveError(new Error(rest));
 		}
 		this.log.push(line);
 	}
 
 	receiveRequest(request: AnyObject) {
 		throw new Error(`must be implemented by subclass`);
+	}
+
+	receiveError(error: Error) {
+		throw error;
 	}
 
 	choose(choice: string) {
@@ -278,7 +307,16 @@ export class BattleTextStream extends Streams.ReadWriteStream {
 		super();
 		this.battleStream = new BattleStream(options);
 		this.currentMessage = '';
-		this._listen();
+	}
+
+	async start() {
+		let message;
+		// tslint:disable-next-line:no-conditional-assignment
+		while ((message = await this.battleStream.read())) {
+			if (!message.endsWith('\n')) message += '\n';
+			this.push(message + '\n');
+		}
+		this.push(null);
 	}
 
 	_write(message: string | Buffer) {
@@ -289,16 +327,8 @@ export class BattleTextStream extends Streams.ReadWriteStream {
 			this.currentMessage = this.currentMessage.slice(index + 1);
 		}
 	}
+
 	_end() {
-		this.battleStream.end();
-	}
-	async _listen() {
-		let message;
-		// tslint:disable-next-line:no-conditional-assignment
-		while ((message = await this.battleStream.read())) {
-			if (!message.endsWith('\n')) message += '\n';
-			this.push(message + '\n');
-		}
-		this.push(null);
+		return this.battleStream.end();
 	}
 }

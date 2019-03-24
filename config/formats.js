@@ -117,9 +117,6 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] NU'],
 		banlist: ['NU', 'PUBL'],
-		onBegin() {
-			if (this.rated && this.format === 'gen7pu') this.add('html', `<div class="broadcast-red"><strong>PU is currently suspecting Houndoom! For information on how to participate check out the <a href="https://www.smogon.com/forums/posts/8058442/">suspect thread</a>.</strong></div>`);
-		},
 	},
 	{
 		name: "[Gen 7] LC",
@@ -138,6 +135,9 @@ let Formats = [
 			'Scyther', 'Sneasel', 'Swirlix', 'Tangela', 'Vulpix-Base', 'Wingull', 'Yanma',
 			'Eevium Z', 'Baton Pass', 'Dragon Rage', 'Sonic Boom',
 		],
+		onBegin() {
+			if (this.rated && this.format === 'gen7lc') this.add('-html', `<div class="broadcast-red"><strong>LC is currently suspecting Trapinch! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3648309/">suspect thread</a>.</strong></div>`);
+		},
 	},
 	{
 		name: "[Gen 7] Monotype",
@@ -745,8 +745,8 @@ let Formats = [
 			}
 
 			if (item.isNonstandard) {
-				if (item.isNonstandard === 'gen2') {
-					problems.push(item.name + ' does not exist outside of gen 2.');
+				if (item.isNonstandard === 'Past' || item.isNonstandard === 'Future') {
+					problems.push(item.name + ' does not exist in this generation.');
 				} else if (!allowCAP) {
 					problems.push(item.name + ' does not exist.');
 				}
@@ -992,8 +992,8 @@ let Formats = [
 		banlist: ['Shadow Tag', 'Gengarite', 'Baton Pass', 'Electrify'],
 		restrictedStones: ['Beedrillite', 'Blazikenite', 'Kangaskhanite', 'Mawilite', 'Medichamite', 'Pidgeotite', 'Ultranecrozium Z'],
 		cannotMega: [
-			'Arceus', 'Deoxys', 'Deoxys-Attack', 'Deoxys-Speed', 'Dialga', 'Dragonite', 'Giratina', 'Groudon', 'Ho-Oh', 'Kyogre',
-			'Kyurem-Black', 'Kyurem-White', 'Lugia', 'Lunala', 'Marshadow', 'Mewtwo', 'Naganadel', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane',
+			'Arceus', 'Deoxys', 'Deoxys-Attack', 'Deoxys-Speed', 'Dialga', 'Dragonite', 'Giratina', 'Groudon', 'Ho-Oh', 'Kyogre', 'Kyurem-Black',
+			'Kyurem-White', 'Landorus-Therian', 'Lugia', 'Lunala', 'Marshadow', 'Mewtwo', 'Naganadel', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane',
 			'Palkia', 'Pheromosa', 'Rayquaza', 'Regigigas', 'Reshiram', 'Slaking', 'Solgaleo', 'Xerneas', 'Yveltal', 'Zekrom',
 		],
 		onValidateTeam(team) {
@@ -1017,10 +1017,9 @@ let Formats = [
 			if (uberPokemon.includes(template.name) || set.ability === 'Power Construct' || uberStones.includes(item.name)) return ["" + template.species + " is not allowed to hold " + item.name + "."];
 		},
 		onBegin() {
-			for (const pokemon of this.p1.pokemon.concat(this.p2.pokemon)) {
+			for (const pokemon of this.sides[0].pokemon.concat(this.sides[1].pokemon)) {
 				pokemon.originalSpecies = pokemon.baseTemplate.species;
 			}
-			if (this.rated) this.add('html', `<div class="broadcast-blue"><strong>Mix and Mega is currently suspecting Landorus-Therian! For more information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3647835/">suspect thread</a>.</strong></div>`);
 		},
 		onSwitchIn(pokemon) {
 			// @ts-ignore
@@ -1171,8 +1170,8 @@ let Formats = [
 		],
 		onSwitchInPriority: 2,
 		onSwitchIn(pokemon) {
-			if (this.p1.active.every(ally => ally && !ally.fainted)) {
-				let p1a = this.p1.active[0], p1b = this.p1.active[1];
+			if (this.sides[0].active.every(ally => ally && !ally.fainted)) {
+				let p1a = this.sides[0].active[0], p1b = this.sides[0].active[1];
 				if (p1a.ability !== p1b.ability) {
 					let p1aInnate = 'ability' + p1b.ability;
 					p1a.volatiles[p1aInnate] = {id: p1aInnate, target: p1a};
@@ -1180,8 +1179,8 @@ let Formats = [
 					p1b.volatiles[p1bInnate] = {id: p1bInnate, target: p1b};
 				}
 			}
-			if (this.p2.active.every(ally => ally && !ally.fainted)) {
-				let p2a = this.p2.active[0], p2b = this.p2.active[1];
+			if (this.sides[1].active.every(ally => ally && !ally.fainted)) {
+				let p2a = this.sides[1].active[0], p2b = this.sides[1].active[1];
 				if (p2a.ability !== p2b.ability) {
 					let p2a_innate = 'ability' + p2b.ability;
 					p2a.volatiles[p2a_innate] = {id: p2a_innate, target: p2a};
@@ -3247,7 +3246,7 @@ let Formats = [
 			validate: [1, 3],
 			battle: 1,
 		},
-		ruleset: ['Pokemon', 'Species Clause', 'Nickname Clause', 'Moody Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Accuracy Moves Clause', 'Swagger Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
+		ruleset: ['Pokemon', 'Nickname Clause', 'Moody Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Accuracy Moves Clause', 'Swagger Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
 		banlist: [
 			'Illegal', 'Unreleased', 'Arceus', 'Blaziken', 'Darkrai', 'Deoxys-Base', 'Deoxys-Attack', 'Deoxys-Defense',
 			'Dialga', 'Giratina', 'Groudon', 'Ho-Oh', 'Kangaskhan-Mega', 'Kyogre', 'Kyurem-White', 'Lugia', 'Mewtwo',
