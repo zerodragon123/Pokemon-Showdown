@@ -192,9 +192,6 @@ let Formats = [
 			'Mimikyu', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Palkia', 'Rayquaza', 'Reshiram', 'Salamence-Mega', 'Shaymin-Sky',
 			'Snorlax', 'Solgaleo', 'Tapu Koko', 'Xerneas', 'Yveltal', 'Zekrom', 'Focus Sash', 'Perish Song', 'Detect + Fightinium Z',
 		],
-		onBegin() {
-			if (this.rated && this.format === 'gen71v1') this.add('html', `<div class="broadcast-red"><strong>1v1 is currently suspecting Jirachi! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3648161/">suspect thread</a>.</strong></div>`);
-		},
 	},
 	{
 		name: "[Gen 7] ZU",
@@ -1017,17 +1014,17 @@ let Formats = [
 			if (uberPokemon.includes(template.name) || set.ability === 'Power Construct' || uberStones.includes(item.name)) return ["" + template.species + " is not allowed to hold " + item.name + "."];
 		},
 		onBegin() {
-			for (const pokemon of this.sides[0].pokemon.concat(this.sides[1].pokemon)) {
-				pokemon.originalSpecies = pokemon.baseTemplate.species;
+			for (const pokemon of this.getAllPokemon()) {
+				pokemon.m.originalSpecies = pokemon.baseTemplate.species;
 			}
 		},
 		onSwitchIn(pokemon) {
 			// @ts-ignore
 			let oMegaTemplate = this.getTemplate(pokemon.template.originalMega);
-			if (oMegaTemplate.exists && pokemon.originalSpecies !== oMegaTemplate.baseSpecies) {
+			if (oMegaTemplate.exists && pokemon.m.originalSpecies !== oMegaTemplate.baseSpecies) {
 				// Place volatiles on the Pokémon to show its mega-evolved condition and details
 				this.add('-start', pokemon, oMegaTemplate.requiredItem || oMegaTemplate.requiredMove, '[silent]');
-				let oTemplate = this.getTemplate(pokemon.originalSpecies);
+				let oTemplate = this.getTemplate(pokemon.m.originalSpecies);
 				if (oTemplate.types.length !== pokemon.template.types.length || oTemplate.types[1] !== pokemon.template.types[1]) {
 					this.add('-start', pokemon, 'typechange', pokemon.template.types.join('/'), '[silent]');
 				}
@@ -1036,7 +1033,7 @@ let Formats = [
 		onSwitchOut(pokemon) {
 			// @ts-ignore
 			let oMegaTemplate = this.getTemplate(pokemon.template.originalMega);
-			if (oMegaTemplate.exists && pokemon.originalSpecies !== oMegaTemplate.baseSpecies) {
+			if (oMegaTemplate.exists && pokemon.m.originalSpecies !== oMegaTemplate.baseSpecies) {
 				this.add('-end', pokemon, oMegaTemplate.requiredItem || oMegaTemplate.requiredMove, '[silent]');
 			}
 		},
@@ -1190,38 +1187,38 @@ let Formats = [
 			}
 			let ally = pokemon.side.active.find(ally => ally && ally !== pokemon && !ally.fainted);
 			if (ally && ally.ability !== pokemon.ability) {
-				if (!pokemon.innate) {
-					pokemon.innate = 'ability' + ally.ability;
-					delete pokemon.volatiles[pokemon.innate];
-					pokemon.addVolatile(pokemon.innate);
+				if (!pokemon.m.innate) {
+					pokemon.m.innate = 'ability' + ally.ability;
+					delete pokemon.volatiles[pokemon.m.innate];
+					pokemon.addVolatile(pokemon.m.innate);
 				}
-				if (!ally.innate) {
-					ally.innate = 'ability' + pokemon.ability;
-					delete ally.volatiles[ally.innate];
-					ally.addVolatile(ally.innate);
+				if (!ally.m.innate) {
+					ally.m.innate = 'ability' + pokemon.ability;
+					delete ally.volatiles[ally.m.innate];
+					ally.addVolatile(ally.m.innate);
 				}
 			}
 		},
 		onSwitchOut(pokemon) {
-			if (pokemon.innate) {
-				pokemon.removeVolatile(pokemon.innate);
-				delete pokemon.innate;
+			if (pokemon.m.innate) {
+				pokemon.removeVolatile(pokemon.m.innate);
+				delete pokemon.m.innate;
 			}
 			let ally = pokemon.side.active.find(ally => ally && ally !== pokemon && !ally.fainted);
-			if (ally && ally.innate) {
-				ally.removeVolatile(ally.innate);
-				delete ally.innate;
+			if (ally && ally.m.innate) {
+				ally.removeVolatile(ally.m.innate);
+				delete ally.m.innate;
 			}
 		},
 		onFaint(pokemon) {
-			if (pokemon.innate) {
-				pokemon.removeVolatile(pokemon.innate);
-				delete pokemon.innate;
+			if (pokemon.m.innate) {
+				pokemon.removeVolatile(pokemon.m.innate);
+				delete pokemon.m.innate;
 			}
 			let ally = pokemon.side.active.find(ally => ally && ally !== pokemon && !ally.fainted);
-			if (ally && ally.innate) {
-				ally.removeVolatile(ally.innate);
-				delete ally.innate;
+			if (ally && ally.m.innate) {
+				ally.removeVolatile(ally.m.innate);
+				delete ally.m.innate;
 			}
 		},
 	},
@@ -3039,8 +3036,8 @@ let Formats = [
 
 		mod: 'gen4',
 		// searchShow: false,
-		ruleset: ['Pokemon', 'Standard'],
-		banlist: ['Uber', 'OU', 'UUBL'],
+		ruleset: ['[Gen 4] OU'],
+		banlist: ['OU', 'UUBL'],
 	},
 	{
 		name: "[Gen 2] Inverse OU",
@@ -3094,8 +3091,8 @@ let Formats = [
 		],
 
 		mod: 'gen4',
-		ruleset: ['Pokemon', 'Standard', 'Evasion Abilities Clause', 'Baton Pass Clause'],
-		banlist: ['Uber', 'Soul Dew'],
+		ruleset: ['Pokemon', 'Standard', 'Baton Pass Clause'],
+		banlist: ['Uber', 'Sand Veil', 'Soul Dew'],
 	},
 	{
 		name: "[Gen 3] OU",
