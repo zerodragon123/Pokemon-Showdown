@@ -106,13 +106,30 @@ class PatternTester {
 	/**
 	 * @param {string} text
 	 */
-	test(text) {
+	testCommand(text) {
 		const spaceIndex = text.indexOf(' ');
 		if (this.fastElements.has(spaceIndex >= 0 ? text.slice(0, spaceIndex) : text)) {
 			return true;
 		}
 		if (!this.regexp) return false;
 		return this.regexp.test(text);
+	}
+	/**
+	 * @param {string} text
+	 */
+	test(text) {
+		if (!text.includes('\n')) return null;
+		if (this.testCommand(text)) return text;
+		// The PM matching is a huge mess, and really needs to be replaced with
+		// the new multiline command system soon.
+		const pmMatches = /^(\/(?:pm|w|whisper|msg) [^,]*, ?)(.*)/i.exec(text);
+		if (pmMatches && this.testCommand(pmMatches[2])) {
+			if (text.split('\n').every(line => line.startsWith(pmMatches[1]))) {
+				return text.replace(/\n\/(?:pm|w|whisper|msg) [^,]*, ?/g, '\n');
+			}
+			return text;
+		}
+		return null;
 	}
 }
 
@@ -1127,7 +1144,7 @@ class CommandContext extends MessageContext {
 					let groupName = Config.groups[Config.pmmodchat] && Config.groups[Config.pmmodchat].name || Config.pmmodchat;
 					return this.errorReply(`On this server, you must be of rank ${groupName} or higher to PM users.`);
 				}
-				if (targetUser.ignorePMs && targetUser.ignorePMs !== user.group && !user.can('lock')) {
+				if (targetUser.blockPMs && targetUser.blockPMs !== user.group && !user.can('lock')) {
 					if (!targetUser.can('lock')) {
 						return this.errorReply(`This user is blocking private messages right now.`);
 					} else {
@@ -1135,7 +1152,7 @@ class CommandContext extends MessageContext {
 						return this.sendReply(`|html|If you need help, try opening a <a href="view-help-request" class="button">help ticket</a>`);
 					}
 				}
-				if (user.ignorePMs && user.ignorePMs !== targetUser.group && !targetUser.can('lock')) {
+				if (user.blockPMs && user.blockPMs !== targetUser.group && !targetUser.can('lock')) {
 					return this.errorReply(`You are blocking private messages right now.`);
 				}
 			}

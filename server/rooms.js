@@ -114,6 +114,9 @@ class BasicRoom {
 		this.filterCaps = false;
 		this.mafiaEnabled = false;
 		this.unoDisabled = false;
+		/** @type {'%' | boolean} */
+		this.toursEnabled = false;
+		this.tourAnnouncements = false;
 		/** @type {Set<string>?} */
 		this.privacySetter = null;
 		/** @type {Map<string, ChatRoom>?} */
@@ -860,8 +863,7 @@ class GlobalRoom extends BasicRoom {
 	 * @param {Connection} connection
 	 */
 	onConnect(user, connection) {
-		let initdata = '|updateuser|' + user.name + '|' + (user.named ? '1' : '0') + '|' + user.avatar + '\n';
-		connection.send(initdata + this.configRankList + this.formatListText);
+		connection.send(user.getUpdateuserText() + '\n' + this.configRankList + this.formatListText);
 	}
 	/**
 	 * @param {User} user
@@ -1613,47 +1615,41 @@ let Rooms = Object.assign(getRoom, {
 	 * @param {AnyObject} options
 	 */
 	createBattle(formatid, options) {
-		/** @type {User?[]} */
-		const players = [options.p1, options.p2, options.p3, options.p4];
+		/** @type {(User & {specialNextBattle: boolean})[]} */
+		const players = [options.p1, options.p2, options.p3, options.p4].filter(user => user);
 		const gameType = Dex.getFormat(formatid).gameType;
 		if (gameType !== 'multi' && gameType !== 'free-for-all') {
-			if (players[2] || players[3]) {
+			if (players.length > 2) {
 				throw new Error(`Four players were provided, but the format is a two-player format.`);
 			}
-			players.splice(2);
 		}
 		if (new Set(players).size < players.length) {
 			throw new Error(`Players can't battle themselves`);
 		}
 
-		for (const p of players) {
-			if (p) Ladders.cancelSearches(p);
+		for (const user of players) {
+			Ladders.cancelSearches(user);
 		}
 
 		if (Rooms.global.lockdown === true) {
-			for (const p of players) {
-				if (p) p.popup("The server is restarting. Battles will be available again in a few minutes.");
+			for (const user of players) {
+				user.popup("The server is restarting. Battles will be available again in a few minutes.");
 			}
 			return;
 		}
 
-		// @ts-ignore
-		if (players.every(p => p) && players.some(p => p.specialNextBattle)) {
-			// @ts-ignore
+		if (players.some(user => user.specialNextBattle)) {
 			const p1Special = players[0].specialNextBattle;
 			let mismatch = `"${p1Special}"`;
-			for (const p of players) {
-				// @ts-ignore
-				if (p.specialNextBattle !== p1Special) {
-					// @ts-ignore
-					mismatch += ` vs. "${p.specialNextBattle}"`;
+			for (const user of players) {
+				if (user.specialNextBattle !== p1Special) {
+					mismatch += ` vs. "${user.specialNextBattle}"`;
 					break;
 				}
 			}
 			if (mismatch !== `"${p1Special}"`) {
-				for (const p of players) {
-					// @ts-ignore p is not null
-					p.popup(`Your special battle settings don't match: ${mismatch}`);
+				for (const user of players) {
+					user.popup(`Your special battle settings don't match: ${mismatch}`);
 				}
 				return;
 			}
@@ -1687,13 +1683,13 @@ let Rooms = Object.assign(getRoom, {
 		const whiteList = ["yjh971203", "unowndragon", "dragonitenb", "drogbainshenhua", "jiuer",
 			"gg disconnect", "gggguang", "no41st", "kitoothe", "blastedpoppie", "popoling",
 			"line38324", "sstj", "masterorigami", "dudutest", "johnxyiu", "lzaaaaa", "neveal",
-			"mmrrk", "xujing691691", "erqiao99", "chengduoldsuperbro", "osgoode", "yoppie",
-			"yubaibai", "mewtwo927", "separation", "angellore", "sceam", "curepersona",
-			"beiyingtest", "freedomsk", "fskse"];
-		for (const p of players) {
-			if ((p && p.inviteOnlyNextBattle) || (p && whiteList.includes(p.userid))) {
-				inviteOnly.push(p.userid);
-				p.inviteOnlyNextBattle = whiteList.includes(p.userid);
+			"mmrrk", "xujing691691", "erqiao99", "chengduoldsuperbro", "yubaibai", "yoppie",
+			"mewtwo927", "separation", "angellore", "sceam", "curepersona",
+			"osgoode", "crayon pop", "flcl", "beiyingtest", "freedomsk", "fskse"];
+		for (const user of players) {
+			if (user.inviteOnlyNextBattle || whiteList.includes(user.userid)) {
+				inviteOnly.push(user.userid);
+				user.inviteOnlyNextBattle = whiteList.includes(user.userid);
 			}
 		}
 		if (options.tour && !room.tour.modjoin) inviteOnly = [];

@@ -546,7 +546,7 @@ let BattleMovedex = {
 			},
 			onAnyModifyDamage(damage, source, target, move) {
 				if (target !== source && target.side === this.effectData.target && this.getCategory(move) === 'Special') {
-					if (!move.crit && !move.infiltrates) {
+					if (!target.getMoveHitData(move).crit && !move.infiltrates) {
 						this.debug('Light Screen weaken');
 						if (target.side.active.length > 1) return this.chainModify([0xA8F, 0x1000]);
 						return this.chainModify(0.5);
@@ -783,7 +783,7 @@ let BattleMovedex = {
 			},
 			onAnyModifyDamage(damage, source, target, move) {
 				if (target !== source && target.side === this.effectData.target && this.getCategory(move) === 'Physical') {
-					if (!move.crit && !move.infiltrates) {
+					if (!target.getMoveHitData(move).crit && !move.infiltrates) {
 						this.debug('Reflect weaken');
 						if (target.side.active.length > 1) return this.chainModify([0xA8F, 0x1000]);
 						return this.chainModify(0.5);
@@ -933,6 +933,19 @@ let BattleMovedex = {
 		inherit: true,
 		basePower: 40,
 		flags: {protect: 1, mirror: 1, sound: 1},
+	},
+	soak: {
+		inherit: true,
+		desc: "Causes the target to become a Water type. Fails if the target is an Arceus.",
+		onHit(target) {
+			if (!target.setType('Water')) {
+				// Soak should animate even when it fails.
+				// Returning false would suppress the animation.
+				this.add('-fail', target);
+				return null;
+			}
+			this.add('-start', target, 'typechange', 'Water');
+		},
 	},
 	solarbeam: {
 		inherit: true,

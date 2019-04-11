@@ -33,6 +33,16 @@ interface BattleOptions {
 	strictChoices?: boolean; // whether invalid choices should throw
 }
 
+// The current request state of the Battle:
+//
+//   - 'teampreview': beginning of BW/XY/SM battle (Team Preview)
+//   - 'move': beginning of each turn
+//   - 'switch': end of turn if fainted (or mid turn with switching effects)
+//   - '': no request. Used between turns, or when the battle is over.
+//
+// An individual Side's request state is encapsulated in its `activeRequest` field.
+export type RequestState = 'teampreview' | 'move' | 'switch' | '';
+
 export class Battle extends Dex.ModdedDex {
 	readonly id: '';
 	readonly debugMode: boolean;
@@ -50,7 +60,7 @@ export class Battle extends Dex.ModdedDex {
 	reportPercentages: boolean;
 	supportCancel: boolean;
 
-	queue: Actions["Action"][];
+	queue: Actions.Action[];
 	readonly faintQueue: FaintedPokemon[];
 
 	readonly log: string[];
@@ -59,7 +69,7 @@ export class Battle extends Dex.ModdedDex {
 	sentLogPos: number;
 	sentEnd: boolean;
 
-	currentRequest: string;
+	requestState: RequestState;
 	turn: number;
 	midTurn: boolean;
 	started: boolean;
@@ -151,7 +161,7 @@ export class Battle extends Dex.ModdedDex {
 		this.sentLogPos = 0;
 		this.sentEnd = false;
 
-		this.currentRequest = '';
+		this.requestState = '';
 		this.turn = 0;
 		this.midTurn = false;
 		this.started = false;
@@ -1018,20 +1028,20 @@ export class Battle extends Dex.ModdedDex {
 		return pokemonList;
 	}
 
-	makeRequest(type?: string) {
+	makeRequest(type?: RequestState) {
 		if (type) {
-			this.currentRequest = type;
+			this.requestState = type;
 			for (const side of this.sides) {
 				side.clearChoice();
 			}
 		} else {
-			type = this.currentRequest;
+			type = this.requestState;
 		}
 
 		// default to no request
 		const requests: any[] = Array(this.sides.length).fill(null);
 		for (const side of this.sides) {
-			side.currentRequest = '';
+			side.activeRequest = null;
 		}
 
 		switch (type) {
@@ -1043,7 +1053,6 @@ export class Battle extends Dex.ModdedDex {
 					switchTable.push(!!(pokemon && pokemon.switchFlag));
 				}
 				if (switchTable.some(flag => flag === true)) {
-					side.currentRequest = 'switch';
 					requests[i] = {forceSwitch: switchTable, side: side.getRequestData()};
 				}
 			}
@@ -1058,7 +1067,6 @@ export class Battle extends Dex.ModdedDex {
 			for (let i = 0; i < this.sides.length; i++) {
 				const side = this.sides[i];
 				side.maxTeamSize = maxTeamSize;
-				side.currentRequest = 'teampreview';
 				requests[i] = {teamPreview: true, maxTeamSize, side: side.getRequestData()};
 			}
 			break;
@@ -1066,7 +1074,6 @@ export class Battle extends Dex.ModdedDex {
 		default: {
 			for (let i = 0; i < this.sides.length; i++) {
 				const side = this.sides[i];
-				side.currentRequest = 'move';
 				const activeData = side.active.map(pokemon => pokemon && pokemon.getRequestData());
 				requests[i] = {active: activeData, side: side.getRequestData()};
 			}
@@ -1160,9 +1167,9 @@ export class Battle extends Dex.ModdedDex {
 			this.add('tie');
 		}
 		this.ended = true;
-		this.currentRequest = '';
+		this.requestState = '';
 		for (const s of this.sides) {
-			s.currentRequest = '';
+			s.activeRequest = null;
 		}
 		return true;
 	}
@@ -1598,7 +1605,7 @@ export class Battle extends Dex.ModdedDex {
 
 		this.addToQueue({choice: 'start'});
 		this.midTurn = true;
-		if (!this.currentRequest) this.go();
+		if (!this.requestState) this.go();
 	}
 
 	boost(
@@ -1937,17 +1944,18 @@ export class Battle extends Dex.ModdedDex {
 	 */
 	getDamage(
 		pokemon: Pokemon, target: Pokemon, move: string | number | ActiveMove,
-		suppressMessages: boolean = false): number | undefined | null | false {
+		suppressMessages: boolean = false
+	): number | undefined | null | false {
 		if (typeof move === 'string') move = this.getActiveMove(move);
 
 		if (typeof move === 'number') {
 			const basePower = move;
-			move = (new Data.Move({
+			move = new Data.Move({
 				basePower,
 				type: '???',
 				category: 'Physical',
 				willCrit: false,
-			})) as ActiveMove;
+			}) as ActiveMove;
 			move.hit = 0;
 		}
 
@@ -1989,15 +1997,16 @@ export class Battle extends Dex.ModdedDex {
 			}
 		}
 
-		move.crit = move.willCrit || false;
+		const moveHit = target.getMoveHitData(move);
+		moveHit.crit = move.willCrit || false;
 		if (move.willCrit === undefined) {
 			if (critRatio) {
-				move.crit = this.randomChance(1, critMult[critRatio]);
+				moveHit.crit = this.randomChance(1, critMult[critRatio]);
 			}
 		}
 
-		if (move.crit) {
-			move.crit = this.runEvent('CriticalHit', target, null, move);
+		if (moveHit.crit) {
+			moveHit.crit = this.runEvent('CriticalHit', target, null, move);
 		}
 
 		// happens after crit calculation
@@ -2022,7 +2031,7 @@ export class Battle extends Dex.ModdedDex {
 		let ignoreNegativeOffensive = !!move.ignoreNegativeOffensive;
 		let ignorePositiveDefensive = !!move.ignorePositiveDefensive;
 
-		if (move.crit) {
+		if (moveHit.crit) {
 			ignoreNegativeOffensive = true;
 			ignorePositiveDefensive = true;
 		}
@@ -2083,7 +2092,8 @@ export class Battle extends Dex.ModdedDex {
 		baseDamage = this.runEvent('WeatherModifyDamage', pokemon, target, move, baseDamage);
 
 		// crit - not a modifier
-		if (move.crit) {
+		const isCrit = target.getMoveHitData(move).crit;
+		if (isCrit) {
 			baseDamage = tr(baseDamage * (move.critModifier || (this.gen >= 6 ? 1.5 : 2)));
 		}
 
@@ -2099,25 +2109,25 @@ export class Battle extends Dex.ModdedDex {
 			baseDamage = this.modify(baseDamage, move.stab || 1.5);
 		}
 		// types
-		move.typeMod = target.runEffectiveness(move);
-
-		move.typeMod = this.clampIntRange(move.typeMod, -6, 6);
-		if (move.typeMod > 0) {
+		let typeMod = target.runEffectiveness(move);
+		typeMod = this.clampIntRange(typeMod, -6, 6);
+		target.getMoveHitData(move).typeMod = typeMod;
+		if (typeMod > 0) {
 			if (!suppressMessages) this.add('-supereffective', target);
 
-			for (let i = 0; i < move.typeMod; i++) {
+			for (let i = 0; i < typeMod; i++) {
 				baseDamage *= 2;
 			}
 		}
-		if (move.typeMod < 0) {
+		if (typeMod < 0) {
 			if (!suppressMessages) this.add('-resisted', target);
 
-			for (let i = 0; i > move.typeMod; i--) {
+			for (let i = 0; i > typeMod; i--) {
 				baseDamage = tr(baseDamage / 2);
 			}
 		}
 
-		if (move.crit && !suppressMessages) this.add('-crit', target);
+		if (isCrit && !suppressMessages) this.add('-crit', target);
 
 		if (pokemon.status === 'brn' && move.category === 'Physical' && !pokemon.hasAbility('guts')) {
 			if (this.gen < 6 || move.id !== 'facade') {
@@ -2131,7 +2141,7 @@ export class Battle extends Dex.ModdedDex {
 		// Final modifier. Modifiers that modify damage after min damage check, such as Life Orb.
 		baseDamage = this.runEvent('ModifyDamage', pokemon, target, move, baseDamage);
 
-		if (move.isZPowered && move.zBrokeProtect) {
+		if (move.isZPowered && target.getMoveHitData(move).zBrokeProtect) {
 			baseDamage = this.modify(baseDamage, 0.25);
 			this.add('-zbroken', target);
 		}
@@ -2341,7 +2351,7 @@ export class Battle extends Dex.ModdedDex {
 	 * Takes an object describing an action, and fills it out into a full
 	 * Action object.
 	 */
-	resolveAction(action: AnyObject, midTurn: boolean = false): Actions["Action"] {
+	resolveAction(action: AnyObject, midTurn: boolean = false): Actions.Action {
 		if (!action) throw new Error(`Action not passed to resolveAction`);
 
 		if (!action.side && action.pokemon) action.side = action.pokemon.side;
@@ -2476,7 +2486,7 @@ export class Battle extends Dex.ModdedDex {
 	/**
 	 * Makes the passed action happen next (skipping speed order).
 	 */
-	prioritizeAction(action: Actions["MoveAction"] | Actions["SwitchAction"], source?: Pokemon, sourceEffect?: Effect) {
+	prioritizeAction(action: Actions.MoveAction | Actions.SwitchAction, source?: Pokemon, sourceEffect?: Effect) {
 		if (this.event && !sourceEffect) sourceEffect = this.effect;
 		for (const [i, curAction] of this.queue.entries()) {
 			if (curAction === action) {
@@ -2533,7 +2543,7 @@ export class Battle extends Dex.ModdedDex {
 		return false;
 	}
 
-	runAction(action: Actions["Action"]) {
+	runAction(action: Actions.Action) {
 		// returns whether or not we ended in a callback
 		switch (action.choice) {
 		case 'start': {
@@ -2739,7 +2749,7 @@ export class Battle extends Dex.ModdedDex {
 				queuedAction.pokemon === action.pokemon && queuedAction.choice === 'move'
 			);
 			if (moveIndex >= 0) {
-				const moveAction = this.queue.splice(moveIndex, 1)[0] as Actions["MoveAction"];
+				const moveAction = this.queue.splice(moveIndex, 1)[0] as Actions.MoveAction;
 				moveAction.mega = 'done';
 				this.insertQueue(moveAction, true);
 			}
@@ -2778,7 +2788,7 @@ export class Battle extends Dex.ModdedDex {
 
 	go() {
 		this.add('');
-		if (this.currentRequest) this.currentRequest = '';
+		if (this.requestState) this.requestState = '';
 
 		if (!this.midTurn) {
 			this.queue.push(this.resolveAction({choice: 'residual'}));
@@ -2790,7 +2800,7 @@ export class Battle extends Dex.ModdedDex {
 			const action = this.queue[0];
 			this.queue.shift();
 			this.runAction(action);
-			if (this.currentRequest || this.ended) return;
+			if (this.requestState || this.ended) return;
 		}
 
 		this.nextTurn();
@@ -2862,9 +2872,9 @@ export class Battle extends Dex.ModdedDex {
 		this.sortQueue();
 		this.queue.push(...oldQueue);
 
-		this.currentRequest = '';
+		this.requestState = '';
 		for (const side of this.sides) {
-			side.currentRequest = '';
+			side.activeRequest = null;
 		}
 
 		this.go();
@@ -2872,7 +2882,7 @@ export class Battle extends Dex.ModdedDex {
 
 	undoChoice(sideid: SideID) {
 		const side = this.getSide(sideid);
-		if (!side.currentRequest) return;
+		if (!side.requestState) return;
 
 		if (side.choice.cantUndo) {
 			side.emitChoiceError(`Can't undo: A trapping/disabling effect would cause undo to leak information`);

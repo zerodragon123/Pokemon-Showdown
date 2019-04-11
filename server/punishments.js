@@ -790,14 +790,14 @@ Punishments.unlock = function (name) {
 		user.namelocked = false;
 		user.updateIdentity();
 		success.push(user.getLastName());
-		if (id.charAt(0) !== '#') {
-			for (const curUser of Users.users.values()) {
-				if (curUser.locked === id) {
-					curUser.locked = false;
-					curUser.namelocked = false;
-					curUser.updateIdentity();
-					success.push(curUser.getLastName());
-				}
+	}
+	if (id.charAt(0) !== '#') {
+		for (const curUser of Users.users.values()) {
+			if (curUser.locked === id) {
+				curUser.locked = false;
+				curUser.namelocked = false;
+				curUser.updateIdentity();
+				success.push(curUser.getLastName());
 			}
 		}
 	}
@@ -1315,7 +1315,6 @@ Punishments.checkName = function (user, userid, registered) {
 			user.send(`|popup||html|You are locked${bannedUnder}. ${user.permalocked ? `This lock is permanent.` : `Your lock will expire in a few days.`}${reason}${appeal}`);
 		}
 		user.lockNotified = true;
-		if (user.userid === punishUserid) Punishments.punish(user, punishment);
 		user.locked = punishUserid;
 		user.updateIdentity();
 	}
@@ -1559,6 +1558,43 @@ Punishments.getRoomPunishments = function (user, options) {
 	return punishments;
 };
 
+/** @param {Room} room */
+Punishments.getPunishmentsOfRoom = function (room) {
+	let output = [];
+	const store = new Map();
+
+	if (Punishments.roomUserids.get(room.id)) {
+		for (let [key, value] of Punishments.roomUserids.get(room.id)) {
+			if (!store.has(value)) store.set(value, [new Set([]), new Set()]);
+			store.get(value)[0].add(key);
+		}
+	}
+
+	if (Punishments.roomIps.get(room.id)) {
+		for (let [key, value] of Punishments.roomIps.get(room.id)) {
+			if (!store.has(value)) store.set(value, [new Set([]), new Set()]);
+			store.get(value)[1].add(key);
+		}
+	}
+
+	for (const [punishment, data] of store) {
+		let [punishType, id, expireTime, reason] = punishment;
+		let expiresIn = new Date(expireTime).getTime() - Date.now();
+		if (expiresIn < 1000) continue;
+		let alts = [...data[0]].filter(user => user !== id);
+		let ips = [...data[1]];
+		output.push({"punishType": punishType, "id": id, "expiresIn": expiresIn, "reason": reason, "alts": alts, "ips": ips});
+	}
+
+	if (room.muteQueue) {
+		for (const entry of room.muteQueue) {
+			let expiresIn = new Date(entry.time).getTime() - Date.now();
+			if (expiresIn < 1000) continue;
+			output.push({"punishType": 'MUTE', "id": entry.userid, "expiresIn": expiresIn, "reason": '', "alts": [], "ips": []});
+		}
+	}
+	return output;
+};
 /**
  * Notifies staff if a user has three or more room punishments.
  *

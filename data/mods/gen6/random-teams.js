@@ -17,8 +17,8 @@ class RandomGen6Teams extends RandomTeams {
 	/**
 	 * @param {string | Template} template
 	 * @param {number} [slot]
-	 * @param {RandomTeamsTypes["TeamDetails"]} [teamDetails]
-	 * @return {RandomTeamsTypes["RandomSet"]}
+	 * @param {RandomTeamsTypes.TeamDetails} [teamDetails]
+	 * @return {RandomTeamsTypes.RandomSet}
 	 */
 	randomSet(template, slot, teamDetails = {}) {
 		if (slot === undefined) slot = 1;
@@ -196,7 +196,7 @@ class RandomGen6Teams extends RandomTeams {
 				case 'defog':
 					if (counter.setupType || hasMove['spikes'] || hasMove['stealthrock'] || (hasMove['rest'] && hasMove['sleeptalk']) || teamDetails.hazardClear) rejected = true;
 					break;
-				case 'fakeout':
+				case 'fakeout': case 'tailwind':
 					if (counter.setupType || hasMove['substitute'] || hasMove['switcheroo'] || hasMove['trick']) rejected = true;
 					break;
 				case 'foulplay':
@@ -234,7 +234,7 @@ class RandomGen6Teams extends RandomTeams {
 					break;
 				case 'switcheroo': case 'trick':
 					if (counter.Physical + counter.Special < 3 || counter.setupType || !!counter['speedsetup']) rejected = true;
-					if (hasMove['acrobatics'] || hasMove['lightscreen'] || hasMove['reflect'] || hasMove['suckerpunch'] || hasMove['trickroom']) rejected = true;
+					if (hasMove['lightscreen'] || hasMove['reflect'] || hasMove['suckerpunch'] || hasMove['trickroom']) rejected = true;
 					break;
 				case 'toxicspikes':
 					if (counter.setupType || teamDetails.toxicSpikes) rejected = true;
@@ -318,13 +318,13 @@ class RandomGen6Teams extends RandomTeams {
 				case 'vacuumwave':
 					if ((hasMove['closecombat'] || hasMove['machpunch']) && counter.setupType !== 'Special') rejected = true;
 					break;
-				case 'fierydance': case 'firefang': case 'flamethrower': case 'flareblitz':
-					if (hasMove['blazekick'] || hasMove['overheat'] || hasMove['sacredfire']) rejected = true;
-					if (hasMove['fireblast'] && counter.setupType !== 'Physical' && !hasAbility['Reckless']) rejected = true;
+				case 'fierydance': case 'firefang': case 'flamethrower':
+					if (hasMove['blazekick'] || hasMove['overheat']) rejected = true;
+					if (hasMove['fireblast'] && counter.setupType !== 'Physical') rejected = true;
 					break;
 				case 'fireblast':
+					if (hasMove['flareblitz'] && counter.setupType !== 'Special') rejected = true;
 					if (hasMove['lavaplume'] && !counter.setupType && !counter['speedsetup']) rejected = true;
-					if (hasMove['flareblitz'] && hasAbility['Reckless']) rejected = true;
 					break;
 				case 'lavaplume':
 					if (hasMove['firepunch'] || hasMove['fireblast'] && (counter.setupType || !!counter['speedsetup'])) rejected = true;
@@ -365,11 +365,12 @@ class RandomGen6Teams extends RandomTeams {
 				case 'icebeam':
 					if (hasMove['blizzard'] || hasMove['freezedry']) rejected = true;
 					break;
-				case 'iceshard':
+				case 'iceshard': case 'icywind':
 					if (hasMove['freezedry']) rejected = true;
 					break;
-				case 'bodyslam':
-					if (hasMove['glare'] && hasMove['headbutt']) rejected = true;
+				case 'bodyslam': case 'return':
+					if (hasMove['doubleedge'] || hasMove['glare'] && hasMove['headbutt']) rejected = true;
+					if (moveid === 'return' && hasMove['bodyslam']) rejected = true;
 					break;
 				case 'endeavor':
 					if (slot > 0) rejected = true;
@@ -394,9 +395,6 @@ class RandomGen6Teams extends RandomTeams {
 					break;
 				case 'quickattack':
 					if (hasType['Normal'] && (!counter.stab || counter['Normal'] > 2)) rejected = true;
-					break;
-				case 'return': case 'rockclimb':
-					if (hasMove['bodyslam'] || hasMove['doubleedge']) rejected = true;
 					break;
 				case 'weatherball':
 					if (!hasMove['raindance'] && !hasMove['sunnyday']) rejected = true;
@@ -538,7 +536,7 @@ class RandomGen6Teams extends RandomTeams {
 					(!counter.recovery && (movePool.includes('softboiled') || template.nfe && !!counter['Status'] && (movePool.includes('recover') || movePool.includes('roost')))) ||
 					(template.requiredMove && movePool.includes(toId(template.requiredMove)))))) {
 					// Reject Status or non-STAB
-					if (!isSetup && !move.weather && !move.damage && moveid !== 'judgment' && moveid !== 'rest' && moveid !== 'sleeptalk') {
+					if (!isSetup && !move.weather && !move.damage && !move.heal && moveid !== 'judgment' && moveid !== 'rest' && moveid !== 'sleeptalk') {
 						if (move.category === 'Status' || !hasType[move.type] || move.selfSwitch || move.basePower && move.basePower < 40 && !move.multihit) rejected = true;
 					}
 				}
@@ -640,7 +638,7 @@ class RandomGen6Teams extends RandomTeams {
 				} else if (ability === 'Prankster') {
 					rejectAbility = !counter['Status'];
 				} else if (ability === 'Pressure' || ability === 'Synchronize') {
-					rejectAbility = counter.Status < 2 || !!counter['recoil'];
+					rejectAbility = counter.Status < 2 || !!counter['recoil'] || template.isMega;
 				} else if (ability === 'Reckless' || ability === 'Rock Head') {
 					rejectAbility = !counter['recoil'];
 				} else if (ability === 'Regenerator') {
@@ -666,7 +664,7 @@ class RandomGen6Teams extends RandomTeams {
 				} else if (ability === 'Swarm') {
 					rejectAbility = !counter['Bug'];
 				} else if (ability === 'Technician') {
-					rejectAbility = !counter['technician'] || (abilities.includes('Skill Link') && counter['skilllink'] >= counter['technician']);
+					rejectAbility = !counter['technician'] || hasMove['tailslap'];
 				} else if (ability === 'Tinted Lens') {
 					rejectAbility = counter['damage'] >= counter.damagingMoves.length || (counter.Status > 2 && !counter.setupType);
 				} else if (ability === 'Torrent') {
@@ -714,6 +712,8 @@ class RandomGen6Teams extends RandomTeams {
 				ability = 'Sheer Force';
 			} else if (template.species === 'Torterra' && !counter['Grass']) {
 				ability = 'Shell Armor';
+			} else if (template.id === 'swampertmega') {
+				ability = 'Damp';
 			} else if (template.id === 'venusaurmega') {
 				ability = 'Chlorophyll';
 			}
@@ -790,10 +790,10 @@ class RandomGen6Teams extends RandomTeams {
 					}
 				}
 			}
-		} else if (hasMove['rest'] && !hasMove['sleeptalk'] && ability !== 'Natural Cure' && ability !== 'Shed Skin') {
-			item = (hasMove['raindance'] && ability === 'Hydration') ? 'Damp Rock' : 'Chesto Berry';
+		} else if (hasMove['rest'] && !hasMove['sleeptalk'] && ability !== 'Hydration' && ability !== 'Natural Cure' && ability !== 'Shed Skin') {
+			item = 'Chesto Berry';
 		} else if (hasMove['raindance']) {
-			item = (ability === 'Forecast' || hasMove['rest']) ? 'Damp Rock' : 'Life Orb';
+			item = (ability === 'Forecast' || hasMove['rest'] || hasMove['uturn']) ? 'Damp Rock' : 'Life Orb';
 		} else if (hasMove['sunnyday']) {
 			item = (ability !== 'Chlorophyll' || counter.Status > 1) ? 'Heat Rock' : 'Life Orb';
 		} else if ((ability === 'Guts' || hasMove['facade'] || hasMove['psychoshift']) && !hasMove['sleeptalk']) {
@@ -873,7 +873,7 @@ class RandomGen6Teams extends RandomTeams {
 			Dugtrio: 82, Gothitelle: 82, Ninetales: 84, Politoed: 84, Wobbuffet: 82,
 
 			// Holistic judgement
-			'Castform-Rainy': 100, 'Castform-Snowy': 100, 'Castform-Sunny': 100, Unown: 100,
+			'Castform-Rainy': 100, 'Castform-Snowy': 100, 'Castform-Sunny': 100, Delibird: 100, Unown: 100,
 		};
 		let level = levelScale[template.tier] || 90;
 		if (customScale[template.name]) level = customScale[template.name];
@@ -927,9 +927,9 @@ class RandomGen6Teams extends RandomTeams {
 	/**
 	 * @param {Template} template
 	 * @param {number} slot
-	 * @param {RandomTeamsTypes["FactoryTeamDetails"]} teamData
+	 * @param {RandomTeamsTypes.FactoryTeamDetails} teamData
 	 * @param {string} tier
-	 * @return {RandomTeamsTypes["RandomFactorySet"] | false}
+	 * @return {RandomTeamsTypes.RandomFactorySet | false}
 	 */
 	randomFactorySet(template, slot, teamData, tier) {
 		let speciesId = toId(template.species);
@@ -1018,7 +1018,7 @@ class RandomGen6Teams extends RandomTeams {
 	/**
 	 * @param {PlayerOptions} [side]
 	 * @param {number} [depth]
-	 * @return {RandomTeamsTypes["RandomFactorySet"][]}
+	 * @return {RandomTeamsTypes.RandomFactorySet[]}
 	 */
 	randomFactoryTeam(side, depth = 0) {
 		let forceResult = (depth >= 4);

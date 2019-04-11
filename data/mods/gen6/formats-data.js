@@ -1033,7 +1033,7 @@ let BattleFormatsData = {
 	},
 	tauros: {
 		inherit: true,
-		randomBattleMoves: ["rockclimb", "earthquake", "zenheadbutt", "rockslide", "doubleedge"],
+		randomBattleMoves: ["bodyslam", "earthquake", "zenheadbutt", "rockslide", "doubleedge"],
 		randomDoubleBattleMoves: ["return", "earthquake", "zenheadbutt", "rockslide", "stoneedge", "protect", "doubleedge"],
 		tier: "NU",
 		doublesTier: "(DUU)",
@@ -1447,7 +1447,7 @@ let BattleFormatsData = {
 		tier: "LC",
 	},
 	ambipom: {
-		randomBattleMoves: ["fakeout", "return", "knockoff", "uturn", "switcheroo", "seedbomb", "lowkick", "acrobatics"],
+		randomBattleMoves: ["fakeout", "return", "knockoff", "uturn", "switcheroo", "seedbomb", "lowkick"],
 		randomDoubleBattleMoves: ["fakeout", "return", "knockoff", "uturn", "doublehit", "icepunch", "lowkick", "protect"],
 		tier: "RU",
 		doublesTier: "DUU",
@@ -1667,7 +1667,7 @@ let BattleFormatsData = {
 	},
 	delibird: {
 		inherit: true,
-		randomBattleMoves: ["rapidspin", "iceshard", "icepunch", "aerialace", "spikes", "destinybond"],
+		randomBattleMoves: ["spikes", "rapidspin", "icywind", "freezedry", "destinybond"],
 		randomDoubleBattleMoves: ["fakeout", "iceshard", "icepunch", "aerialace", "brickbreak", "protect"],
 		tier: "(PU)",
 		doublesTier: "(DUU)",
@@ -1839,7 +1839,7 @@ let BattleFormatsData = {
 	},
 	blaziken: {
 		inherit: true,
-		randomBattleMoves: ["blazekick", "highjumpkick", "protect", "swordsdance", "stoneedge", "knockoff"],
+		randomBattleMoves: ["fireblast", "highjumpkick", "protect", "knockoff", "hiddenpowerice"],
 		tier: "Uber",
 		doublesTier: "(DUU)",
 	},
@@ -2174,7 +2174,7 @@ let BattleFormatsData = {
 		doublesTier: "(DUU)",
 	},
 	medichammega: {
-		randomBattleMoves: ["highjumpkick", "drainpunch", "icepunch", "fakeout", "zenheadbutt"],
+		randomBattleMoves: ["highjumpkick", "zenheadbutt", "thunderpunch", "icepunch", "fakeout"],
 		randomDoubleBattleMoves: ["highjumpkick", "drainpunch", "zenheadbutt", "icepunch", "bulletpunch", "protect", "fakeout"],
 		requiredItem: "Medichamite",
 		tier: "OU",
@@ -2819,8 +2819,8 @@ let BattleFormatsData = {
 	},
 	infernape: {
 		inherit: true,
-		randomBattleMoves: ["stealthrock", "uturn", "earthquake", "closecombat", "flareblitz", "stoneedge", "machpunch", "nastyplot", "fireblast", "vacuumwave", "grassknot", "hiddenpowerice"],
-		randomDoubleBattleMoves: ["fakeout", "heatwave", "closecombat", "uturn", "grassknot", "stoneedge", "machpunch", "feint", "taunt", "flareblitz", "hiddenpowerice", "thunderpunch", "protect"],
+		randomBattleMoves: ["stealthrock", "uturn", "earthquake", "closecombat", "flareblitz", "stoneedge", "machpunch", "nastyplot", "fireblast", "vacuumwave", "grassknot"],
+		randomDoubleBattleMoves: ["fakeout", "heatwave", "closecombat", "uturn", "grassknot", "stoneedge", "machpunch", "feint", "taunt", "flareblitz", "thunderpunch", "protect"],
 		tier: "UU",
 		doublesTier: "DUU",
 	},
@@ -2946,7 +2946,7 @@ let BattleFormatsData = {
 		tier: "LC",
 	},
 	vespiquen: {
-		randomBattleMoves: ["substitute", "healorder", "toxic", "attackorder", "defendorder", "infestation"],
+		randomBattleMoves: ["substitute", "toxic", "roost", "attackorder", "destinybond", "tailwind"],
 		randomDoubleBattleMoves: ["tailwind", "healorder", "stringshot", "attackorder", "strugglebug", "protect"],
 		tier: "(PU)",
 		doublesTier: "(DUU)",
@@ -3848,7 +3848,7 @@ let BattleFormatsData = {
 		tier: "LC",
 	},
 	cinccino: {
-		randomBattleMoves: ["tailslap", "aquatail", "uturn", "knockoff", "bulletseed", "rockblast"],
+		randomBattleMoves: ["tailslap", "bulletseed", "rockblast", "knockoff", "uturn"],
 		randomDoubleBattleMoves: ["tailslap", "aquatail", "uturn", "knockoff", "bulletseed", "rockblast", "protect"],
 		tier: "RU",
 		doublesTier: "(DUU)",

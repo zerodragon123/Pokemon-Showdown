@@ -50,42 +50,26 @@ export class BattleStream extends Streams.ObjectReadWriteStream<string> {
 		this.battle = null;
 	}
 
-	_write(message: string) {
-		const startTime = Date.now();
+	_write(chunk: string) {
 		try {
-			for (const line of message.split('\n')) {
-				if (line.charAt(0) === '>') this._writeLine(line.slice(1));
-			}
+			this._writeLines(chunk);
 		} catch (err) {
-			if (typeof Monitor === 'undefined') {
-				this.pushError(err);
-				return;
-			}
-			const battle = this.battle;
-			Monitor.crashlog(err, 'A battle', {
-				message,
-				inputLog: battle ? '\n' + battle.inputLog.join('\n') : '',
-				log: battle ? '\n' + battle.getDebugLog() : '',
-			});
-
-			this.push(`update\n|html|<div class="broadcast-red"><b>The battle crashed</b><br />Don't worry, we're working on fixing it.</div>`);
-			if (battle) {
-				for (const side of battle.sides) {
-					if (side && side.currentRequest) {
-						this.push(`sideupdate\n${side.id}\n|error|[Invalid choice] The battle crashed`);
-					}
-				}
-			}
+			this.pushError(err);
+			return;
 		}
 		if (this.battle) this.battle.sendUpdates();
-		const deltaTime = Date.now() - startTime;
-		if (deltaTime > 1000) {
-			console.log(`[slow battle] ${deltaTime}ms - ${message}`);
+	}
+
+	_writeLines(chunk: string) {
+		for (const line of chunk.split('\n')) {
+			if (line.charAt(0) === '>') {
+				const [type, message] = splitFirst(line.slice(1), ' ');
+				this._writeLine(type, message);
+			}
 		}
 	}
 
-	_writeLine(line: string) {
-		let [type, message] = splitFirst(line, ' ');
+	_writeLine(type: string, message: string) {
 		switch (type) {
 		case 'start':
 			const options = JSON.parse(message);
@@ -118,48 +102,15 @@ export class BattleStream extends Streams.ObjectReadWriteStream<string> {
 		case 'tiebreak':
 			this.battle!.tiebreak();
 			break;
-		case 'eval':
-			/* tslint:disable:no-eval */
-			const battle = this.battle!;
-			const p1 = battle && battle.sides[0];
-			const p2 = battle && battle.sides[1];
-			const p3 = battle && battle.sides[2];
-			const p4 = battle && battle.sides[3];
-			const p1active = p1 && p1.active[0];
-			const p2active = p2 && p2.active[0];
-			const p3active = p3 && p3.active[0];
-			const p4active = p4 && p4.active[0];
-			battle.inputLog.push(line);
-			message = message.replace(/\f/g, '\n');
-			battle.add('', '>>> ' + message.replace(/\n/g, '\n||'));
-			try {
-				let result = eval(message);
-				if (result && result.then) {
-					result.then((unwrappedResult: any) => {
-						unwrappedResult = Chat.stringify(unwrappedResult);
-						battle.add('', 'Promise -> ' + unwrappedResult);
-						battle.sendUpdates();
-					}, (error: Error) => {
-						battle.add('', '<<< error: ' + error.message);
-						battle.sendUpdates();
-					});
-				} else {
-					result = Chat.stringify(result);
-					result = result.replace(/\n/g, '\n||');
-					battle.add('', '<<< ' + result);
-				}
-			} catch (e) {
-				battle.add('', '<<< error: ' + e.message);
-			}
-			/* tslint:enable:no-eval */
-			break;
 		}
 	}
+
 	_end() {
 		// this is in theory synchronous...
 		this.push(null);
 		this._destroy();
 	}
+
 	_destroy() {
 		if (this.battle) this.battle.destroy();
 	}
@@ -242,7 +193,7 @@ export function getPlayerStreams(stream: BattleStream) {
 	return streams;
 }
 
-export class BattlePlayer {
+export abstract class BattlePlayer {
 	readonly stream: Streams.ObjectReadWriteStream<string>;
 	readonly log: string[];
 	readonly debug: boolean;
@@ -271,18 +222,12 @@ export class BattlePlayer {
 		if (this.debug) console.log(line);
 		if (line.charAt(0) !== '|') return;
 		const [cmd, rest] = splitFirst(line.slice(1), '|');
-		if (cmd === 'request') {
-			return this.receiveRequest(JSON.parse(rest));
-		}
-		if (cmd === 'error') {
-			return this.receiveError(new Error(rest));
-		}
+		if (cmd === 'request') return this.receiveRequest(JSON.parse(rest));
+		if (cmd === 'error') return this.receiveError(new Error(rest));
 		this.log.push(line);
 	}
 
-	receiveRequest(request: AnyObject) {
-		throw new Error(`must be implemented by subclass`);
-	}
+	abstract receiveRequest(request: AnyObject): void;
 
 	receiveError(error: Error) {
 		throw error;
