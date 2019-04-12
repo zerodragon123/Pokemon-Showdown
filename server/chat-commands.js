@@ -3804,7 +3804,7 @@ const commands = {
 		let rating = 0;
 		if (room.battle.ended && room.rated) rating = room.rated;
 		const [success] = await LoginServer.request('prepreplay', {
-			id: room.id.substr(7),
+			id: `${room.id.substr(7)}${parseInt(datahash.substr(0, 4), 16)}`,
 			loghash: datahash,
 			p1: players[0],
 			p2: players[1],
@@ -3819,7 +3819,7 @@ const commands = {
 		}
 		connection.send('|queryresponse|savereplay|' + JSON.stringify({
 			log: data,
-			id: room.id.substr(7),
+			id: `${room.id.substr(7)}${parseInt(datahash.substr(0, 4), 16)}`,
 		}));
 	},
 
@@ -4334,14 +4334,15 @@ const commands = {
 			}
 		}
 	},
-	pschinascore: function (target,room,user){
+	pschinascore(target, room, user) {
 		if (!this.can('ban')) return false;
-		let username=target.split(',')[0];
-		let score=target.split(',')[1];
-		let reason=target.split(',')[2];
-		if(!username||!score||username.length==0||score.length==0)
+		let username = target.split(',')[0];
+		let score = target.split(',')[1];
+		let reason = target.split(',')[2];
+		if (!username || !score || username.length === 0 || score.length === 0) {
 			return this.parse("/pschinascorehelp");
-		Ladders("gen7ps").updateScore(username,score,reason);
+		}
+		Ladders("gen7ps").updateScore(username, score, reason);
 	},
 	pschinascorehelp: [
 		`/pschinascore user,score,reason - 给user用户的国服积分增加score分，可以说明原因. Requires: & ~`,
