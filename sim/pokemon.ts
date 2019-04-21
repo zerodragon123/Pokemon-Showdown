@@ -185,6 +185,7 @@ export class Pokemon {
 
 	isActive: boolean;
 	activeTurns: number;
+	truantTurn: boolean;
 	/** Have this pokemon's Start events run yet? */
 	isStarted: boolean;
 	duringMove: boolean;
@@ -353,6 +354,7 @@ export class Pokemon {
 
 		this.isActive = false;
 		this.activeTurns = 0;
+		this.truantTurn = false;
 		this.isStarted = false;
 		this.duringMove = false;
 
@@ -382,7 +384,7 @@ export class Pokemon {
 		this.m = {};
 	}
 
-	get moves() {
+	get moves(): readonly string[] {
 		return this.moveSlots.map(moveSlot => moveSlot.id);
 	}
 
@@ -923,7 +925,6 @@ export class Pokemon {
 				used: false,
 				virtual: true,
 			});
-			this.moves.push(toId(moveName));
 		}
 		let boostName: BoostName;
 		for (boostName in pokemon.boosts) {

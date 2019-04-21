@@ -199,7 +199,7 @@ Chat.namefilter = function (name, user) {
 		// \u2E80-\u32FF              CJK symbols
 		// \u3400-\u9FFF              CJK
 		// \uF900-\uFAFF\uFE00-\uFE6F CJK extended
-		name = name.replace(/[^a-zA-Z0-9 /\\.~()<>^*%&=+$@#_'?!"\u00A1-\u00BF\u00D7\u00F7\u02B9-\u0362\u2012-\u2027\u2030-\u205E\u2050-\u205F\u2190-\u23FA\u2500-\u2BD1\u2E80-\u32FF\u3400-\u9FFF\uF900-\uFAFF\uFE00-\uFE6F-]+/g, '');
+		name = name.replace(/[^a-zA-Z0-9 /\\.~()<>^*%&=+$#_'?!"\u00A1-\u00BF\u00D7\u00F7\u02B9-\u0362\u2012-\u2027\u2030-\u205E\u2050-\u205F\u2190-\u23FA\u2500-\u2BD1\u2E80-\u32FF\u3400-\u9FFF\uF900-\uFAFF\uFE00-\uFE6F-]+/g, '');
 
 		// blacklist
 		// \u00a1 upside-down exclamation mark (i)
@@ -596,11 +596,10 @@ class CommandContext extends MessageContext {
 				Chat.sendPM(message, this.user, this.pmTarget);
 			} else {
 				this.room.add(`|c|${this.user.getIdentity(this.room.id)}|${message}`);
+				if (this.room && this.room.game && this.room.game.onLogMessage) {
+					this.room.game.onLogMessage(message, this.user);
+				}
 			}
-		}
-
-		if (this.room && this.room.game && this.room.game.onLogMessage) {
-			this.room.game.onLogMessage(message, this.user);
 		}
 
 		this.update();

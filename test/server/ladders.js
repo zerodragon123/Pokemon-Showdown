@@ -3,7 +3,7 @@
 const assert = require('assert');
 
 global.Ladders = require('../../server/ladders');
-const {Connection, User} = require('../../dev-tools/users-utils');
+const {Connection, User} = require('../users-utils');
 
 describe('Matchmaker', function () {
 	const FORMATID = 'gen7ou';
