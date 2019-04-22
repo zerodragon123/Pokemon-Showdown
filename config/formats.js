@@ -84,7 +84,7 @@ let Formats = [
 	{
 		name: "[Gen 7] RU",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3646905/">RU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3649475/">RU Metagame Discussion</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3645873/">RU Viability Rankings</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3645338/">RU Sample Teams</a>`,
 		],
@@ -93,6 +93,9 @@ let Formats = [
 		ruleset: ['[Gen 7] UU'],
 		banlist: ['UU', 'RUBL', 'Aurora Veil'],
 		unbanlist: ['Sceptile-Mega', 'Drought'],
+		onBegin() {
+			if (this.rated && this.format === 'gen7ru') this.add('html', `<div class="broadcast-green"><strong>RU is currently suspecting Mega Sceptile! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3649475/">suspect thread</a>.</strong></div>`);
+		},
 	},
 	{
 		name: "[Gen 7] NU",
@@ -109,7 +112,7 @@ let Formats = [
 	{
 		name: "[Gen 7] PU",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3645983/">PU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3649494/">PU Metagame Discussion</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3614892/">PU Viability Rankings</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3611496/">PU Sample Teams</a>`,
 		],
@@ -117,6 +120,9 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] NU'],
 		banlist: ['NU', 'PUBL'],
+		onBegin() {
+			if (this.rated && this.format === 'gen7pu') this.add('html', `<div class="broadcast-green"><strong>PU is currently suspecting Lilligant! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3649494/">suspect thread</a>.</strong></div>`);
+		},
 	},
 	{
 		name: "[Gen 7] LC",

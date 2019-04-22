@@ -47,24 +47,24 @@ const FS = require(/** @type {any} */('../.lib-dist/fs')).FS;
 
 // Low-level functions for manipulating Users.users and Users.prevUsers
 // Keeping them all here makes it easy to ensure they stay consistent
-Date.prototype.Format = function(fmt)   
-{ //author: meizz   
-  var o = {   
-    "M+" : this.getMonth()+1,                 //月份   
-    "d+" : this.getDate(),                    //日   
-    "h+" : this.getHours(),                   //小时   
-    "m+" : this.getMinutes(),                 //分   
-    "s+" : this.getSeconds(),                 //秒   
-    "q+" : Math.floor((this.getMonth()+3)/3), //季度   
-    "S"  : this.getMilliseconds()             //毫秒   
-  };   
-  if(/(y+)/.test(fmt))   
-    fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));   
-  for(var k in o)   
-    if(new RegExp("("+ k +")").test(fmt))   
-  fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));   
-  return fmt;   
-}  
+Date.prototype.Format = function(fmt)
+{ //author: meizz
+  var o = {
+    "M+" : this.getMonth()+1,                 //月份
+    "d+" : this.getDate(),                    //日
+    "h+" : this.getHours(),                   //小时
+    "m+" : this.getMinutes(),                 //分
+    "s+" : this.getSeconds(),                 //秒
+    "q+" : Math.floor((this.getMonth()+3)/3), //季度
+    "S"  : this.getMilliseconds()             //毫秒
+  };
+  if(/(y+)/.test(fmt))
+    fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+  for(var k in o)
+    if(new RegExp("("+ k +")").test(fmt))
+  fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+  return fmt;
+}
 /**
  * @param {User} user
  * @param {string} newUserid
@@ -175,7 +175,8 @@ function getExactUser(name) {
  * @param {{forPunishment?: boolean, includeTrusted?: boolean}} options
  */
 function findUsers(userids, ips, options = {}) {
-	let matches = /** @type {User[]} */ ([]);
+	/** @type {User[]} */
+	let matches = [];
 	if (options.forPunishment) ips = ips.filter(ip => !Punishments.sharedIps.has(ip));
 	for (const user of users.values()) {
 		if (!options.forPunishment && !user.named && !user.connected) continue;
@@ -485,14 +486,14 @@ class User extends Chat.MessageContext {
 		//       the `ips` object, not just the latest IP.
 		/** @type {string} */
 		this.latestIp = connection.ip;
-		/** @type {?false | string} */
-		this.locked = false;
-		/** @type {?false | string} */
-		this.semilocked = false;
-		/** @type {?boolean} */
-		this.namelocked = false;
-		/** @type {?false | string} */
-		this.permalocked = false;
+		/** @type {string?} */
+		this.locked = null;
+		/** @type {string?} */
+		this.semilocked = null;
+		/** @type {string?} */
+		this.namelocked = null;
+		/** @type {string?} */
+		this.permalocked = null;
 		this.noTrace = false;
 		this.prevNames = Object.create(null);
 		this.inRooms = new Set();
@@ -1035,8 +1036,8 @@ class User extends Chat.MessageContext {
 			Rooms(roomid).onLeave(oldUser);
 		}
 
-		if (this.locked === '#dnsbl' && !oldUser.locked) this.locked = false;
-		if (!this.locked && oldUser.locked === '#dnsbl') oldUser.locked = false;
+		if (this.locked === '#dnsbl' && !oldUser.locked) this.locked = null;
+		if (!this.locked && oldUser.locked === '#dnsbl') oldUser.locked = null;
 		if (oldUser.locked) this.locked = oldUser.locked;
 		if (oldUser.autoconfirmed) this.autoconfirmed = oldUser.autoconfirmed;
 
@@ -1157,12 +1158,12 @@ class User extends Chat.MessageContext {
 				Monitor.log(`[CrisisMonitor] Trusted user '${this.userid}' is ${this.permalocked !== this.userid ? `an alt of permalocked user '${this.permalocked}'` : `a permalocked user`}, and was automatically demoted from ${this.distrust()}.`);
 				return;
 			}
-			this.locked = false;
-			this.namelocked = false;
+			this.locked = null;
+			this.namelocked = null;
 		}
 		if (this.autoconfirmed && this.semilocked) {
 			if (this.semilocked.startsWith('#sharedip')) {
-				this.semilocked = false;
+				this.semilocked = null;
 			} else if (this.semilocked === '#dnsbl') {
 				this.popup(`You are locked because someone using your IP has spammed/hacked other websites. This usually means either you're using a proxy, you're in a country where other people commonly hack, or you have a virus on your computer that's spamming websites.`);
 				this.semilocked = '#dnsbl.';
