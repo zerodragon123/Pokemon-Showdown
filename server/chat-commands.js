@@ -473,14 +473,15 @@ const commands = {
 	w: 'msg',
 	msg(target, room, user, connection) {
 		if (!target) return this.parse('/help msg');
+		if (!target.includes(',')) {
+			this.errorReply("You forgot the comma.");
+			return this.parse('/help msg');
+		}
 		target = this.splitTarget(target);
 		let targetUser = this.targetUser;
 		if (this.targetUsername === '~') {
 			this.room = Rooms.global;
 			this.pmTarget = null;
-		} else if (!target) {
-			this.errorReply("You forgot the comma.");
-			return this.parse('/help msg');
 		} else if (!targetUser) {
 			let error = `User ${this.targetUsername} not found. Did you misspell their name?`;
 			error = `|pm|${this.user.getIdentity()}| ${this.targetUsername}|/error ${error}`;
@@ -1674,12 +1675,19 @@ const commands = {
 		if (!this.canTalk()) return;
 		if (room.isPersonal && !user.can('warn')) return this.errorReply("Warning is unavailable in group chats.");
 		// If used in staff, help tickets or battles, log the warn to the global modlog.
-		const global = room.id === 'staff' || room.id.startsWith('help-') || (room.battle && !room.parent);
+		const globalWarn = room.id === 'staff' || room.id.startsWith('help-') || (room.battle && !room.parent);
 
 		target = this.splitTarget(target);
 		let targetUser = this.targetUser;
-		if (!targetUser || !targetUser.connected) return this.errorReply(`User '${this.targetUsername}' not found.`);
-		if (!(targetUser in room.users) && !global) {
+		if (!targetUser || !targetUser.connected) {
+			if (!targetUser || !globalWarn) return this.errorReply(`User '${this.targetUsername}' not found.`);
+
+			this.addModAction(`${targetUser.name} would be warned by ${user.name} but is offline.${(target ? ` (${target})` : ``)}`);
+			this.modlog('WARN', targetUser, target, {noalts: 1});
+			this.globalModlog('WARN', targetUser, ` by ${user.userid}${(target ? `: ${target}` : ``)}`);
+			return;
+		}
+		if (!(targetUser in room.users) && !globalWarn) {
 			return this.errorReply(`User ${this.targetUsername} is not in the room ${room.id}.`);
 		}
 		if (target.length > MAX_REASON_LENGTH) {
@@ -1690,7 +1698,7 @@ const commands = {
 
 		this.addModAction(`${targetUser.name} was warned by ${user.name}.${(target ? ` (${target})` : ``)}`);
 		this.modlog('WARN', targetUser, target, {noalts: 1});
-		if (global) {
+		if (globalWarn) {
 			this.globalModlog('WARN', targetUser, ` by ${user.userid}${(target ? `: ${target}` : ``)}`);
 		}
 		targetUser.send(`|c|~|/warn ${target}`);
@@ -1820,7 +1828,9 @@ const commands = {
 
 		target = this.splitTarget(target);
 		let targetUser = this.targetUser;
-		if (!targetUser && !Punishments.search(toId(this.targetUsername))[0].length) return this.errorReply(`User '${this.targetUsername}' not found.`);
+		if (!targetUser && !Punishments.search(toId(this.targetUsername)).length) {
+			return this.errorReply(`User '${this.targetUsername}' not found.`);
+		}
 		if (target.length > MAX_REASON_LENGTH) {
 			return this.errorReply(`The reason is too long. It cannot exceed ${MAX_REASON_LENGTH} characters.`);
 		}
