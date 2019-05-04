@@ -1684,7 +1684,7 @@ let Rooms = Object.assign(getRoom, {
 			"gg disconnect", "gggguang", "no41st", "kitoothe", "blastedpoppie", "popoling",
 			"line38324", "sstj", "masterorigami", "dudutest", "johnxyiu", "lzaaaaa", "neveal",
 			"mmrrk", "xujing691691", "erqiao99", "chengduoldsuperbro", "yubaibai", "yoppie",
-			"mewtwo927", "separation", "angellore", "sceam", "curepersona",
+			"mewtwo927", "separation", "angellore", "sceam", "curepersona","icaniup",
 			"osgoode", "crayon pop", "flcl", "beiyingtest", "freedomsk", "fskse"];
 		for (const user of players) {
 			if (user.inviteOnlyNextBattle || whiteList.includes(user.userid)) {
