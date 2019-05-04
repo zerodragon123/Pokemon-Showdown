@@ -3734,8 +3734,8 @@ gen1ou:[
 	
 };
 		let realFormat=this.format.realFormat;
-
-		return Dex.fastUnpackTeam(this.prng.sample(teams[realFormat]), true);
+		let noability=realFormat.indexOf('gen1')!=-1||realFormat.indexOf('gen2')!=-1;
+		return Dex.fastUnpackTeam(this.prng.sample(teams[realFormat]), noability);
 	}
 }
 
