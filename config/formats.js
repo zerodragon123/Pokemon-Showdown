@@ -46,12 +46,12 @@ let Formats = [
 		mod: 'gen7',
 		// @ts-ignore
 		formatsList: [
-			'gen1ou','gen1ubers','gen1uu',
-			'gen2ou','gen2ubers','gen2uu','gen2nu','gen2lc',
-			'gen3ou','gen3ubers','gen3uu','gen3nu','gen3pu','gen3lc','gen4ou','gen4ubers','gen4uu','gen4nu','gen4pu','gen4lc','gen5ou','gen5ubers','gen5uu','gen5ru','gen5nu','gen5pu','gen5lc','gen6ou','gen6ubers','gen6uu','gen6ru','gen6nu','gen6pu','gen6lc'
+			'gen1ou', 'gen1ubers', 'gen1uu',
+			'gen2ou', 'gen2ubers', 'gen2uu', 'gen2nu', 'gen2lc',
+			'gen3ou', 'gen3ubers', 'gen3uu', 'gen3nu', 'gen3pu', 'gen3lc', 'gen4ou', 'gen4ubers', 'gen4uu', 'gen4nu', 'gen4pu', 'gen4lc', 'gen5ou', 'gen5ubers', 'gen5uu', 'gen5ru', 'gen5nu', 'gen5pu', 'gen5lc', 'gen6ou', 'gen6ubers', 'gen6uu', 'gen6ru', 'gen6nu', 'gen6pu', 'gen6lc',
 		],
 		realFormat: '',
-		onBegin: function () {
+		onBegin() {
 			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: ` + this.realFormat + ` </strong></div>`);
 		},
 	},
@@ -1117,18 +1117,6 @@ let Formats = [
 		searchShow: false,
 		ruleset: ['Pokemon', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Groudon-Primal', 'Kyogre-Primal', 'Aerilate + Pixilate + Refrigerate > 1', 'Arena Trap', 'Huge Power', 'Moody', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Wonder Guard', 'Assist', 'Chatter'],
-	},
-	{
-		name: "[Gen 5] Balanced Hackmons",
-		desc: `Anything that can be hacked in-game and is usable in local battles is allowed.`,
-		threads: [
-			"&bullet; <a href=\"http://www.smogon.com/forums/threads/gen-v-balanced-hackmons.3463764/\">Balanced Hackmons</a>",
-		],
-
-		mod: 'gen5',
-		searchShow: false,
-		ruleset: ['Pokemon', 'Sleep Clause Mod', 'OHKO Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod'],
-		banlist: ['Arena Trap', 'Huge Power', 'Pure Power', 'Shadow Tag', 'Wonder Guard'],
 	},
 	{
 		name: "[Gen 4] Balanced Hackmons",
