@@ -1223,7 +1223,6 @@ class ModdedDex {
 				if(noability){		//gen1 or gen2
 					evs.fill('252');
 				}
-				const evs = buf.substring(i, j).split(',', 6);
 				set.evs = {
 					hp: Number(evs[0]) || 0,
 					atk: Number(evs[1]) || 0,
