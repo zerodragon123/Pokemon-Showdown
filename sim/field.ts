@@ -4,23 +4,32 @@
  *
  * @license MIT
  */
+
+import {State} from './state';
+
 export class Field {
 	readonly battle: Battle;
+	readonly id: ID;
 
-	weather: string;
+	weather: ID;
 	weatherData: AnyObject;
-	terrain: string;
+	terrain: ID;
 	terrainData: AnyObject;
 	pseudoWeather: AnyObject;
 
 	constructor(battle: Battle) {
 		this.battle = battle;
+		this.id = '';
 
 		this.weather = '';
 		this.weatherData = {id: ''};
 		this.terrain = '';
 		this.terrainData = {id: ''};
 		this.pseudoWeather = {};
+	}
+
+	toJSON(): AnyObject {
+		return State.serializeField(this);
 	}
 
 	setWeather(status: string | PureEffect, source: Pokemon | 'debug' | null = null, sourceEffect: Effect | null = null) {
