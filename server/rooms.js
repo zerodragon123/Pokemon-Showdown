@@ -1680,12 +1680,12 @@ let Rooms = Object.assign(getRoom, {
 		room.game = new Rooms.RoomBattle(room, formatid, options);
 
 		let inviteOnly = (options.inviteOnly || []);
-		const whiteList = ["yjh971203", "unowndragon", "dragonitenb", "drogbainshenhua", "jiuer",
-			"gg disconnect", "gggguang", "no41st", "kitoothe", "blastedpoppie", "popoling",
-			"line38324", "sstj", "masterorigami", "dudutest", "johnxyiu", "lzaaaaa", "neveal",
-			"mmrrk", "xujing691691", "erqiao99", "chengduoldsuperbro", "yubaibai", "yoppie",
-			"mewtwo927", "separation", "angellore", "sceam", "curepersona","icaniup",
-			"osgoode", "crayon pop", "flcl", "beiyingtest", "freedomsk", "fskse"];
+		const whiteList = ["yjh971203", "unowndragon", "dragonitenb", "bkshtjj",
+			"gg disconnect", "gggguang", "kitoothe", "xinlingzhenhan", "blastedpoppie", "popoling",
+			"drogbainshenhua", "jiuer", "no41st", "willitrain", "yoppie", "sstj", "masterorigami",
+			"dudutest", "johnxyiu", "lzaaaaa", "shayulajiao", "neveal", "mmrrk", "xujing691691",
+			"erqiao99", "chengduoldsuperbro", "icaniup", "mewtwo927", "separation", "angellore",
+			"sceam", "curepersona", "flcl", "beiyingtest", "freedomsk", "fskse"];
 		for (const user of players) {
 			if (user.inviteOnlyNextBattle || whiteList.includes(user.userid)) {
 				inviteOnly.push(user.userid);
