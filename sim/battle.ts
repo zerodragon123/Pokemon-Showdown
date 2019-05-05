@@ -110,11 +110,12 @@ export class Battle extends Dex.ModdedDex {
 	readonly send: (type: string, data: string | string[]) => void;
 
 	constructor(options: BattleOptions) {
-		/*
+		
 		let format = Dex.getFormat(options.formatid, true);
 		if (options.formatid === 'gen7randomformats') {
 			// @ts-ignore
 			format.realFormat = new PRNG().sample(format.formatsList);	//random select one format
+			console.log(format.realFormat);
 			// @ts-ignore
 			format.mod = format.realFormat.substr(0, 4);				// genx
 			if (format.realFormat === 'gen7monotype' && format.ruleset.indexOf('Team Preview') === -1) {
@@ -124,14 +125,14 @@ export class Battle extends Dex.ModdedDex {
 				format.ruleset.splice(format.ruleset.indexOf('Team Preview'), 1);
 			}
 		}
-		*/
-		const format = Dex.getFormat(options.formatid, true);
+		
+		//format = Dex.getFormat(options.formatid, true);
 		super(format.mod);
-
-		/*
+		
+		
 		// @ts-ignore
 		this.realFormat = format.realFormat;
-		*/
+		
 
 		this.zMoveTable = {};
 		Object.assign(this, this.data.Scripts);

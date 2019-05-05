@@ -1157,7 +1157,7 @@ class ModdedDex {
 		return buf;
 	}
 
-	fastUnpackTeam(buf: string): PokemonSet[] | null {
+	fastUnpackTeam(buf: string, noability:boolean=false): PokemonSet[] | null {
 		if (!buf) return null;
 		if (typeof buf !== 'string') return buf;
 		if (buf.charAt(0) === '[' && buf.charAt(buf.length - 1) === ']') {
@@ -1197,9 +1197,10 @@ class ModdedDex {
 			if (j < 0) return null;
 			const ability = buf.substring(i, j);
 			const template = dexes['base'].getTemplate(set.species);
-			set.ability = ['', '0', '1', 'H', 'S'].includes(ability) ?
-				template.abilities[ability as '0' || '0'] || (ability === '' ? '' : '!!!ERROR!!!') :
-				ability;
+			if (!noability)
+				set.ability = ['', '0', '1', 'H', 'S'].includes(ability) ?
+					template.abilities[ability as '0' || '0'] || (ability === '' ? '' : '!!!ERROR!!!') :
+					ability;
 			i = j + 1;
 
 			// moves
@@ -1218,6 +1219,10 @@ class ModdedDex {
 			j = buf.indexOf('|', i);
 			if (j < 0) return null;
 			if (j !== i) {
+				let evs = buf.substring(i, j).split(',', 6);
+				if(noability){		//gen1 or gen2
+					evs.fill('252');
+				}
 				const evs = buf.substring(i, j).split(',', 6);
 				set.evs = {
 					hp: Number(evs[0]) || 0,
@@ -1280,7 +1285,6 @@ class ModdedDex {
 			if (j < 0) break;
 			i = j + 1;
 		}
-
 		return team;
 	}
 
