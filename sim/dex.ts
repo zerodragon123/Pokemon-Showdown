@@ -1219,6 +1219,10 @@ class ModdedDex {
 			j = buf.indexOf('|', i);
 			if (j < 0) return null;
 			if (j !== i) {
+				let evs = buf.substring(i, j).split(',', 6);
+				if(noability){		//gen1 or gen2
+					evs.fill('252');
+				}
 				const evs = buf.substring(i, j).split(',', 6);
 				set.evs = {
 					hp: Number(evs[0]) || 0,
