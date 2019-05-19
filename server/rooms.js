@@ -1681,16 +1681,10 @@ let Rooms = Object.assign(getRoom, {
 		room.game = new Rooms.RoomBattle(room, formatid, options);
 
 		let inviteOnly = (options.inviteOnly || []);
-		const whiteList = ["yjh971203", "unowndragon", "dragonitenb", "bkshtjj",
-			"gg disconnect", "gggguang", "kitoothe", "xinlingzhenhan", "blastedpoppie", "popoling",
-			"drogbainshenhua", "jiuer", "no41st", "willitrain", "yoppie", "sstj", "masterorigami",
-			"dudutest", "johnxyiu", "lzaaaaa", "shayulajiao", "neveal", "mmrrk", "xujing691691",
-			"erqiao99", "chengduoldsuperbro", "icaniup", "mewtwo927", "separation", "angellore",
-			"sceam", "curepersona", "flcl", "beiyingtest", "freedomsk", "fskse"];
 		for (const user of players) {
-			if (user.inviteOnlyNextBattle || whiteList.includes(user.userid)) {
+			if (user.inviteOnlyNextBattle) {
 				inviteOnly.push(user.userid);
-				user.inviteOnlyNextBattle = whiteList.includes(user.userid);
+				user.inviteOnlyNextBattle = false;
 			}
 		}
 		if (options.tour && !room.tour.modjoin) inviteOnly = [];

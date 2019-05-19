@@ -3858,7 +3858,7 @@ const commands = {
 		let rating = 0;
 		if (battle.ended && room.rated) rating = room.rated;
 		const [success] = await LoginServer.request('prepreplay', {
-			id: `${room.id.substr(7)}${parseInt(datahash.substr(0, 4), 16)}`,
+			id: room.id.substr(7),
 			loghash: datahash,
 			p1: battle.p1.name,
 			p2: battle.p2.name,
@@ -3873,7 +3873,7 @@ const commands = {
 		}
 		connection.send('|queryresponse|savereplay|' + JSON.stringify({
 			log: data,
-			id: `${room.id.substr(7)}${parseInt(datahash.substr(0, 4), 16)}`,
+			id: room.id.substr(7),
 		}));
 	},
 
