@@ -198,12 +198,8 @@ export class Pokemon {
 	canMegaEvo: string | null | undefined;
 	canUltraBurst: string | null | undefined;
 
-	isStale: number;
-	isStaleCon: number;
-	isStaleHP: number;
-	isStalePPTurns: number;
-	isStaleSource?: string;
-	staleWarned: boolean;
+	staleness?: 'internal' | 'external';
+	pendingStaleness?: 'internal' | 'external';
 
 	// Gen 1 only
 	modifiedStats?: StatsExceptHPTable;
@@ -228,7 +224,7 @@ export class Pokemon {
 		}
 		this.template = this.baseTemplate;
 		this.species = this.battle.getSpecies(set.species);
-		this.speciesid = toId(this.species);
+		this.speciesid = toID(this.species);
 		if (set.name === set.species || !set.name) {
 			set.name = this.baseTemplate.baseSpecies;
 		}
@@ -315,11 +311,11 @@ export class Pokemon {
 		this.storedStats = {atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
 		this.boosts = {atk: 0, def: 0, spa: 0, spd: 0, spe: 0, accuracy: 0, evasion: 0};
 
-		this.baseAbility = toId(set.ability);
+		this.baseAbility = toID(set.ability);
 		this.ability = this.baseAbility;
 		this.abilityData = {id: this.ability};
 
-		this.item = toId(set.item);
+		this.item = toID(set.item);
 		this.itemData = {id: this.item};
 		this.lastItem = '';
 		this.usedItemThisTurn = false;
@@ -374,12 +370,6 @@ export class Pokemon {
 		this.maxhp = this.template.maxHP || this.baseStoredStats.hp;
 		this.hp = this.maxhp;
 
-		this.isStale = 0;
-		this.isStaleCon = 0;
-		this.isStaleHP = this.maxhp;
-		this.isStalePPTurns = 0;
-		this.staleWarned = false;
-
 		/**
 		 * An object for storing untyped data, for mods to use.
 		 */
@@ -425,7 +415,7 @@ export class Pokemon {
 	}
 
 	calculateStat(statName: StatNameExceptHP, boost: number, modifier?: number) {
-		statName = toId(statName) as StatNameExceptHP;
+		statName = toID(statName) as StatNameExceptHP;
 		// @ts-ignore - type checking prevents 'hp' from being passed, but we're paranoid
 		if (statName === 'hp') throw new Error("Please read `maxhp` directly");
 
@@ -461,7 +451,7 @@ export class Pokemon {
 	}
 
 	getStat(statName: StatNameExceptHP, unboosted?: boolean, unmodified?: boolean) {
-		statName = toId(statName) as StatNameExceptHP;
+		statName = toID(statName) as StatNameExceptHP;
 		// @ts-ignore - type checking prevents 'hp' from being passed, but we're paranoid
 		if (statName === 'hp') throw new Error("Please read `maxhp` directly");
 
@@ -673,15 +663,6 @@ export class Pokemon {
 			amount += ppData.pp;
 			ppData.pp = 0;
 		}
-		if (ppData.virtual) {
-			for (const foeActive of this.side.foe.active) {
-				if (foeActive.isStale >= 2) {
-					if (move.selfSwitch) this.isStalePPTurns++;
-					return amount;
-				}
-			}
-		}
-		this.isStalePPTurns = 0;
 		return amount;
 	}
 
@@ -716,7 +697,7 @@ export class Pokemon {
 	{move: string, id: string, disabled?: string | boolean,
 		disabledSource?: string, target?: string, pp?: number, maxpp?: number}[] {
 		if (lockedMove) {
-			lockedMove = toId(lockedMove);
+			lockedMove = toID(lockedMove);
 			this.trapped = true;
 			if (lockedMove === 'recharge') {
 				return [{
@@ -876,7 +857,7 @@ export class Pokemon {
 		this.clearVolatile();
 		this.boosts = pokemon.boosts;
 		for (const i in pokemon.volatiles) {
-			if (this.battle.getEffect(i).noCopy) continue;
+			if (this.battle.getEffectByID(i as ID).noCopy) continue;
 			// shallow clones
 			this.volatiles[i] = Object.assign({}, pokemon.volatiles[i]);
 			if (this.volatiles[i].linkedPokemon) {
@@ -1165,7 +1146,7 @@ export class Pokemon {
 	}
 
 	hasMove(moveid: string) {
-		moveid = toId(moveid);
+		moveid = toID(moveid);
 		if (moveid.substr(0, 11) === 'hiddenpower') moveid = 'hiddenpower';
 		for (const moveSlot of this.moveSlots) {
 			if (moveid === moveSlot.id) {
@@ -1179,7 +1160,7 @@ export class Pokemon {
 		if (!sourceEffect && this.battle.event) {
 			sourceEffect = this.battle.effect;
 		}
-		moveid = toId(moveid);
+		moveid = toID(moveid);
 
 		for (const moveSlot of this.moveSlots) {
 			if (moveSlot.id === moveid && moveSlot.disabled !== true) {
@@ -1306,7 +1287,7 @@ export class Pokemon {
 	}
 
 	getStatus() {
-		return this.battle.getEffect(this.status);
+		return this.battle.getEffectByID(this.status);
 	}
 
 	eatItem(source?: Pokemon, sourceEffect?: Effect) {
@@ -1323,6 +1304,22 @@ export class Pokemon {
 
 			this.battle.singleEvent('Eat', item, this.itemData, this, source, sourceEffect);
 			this.battle.runEvent('EatItem', this, null, null, item);
+
+			if (item.id === 'leppaberry') {
+				if (sourceEffect && ['fling', 'pluck', 'bugbite'].includes(sourceEffect.id)) {
+					this.staleness = 'external';
+				} else {
+					switch (this.pendingStaleness) {
+					case 'internal':
+							if (this.staleness !== 'external') this.staleness = 'internal';
+							break;
+					case 'external':
+							this.staleness = 'external';
+							break;
+					}
+				}
+				this.pendingStaleness = undefined;
+			}
 
 			this.lastItem = this.item;
 			this.item = '';
@@ -1371,13 +1368,14 @@ export class Pokemon {
 		if (!this.item) return false;
 		if (!source) source = this;
 		if (this.battle.gen === 4) {
-			if (toId(this.ability) === 'multitype') return false;
-			if (source && toId(source.ability) === 'multitype') return false;
+			if (toID(this.ability) === 'multitype') return false;
+			if (source && toID(source.ability) === 'multitype') return false;
 		}
 		const item = this.getItem();
 		if (this.battle.runEvent('TakeItem', this, source, null, item)) {
 			this.item = '';
 			this.itemData = {id: '', target: this};
+			this.pendingStaleness = undefined;
 			return item;
 		}
 		return false;
@@ -1388,9 +1386,12 @@ export class Pokemon {
 		if (typeof item === 'string') item = this.battle.getItem(item) as Item;
 
 		const effectid = this.battle.effect ? this.battle.effect.id : '';
-		if (item.id === 'leppaberry' && effectid !== 'trick' && effectid !== 'switcheroo') {
-			this.isStale = 2;
-			this.isStaleSource = 'getleppa';
+		if (item.id === 'leppaberry') {
+			const inflicted = ['trick', 'switcheroo'].includes(effectid);
+			const external = inflicted && source && source.side.id !== this.side.id;
+			this.pendingStaleness = external ? 'external' : 'internal';
+		} else {
+			this.pendingStaleness = undefined;
 		}
 		this.item = item.id;
 		this.itemData = {id: item.id, target: this};
@@ -1407,8 +1408,8 @@ export class Pokemon {
 	hasItem(item: string | string[]) {
 		if (this.ignoringItem()) return false;
 		const ownItem = this.item;
-		if (!Array.isArray(item)) return ownItem === toId(item);
-		return item.map(toId).includes(ownItem);
+		if (!Array.isArray(item)) return ownItem === toID(item);
+		return item.map(toID).includes(ownItem);
 	}
 
 	clearItem() {
@@ -1448,8 +1449,8 @@ export class Pokemon {
 	hasAbility(ability: string | string[]) {
 		if (this.ignoringAbility()) return false;
 		const ownAbility = this.ability;
-		if (!Array.isArray(ability)) return ownAbility === toId(ability);
-		return ability.map(toId).includes(ownAbility);
+		if (!Array.isArray(ability)) return ownAbility === toID(ability);
+		return ability.map(toID).includes(ownAbility);
 	}
 
 	clearAbility() {

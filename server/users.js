@@ -93,7 +93,7 @@ function add(user) {
 	numUsers++;
 	user.guestNum = numUsers;
 	user.name = `Guest ${numUsers}`;
-	user.userid = toId(user.name);
+	user.userid = toID(user.name);
 
 	if (users.has(user.userid)) throw new Error(`userid taken: ${user.userid}`);
 	users.set(user.userid, user);
@@ -136,7 +136,7 @@ function getUser(name, exactName = false) {
 	if (!name || name === '!') return null;
 	// @ts-ignore
 	if (name.userid) return name;
-	let userid = toId(name);
+	let userid = toID(name);
 	let i = 0;
 	if (!exactName) {
 		while (userid && !users.has(userid) && i < 1000) {
@@ -208,7 +208,7 @@ function importUsergroups() {
 		for (const row of data.split("\n")) {
 			if (!row) continue;
 			let cells = row.split(",");
-			usergroups[toId(cells[0])] = (cells[1] || Config.groupsranking[0]) + cells[0];
+			usergroups[toID(cells[0])] = (cells[1] || Config.groupsranking[0]) + cells[0];
 		}
 	});
 }
@@ -312,7 +312,7 @@ cacheGroupData();
  */
 function setOfflineGroup(name, group, forceTrusted) {
 	if (!group) throw new Error(`Falsy value passed to setOfflineGroup`);
-	let userid = toId(name);
+	let userid = toID(name);
 	let user = getExactUser(userid);
 	if (user) {
 		user.setGroup(group, forceTrusted);
@@ -332,8 +332,8 @@ function setOfflineGroup(name, group, forceTrusted) {
  * @param {string} name
  */
 function isUsernameKnown(name) {
-	let userid = toId(name);
-	if (Users(userid)) return true;
+	let userid = toID(name);
+	if (Users.get(userid)) return true;
 	if (userid in usergroups) return true;
 	for (const room of Rooms.global.chatRooms) {
 		if (!room.auth) continue;
@@ -348,7 +348,7 @@ function isUsernameKnown(name) {
 function isTrusted(name) {
 	// @ts-ignore
 	if (name.trusted) return name.trusted;
-	let userid = toId(name);
+	let userid = toID(name);
 	if (userid in usergroups) return userid;
 	for (const room of Rooms.global.chatRooms) {
 		if (!room.isPrivate && !room.isPersonal && room.auth && userid in room.auth && room.auth[userid] !== '+') return userid;
@@ -754,14 +754,19 @@ class User extends Chat.MessageContext {
 	 * @param {Connection} connection The connection asking for the rename
 	 */
 	async rename(name, token, newlyRegistered, connection) {
-		let userid = toId(name);
-		for (const roomid of this.games) {
-			if (userid === this.userid) break;
-			const game = Rooms(roomid).game;
-			if (!game || game.ended) continue; // should never happen
-			if (game.allowRenames || !this.named) continue;
-			this.popup(`You can't change your name right now because you're in ${game.title}, which doesn't allow renaming.`);
-			return false;
+		let userid = toID(name);
+		if (userid !== this.userid) {
+			for (const roomid of this.games) {
+				const room = Rooms(roomid);
+				if (!room || !room.game || room.game.ended) {
+					this.games.delete(roomid);
+					console.log(`desynced roomgame ${roomid} renaming ${this.userid} -> ${userid}`);
+					continue;
+				}
+				if (room.game.allowRenames || !this.named) continue;
+				this.popup(`You can't change your name right now because you're in ${room.game.title}, which doesn't allow renaming.`);
+				return false;
+			}
 		}
 
 		let challenge = '';
@@ -787,7 +792,7 @@ class User extends Chat.MessageContext {
 			return false;
 		}
 		name = Chat.namefilter(name, this);
-		if (userid !== toId(name)) {
+		if (userid !== toID(name)) {
 			if (name) {
 				name = userid;
 			} else {
@@ -916,7 +921,7 @@ class User extends Chat.MessageContext {
 		}
 
 		let user = users.get(userid);
-		let possibleUser = Users(userid);
+		let possibleUser = Users.get(userid);
 		if (possibleUser && possibleUser.namelocked) {
 			// allows namelocked users to be merged
 			user = possibleUser;
@@ -959,7 +964,7 @@ class User extends Chat.MessageContext {
 	 */
 	forceRename(name, registered, isForceRenamed = false) {
 		// skip the login server
-		let userid = toId(name);
+		let userid = toID(name);
 
 		if (users.has(userid) && users.get(userid) !== this) {
 			return false;
