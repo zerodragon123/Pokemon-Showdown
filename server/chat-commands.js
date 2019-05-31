@@ -580,7 +580,10 @@ const commands = {
 
 		if (!targetUser || !targetUser.connected) return this.errorReply(`User ${this.targetUsername} is not currently online.`);
 		if (!(targetUser in room.users) && !user.can('addhtml')) return this.errorReply("You do not have permission to use this command to users who are not in this room.");
-		if (targetUser.blockPMs && targetUser.blockPMs !== user.group && !user.can('lock')) return this.errorReply("This user is currently blocking PMs.");
+		if (targetUser.blockPMs && targetUser.blockPMs !== user.group && !user.can('lock')) {
+			Chat.maybeNotifyBlocked('pm', targetUser, user);
+			return this.errorReply("This user is currently blocking PMs.");
+		}
 		if (targetUser.locked && !user.can('lock')) return this.errorReply("This user is currently locked, so you cannot send them a pminfobox.");
 
 		// Apply the infobox to the message
@@ -606,7 +609,10 @@ const commands = {
 
 		if (!targetUser || !targetUser.connected) return this.errorReply(`User ${this.targetUsername} is not currently online.`);
 		if (!(targetUser in room.users) && !user.can('addhtml')) return this.errorReply("You do not have permission to use this command to users who are not in this room.");
-		if (targetUser.blockPMs && targetUser.blockPMs !== user.group && !user.can('lock')) return this.errorReply("This user is currently blocking PMs.");
+		if (targetUser.blockPMs && targetUser.blockPMs !== user.group && !user.can('lock')) {
+			Chat.maybeNotifyBlocked('pm', targetUser, user);
+			return this.errorReply("This user is currently blocking PMs.");
+		}
 		if (targetUser.locked && !user.can('lock')) return this.errorReply("This user is currently locked, so you cannot send them UHTML.");
 
 		let message = `|pm|${user.getIdentity()}|${targetUser.getIdentity()}|/uhtml${(cmd === 'pmuhtmlchange' ? 'change' : '')} ${target}`;
@@ -3794,6 +3800,70 @@ const commands = {
 		}, 500);
 	},
 	importinputloghelp: [`/importinputlog [inputlog] - Starts a battle with a given inputlog. Requires: + % @ & ~`],
+
+	acceptdraw: 'offertie',
+	accepttie: 'offertie',
+	offerdraw: 'offertie',
+	offertie(target, room, user, connection, cmd) {
+		const battle = room.battle;
+		if (!battle) return this.errorReply("Must be in a battle room.");
+		if (!Config.allowrequestingties) {
+			return this.errorReply("This server does not allow offering ties.");
+		}
+		if (!this.can('roomvoice', null, room)) return;
+		if (cmd === 'accepttie' && !battle.players.some(player => player.wantsTie)) {
+			return this.errorReply("No other player is requesting a tie right now. It was probably canceled.");
+		}
+		const player = battle.playerTable[user.userid];
+		if (!battle.players.some(player => player.wantsTie)) {
+			this.add(`${user.name} is offering a tie.`);
+			room.update();
+			for (const otherPlayer of battle.players) {
+				if (otherPlayer !== player) {
+					otherPlayer.sendRoom(Chat.html`|uhtml|offertie|<button class="button" name="send" value="/accepttie"><strong>Accept tie</strong></button> <button class="button" name="send" value="/rejecttie">Reject</button>`);
+				} else {
+					player.wantsTie = true;
+				}
+			}
+		} else {
+			if (!player) {
+				return this.errorReply("Must be a player to accept ties.");
+			}
+			if (!player.wantsTie) {
+				player.wantsTie = true;
+			} else {
+				return this.errorReply("You have already agreed to a tie.");
+			}
+			player.sendRoom(Chat.html`|uhtmlchange|offertie|`);
+			this.add(`${user.name} accepted the tie.`);
+			if (battle.players.every(player => player.wantsTie)) {
+				if (battle.players.length > 2) {
+					this.add(`All players have accepted the tie.`);
+				}
+				room.battle.tie();
+			}
+		}
+	},
+	offertiehelp: [`/offertie - Offers a tie to all other players in a battle; if all accept, it ends in a tie. Requires: \u2606 @ # & ~`],
+
+	rejectdraw: 'rejecttie',
+	rejecttie(target, room, user) {
+		const battle = room.battle;
+		if (!battle) return this.errorReply("Must be in a battle room.");
+		const player = battle.playerTable[user.userid];
+		if (!player) {
+			return this.errorReply("Must be a player to reject ties.");
+		}
+		if (!battle.players.some(player => player.wantsTie)) {
+			return this.errorReply("No other player is requesting a tie right now. It was probably canceled.");
+		}
+		if (player.wantsTie) player.wantsTie = false;
+		for (const otherPlayer of battle.players) {
+			otherPlayer.sendRoom(Chat.html`|uhtmlchange|offertie|`);
+		}
+		return this.add(`${user.name} rejected the tie.`);
+	},
+	rejecttiehelp: [`/rejecttie - Rejects a tie offered by another player in a battle.`],
 
 	inputlog() {
 		this.parse(`/help exportinputlog`);
