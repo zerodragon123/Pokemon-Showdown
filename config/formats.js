@@ -99,9 +99,6 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] OU'],
 		banlist: ['OU', 'UUBL', 'Drizzle', 'Drought', 'Kommonium Z', 'Mewnium Z'],
-		onBegin() {
-			if (this.rated && this.format === 'gen7uu') this.add('html', `<div class="broadcast-red"><strong>UU is currently suspecting Scizor! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3650487/">suspect thread</a>.</strong></div>`);
-		},
 	},
 	{
 		name: "[Gen 7] RU",
@@ -114,7 +111,7 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] UU'],
 		banlist: ['UU', 'RUBL', 'Aurora Veil'],
-		unbanlist: ['Talonflame', 'Drought'],
+		unbanlist: ['Drought'],
 	},
 	{
 		name: "[Gen 7] NU",
@@ -126,7 +123,7 @@ let Formats = [
 
 		mod: 'gen7',
 		ruleset: ['[Gen 7] RU'],
-		banlist: ['RU', 'NUBL', 'Talonflame', 'Drought'],
+		banlist: ['RU', 'NUBL', 'Drought'],
 		onBegin() {
 			if (this.rated && this.format === 'gen7nu') this.add('html', `<div class="broadcast-red"><strong>NU is currently suspecting Vileplume! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3650934/">suspect thread</a>.</strong></div>`);
 		},
@@ -247,16 +244,19 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] PU'],
 		banlist: [
-			'PU', 'Carracosta', 'Crabominable', 'Exeggutor-Base', 'Gorebyss', 'Jynx', 'Musharna', 'Raticate-Alola',
+			'PU', 'Carracosta', 'Crabominable', 'Gorebyss', 'Jynx', 'Musharna', 'Raticate-Alola',
 			'Raticate-Alola-Totem', 'Throh', 'Turtonator', 'Type: Null', 'Ursaring', 'Victreebel', 'Zangoose',
 		],
+		onBegin() {
+			if (this.rated && this.format === 'gen7zu') this.add('html', `<div class="broadcast-green"><strong>ZU is currently suspecting Exeggutor! For information on how to participate check out the <a href="https://www.smogon.com/forums/thread/3651197/">suspect thread</a>.</strong></div>`);
+		},
 	},
 	{
 		name: "[Gen 7] CAP",
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3621207/">CAP Metagame Discussion</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3626018/">CAP Viability Rankings</a>`,
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3634419/">CAP Sample Teams</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3648521/">CAP Sample Teams</a>`,
 		],
 
 		mod: 'gen7',
@@ -940,9 +940,6 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['Pokemon', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Sleep Clause Mod', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
 		banlist: ['Groudon-Primal', 'Arena Trap', 'Huge Power', 'Illusion', 'Innards Out', 'Magnet Pull', 'Moody', 'Parental Bond', 'Protean', 'Psychic Surge', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Comatose + Sleep Talk'],
-		onBegin() {
-			if (this.rated && this.format === 'gen7balancedhackmons') this.add('html', `<div class="broadcast-green"><strong>Balanced Hackmons is currently suspecting Contrary! For information on how to participate check out the <a href="https://www.smogon.com/forums/thread/3650437/">suspect thread</a>.</strong></div>`);
-		},
 	},
 	{
 		name: "[Gen 7] Mix and Mega",
