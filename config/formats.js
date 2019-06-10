@@ -37,25 +37,6 @@ let Formats = [
 		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
 	},
 	{
-		name: "[Gen 7] Random Formats",
-		desc: `Randomized competitive lower tiers teams of mutiple generations.`,
-
-		//mod: new PRNG().sample(['gen7','gen3']),
-		team: 'randomFormats',
-		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
-		mod: 'gen7',
-		// @ts-ignore
-		formatsList: [
-			'gen1ou', 'gen1ubers', 'gen1uu',
-			'gen2ou', 'gen2ubers', 'gen2uu', 'gen2nu', 'gen2lc',
-			'gen3ou', 'gen3ubers', 'gen3uu', 'gen3nu', 'gen3pu', 'gen3lc', 'gen4ou', 'gen4ubers', 'gen4uu', 'gen4nu', 'gen4pu', 'gen4lc', 'gen5ou', 'gen5ubers', 'gen5uu', 'gen5ru', 'gen5nu', 'gen5pu', 'gen5lc', 'gen6ou', 'gen6ubers', 'gen6uu', 'gen6ru', 'gen6nu', 'gen6pu', 'gen6lc',
-		],
-		realFormat: '',
-		onBegin() {
-			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: ` + this.realFormat + ` </strong></div>`);
-		},
-	},
-	{
 		name: "[Gen 7] Unrated Random Battle",
 
 		mod: 'gen7',
@@ -341,7 +322,7 @@ let Formats = [
 
 		mod: 'gen7',
 		forcedLevel: 50,
-		timer: {starting: 15 * 60 - 10, perTurn: 10, maxPerTurn: 60, maxFirstTurn: 90, timeoutAutoChoose: true},
+		timer: {starting: 7 * 60, addPerTurn: 0, maxPerTurn: 55, maxFirstTurn: 90, grace: 90, timeoutAutoChoose: true, dcTimerBank: false},
 		ruleset: ['Pokemon', 'PSChina Clause'],
 		requirePlus: true,
 	},
@@ -376,9 +357,10 @@ let Formats = [
 		mod: 'gen7',
 		// @ts-ignore
 		formatsList: [
-			//'gen2nu',
-			'gen3uu', 'gen3pu', 'gen4uu', 'gen4lc', 'gen5pu',
-			'gen5uu', 'gen7monotype', 'gen5nu'],
+			'gen1ou', 'gen1ubers', 'gen1uu',
+			'gen2ou', 'gen2ubers', 'gen2uu', 'gen2nu', 'gen2lc',
+			'gen3ou', 'gen3ubers', 'gen3uu', 'gen3nu', 'gen3pu', 'gen3lc', 'gen4ou', 'gen4ubers', 'gen4uu', 'gen4nu', 'gen4pu', 'gen4lc', 'gen5ou', 'gen5ubers', 'gen5uu', 'gen5ru', 'gen5nu', 'gen5pu', 'gen5lc', 'gen6ou', 'gen6ubers', 'gen6uu', 'gen6ru', 'gen6nu', 'gen6pu', 'gen6lc',
+		],
 		realFormat: '',
 		onBegin() {
 			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: ` + this.realFormat + ` </strong></div>`);
@@ -711,7 +693,7 @@ let Formats = [
 			validate: [4, 6],
 			battle: 4,
 		},
-		timer: {starting: 6 * 60 + 30 - 10, perTurn: 10, maxPerTurn: 55, maxFirstTurn: 90, timeoutAutoChoose: true},
+		timer: {starting: 7 * 60, addPerTurn: 0, maxPerTurn: 55, maxFirstTurn: 90, grace: 90, timeoutAutoChoose: true, dcTimerBank: false},
 		ruleset: ['Pokemon', 'Minimal GBU', 'Team Preview'],
 	},
 
