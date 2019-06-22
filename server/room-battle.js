@@ -770,7 +770,7 @@ class RoomBattle extends RoomGames.RoomGame {
 		let logData = this.logData;
 		if (!logData) return;
 		this.logData = null; // deallocate to save space
-		logData.log = this.room.getLog(3).split('\n'); // replay log (exact damage)
+		logData.log = this.room.getLog(-1).split('\n'); // replay log (exact damage)
 
 		// delete some redundant data
 		for (const rating of [p1rating, p2rating, p3rating, p4rating]) {
@@ -1174,13 +1174,18 @@ if (!PM.isParentProcess) {
 			process.send(`THROW\n@!!@${repr}\n${error.stack}`);
 		},
 	};
-	global.__version = '';
+	global.__version = {head: ''};
 	try {
 		const execSync = require('child_process').execSync;
-		const out = execSync('git merge-base master HEAD', {
+		const head = execSync('git rev-parse HEAD', {
 			stdio: ['ignore', 'pipe', 'ignore'],
 		});
-		global.__version = ('' + out).trim();
+		const merge = execSync('git merge-base origin/master HEAD', {
+			stdio: ['ignore', 'pipe', 'ignore'],
+		});
+		global.__version.head = ('' + head).trim();
+		const origin = ('' + merge).trim();
+		if (origin !== global.__version.head) global.__version.origin = origin;
 	} catch (e) {}
 
 	if (Config.crashguard) {

@@ -9019,7 +9019,7 @@ let BattleMovedex = {
 		flags: {contact: 1, protect: 1, mirror: 1},
 		onBasePower(basePower, source, target, move) {
 			let item = target.getItem();
-			if (!this.singleEvent('TakeItem', item, target.itemData, target, source, move, item)) return;
+			if (!this.singleEvent('TakeItem', item, target.itemData, target, target, move, item)) return;
 			if (item.id) {
 				return this.chainModify(1.5);
 			}
@@ -13350,7 +13350,6 @@ let BattleMovedex = {
 		flags: {protect: 1, authentic: 1, mystery: 1},
 		onHit(target, source) {
 			if (source.template && (source.template.num === 493 || source.template.num === 773)) return false;
-			this.add('-start', source, 'typechange', '[from] move: Reflect Type', '[of] ' + target);
 			let newBaseTypes = target.getTypes(true).filter(type => type !== '???');
 			if (!newBaseTypes.length) {
 				if (target.addedType) {
@@ -13359,6 +13358,7 @@ let BattleMovedex = {
 					return false;
 				}
 			}
+			this.add('-start', source, 'typechange', '[from] move: Reflect Type', '[of] ' + target);
 			source.setType(newBaseTypes);
 			source.addedType = target.addedType;
 			source.knownType = target.side === source.side && target.knownType;
