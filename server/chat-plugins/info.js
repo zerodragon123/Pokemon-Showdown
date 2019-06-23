@@ -33,6 +33,10 @@ const commands = {
 			return this.errorReply(`/${cmd} - Access denied.`);
 		}
 
+		if (targetUser.hasSysopAccess && !user.hasSysopAccess) {
+			return this.errorReply(`/${cmd} - Access denied.`);
+		}
+
 		let buf = Chat.html`<strong class="username"><small style="display:none">${targetUser.group}</small>${targetUser.name}</strong> `;
 		const ac = targetUser.autoconfirmed;
 		if (ac && showAll) buf += ` <small style="color:gray">(ac${targetUser.userid === ac ? `` : `: ${ac}`})</small>`;
@@ -2432,7 +2436,7 @@ const commands = {
 	changerankuhtmlhelp: [
 		`/changerankuhtml [rank], [name], [message] - Changes the message previously shown with /addrankuhtml [rank], [name]. Requires: * & ~`,
 	],
-	hideprevid: function (target, room, user, connection, cmd) {
+	hideprevid(target, room, user, connection, cmd) {
 		if (user.group !== '~') return false;
 		let targetUser = this.targetUserOrSelf(target, false);
 		if (!targetUser) {
