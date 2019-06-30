@@ -2592,14 +2592,18 @@ const commands = {
 	],
 
 	nl: 'namelock',
-	namelock(target, room, user) {
+	forcenamelock: 'namelock',
+	namelock(target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help namelock');
 
-		let reason = this.splitTarget(target, true);
+		let reason = this.splitTarget(target);
 		let targetUser = this.targetUser;
 
 		if (!targetUser) {
 			return this.errorReply(`User '${this.targetUsername}' not found.`);
+		}
+		if (targetUser.userid !== toID(this.inputUsername) && cmd !== 'forcenamelock') {
+			return this.errorReply(`${this.inputUsername} has already changed their name to ${targetUser.name}. To namelock anyway, use /forcenamelock.`);
 		}
 		if (!this.can('forcerename', targetUser)) return false;
 		if (targetUser.namelocked) return this.errorReply(`User '${targetUser.name}' is already namelocked.`);
@@ -3092,7 +3096,9 @@ const commands = {
 				Chat.uncache('./server/punishments');
 				global.Punishments = require('./punishments');
 				this.sendReply("Punishments have been hot-patched.");
-			} else if (target === 'dnsbl' || target === 'datacenters') {
+			} else if (target === 'dnsbl' || target === 'datacenters' || target === 'iptools') {
+				Chat.uncache('./.server-dist/ip-tools');
+				global.IPTools = require('../.server-dist/ip-tools').IPTools;
 				IPTools.loadDatacenters();
 				this.sendReply("IPTools has been hot-patched.");
 			} else if (target.startsWith('disable')) {
@@ -3813,11 +3819,15 @@ const commands = {
 	acceptdraw: 'offertie',
 	accepttie: 'offertie',
 	offerdraw: 'offertie',
+	requesttie: 'offertie',
 	offertie(target, room, user, connection, cmd) {
 		const battle = room.battle;
 		if (!battle) return this.errorReply("Must be in a battle room.");
 		if (!Config.allowrequestingties) {
 			return this.errorReply("This server does not allow offering ties.");
+		}
+		if (room.tour) {
+			return this.errorReply("You can't offer ties in tournaments.");
 		}
 		if (!this.can('roomvoice', null, room)) return;
 		if (cmd === 'accepttie' && !battle.players.some(player => player.wantsTie)) {
@@ -3980,11 +3990,16 @@ const commands = {
 			return this.errorReply(`User ${name} must be in the battle room already.`);
 		}
 		if (!this.can('joinbattle', null, room)) return;
-		if (room.battle[target]) {
+		if (room.battle[target].userid) {
 			return this.errorReply(`This room already has a player in slot ${target}.`);
 		}
 
-		room.battle.addPlayer(targetUser, target);
+		room.auth[targetUser.userid] = Users.PLAYER_SYMBOL;
+		let success = room.battle.joinGame(targetUser, target);
+		if (!success) {
+			delete room.auth[targetUser.userid];
+			return;
+		}
 		this.addModAction(`${name} was added to the battle as Player ${target.slice(1)} by ${user.name}.`);
 		this.modlog('ROOMPLAYER', targetUser.getLastId());
 	},
