@@ -371,7 +371,7 @@ const commands = {
 		);
 
 		if (!buffer.length) return connection.popup("This server has no global authority.");
-		connection.popup(buffer.join("\n\n").replace(", wececa",""));
+		connection.popup(buffer.join("\n\n").replace(", wececa", ""));
 	},
 	authhelp: [
 		`/auth - Show global staff for the server.`,
