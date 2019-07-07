@@ -4200,7 +4200,7 @@ const commands = {
 	autotimer: 'forcetimer',
 	forcetimer(target, room, user) {
 		target = toID(target);
-		if (!this.can('autotimer')) return;
+		if (!this.can('gdeclare')) return;
 		if (this.meansNo(target) || target === 'stop') {
 			Config.forcetimer = false;
 			this.addModAction(`Forcetimer is now OFF: The timer is now opt-in. (set by ${user.name})`);
