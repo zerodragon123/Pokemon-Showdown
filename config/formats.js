@@ -87,7 +87,7 @@ let Formats = [
 	{
 		name: "[Gen 7] RU",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3651420/">RU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3646905/">RU Metagame Discussion</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3645873/">RU Viability Rankings</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3645338/">RU Sample Teams</a>`,
 		],
@@ -95,7 +95,7 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] UU'],
 		banlist: ['UU', 'RUBL', 'Aurora Veil'],
-		unbanlist: ['Drought'],
+		unbanlist: ['Absol-Mega', 'Drought'],
 	},
 	{
 		name: "[Gen 7] NU",
@@ -107,12 +107,12 @@ let Formats = [
 
 		mod: 'gen7',
 		ruleset: ['[Gen 7] RU'],
-		banlist: ['RU', 'NUBL', 'Drought'],
+		banlist: ['RU', 'NUBL', 'Absol-Mega', 'Drought'],
 	},
 	{
 		name: "[Gen 7] PU",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3649494/">PU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3652157/">PU Metagame Discussion</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3614892/">PU Viability Rankings</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3611496/">PU Sample Teams</a>`,
 		],
@@ -120,6 +120,9 @@ let Formats = [
 		mod: 'gen7',
 		ruleset: ['[Gen 7] NU'],
 		banlist: ['NU', 'PUBL'],
+		onBegin() {
+			if (this.rated && this.format === 'gen7pu') this.add('html', `<div class="broadcast-blue"><strong>PU is currently suspecting Guzzlord! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3652157/">suspect thread</a>.</strong></div>`);
+		},
 	},
 	{
 		name: "[Gen 7] LC",
@@ -151,11 +154,11 @@ let Formats = [
 		ruleset: ['[Gen 7] LC'],
 		banlist: [
 			// LC
-			'Abra', 'Bunnelby', 'Carvanha', 'Chinchou', 'Corphish', 'Croagunk', 'Diglett-Base', 'Doduo', 'Dwebble',
-			'Ferroseed', 'Foongus', 'Gastly', 'Grimer-Alola', 'Magnemite', 'Mareanie', 'Meowth-Base', 'Mienfoo',
-			'Mudbray', 'Onix', 'Pawniard', 'Pikipek', 'Ponyta', 'Scraggy', 'Shellder', 'Snivy', 'Snubbull', 'Spritzee',
-			'Staryu', 'Surskit', 'Timburr', 'Tirtouga', 'Torchic', 'Trapinch', 'Vullaby', 'Vulpix-Alola', 'Zigzagoon',
-			// LCBL
+			'Abra', 'Bunnelby', 'Carvanha', 'Chinchou', 'Clamperl', 'Corphish', 'Croagunk', 'Dewpider', 'Diglett-Base',
+			'Doduo', 'Drilbur', 'Dwebble', 'Elekid', 'Ferroseed', 'Foongus', 'Frillish', 'Gastly', 'Grimer-Alola', 'Magnemite',
+			'Mareanie', 'Mienfoo', 'Mudbray', 'Munchlax', 'Omanyte', 'Onix', 'Pawniard', 'Ponyta', 'Scraggy', 'Shellder',
+			'Snivy', 'Snubbull', 'Spritzee', 'Staryu', 'Surskit', 'Timburr', 'Tirtouga', 'Vullaby', 'Vulpix-Alola', 'Zigzagoon',
+			// LC UUBL
 			'Magby', 'Rufflet', 'Wynaut', 'Deep Sea Tooth',
 		],
 	},
@@ -702,173 +705,72 @@ let Formats = [
 		column: 2,
 	},
 	{
-		name: "[Gen 7] Inheritance",
-		desc: `Pok&eacute;mon may use the ability and moves of another, as long as they forfeit their own learnset.`,
+		name: "[Gen 7] Nature Swap",
+		desc: `Pok&eacute;mon have their base stats swapped depending on their nature.`,
 		threads: [
-			`&bullet; <a href="http://www.smogon.com/forums/threads/3592844/">Inheritance</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3612727/">Nature Swap</a>`,
 		],
 
 		mod: 'gen7',
 		ruleset: ['[Gen 7] OU'],
-		banlist: [
-			'Blacephalon', 'Cresselia', 'Hoopa-Unbound', 'Kartana', 'Kyurem-Black', 'Regigigas', 'Shedinja', 'Slaking', 'Gyaradosite',
-			'Huge Power', 'Imposter', 'Innards Out', 'Pure Power', 'Speed Boost', 'Water Bubble', 'Assist', 'Chatter', 'Shell Smash',
-		],
-		noChangeForme: true,
-		noChangeAbility: true,
-		// @ts-ignore
-		getEvoFamily(species) {
-			let template = Dex.getTemplate(species);
-			while (template.prevo) {
-				template = Dex.getTemplate(template.prevo);
-			}
-			return template.speciesid;
-		},
-		validateSet(set, teamHas) {
-			// @ts-ignore
-			if (!this.format.abilityMap) {
-				let abilityMap = Object.create(null);
-				for (let speciesid in Dex.data.Pokedex) {
-					let pokemon = Dex.getTemplate(speciesid);
-					if (pokemon.num < 1 || pokemon.species === 'Murkrow' || pokemon.species === 'Smeargle') continue;
-					if (pokemon.requiredItem || pokemon.requiredMove) continue;
-					for (const key of Object.values(pokemon.abilities)) {
-						let abilityId = toID(key);
-						if (abilityMap[abilityId]) {
-							abilityMap[abilityId][pokemon.evos ? 'push' : 'unshift'](speciesid);
-						} else {
-							abilityMap[abilityId] = [speciesid];
-						}
-					}
-				}
-				// @ts-ignore
-				this.format.abilityMap = abilityMap;
-			}
-
-			// @ts-ignore
-			this.format.noChangeForme = false;
-			/** @type {string[]} */
-			let problems = [];
-			let pkmnRule = Dex.getFormat('pokemon');
-			if (pkmnRule.exists && pkmnRule.onChangeSet && pkmnRule.onChangeSet.call(Dex, set, this.format)) {
-				problems = pkmnRule.onChangeSet.call(Dex, set, this.format) || [];
-			}
-			// @ts-ignore
-			this.format.noChangeForme = true;
-
-			if (problems.length) return problems;
-
-			let template = Dex.getTemplate(set.species);
-			if (!template.exists) return [`The Pokemon "${set.species}" does not exist.`];
-			if (template.isUnreleased) return [`${template.species} is unreleased.`];
-			let megaTemplate = Dex.getTemplate(Dex.getItem(set.item).megaStone);
-			if (template.tier === 'Uber' || megaTemplate.tier === 'Uber' || this.format.banlist.includes(template.species)) return [`${megaTemplate.tier === 'Uber' ? megaTemplate.species : template.species} is banned.`];
-
-			let name = set.name;
-
-			let ability = Dex.getAbility(set.ability);
-			if (!ability.exists || ability.isNonstandard || ability.isUnreleased) return [`${name} needs to have a valid ability.`];
-			// @ts-ignore
-			let pokemonWithAbility = this.format.abilityMap[ability.id];
-			if (!pokemonWithAbility) return [`"${set.ability}" is not available on a legal Pok\u00e9mon.`];
-
-			let canonicalSource = ''; // Specific for the basic implementation of Donor Clause (see onValidateTeam).
-			// @ts-ignore
-			let validSources = set.abilitySources = []; // Evolution families
-			for (const donor of pokemonWithAbility) {
-				let donorTemplate = Dex.getTemplate(donor);
-				// @ts-ignore
-				let evoFamily = this.format.getEvoFamily(donorTemplate);
-
-				if (validSources.includes(evoFamily)) continue;
-
-				if (set.name === set.species) delete set.name;
-				set.species = donorTemplate.species;
-				problems = this.validateSet(set, teamHas) || [];
-
-				if (!problems.length) {
-					canonicalSource = donorTemplate.species;
-					validSources.push(evoFamily);
-				}
-				if (validSources.length > 1) {
-					// Specific for the basic implementation of Donor Clause (see onValidateTeam).
-					break;
-				}
-			}
-
-			set.species = template.species;
-			if (!validSources.length) {
-				if (pokemonWithAbility.length > 1) return [`${template.species}'s set is illegal.`];
-				problems.unshift(`${template.species} has an illegal set with an ability from ${Dex.getTemplate(pokemonWithAbility[0]).name}.`);
-				return problems;
-			}
-
-			// Protocol: Include the data of the donor species in the `ability` data slot.
-			// Afterwards, we are going to reset the name to what the user intended. :]
-			set.ability = `${set.ability}0${canonicalSource}`;
-		},
-		onValidateTeam(team, format) {
-			// Donor Clause
-			let evoFamilyLists = [];
-			for (const set of team) {
-				// @ts-ignore
-				if (!set.abilitySources) continue;
-				// @ts-ignore
-				evoFamilyLists.push(set.abilitySources.map(format.getEvoFamily));
-			}
-
-			// Checking actual full incompatibility would require expensive algebra.
-			// Instead, we only check the trivial case of multiple Pokémon only legal for exactly one family. FIXME?
-			let requiredFamilies = Object.create(null);
-			for (const evoFamilies of evoFamilyLists) {
-				if (evoFamilies.length !== 1) continue;
-				let [familyId] = evoFamilies;
-				if (!(familyId in requiredFamilies)) requiredFamilies[familyId] = 1;
-				requiredFamilies[familyId]++;
-				if (requiredFamilies[familyId] > 2) return [`You are limited to up to two inheritances from each evolution family by the Donor Clause.`, `(You inherit more than twice from ${this.getTemplate(familyId).species}).`];
-			}
-		},
-		onBegin() {
-			for (const pokemon of this.p1.pokemon.concat(this.p2.pokemon)) {
-				if (pokemon.baseAbility.includes('0')) {
-					let donor = pokemon.baseAbility.split('0')[1];
+		banlist: ['Blissey', 'Chansey', 'Cloyster', 'Hoopa-Unbound', 'Kyurem-Black', 'Stakataka'],
+		battle: {
+			natureModify(stats, set) {
+				let nature = this.getNature(set.nature);
+				let stat;
+				if (nature.plus) {
 					// @ts-ignore
-					pokemon.donor = toID(donor);
+					stat = nature.plus;
 					// @ts-ignore
-					pokemon.baseAbility = pokemon.baseAbility.split('0')[0];
-					pokemon.ability = pokemon.baseAbility;
+					stats[stat] = Math.floor(stats[stat] * 1.1);
 				}
-			}
+				return stats;
+			},
 		},
-		onSwitchIn(pokemon) {
+		onModifyTemplate(template, target, source, effect) {
+			if (!target) return;
+			if (effect && ['imposter', 'transform'].includes(effect.id)) return;
+			let nature = this.getNature(target.set.nature);
+			if (!nature.plus) return template;
+			let newStats = Object.assign({}, template.baseStats);
+			let swap = newStats[nature.plus];
 			// @ts-ignore
-			if (!pokemon.donor) return;
+			newStats[nature.plus] = newStats[nature.minus];
 			// @ts-ignore
-			let donorTemplate = this.getTemplate(pokemon.donor);
-			if (!donorTemplate.exists) return;
-			// Place volatiles on the Pokémon to show the donor details.
-			this.add('-start', pokemon, donorTemplate.species, '[silent]');
+			newStats[nature.minus] = swap;
+			return Object.assign({}, template, {baseStats: newStats});
 		},
 	},
 	{
-		name: "[Gen 7] NFE",
-		desc: `Only Pok&eacute;mon that can evolve are allowed.`,
+		name: "[Gen 7] Follow the Leader",
+		desc: `The first Pok&eacute;mon provides the moves and abilities for all other Pok&eacute;mon on the team.`,
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3648183/">NFE</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3603860/">Follow the Leader</a>`,
 		],
 
 		mod: 'gen7',
 		ruleset: ['[Gen 7] OU'],
-		banlist: [
-			'Chansey', 'Doublade', 'Gligar', 'Golbat', 'Gurdurr', 'Magneton', 'Piloswine',
-			'Porygon2', 'Rhydon', 'Scyther', 'Sneasel', 'Type: Null', 'Vigoroth',
-			'Drought', 'Aurora Veil',
-		],
-		onValidateSet(set) {
-			let template = this.getTemplate(set.species || set.name);
-			if (!template.nfe) {
-				return [set.species + " cannot evolve."];
+		banlist: ['Regigigas', 'Shedinja', 'Slaking', 'Smeargle', 'Imposter', 'Huge Power', 'Pure Power'],
+		checkLearnset(move, template, lsetData, set) {
+			// @ts-ignore
+			return set.follower ? null : this.checkLearnset(move, template, lsetData, set);
+		},
+		validateSet(set, teamHas) {
+			if (!teamHas.leader) {
+				let problems = this.validateSet(set, teamHas);
+				teamHas.leader = set.species;
+				return problems;
 			}
+			let leader = this.dex.deepClone(set);
+			leader.species = teamHas.leader;
+			let problems = this.validateSet(leader, teamHas);
+			if (problems) return problems;
+			set.ability = this.dex.getTemplate(set.species || set.name).abilities['0'];
+			// @ts-ignore
+			set.follower = true;
+			problems = this.validateSet(set, teamHas);
+			set.ability = leader.ability;
+			return problems;
 		},
 	},
 
@@ -1018,7 +920,7 @@ let Formats = [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3598418/">Camomons</a>`,
 		],
 		mod: 'gen7',
-		searchShow: false,
+		// searchShow: false,
 		ruleset: ['[Gen 7] OU'],
 		banlist: ['Dragonite', 'Kartana', 'Kyurem-Black', 'Shedinja'],
 		onModifyTemplate(template, target, source, effect) {
@@ -1042,7 +944,7 @@ let Formats = [
 		],
 
 		mod: 'gen7',
-		// searchShow: false,
+		searchShow: false,
 		ruleset: ['[Gen 7] OU', 'STABmons Move Legality'],
 		banlist: ['Aerodactyl-Mega', 'Blacephalon', 'Kartana', 'Komala', 'Kyurem-Black', 'Porygon-Z', 'Silvally', 'Tapu Koko', 'Tapu Lele', 'Thundurus-Base', 'King\'s Rock', 'Razor Fang'],
 		restrictedMoves: ['Acupressure', 'Belly Drum', 'Chatter', 'Extreme Speed', 'Geomancy', 'Lovely Kiss', 'Shell Smash', 'Shift Gear', 'Spore', 'Thousand Arrows'],
@@ -1055,7 +957,7 @@ let Formats = [
 		],
 
 		mod: 'gen7',
-		// searchShow: false,
+		searchShow: false,
 		ruleset: ['[Gen 7] OU'],
 		banlist: ['Damp Rock', 'Deep Sea Tooth', 'Eviolite'],
 		onModifyTemplate(template, target, source, effect) {
@@ -1103,7 +1005,7 @@ let Formats = [
 
 		mod: 'pic',
 		gameType: 'doubles',
-		searchShow: false,
+		// searchShow: false,
 		ruleset: ['[Gen 7] Doubles OU', 'Sleep Clause Mod'],
 		banlist: [
 			'Kangaskhanite', 'Mawilite', 'Medichamite',
@@ -1409,6 +1311,15 @@ let Formats = [
 		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
 	},
 	{
+		name: "[Gen 6] Battle Factory",
+		desc: `Randomized teams of Pok&eacute;mon for a generated Smogon tier with sets that are competitively viable.`,
+
+		mod: 'gen6',
+		team: 'randomFactory',
+		searchShow: false,
+		ruleset: ['Pokemon', 'Sleep Clause Mod', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Mega Rayquaza Clause'],
+	},
+	{
 		name: "[Gen 5] Random Battle",
 
 		mod: 'gen5',
@@ -1461,36 +1372,35 @@ let Formats = [
 		column: 3,
 	},
 	{
-		name: "[Gen 1] Ubers",
+		name: "[Gen 2] Ubers",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3541329/">RBY Ubers Viability Ranking</a>`,
-			`&bullet; <a href="https://www.smogon.com/forums/posts/6431045/">RBY Sample Teams</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/posts/7433879/">GSC Ubers Information &amp; Resources</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/posts/6431086/">GSC Sample Teams</a>`,
 		],
 
-		mod: 'gen1',
+		mod: 'gen2',
 		// searchShow: false,
 		ruleset: ['Pokemon', 'Standard'],
 	},
 	{
-		name: "[Gen 6] Balanced Hackmons",
-		desc: `Anything that can be hacked in-game and is usable in local battles is allowed.`,
+		name: "[Gen 3] OU + Latias",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3489849/">ORAS Balanced Hackmons</a>`,
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3571384/">ORAS BH Resources</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3503019/">ADV OU Viability Ranking</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3650478/#post-8133789">ADV Sample Teams</a>`,
 		],
 
-		mod: 'gen6',
-		ruleset: ['Pokemon', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
-		banlist: ['Groudon-Primal', 'Kyogre-Primal', 'Arena Trap', 'Huge Power', 'Moody', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Wonder Guard', 'Aerilate + Pixilate + Refrigerate > 1', 'Assist', 'Chatter'],
+		mod: 'gen3',
+		ruleset: ['Pokemon', 'Standard'],
+		banlist: ['Uber', 'Smeargle + Ingrain'],
+		unbanlist: ['Latias'],
 	},
 	{
-		name: "[Gen 6] Battle Factory",
-		desc: `Randomized teams of Pok&eacute;mon for a generated Smogon tier with sets that are competitively viable.`,
+		name: "[Gen 1] No big 4 OU",
+		desc: `RBY OU without Chansey, Exeggutor, Snorlax, and Tauros.`,
 
-		mod: 'gen6',
-		team: 'randomFactory',
-		// searchShow: false,
-		ruleset: ['Pokemon', 'Sleep Clause Mod', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Mega Rayquaza Clause'],
+		mod: 'gen1',
+		ruleset: ['Pokemon', 'Standard'],
+		banlist: ['Uber', 'Chansey', 'Exeggutor', 'Snorlax', 'Tauros'],
 	},
 
 	// Past Gens OU
@@ -2056,6 +1966,7 @@ let Formats = [
 		searchShow: false,
 		ruleset: ['[Gen 4] OU'],
 		banlist: ['OU', 'UUBL'],
+		unbanlist: ['Sand Veil'],
 	},
 	{
 		name: "[Gen 4] NU",
@@ -2068,7 +1979,6 @@ let Formats = [
 		searchShow: false,
 		ruleset: ['[Gen 4] UU'],
 		banlist: ['UU', 'NUBL'],
-		unbanlist: ['Sand Veil'],
 	},
 	{
 		name: "[Gen 4] LC",
@@ -2202,17 +2112,6 @@ let Formats = [
 		ruleset: ['Pokemon', 'HP Percentage Mod', 'Cancel Mod'],
 	},
 	{
-		name: "[Gen 2] Ubers",
-		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/posts/7433879/">GSC Ubers Information &amp; Resources</a>`,
-			`&bullet; <a href="https://www.smogon.com/forums/posts/6431086/">GSC Sample Teams</a>`,
-		],
-
-		mod: 'gen2',
-		searchShow: false,
-		ruleset: ['Pokemon', 'Standard'],
-	},
-	{
 		name: "[Gen 2] UU",
 		threads: [`&bullet; <a href="https://www.smogon.com/forums/threads/3576710/">GSC UU</a>`],
 
@@ -2241,6 +2140,17 @@ let Formats = [
 		trunc(n) { return Math.trunc(n); },
 		defaultLevel: 100,
 		ruleset: ['HP Percentage Mod', 'Cancel Mod'],
+	},
+	{
+		name: "[Gen 1] Ubers",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3541329/">RBY Ubers Viability Ranking</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/posts/6431045/">RBY Sample Teams</a>`,
+		],
+
+		mod: 'gen1',
+		searchShow: false,
+		ruleset: ['Pokemon', 'Standard'],
 	},
 	{
 		name: "[Gen 1] UU",

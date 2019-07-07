@@ -544,6 +544,7 @@ class RoomBattle extends RoomGames.RoomGame {
 		const player = this.playerTable[user.userid];
 		const [choice, rqid] = data.split('|', 2);
 		if (!player) return;
+		if (user.isAway()) user.clearStatus();
 		let request = player.request;
 		if (request.isWait !== false && request.isWait !== true) {
 			player.sendRoom(`|error|[Invalid choice] There's nothing to choose`);
@@ -1170,8 +1171,7 @@ const PM = new StreamProcessManager(module, () => {
 
 if (!PM.isParentProcess) {
 	// This is a child process!
-	// @ts-ignore This file doesn't exist on the repository, so Travis checks fail if this isn't ignored
-	global.Config = require('../config/config');
+	global.Config = require(/** @type {any} */('../.server-dist/config-loader')).Config;
 	global.Chat = require('./chat');
 	// @ts-ignore ???
 	global.Monitor = {
