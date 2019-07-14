@@ -955,7 +955,7 @@ class CommandContext extends MessageContext {
 				buf += ` [${user.latestIp}]`;
 			}
 		}
-		buf += note;
+		buf += note.replace(/\n/gm, ' ');
 
 		Rooms.global.modlog(buf);
 		this.room.modlog(buf);
@@ -983,7 +983,7 @@ class CommandContext extends MessageContext {
 			}
 		}
 		buf += ` by ${this.user.userid}`;
-		if (note) buf += `: ${note}`;
+		if (note) buf += `: ${note.replace(/\n/gm, ' ')}`;
 
 		this.room.modlog(buf);
 	}
@@ -1344,7 +1344,7 @@ class CommandContext extends MessageContext {
 		}
 
 		// check for mismatched tags
-		let tags = html.toLowerCase().match(/<\/?(div|a|button|b|strong|em|i|u|center|font|marquee|blink|details|summary|code|table|td|tr)\b/g);
+		let tags = html.toLowerCase().match(/<\/?(div|a|button|b|strong|em|i|u|center|font|marquee|blink|details|summary|code|table|td|tr|style|script)\b/g);
 		if (tags) {
 			let stack = [];
 			for (const tag of tags) {

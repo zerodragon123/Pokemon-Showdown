@@ -296,6 +296,9 @@ class BasicRoom {
 		if (this.auth && this.isPrivate === true) {
 			return ' ';
 		}
+		if ((this.isPersonal || this.battle) && Config.groups[user.group].globalGroupInPersonalRoom) {
+			return Config.groups[user.group].globalGroupInPersonalRoom;
+		}
 		return user.group;
 	}
 	/**
