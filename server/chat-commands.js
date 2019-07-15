@@ -4603,17 +4603,23 @@ const commands = {
 		}
 	},
 	pschinascore(target, room, user) {
-		if (!this.can('ban')) return false;
+		if (!room.staffRoom) this.sendReply( "在staff room更新ps国服积分");
+		if (!this.can('broadcast')) return false;
 		let username = target.split(',')[0];
 		let score = target.split(',')[1];
 		let reason = target.split(',')[2];
-		if (!username || !score || username.length === 0 || score.length === 0) {
+		if (!username || !score || !reason || username.length === 0 || score.length === 0 || reason.length === 0) {
+			return this.parse("/pschinascorehelp");
+		}
+		if(isNaN(parseInt(score))){
 			return this.parse("/pschinascorehelp");
 		}
 		Ladders("gen7ps").updateScore(username, score, reason);
+		this.globalModlog(`'PS国服积分`,username, `积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
+		// this.addModAction(`'PS国服积分 用户名:${username}, 积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
 	},
 	pschinascorehelp: [
-		`/pschinascore user,score,reason - 给user用户的国服积分增加score分，可以说明原因. Requires: & ~`,
+		`/pschinascore user,score,reason - 给user用户的国服积分增加score分，说明原因. Requires: & ~`,
 	],
 
 };

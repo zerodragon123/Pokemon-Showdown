@@ -112,7 +112,7 @@ export class LadderStore {
 	 * If createIfNeeded is true, the user will be created and added to
 	 * the ladder array if it doesn't already exist.
 	 */
-	indexOfUser(username: string, createIfNeeded = false) {
+	indexOfUser(username: string, createIfNeeded = false, initscore = 0) {
 		if (!this.ladder) throw new Error(`Must be called with ladder loaded`);
 		const userid = toID(username);
 		for (const [i, user] of this.ladder.entries()) {
@@ -120,7 +120,7 @@ export class LadderStore {
 		}
 		if (createIfNeeded) {
 			const index = this.ladder.length;
-			this.ladder.push([userid, 1000, username, 0, 0, 0, '']);
+			this.ladder.push([userid, initscore, username, 0, 0, 0, '']);
 			return index;
 		}
 		return -1;
@@ -313,10 +313,9 @@ export class LadderStore {
 		const ladder = await this.getLadder();
 		let formatid = this.formatid;
 		let p1newElo, p2newElo;
-		let p1index = this.indexOfUser(user, true);
+		let p1index = this.indexOfUser(user, true, 0);
 		p1newElo = ladder[p1index][1] + parseInt(score);
 		ladder[p1index][1] = p1newElo;
-		ladder[p1index][6]+=reason;
 
 
 		// console.log('L: ' + ladder.map(r => ''+Math.round(r[1])+' '+r[2]).join('\n'));
