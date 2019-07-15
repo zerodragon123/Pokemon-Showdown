@@ -112,7 +112,7 @@ export class LadderStore {
 	 * If createIfNeeded is true, the user will be created and added to
 	 * the ladder array if it doesn't already exist.
 	 */
-	indexOfUser(username: string, createIfNeeded = false, initscore = 0) {
+	indexOfUser(username: string, createIfNeeded = false, initscore = 1000) {
 		if (!this.ladder) throw new Error(`Must be called with ladder loaded`);
 		const userid = toID(username);
 		for (const [i, user] of this.ladder.entries()) {

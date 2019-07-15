@@ -4603,7 +4603,10 @@ const commands = {
 		}
 	},
 	pschinascore(target, room, user) {
-		if (!room.staffRoom) this.sendReply( "在staff room更新ps国服积分");
+		if (!room.staffRoom) {
+			this.sendReply( "在staff room更新ps国服积分");
+			return false;
+		}
 		if (!this.can('broadcast')) return false;
 		let username = target.split(',')[0];
 		let score = target.split(',')[1];
