@@ -124,6 +124,7 @@ class Tournament extends Rooms.RoomGame {
 		this.isEnded = false;
 
 		room.add(`|tournament|create|${this.name}|${generator.name}|${this.playerCap}`);
+		/** @type {{format: string, teambuilderFormat?: string, generator: string, playerCap: number, isStarted: boolean, isJoined: boolean}} */
 		const update = {
 			format: this.name,
 			generator: generator.name,
@@ -131,6 +132,7 @@ class Tournament extends Rooms.RoomGame {
 			isStarted: false,
 			isJoined: false,
 		};
+		if (this.name !== this.baseFormat) update.teambuilderFormat = this.baseFormat;
 		room.send(`|tournament|update|${JSON.stringify(update)}`);
 		this.update();
 	}
@@ -249,7 +251,7 @@ class Tournament extends Rooms.RoomGame {
 			return;
 		}
 		const isJoined = targetUser.userid in this.playerTable;
-		/** @type {{format: string, generator: string, isStarted: boolean, isJoined: boolean, bracketData: string, teambuilderFormat?: string}} */
+		/** @type {{format: string, teambuilderFormat?: string, generator: string, isStarted: boolean, isJoined: boolean, bracketData: AnyObject}} */
 		const update = {
 			format: this.name,
 			generator: this.generator.name,
@@ -461,7 +463,7 @@ class Tournament extends Rooms.RoomGame {
 			for (let otherPlayer of this.players) {
 				if (!otherPlayer) continue;
 				const otherUser = Users(otherPlayer.userid);
-				if (otherUser && otherUser.latestIp === user.latestIp) {
+				if (otherUser && otherUser.latestIp === replacementUser.latestIp) {
 					output.errorReply(`${replacementUser.name} already has an alt in the tournament.`);
 					return;
 				}
@@ -1765,8 +1767,8 @@ const chatCommands = {
 			/** @type {Tournament | undefined} */
 			let tour = createTournament(room, params.shift(), params.shift(), params.shift(), Config.ratedtours, params.shift(), params.shift(), this);
 			if (tour) {
-				this.privateModAction(`(${user.name} created a tournament in ${tour.name} format.)`);
-				this.modlog('TOUR CREATE', null, tour.name);
+				this.privateModAction(`(${user.name} created a tournament in ${tour.baseFormat} format.)`);
+				this.modlog('TOUR CREATE', null, tour.baseFormat);
 				if (room.tourAnnouncements) {
 					let tourRoom = Rooms.search(Config.tourroom || 'tournaments');
 					if (tourRoom && tourRoom !== room) tourRoom.addRaw(`<div class="infobox"><a href="/${room.id}" class="ilink"><strong>${Chat.escapeHTML(Dex.getFormat(tour.name).name)}</strong> tournament created in <strong>${Chat.escapeHTML(room.title)}</strong>.</a></div>`).update();
@@ -1834,6 +1836,7 @@ const chatCommands = {
 			`- off/disable: Disables allowing drivers and mods to start tournaments in the current room.<br />` +
 			`- announce/announcements &lt;on|off>: Enables/disables tournament announcements for the current room.<br />` +
 			`- banuser/unbanuser &lt;user>: Bans/unbans a user from joining tournaments in this room. Lasts 2 weeks.<br />` +
+			`- sub/replace &lt;olduser>, &lt;newuser>: Substitutes a new user for an old one<br />` +
 			`More detailed help can be found <a href="https://www.smogon.com/forums/threads/3570628/#post-6777489">here</a>`
 		);
 	},

@@ -177,7 +177,8 @@ class RoomBattleTimer {
 
 		const hasLongTurns = Dex.getFormat(battle.format, true).gameType !== 'singles';
 		const isChallenge = (!battle.rated && !battle.room.tour);
-		const timerSettings = Dex.getFormat(battle.format, true).timer;
+		const timerEntry = Dex.getRuleTable(Dex.getFormat(battle.format, true)).timer;
+		const timerSettings = timerEntry && timerEntry[0];
 
 		// so that Object.assign doesn't overwrite anything with `undefined`
 		for (const k in timerSettings) {
@@ -239,10 +240,17 @@ class RoomBattleTimer {
 			this.battle.room.add(`|inactive|${requester.name} no longer wants the timer on, but the timer is staying on because ${[...this.timerRequesters].join(', ')} still does.`).update();
 			return false;
 		}
+		if (this.end()) {
+			this.battle.room.add(`|inactiveoff|Battle timer is now OFF.`).update();
+			return true;
+		}
+		return false;
+	}
+	end() {
+		this.timerRequesters.clear();
 		if (!this.timer) return false;
 		clearTimeout(this.timer);
 		this.timer = null;
-		this.battle.room.add(`|inactiveoff|Battle timer is now OFF.`).update();
 		return true;
 	}
 	waitingForChoice(/** @type {SideID} */ slot) {
@@ -258,7 +266,7 @@ class RoomBattleTimer {
 		let addPerTurn = isFirst ? 0 : this.settings.addPerTurn;
 		if (this.settings.accelerate && addPerTurn) {
 			// after turn 100ish: 15s/turn -> 10s/turn
-			if (this.battle.requestCount > 200) {
+			if (this.battle.requestCount > 200 && addPerTurn > TICK_TIME) {
 				addPerTurn -= TICK_TIME;
 			}
 			// after turn 200ish: 10s/turn -> 7s/turn
@@ -729,6 +737,7 @@ class RoomBattle extends RoomGames.RoomGame {
 	 * @param {any} winner
 	 */
 	async onEnd(winner) {
+		this.timer.end();
 		// Declare variables here in case we need them for non-rated battles logging.
 		let p1score = 0.5;
 		const winnerid = toID(winner);

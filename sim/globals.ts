@@ -720,7 +720,6 @@ interface BasicEffect extends EffectData {
 	status?: ID
 	effectType: EffectType
 	exists: boolean
-	flags: AnyObject
 	fullname: string
 	gen: number
 	sourceEffect: string
@@ -905,6 +904,7 @@ interface ActiveMove extends BasicEffect, MoveData {
 	statusRoll?: string
 	totalDamage?: number | false
 	willChangeForme?: boolean
+	infiltrates?: boolean
 	/**
 	 * Has this move been boosted by a Z-crystal? Usually the same as
 	 * `isZ`, but hacked moves will have this be `false` and `isZ` be
@@ -950,19 +950,19 @@ interface ModdedTemplateData extends Partial<TemplateData> {
 
 interface TemplateFormatsData {
 	battleOnly?: boolean
-	comboMoves?: string[]
+	comboMoves?: readonly string[]
 	doublesTier?: string
 	encounters?: EventInfo[]
 	essentialMove?: string
 	eventOnly?: boolean
 	eventPokemon?: EventInfo[]
-	exclusiveMoves?: string[]
+	exclusiveMoves?: readonly string[]
 	gen?: number
 	isNonstandard?: Nonstandard | null
 	isUnreleased?: boolean
 	maleOnlyHidden?: boolean
-	randomBattleMoves?: string[]
-	randomDoubleBattleMoves?: string[]
+	randomBattleMoves?: readonly string[]
+	randomDoubleBattleMoves?: readonly string[]
 	requiredAbility?: string
 	requiredItem?: string
 	requiredItems?: string[]
@@ -980,27 +980,7 @@ interface ModdedTemplateFormatsData extends Partial<TemplateFormatsData> {
 	randomSet5?: RandomTeamsTypes.TemplateRandomSet
 }
 
-interface Template extends Readonly<BasicEffect & TemplateData & TemplateFormatsData> {
-	readonly effectType: 'Pokemon'
-	readonly baseSpecies: string
-	readonly doublesTier: string
-	readonly eventOnly: boolean
-	readonly evos: string[]
-	readonly forme: string
-	readonly formeLetter: string
-	readonly gender: GenderName
-	readonly genderRatio: {M: number, F: number}
-	readonly maleOnlyHidden: boolean
-	readonly nfe: boolean
-	readonly prevo: string
-	readonly speciesid: ID
-	readonly spriteid: string
-	readonly tier: string
-	readonly addedType?: string
-	readonly isMega?: boolean
-	readonly isPrimal?: boolean
-	readonly learnset?: {[k: string]: MoveSource[]}
-}
+type Template = import('./dex-data').Template;
 
 type GameType = 'singles' | 'doubles' | 'triples' | 'rotation' | 'multi' | 'free-for-all'
 type SideID = 'p1' | 'p2' | 'p3' | 'p4'
@@ -1022,7 +1002,6 @@ interface FormatsData extends EventMethods {
 	banlist?: string[]
 	battle?: ModdedBattleScriptsData
 	cannotMega?: string[]
-	canUseRandomTeam?: boolean
 	challengeShow?: boolean
 	debug?: boolean
 	defaultLevel?: number
@@ -1073,14 +1052,6 @@ interface ModdedFormatsData extends Partial<FormatsData> {
 	inherit?: boolean
 }
 
-interface RuleTable extends Map<string, string> {
-	checkLearnset: [Function, string] | null
-	complexBans: [string, string, number, string[]][]
-	complexTeamBans: [string, string, number, string[]][]
-	check: (thing: string, setHas: {[k: string]: true}) => string
-	getReason: (key: string) => string
-}
-
 interface Format extends Readonly<BasicEffect & FormatsData> {
 	readonly effectType: 'Format' | 'Ruleset' | 'Rule' | 'ValidatorRule'
 	readonly baseRuleset: string[]
@@ -1091,7 +1062,7 @@ interface Format extends Readonly<BasicEffect & FormatsData> {
 	readonly noLog: boolean
 	readonly ruleset: string[]
 	readonly unbanlist: string[]
-	ruleTable: RuleTable | null
+	ruleTable: import('./dex-data').RuleTable | null
 }
 
 type SpreadMoveTargets = (Pokemon | false | null)[]

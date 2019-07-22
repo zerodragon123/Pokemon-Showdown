@@ -12,7 +12,7 @@ import {Dex} from './dex';
 export class TeamValidator {
 	readonly format: Format;
 	readonly dex: ModdedDex;
-	readonly ruleTable: RuleTable;
+	readonly ruleTable: import('./dex-data').RuleTable;
 
 	constructor(format: string | Format) {
 		this.format = Dex.getFormat(format);
@@ -37,9 +37,6 @@ export class TeamValidator {
 			return null;
 		}
 		if (!team || !Array.isArray(team)) {
-			if (format.canUseRandomTeam) {
-				return null;
-			}
 			return [`You sent invalid team data. If you're not using a custom client, please report this as a bug.`];
 		}
 

@@ -296,9 +296,6 @@ class BasicRoom {
 		if (this.auth && this.isPrivate === true) {
 			return ' ';
 		}
-		if ((this.isPersonal || this.battle) && Config.groups[user.group].globalGroupInPersonalRoom) {
-			return Config.groups[user.group].globalGroupInPersonalRoom;
-		}
 		return user.group;
 	}
 	/**
@@ -794,7 +791,7 @@ class GlobalRoom extends BasicRoom {
 				break;
 			}
 		}
-		delete room.chatRoomData;
+		room.chatRoomData = null;
 		return true;
 	}
 	/**
@@ -1755,3 +1752,10 @@ Rooms.rooms.set('global', Rooms.global);
 
 // @ts-ignore
 module.exports = Rooms;
+
+// For accessing types in full typescript files
+/** @typedef {GlobalRoom} GlobalRoomType */
+/** @typedef {ChatRoom} ChatRoomType */
+/** @typedef {GameRoom} GameRoomType */
+/** @typedef {BasicRoom} BasicRoomType */
+/** @typedef {BasicChatRoom} BasicChatRoomType */
