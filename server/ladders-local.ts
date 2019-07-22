@@ -323,11 +323,10 @@ export class LadderStore {
 		}
 		return -1;
 	}
-	async updateScore(user,score,reason){
+	async updateScore(username : string, score : string, reason : string){
 		const ladder = await this.getLadder();
-		let formatid = this.formatid;
-		let p1newElo, p2newElo;
-		let p1index = this.indexOfUser_noID(user, true, 0);
+		let p1newElo;
+		let p1index = this.indexOfUser_noID(username, true, 0);
 		p1newElo = ladder[p1index][1] + parseInt(score);
 		ladder[p1index][1] = p1newElo;
 

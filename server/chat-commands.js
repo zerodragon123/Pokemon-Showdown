@@ -4591,7 +4591,7 @@ const commands = {
 	},
 	pschinascore(target, room, user) {
 		if (!room.staffRoom) {
-			this.sendReply( "在staff room更新ps国服积分");
+			this.sendReply("在staff room更新ps国服积分");
 			return false;
 		}
 		if (!this.can('broadcast')) return false;
@@ -4601,11 +4601,11 @@ const commands = {
 		if (!username || !score || !reason || username.length === 0 || score.length === 0 || reason.length === 0) {
 			return this.parse("/pschinascorehelp");
 		}
-		if(isNaN(parseInt(score))){
+		if (isNaN(parseInt(score))) {
 			return this.parse("/pschinascorehelp");
 		}
 		Ladders("gen7ps").updateScore(username, score, reason);
-		this.globalModlog(`'PS国服积分`,username, `积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
+		this.globalModlog(`'PS国服积分`, username, `积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
 		// this.addModAction(`'PS国服积分 用户名:${username}, 积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
 	},
 	pschinascorehelp: [
