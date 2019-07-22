@@ -16,6 +16,7 @@
 'use strict';
 
 import {FS} from '../lib/fs';
+import { consoleips } from '../config/config-example';
 
 // ladderCaches = {formatid: ladder OR Promise(ladder)}
 // Use Ladders(formatid).ladder to guarantee a Promise(ladder).
@@ -310,11 +311,23 @@ export class LadderStore {
 
 		return [p1score, p1newElo, p2newElo];
 	}
+	indexOfUser_noID(username: string, createIfNeeded = false, initscore = 1000) {
+		if (!this.ladder) throw new Error(`Must be called with ladder loaded`);
+		for (const [i, user] of this.ladder.entries()) {
+			if (user[0] === username) return i;
+		}
+		if (createIfNeeded) {
+			const index = this.ladder.length;
+			this.ladder.push([username, initscore, username, 0, 0, 0, '']);
+			return index;
+		}
+		return -1;
+	}
 	async updateScore(user,score,reason){
 		const ladder = await this.getLadder();
 		let formatid = this.formatid;
 		let p1newElo, p2newElo;
-		let p1index = this.indexOfUser(user, true, 0);
+		let p1index = this.indexOfUser_noID(user, true, 0);
 		p1newElo = ladder[p1index][1] + parseInt(score);
 		ladder[p1index][1] = p1newElo;
 
@@ -334,15 +347,7 @@ export class LadderStore {
 			ladder.splice(newIndex, 0, row);
 			// adjust for inserted row
 		}
-
-		// move p2
-
-		let p1 = Users.getExact(user);
-		if (p1) p1.mmrCache[formatid] = +p1newElo;
 		this.save();
-
-
-
 	}
 	/**
 	 * Returns a promise for a <tr> with all ratings for the current format.
