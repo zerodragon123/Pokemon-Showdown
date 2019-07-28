@@ -354,14 +354,14 @@ let Formats = [
 		ruleset: ['Pokemon', 'Standard'],
 		banlist: ['Uber', 'Power Construct'],
 	},
-	/*
+	
 	{
 		name: "[Gen 7] Random Formats",
 		desc: `Randomized competitive lower tiers teams of mutiple generations.`,
 
 		//mod: new PRNG().sample(['gen7','gen3']),
 		team: 'randomFormats',
-		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod', 'RF-TeamPreview'],
 		mod: 'gen7',
 		// @ts-ignore
 		formatsList: [
@@ -374,7 +374,7 @@ let Formats = [
 			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: ` + this.realFormat + ` </strong></div>`);
 		},
 	},
-	*/
+	
 	{
 		name: "[Gen 7] Ubers Special",
 		threads: [

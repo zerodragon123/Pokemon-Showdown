@@ -400,6 +400,42 @@ let BattleFormats = {
 			this.makeRequest('teampreview');
 		},
 	},
+	rfteampreview: {
+		effectType: 'Rule',
+		name: 'RF-TeamPreview',
+		desc: "Allows each player to see the Pok&eacute;mon on their opponent's team before they choose their lead Pok&eacute;mon",
+		onBegin() {
+			if(this.realMod!=='gen1'&&this.realMod!=='gen2'){
+				this.add('clearpoke');
+				
+				for (const pokemon of this.getAllPokemon()) {
+					let details = pokemon.details.replace(/(Arceus|Gourgeist|Genesect|Pumpkaboo|Silvally)(-[a-zA-Z?]+)?/g, '$1-*').replace(', shiny', '');
+					this.add('poke', pokemon.side.id, details, pokemon.item ? 'item' : '');
+					
+				}
+			}
+			else{
+				this.add('rule', 'Freeze Clause Mod: Limit one foe frozen');
+			}
+		},
+		onTeamPreview() {
+			if(this.realMod!=='gen1'&&this.realMod!=='gen2')
+				this.makeRequest('teampreview');
+		},
+		onSetStatus(status, target, source) {
+			if (source && source.side === target.side) {
+				return;
+			}
+			if (status.id === 'frz'&&(this.realMod==='gen1'||this.realMod==='gen2')) {
+				for (const pokemon of target.side.pokemon) {
+					if (pokemon.status === 'frz') {
+						this.add('-message', 'Freeze Clause activated.');
+						return false;
+					}
+				}
+			}
+		},
+	},
 	littlecup: {
 		effectType: 'ValidatorRule',
 		name: 'Little Cup',
