@@ -419,6 +419,30 @@ const commands = {
 		return target;
 	},
 
+	'!shrug': true,
+	shrug(target) {
+		target = target ? ' ' + target + ' ' : '';
+		if (target.startsWith(' /me')) target = target.slice(1);
+		return this.canTalk(target + '¯\\_(ツ)_/¯');
+	},
+	shrughelp: ['/shrug [message] - Sends the given message, if any, appended with ¯\\_(ツ)_/¯'],
+
+	'!tableflip': true,
+	tableflip(target) {
+		target = target ? ' ' + target + ' ' : '';
+		if (target.startsWith(' /me')) target = target.slice(1);
+		return this.canTalk(target + '(╯°□°）╯︵ ┻━┻');
+	},
+	tablefliphelp: ['/tableflip [message] - Sends the given message, if any, appended with (╯°□°）╯︵ ┻━┻'],
+
+	'!tableunflip': true,
+	tableunflip(target) {
+		target = target ? ' ' + target + ' ' : '';
+		if (target.startsWith(' /me')) target = target.slice(1);
+		return this.canTalk(target + '┬──┬◡ﾉ(° -°ﾉ)');
+	},
+	tableunfliphelp: ['/tableunflip [message] - Sends the given message, if any, appended with ┬──┬◡ﾉ(° -°ﾉ)'],
+
 	'!battle': true,
 	'battle!': 'battle',
 	battle(target, room, user, connection, cmd) {

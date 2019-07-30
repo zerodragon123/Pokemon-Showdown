@@ -140,7 +140,7 @@ class HelpTicket extends Rooms.RoomGame {
 		if (this.ticket.active) return;
 		const blockedMessages = [
 			'hi', 'hello', 'hullo', 'hey', 'yo', 'ok',
-			'hesrude', 'shesrude', 'hesinappropriate', 'shesinappropriate', 'heswore', 'sheswore',
+			'hesrude', 'shesrude', 'hesinappropriate', 'shesinappropriate', 'heswore', 'sheswore', 'help',
 		];
 		if ((!user.isStaff || this.ticket.userid === user.userid) && blockedMessages.includes(toID(message))) {
 			this.room.add(`|c|~Staff|Hello! The global staff team would be happy to help you, but you need to explain what's going on first.`);
@@ -445,6 +445,19 @@ for (const room of Rooms.rooms.values()) {
 	room.game = game;
 }
 
+/** @type {{[k: string]: string}} */
+const ticketTitles = {
+	pmharassment: `PM Harassment`,
+	battleharassment: `Battle Harassment`,
+	inapname: `Inappropriate Username/Status Message`,
+	inappokemon: `Inappropriate Pokemon Nicknames`,
+	appeal: `Appeal`,
+	ipappeal: `IP-Appeal`,
+	appealsemi: `ISP-Appeal`,
+	roomhelp: `Public Room Assistance Request`,
+	other: `Other`,
+};
+
 /** @type {PageTable} */
 const pages = {
 	help: {
@@ -485,7 +498,7 @@ const pages = {
 			const pages = {
 				report: `I want to report someone`,
 				harassment: `Someone is harassing me`,
-				inap: `Someone is using an offensive username, status message or pokemon nickname`,
+				inap: `Someone is using an offensive username, status message, or pokemon nickname`,
 				staff: `I want to report a staff member`,
 
 				appeal: `I want to appeal a punishment`,
@@ -505,25 +518,13 @@ const pages = {
 
 				confirmpmharassment: `Report harassment in a private message (PM)`,
 				confirmbattleharassment: `Report harassment in a battle`,
-				confirminapname: `Report an inappropriate username`,
+				confirminapname: `Report an inappropriate username or status message`,
 				confirminappokemon: `Report inappropriate Pok&eacute;mon nicknames`,
 				confirmappeal: `Appeal your lock`,
 				confirmipappeal: `Appeal IP lock`,
 				confirmappealsemi: `Appeal ISP lock`,
 				confirmroomhelp: `Call a Global Staff member to help`,
 				confirmother: `Call a Global Staff member`,
-			};
-			/** @type {{[k: string]: string}} */
-			const ticketTitles = {
-				pmharassment: `PM Harassment`,
-				battleharassment: `Battle Harassment`,
-				inapname: `Inappropriate Username/Status Message`,
-				inappokemon: `Inappropriate Pokemon Nicknames`,
-				appeal: `Appeal`,
-				ipappeal: `IP-Appeal`,
-				appealsemi: `ISP-Appeal`,
-				roomhelp: `Public Room Assistance Request`,
-				other: `Other`,
 			};
 			for (const [i, page] of query.entries()) {
 				const isLast = (i === query.length - 1);
@@ -825,7 +826,7 @@ let commands = {
 				}
 			}
 			if (Monitor.countTickets(user.latestIp)) return this.popupReply(`Due to high load, you are limited to creating ${Punishments.sharedIps.has(user.latestIp) ? `50` : `5`} tickets every hour.`);
-			if (!['PM Harassment', 'Battle Harassment', 'Inappropriate Username', 'Inappropriate Pokemon Nicknames', 'Appeal', 'IP-Appeal', 'ISP-Appeal', 'Public Room Assistance Request', 'Other'].includes(target)) return this.parse('/helpticket');
+			if (!Object.values(ticketTitles).includes(target)) return this.parse('/helpticket');
 			ticket = {
 				creator: user.name,
 				userid: user.userid,
@@ -841,7 +842,7 @@ let commands = {
 			const contexts = {
 				'PM Harassment': `Hi! Who was harassing you in private messages?`,
 				'Battle Harassment': `Hi! Who was harassing you, and in which battle did it happen? Please post a link to the battle or a replay of the battle.`,
-				'Inappropriate Username': `Hi! Tell us the username that is inappropriate.`,
+				'Inappropriate Username/Status Message': `Hi! Tell us the username that is inappropriate, or tell us which user has an inappropriate status message.`,
 				'Inappropriate Pokemon Nicknames': `Hi! Which user has pokemon with inappropriate nicknames, and in which battle? Please post a link to the battle or a replay of the battle.`,
 				'Appeal': `Hi! Can you please explain why you feel your punishment is undeserved?`,
 				'Public Room Assistance Request': `Hi! Which room(s) do you need us to help you watch?`,
