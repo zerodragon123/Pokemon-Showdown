@@ -45,6 +45,7 @@ import * as path from 'path';
 
 import * as Data from './dex-data';
 import {PRNG, PRNGSeed} from './prng';
+import { consoleips } from '../config/config-example';
 
 const DATA_DIR = path.resolve(__dirname, '../data');
 const MODS_DIR = path.resolve(__dirname, '../data/mods');
@@ -1241,7 +1242,6 @@ export class ModdedDex {
 			if (j < 0) return null;
 			set.moves = buf.substring(i, j).split(',', 24).filter(x => x);
 			i = j + 1;
-
 			// nature
 			j = buf.indexOf('|', i);
 			if (j < 0) return null;

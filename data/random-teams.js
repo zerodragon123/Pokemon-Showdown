@@ -2391,108 +2391,182 @@ class RandomTeams extends Dex.ModdedDex {
 	randomFormatsTeam() {
 		let teams = {
 			gen1ou: [
-				'Alakazam||||psychic,seismictoss,thunderwave,recover|||||||]Chansey||||seismictoss,thunderwave,reflect,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,doubleedge|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]lapras|||thunderbolt,blizzard,sing,bodyslam|||||||',
+				
+'Alakazam||||psychic,seismictoss,thunderwave,recover||252,252,252,252,252,252|||||]Chansey||||seismictoss,thunderwave,reflect,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,doubleedge|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]Lapras||||thunderbolt,blizzard,sing,bodyslam|||||||',
 
-				'Alakazam||||psychic,seismictoss,thunderwave,recover|||M||||]Chansey||||seismictoss,thunderwave,sing,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|leechseed,rest,psychic,stunspore|||M||||]Rhydon||||earthquake,rockslide,substitute,bodyslam|||M||||]lapras|||thunderbolt,blizzard,confuseray,bodyslam|||M||||',
+				
+'Alakazam||||psychic,seismictoss,thunderwave,recover|||M||||]Chansey||||seismictoss,thunderwave,sing,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|leechseed,rest,psychic,stunspore|||M||||]Rhydon||||earthquake,rockslide,substitute,bodyslam|||M||||]Lapras||||thunderbolt,blizzard,confuseray,bodyslam|||M||||',
 
-				'Alakazam||||psychic,seismictoss,thunderwave,recover|||||||]Chansey||||seismictoss,thunderwave,counter,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,doubleedge|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]persian|||slash,bubblebeam,hyperbeam,thunderbolt|||||||',
+				
 
-				'Alakazam||||psychic,seismictoss,thunderwave,recover|||M||||]Chansey||||seismictoss,thunderwave,reflect,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,stunspore,leechseed,rest|||M||||]Snorlax||||bodyslam,earthquake,reflect,rest|||M||||]jynx|||psychic,blizzard,lovelykiss,rest|||||||',
+'Alakazam||||psychic,seismictoss,thunderwave,recover|||||||]Chansey||||seismictoss,thunderwave,counter,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,doubleedge|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]Persian||||slash,bubblebeam,hyperbeam,thunderbolt|||||||',
 
-				'Alakazam||||psychic,seismictoss,thunderwave,recover|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Gengar|||1|thunderbolt,seismictoss,hypnosis,explosion|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]starmie|||psychic,blizzard,thunderwave,recover|||||||',
+				
+'Alakazam||||psychic,seismictoss,thunderwave,recover|||M||||]Chansey||||seismictoss,thunderwave,reflect,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,stunspore,leechseed,rest|||M||||]Snorlax||||bodyslam,earthquake,reflect,rest|||M||||]Jynx||||psychic,blizzard,lovelykiss,rest|||||||',
 
-				'Alakazam||||psychic,seismictoss,thunderwave,recover|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,hyperbeam,explosion|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]zapdos||1|thunderbolt,drillpeck,thunderwave,thunder|||||||',
+				
+'Alakazam||||psychic,seismictoss,thunderwave,recover|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Gengar|||1|thunderbolt,seismictoss,hypnosis,explosion|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]Starmie||||psychic,blizzard,thunderwave,recover|||||||',
 
-				'Alakazam||||psychic,seismictoss,psywave,recover|||M||||]Chansey||||icebeam,thunderwave,counter,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,eggbomb|||M||||]Snorlax||||icebeam,reflect,amnesia,rest|||M||||]jolteon||1|thunderbolt,doublekick,thunderwave,pinmissile|||||||',
-
-				'Alakazam||||psychic,seismictoss,thunderwave,recover|||||||]Chansey||||seismictoss,thunderwave,counter,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,doubleedge|||||||]Snorlax||||bodyslam,blizzard,amnesia,selfdestruct|||||||]slowbro|||surf,thunderwave,amnesia,rest|||||||',
-
-				'Alakazam||||psychic,seismictoss,thunderwave,recover|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Victreebel|||1|razorleaf,sleeppowder,wrap,swordsdance|||||||]Snorlax||||bodyslam,hyperbeam,reflect,rest|||||||]cloyster|||blizzard,explosion,clamp,rest|||||||',
-
-				'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,hyperbeam|||||||]Snorlax||||selfdestruct,earthquake,bodyslam,hyperbeam|||||||]zapdos||1|thunderbolt,drillpeck,thunderwave,agility|||||||',
-
-				'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||M||||]Snorlax||||bodyslam,earthquake,counter,selfdestruct|||M||||]zapdos||1|thunderbolt,drillpeck,thunderwave,agility|||||||',
-
-				'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||icebeam,thunderwave,counter,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,hyperbeam|||M||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||M||||]zapdos||1|thunderbolt,drillpeck,thunderwave,agility|||||||',
-
-				'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Snorlax||||icebeam,reflect,amnesia,rest|||||||]zapdos||1|thunderbolt,drillpeck,thunderwave,agility|||||||',
-
-				'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||seismictoss,thunderwave,reflect,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Snorlax||||bodyslam,selfdestruct,reflect,rest|||||||]slowbro|||surf,reflect,amnesia,rest|||||||',
-
-				'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||M||||]Snorlax||||bodyslam,earthquake,reflect,rest|||M||||]starmie|||thunderbolt,blizzard,thunderwave,recover|||||||',
+				
+'Alakazam||||psychic,seismictoss,thunderwave,recover|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,hyperbeam,explosion|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]Zapdos|||1|thunderbolt,drillpeck,thunderwave,thunder|||||||',
 
 
-				'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||icebeam,thunderwave,counter,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||M||||]Snorlax||||megakick,earthquake,hyperbeam,selfdestruct|||M||||]starmie|||blizzard,thunderbolt,thunderwave,recover|||||||',
+				
+'Alakazam||||psychic,seismictoss,psywave,recover|||M||||]Chansey||||icebeam,thunderwave,counter,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,eggbomb|||M||||]Snorlax||||icebeam,reflect,amnesia,rest|||M||||]Jolteon|||1|thunderbolt,doublekick,thunderwave,pinmissile|||||||',
+
+				
+
+'Alakazam||||psychic,seismictoss,thunderwave,recover|||||||]Chansey||||seismictoss,thunderwave,counter,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,doubleedge|||||||]Snorlax||||bodyslam,blizzard,amnesia,selfdestruct|||||||]Slowbro||||surf,thunderwave,amnesia,rest|||||||',
+
+				
+'Alakazam||||psychic,seismictoss,thunderwave,recover|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Victreebel|||1|razorleaf,sleeppowder,wrap,swordsdance|||||||]Snorlax||||bodyslam,hyperbeam,reflect,rest|||||||]Cloyster||||blizzard,explosion,clamp,rest|||||||',
+
+				
+
+'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,hyperbeam|||||||]Snorlax||||selfdestruct,earthquake,bodyslam,hyperbeam|||||||]Zapdos|||1|thunderbolt,drillpeck,thunderwave,agility|||||||',
+
+				
+
+'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||M||||]Snorlax||||bodyslam,earthquake,counter,selfdestruct|||M||||]Zapdos|||1|thunderbolt,drillpeck,thunderwave,agility|||||||',
+
+				
+
+'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||icebeam,thunderwave,counter,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,hyperbeam|||M||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||M||||]Zapdos|||1|thunderbolt,drillpeck,thunderwave,agility|||||||',
+
+				
+
+'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Snorlax||||icebeam,reflect,amnesia,rest|||||||]Zapdos|||1|thunderbolt,drillpeck,thunderwave,agility|||||||',
+
+				
+
+'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||seismictoss,thunderwave,reflect,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Snorlax||||bodyslam,selfdestruct,reflect,rest|||||||]Slowbro||||surf,reflect,amnesia,rest|||||||',
+
+			
+
+'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||M||||]Snorlax||||bodyslam,earthquake,reflect,rest|||M||||]Starmie||||thunderbolt,blizzard,thunderwave,recover|||||||',
 
 
-				'Starmie||||psychic,blizzard,thunderwave,recover|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Rhydon||||earthquake,rockslide,substitute,bodyslam|||||||]snorlax|||bodyslam,earthquake,reflect,rest|||||||',
+				
+
+'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||icebeam,thunderwave,counter,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||M||||]Snorlax||||megakick,earthquake,hyperbeam,selfdestruct|||M||||]Starmie||||blizzard,thunderbolt,thunderwave,recover|||||||',
 
 
-				'Starmie||||blizzard,psychic,thunderwave,recover|||||||]Chansey||||seismictoss,thunderwave,reflect,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,hyperbeam|||M||||]Rhydon||||earthquake,rockslide,substitute,bodyslam|||M||||]articuno||1|blizzard,skyattack,hyperbeam,agility|||||||',
+				
+
+'Starmie||||psychic,blizzard,thunderwave,recover|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Rhydon||||earthquake,rockslide,substitute,bodyslam|||||||]Snorlax||||bodyslam,earthquake,reflect,rest|||||||',
 
 
-				'Starmie||||thunderbolt,blizzard,thunderwave,recover|Bashful|252,,252,252,,252||,2,,,,|||]Chansey||||seismictoss,thunderwave,reflect,softboiled||252,,252,252,252,252||,2,,,,|||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,hyperbeam|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]alakazam|||psychic,thunderwave,reflect,recover||252,,252,252,252,252||,2,,,,|||',
+			
+'Starmie||||thunderbolt,blizzard,thunderwave,recover|Bashful|252,,252,252,,252||,2,,,,|||]Chansey||||seismictoss,thunderwave,reflect,softboiled||252,,252,252,252,252||,2,,,,|||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard||252,252,252,252,252,252|||||]Exeggutor|||1|psychic,sleeppowder,explosion,hyperbeam|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]Alakazam||||psychic,thunderwave,reflect,recover||252,,252,252,252,252||,2,,,,|||',
 
 
-				'Gengar|||1|thunderbolt,nightshade,hypnosis,explosion|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,fireblast,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]cloyster|||blizzard,hyperbeam,clamp,explosion|||||||',
+				
+
+'Gengar|||1|thunderbolt,nightshade,hypnosis,explosion|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,fireblast,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]Cloyster||||blizzard,hyperbeam,clamp,explosion|||||||',
 
 
-				'Gengar|||1|thunderbolt,nightshade,hypnosis,explosion|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Snorlax||||bodyslam,earthquake,reflect,rest|||||||]starmie|||thunderbolt,icebeam,thunderwave,recover|||||||',
+				
+'Gengar|||1|thunderbolt,nightshade,hypnosis,explosion|||||||]Chansey||||thunderbolt,icebeam,thunderwave,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Snorlax||||bodyslam,earthquake,reflect,rest|||||||]Starmie||||thunderbolt,icebeam,thunderwave,recover|||||||',
 
 
-				'Exeggutor|||1|psychic,sleeppowder,explosion,megadrain|||M||||]Chansey||||seismictoss,thunderwave,reflect,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Starmie||||psychic,blizzard,thunderwave,recover|||||||]Snorlax||||bodyslam,icebeam,amnesia,rest|||M||||]alakazam|||psychic,thunderwave,reflect,recover|||M||||',
+				
+
+'Exeggutor|||1|psychic,sleeppowder,explosion,megadrain|||M||||]Chansey||||seismictoss,thunderwave,reflect,softboiled|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Starmie||||psychic,blizzard,thunderwave,recover|||||||]Snorlax||||bodyslam,icebeam,amnesia,rest|||M||||]Alakazam||||psychic,thunderwave,reflect,recover|||M||||',
 
 
-				'Exeggutor|||1|psychic,sleeppowder,explosion,doubleedge|||||||]Snorlax||||bodyslam,earthquake,reflect,selfdestruct|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Victreebel|||1|razorleaf,sleeppowder,hyperbeam,swordsdance|||||||]Golem||||earthquake,rockslide,bodyslam,explosion|||||||]starmie|||thunderbolt,blizzard,thunderwave,recover|||||||',
+				
+
+'Exeggutor|||1|psychic,sleeppowder,explosion,doubleedge|||||||]Snorlax||||bodyslam,earthquake,reflect,selfdestruct|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Victreebel|||1|razorleaf,sleeppowder,hyperbeam,swordsdance|||||||]Golem||||earthquake,rockslide,bodyslam,explosion|||||||]Starmie||||thunderbolt,blizzard,thunderwave,recover|||||||',
 
 
-				'Exeggutor|||1|psychic,sleeppowder,explosion,megadrain|||||||]Jolteon|||1|thunderbolt,doublekick,thunderwave,pinmissile|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Starmie||||psychic,blizzard,thunderwave,recover|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]zapdos||1|thunderbolt,drillpeck,thunderwave,lightscreen|||||||',
+				
+'Exeggutor|||1|psychic,sleeppowder,explosion,megadrain|||||||]Jolteon|||1|thunderbolt,doublekick,thunderwave,pinmissile|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Starmie||||psychic,blizzard,thunderwave,recover|||||||]Snorlax||||bodyslam,earthquake,hyperbeam,selfdestruct|||||||]Zapdos|||1|thunderbolt,drillpeck,thunderwave,lightscreen|||||||',
 
 
 			],
 
-			gen1ubers: [
-
-				'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||seismictoss,thunderwave,lightscreen,softboiled|||||||]Slowbro||||surf,blizzard,amnesia,rest|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Mewtwo|||1|psychic,blizzard,amnesia,rest|||||||]mew||1|bodyslam,thunderwave,reflect,softboiled|||||||',
+			
 
 
-				'Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Chansey||||seismictoss,thunderwave,lightscreen,softboiled|||||||]Slowbro||||surf,reflect,amnesia,rest|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Mewtwo|||1|psychic,blizzard,amnesia,rest|||||||]mew||1|bodyslam,thunderwave,reflect,softboiled|||||||',
+gen1ubers: [
 
-				'Chansey||||seismictoss,sing,lightscreen,softboiled|||||||]Snorlax||||bodyslam,reflect,rest,selfdestruct|||||||]Slowbro||||surf,blizzard,amnesia,rest|||||||]Golem||||earthquake,rockslide,bodyslam,explosion|||||||]Mewtwo|||1|psychic,thunderbolt,amnesia,recover|||||||]mew||1|hyperbeam,earthquake,swordsdance,softboiled|||||||',
+	
+			
+'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Chansey||||seismictoss,thunderwave,lightscreen,softboiled|||||||]Slowbro||||surf,blizzard,amnesia,rest|||||||]Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Mewtwo|||1|psychic,blizzard,amnesia,rest|||||||]Mew|||1|bodyslam,thunderwave,reflect,softboiled|||||||',
 
-				'Gengar|||1|psychic,seismictoss,hypnosis,explosion|||||||]Snorlax||||bodyslam,reflect,rest,selfdestruct|||||||]Slowbro||||surf,thunderwave,amnesia,rest|||||||]Exeggutor|||1|psychic,stunspore,sleeppowder,explosion|||||||]Mewtwo|||1|psychic,blizzard,amnesia,recover|||||||]mew||1|bodyslam,earthquake,swordsdance,explosion|||||||',
 
-				'Gengar|||1|psychic,seismictoss,hypnosis,explosion|||||||]Snorlax||||bodyslam,reflect,rest,selfdestruct|||||||]Chansey||||seismictoss,thunderwave,lightscreen,softboiled|||||||]Exeggutor|||1|psychic,stunspore,sleeppowder,explosion|||||||]Mewtwo|||1|psychic,blizzard,amnesia,recover|||||||]mew||1|bodyslam,reflect,swordsdance,softboiled|||||||',
 
-				'Gengar|||1|psychic,seismictoss,hypnosis,explosion|||||||]Snorlax||||bodyslam,reflect,rest,selfdestruct|||||||]Chansey||||seismictoss,thunderwave,lightscreen,softboiled|||||||]Slowbro||||surf,blizzard,amnesia,rest|||||||]Mewtwo|||1|psychic,thunderbolt,amnesia,recover|||||||]mew||1|bodyslam,reflect,swordsdance,softboiled|||||||',
+				
+'Exeggutor|||1|psychic,sleeppowder,explosion,stunspore|||||||]Chansey||||seismictoss,thunderwave,lightscreen,softboiled|||||||]Slowbro||||surf,reflect,amnesia,rest|||||||]Tauros||||bodyslam,earthquake,hyperbeam,blizzard|||||||]Mewtwo|||1|psychic,blizzard,amnesia,rest|||||||]Mew|||1|bodyslam,thunderwave,reflect,softboiled|||||||',
 
-				'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Snorlax||||bodyslam,reflect,rest,selfdestruct|||||||]Chansey||||seismictoss,thunderwave,lightscreen,softboiled|||||||]Slowbro||||surf,reflect,amnesia,rest|||||||]Mewtwo|||1|psychic,blizzard,amnesia,rest|||||||]mew||1|bodyslam,thunderwave,explosion,swordsdance|||||||',
+				
 
-				'Snorlax||||bodyslam,reflect,hyperbeam,selfdestruct|||||||]Zapdos|||1|thunderbolt,drillpeck,thunderwave,lightscreen|||||||]Slowbro||||surf,thunderwave,amnesia,rest|||||||]Chansey||||seismictoss,sing,reflect,softboiled|||||||]Mewtwo|||1|psychic,blizzard,amnesia,rest|||||||]mew||1|bodyslam,hyperbeam,swordsdance,explosion|||||||',
+'Chansey||||seismictoss,sing,lightscreen,softboiled|||||||]Snorlax||||bodyslam,reflect,rest,selfdestruct|||||||]Slowbro||||surf,blizzard,amnesia,rest|||||||]Golem||||earthquake,rockslide,bodyslam,explosion|||||||]Mewtwo|||1|psychic,thunderbolt,amnesia,recover|||||||]Mew|||1|hyperbeam,earthquake,swordsdance,softboiled|||||||',
+
+				
+
+'Gengar|||1|psychic,seismictoss,hypnosis,explosion|||||||]Snorlax||||bodyslam,reflect,rest,selfdestruct|||||||]Slowbro||||surf,thunderwave,amnesia,rest|||||||]Exeggutor|||1|psychic,stunspore,sleeppowder,explosion|||||||]Mewtwo|||1|psychic,blizzard,amnesia,recover|||||||]Mew|||1|bodyslam,earthquake,swordsdance,explosion|||||||',
+
+				
+
+'Gengar|||1|psychic,seismictoss,hypnosis,explosion|||||||]Snorlax||||bodyslam,reflect,rest,selfdestruct|||||||]Chansey||||seismictoss,thunderwave,lightscreen,softboiled|||||||]Exeggutor|||1|psychic,stunspore,sleeppowder,explosion|||||||]Mewtwo|||1|psychic,blizzard,amnesia,recover|||||||]Mew|||1|bodyslam,reflect,swordsdance,softboiled|||||||',
+
+				
+
+'Gengar|||1|psychic,seismictoss,hypnosis,explosion|||||||]Snorlax||||bodyslam,reflect,rest,selfdestruct|||||||]Chansey||||seismictoss,thunderwave,lightscreen,softboiled|||||||]Slowbro||||surf,blizzard,amnesia,rest|||||||]Mewtwo|||1|psychic,thunderbolt,amnesia,recover|||||||]Mew|||1|bodyslam,reflect,swordsdance,softboiled|||||||',
+
+				
+'Jynx||||psychic,blizzard,lovelykiss,rest|||||||]Snorlax||||bodyslam,reflect,rest,selfdestruct|||||||]Chansey||||seismictoss,thunderwave,lightscreen,softboiled|||||||]Slowbro||||surf,reflect,amnesia,rest|||||||]Mewtwo|||1|psychic,blizzard,amnesia,rest|||||||]Mew|||1|bodyslam,thunderwave,explosion,swordsdance|||||||',
+
+				
+'Snorlax||||bodyslam,reflect,hyperbeam,selfdestruct|||||||]Zapdos|||1|thunderbolt,drillpeck,thunderwave,lightscreen|||||||]Slowbro||||surf,thunderwave,amnesia,rest|||||||]Chansey||||seismictoss,sing,reflect,softboiled|||||||]Mewtwo|||1|psychic,blizzard,amnesia,rest|||||||]Mew|||1|bodyslam,hyperbeam,swordsdance,explosion|||||||',
 
 			],
 
-			gen1uu: [
+			
 
-				'Haunter|||1|psychic,thunder,hypnosis,explosion|||||||]Articuno|||1|blizzard,doubleedge,hyperbeam,agility|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Raichu|||1|thunderbolt,surf,thunderwave,hyperbeam|||||||]Persian||||slash,bubblebeam,hyperbeam,thunderbolt|||||||]Vaporeon|||1|surf,acidarmor,mimic,rest|||||||',
 
-				'Kadabra||||psychic,seismictoss,thunderwave,recover|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||]Dugtrio||||earthquake,slash,rockslide,substitute|||||||]Electrode||||thunderbolt,hyperbeam,thunderwave,explosion|||||||]Articuno|||1|blizzard,hyperbeam,reflect,agility|||||||',
+gen1uu: [
 
-				'Haunter|||1|psychic,thunderbolt,hypnosis,explosion|||||||]Articuno|||1|blizzard,hyperbeam,agility,rest|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Raichu|||1|thunderbolt,surf,thunderwave,hyperbeam|||||||]Persian||||slash,bubblebeam,hyperbeam,thunderbolt|||||||]Dragonite|||1|blizzard,hyperbeam,wrap,agility|||||||',
+				
 
-				'Kadabra||||psychic,seismictoss,thunderwave,recover|||||||]Victreebel|||1|razorleaf,sleeppowder,wrap,swordsdance|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Aerodactyl||||doubleedge,hyperbeam,fireblast,rest|||||||]Persian||||slash,bubblebeam,hyperbeam,thunderbolt|||||||',
+'Haunter|||1|psychic,thunder,hypnosis,explosion|||||||]Articuno|||1|blizzard,doubleedge,hyperbeam,agility|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Raichu|||1|thunderbolt,surf,thunderwave,hyperbeam|||||||]Persian||||slash,bubblebeam,hyperbeam,thunderbolt|||||||]Vaporeon|||1|surf,acidarmor,mimic,rest|||||||',
 
-				'Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Kangaskhan||||bodyslam,hyperbeam,earthquake,rest|||||||]Haunter|||1|psychic,thunderbolt,hypnosis,explosion|||||||]Dugtrio||||earthquake,slash,rockslide,substitute|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||]Kadabra||||psychic,seismictoss,thunderwave,recover|||||||',
+				
 
-				'Kadabra||||psychic,seismictoss,thunderwave,recover|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||]Electabuzz|||1|thunderbolt,psychic,thunderwave,seismictoss|||||||]Dragonite|||1|blizzard,hyperbeam,wrap,agility|||||||]Omastar||||surf,blizzard,seismictoss,rest|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||',
+'Kadabra||||psychic,seismictoss,thunderwave,recover|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||]Dugtrio||||earthquake,slash,rockslide,substitute|||||||]Electrode||||thunderbolt,hyperbeam,thunderwave,explosion|||||||]Articuno|||1|blizzard,hyperbeam,reflect,agility|||||||',
 
-				'Kadabra||||psychic,seismictoss,thunderwave,recover|||||||]Dragonite|||1|blizzard,hyperbeam,wrap,agility|||||||]Raichu|||1|thunderbolt,surf,thunderwave,hyperbeam|||||||]Omastar||||surf,blizzard,seismictoss,rest|||||||]Dodrio||||bodyslam,drillpeck,hyperbeam,agility|||||||]Venusaur|||1|bodyslam,razorleaf,sleeppowder,swordsdance|||||||',
+				
 
-				'Electabuzz|||1|thunderbolt,psychic,thunderwave,seismictoss|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Dugtrio||||earthquake,slash,rockslide,substitute|||||||]Dodrio||||bodyslam,drillpeck,hyperbeam,agility|||||||]Vaporeon|||1|hydropump,blizzard,acidarmor,rest|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||',
+'Haunter|||1|psychic,thunderbolt,hypnosis,explosion|||||||]Articuno|||1|blizzard,hyperbeam,agility,rest|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Raichu|||1|thunderbolt,surf,thunderwave,hyperbeam|||||||]Persian||||slash,bubblebeam,hyperbeam,thunderbolt|||||||]Dragonite|||1|blizzard,hyperbeam,wrap,agility|||||||',
 
-				'Haunter|||1|psychic,thunder,hypnosis,explosion|||||||]Dugtrio||||earthquake,slash,rockslide,substitute|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Omastar||||surf,blizzard,seismictoss,rest|||||||]Dragonite|||1|blizzard,hyperbeam,wrap,agility|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||',
+				
 
-				'Haunter|||1|psychic,thunder,hypnosis,explosion|||||||]Kadabra||||psychic,seismictoss,thunderwave,recover|||||||]Gyarados|||1|thunderbolt,blizzard,hydropump,bodyslam|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Raichu|||1|thunderbolt,surf,thunderwave,hyperbeam|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||',
+'Kadabra||||psychic,seismictoss,thunderwave,recover|||||||]Victreebel|||1|razorleaf,sleeppowder,wrap,swordsdance|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Aerodactyl||||doubleedge,hyperbeam,fireblast,rest|||||||]Persian||||slash,bubblebeam,hyperbeam,thunderbolt|||||||',
+
+				
+
+'Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Kangaskhan||||bodyslam,hyperbeam,earthquake,rest|||||||]Haunter|||1|psychic,thunderbolt,hypnosis,explosion|||||||]Dugtrio||||earthquake,slash,rockslide,substitute|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||]Kadabra||||psychic,seismictoss,thunderwave,recover|||||||',
+
+				
+
+'Kadabra||||psychic,seismictoss,thunderwave,recover|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||]Electabuzz|||1|thunderbolt,psychic,thunderwave,seismictoss|||||||]Dragonite|||1|blizzard,hyperbeam,wrap,agility|||||||]Omastar||||surf,blizzard,seismictoss,rest|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||',
+
+				
+
+'Kadabra||||psychic,seismictoss,thunderwave,recover|||||||]Dragonite|||1|blizzard,hyperbeam,wrap,agility|||||||]Raichu|||1|thunderbolt,surf,thunderwave,hyperbeam|||||||]Omastar||||surf,blizzard,seismictoss,rest|||||||]Dodrio||||bodyslam,drillpeck,hyperbeam,agility|||||||]Venusaur|||1|bodyslam,razorleaf,sleeppowder,swordsdance|||||||',
+
+				
+
+'Electabuzz|||1|thunderbolt,psychic,thunderwave,seismictoss|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Dugtrio||||earthquake,slash,rockslide,substitute|||||||]Dodrio||||bodyslam,drillpeck,hyperbeam,agility|||||||]Vaporeon|||1|hydropump,blizzard,acidarmor,rest|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||',
+
+				
+
+'Haunter|||1|psychic,thunder,hypnosis,explosion|||||||]Kadabra||||psychic,seismictoss,thunderwave,recover|||||||]Gyarados|||1|thunderbolt,blizzard,hydropump,bodyslam|||||||]Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Raichu|||1|thunderbolt,surf,thunderwave,hyperbeam|||||||]Tentacruel||||surf,blizzard,wrap,hyperbeam|||||||',
+
+				
+
+'Hypno||||psychic,thunderwave,hypnosis,rest|||||||]Kangaskhan||||bodyslam,hyperbeam,counter,rest|||||||]Vaporeon|||none|surf,icebeam,acidarmor,rest|||||||]Persian|||none|slash,hyperbeam,thunderbolt,bubblebeam|||||||]Venusaur|||none|bodyslam,razorleaf,hyperbeam,sleeppowder|||||||]Sandslash|||none|earthquake,bodyslam,swordsdance,rest|||||||',
 
 			],
 
