@@ -1253,9 +1253,7 @@ export class ModdedDex {
 			if (j < 0) return null;
 			if (j !== i) {
 				let evs = buf.substring(i, j).split(',', 6);
-				if (noability) {		//gen1 or gen2
-					evs.fill('252');
-				}
+				
 				set.evs = {
 					hp: Number(evs[0]) || 0,
 					atk: Number(evs[1]) || 0,
@@ -1263,6 +1261,16 @@ export class ModdedDex {
 					spa: Number(evs[3]) || 0,
 					spd: Number(evs[4]) || 0,
 					spe: Number(evs[5]) || 0,
+				};
+			}
+			if (noability) {		//gen1 or gen2
+				set.evs = {
+					hp: 252,
+					atk:252,
+					def:252,
+					spa:252,
+					spd:252,
+					spe:252,
 				};
 			}
 			i = j + 1;

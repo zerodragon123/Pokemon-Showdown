@@ -405,7 +405,7 @@ let BattleFormats = {
 		name: 'RF-TeamPreview',
 		desc: "Allows each player to see the Pok&eacute;mon on their opponent's team before they choose their lead Pok&eacute;mon",
 		onBegin() {
-			if(this.realMod!=='gen1'&&this.realMod!=='gen2'){
+			if(this.realMod==='gen5'||this.realMod==='gen6'||this.realMod==='gen7'){
 				this.add('clearpoke');
 				
 				for (const pokemon of this.getAllPokemon()) {
@@ -414,12 +414,12 @@ let BattleFormats = {
 					
 				}
 			}
-			else{
+			if(this.realMod==='gen1'||this.realMod==='gen2'){
 				this.add('rule', 'Freeze Clause Mod: Limit one foe frozen');
 			}
 		},
 		onTeamPreview() {
-			if(this.realMod!=='gen1'&&this.realMod!=='gen2')
+			if(this.realMod==='gen5'||this.realMod==='gen6'||this.realMod==='gen7')
 				this.makeRequest('teampreview');
 		},
 		onSetStatus(status, target, source) {
