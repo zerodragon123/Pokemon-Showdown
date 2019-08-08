@@ -691,7 +691,14 @@ const commands = {
 		this.sendReply(`Your status has been set to: ${target}.`);
 	},
 	statushelp: [`/status [note] - Sets a short note as your status, visible when users click your username. Use /clearstatus to clear your status message.`],
-
+	editstatus(target, room, user){
+		if(!this.can('makeroom')) return;
+		let status=this.splitTarget(target);
+		let targetUser = this.targetUser;
+		if (!targetUser || !targetUser.connected) return this.errorReply(`User ${this.targetUsername} is not currently online.`);
+		if (target.length > 32) return this.errorReply(`Your status is too long; it must be under 32 characters.`);
+		targetUser.setUserMessage(status);
+	},
 	'!busy': true,
 	busy(target, room, user) {
 		if (target) this.errorReply("Setting status messages in /busy is no longer supported. Set a status using /status.");

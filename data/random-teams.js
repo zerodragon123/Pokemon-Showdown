@@ -2712,7 +2712,7 @@ gen1uu: [
 
 				'Raichu||leftovers|1|thunder,seismictoss,rest,sleeptalk|||||||]Pineco||leftovers|1|hiddenpowerbug,spikes,rapidspin,explosion||||,26,26,,,|||]Gastly|||1|psychic,thunderbolt,thief,explosion|||||||]Arbok||leftovers||sludgebomb,earthquake,glare,curse|||||||]Wigglytuff||leftovers||bodyslam,curse,rest,sleeptalk|||||||]Poliwrath||leftovers||surf,earthquake,rest,sleeptalk|||||||',
 
-				'Poliwrath||leftovers||surf,earthquake,rest,sleeptalk|||||||]Xatu||leftovers||psychic,nightshade,rest,sleeptalk|||||||]Raichu||leftovers|1|thunder,seismictoss,rest,sleeptalk|||||||]Graveler||leftovers||earthquake,rockslide,rapidspin,explosion|||||||]Pineco||leftovers|1|hiddenpowerbug,spikes,rapidspin,explosion||||,26,26,,,|||]Gastly|||1|psychic,thunderbolt,thief,explosion|||',
+				'Poliwrath||leftovers||surf,earthquake,rest,sleeptalk|||||||]Xatu||leftovers||psychic,nightshade,rest,sleeptalk|||||||]Raichu||leftovers|1|thunder,seismictoss,rest,sleeptalk|||||||]Graveler||leftovers||earthquake,hiddenpowerrock,rapidspin,explosion||||22,26,24,,,|||]Pineco||leftovers|1|hiddenpowerbug,spikes,rapidspin,explosion||||,26,26,,,|||]Gastly|||1|psychic,thunderbolt,thief,explosion|||||||',
 
 				'Raichu||leftovers|1|thunderbolt,surf,thunderwave,seismictoss||||,,26,,,|||]Pineco||leftovers|1|hiddenpowerbug,spikes,rapidspin,explosion||||,26,26,,,|||]Parasect||leftovers||hiddenpowerbug,gigadrain,spore,stunspore||||,26,26,,,|||]Weezing||leftovers|1|sludgebomb,thunder,curse,explosion|||||||]Poliwrath||leftovers||surf,earthquake,rest,sleeptalk|||||||]Kingler||leftovers||bodyslam,swordsdance,rest,sleeptalk||||14,24,26,,,|||',
 
@@ -2994,7 +2994,8 @@ gen1uu: [
 
 				'Flygon||choicescarf||earthquake,outrage,firepunch,uturn|Jolly|,252,,,4,252|||||]Zapdos||leftovers||thunderbolt,heatwave,thunderwave,roost|Calm|248,,,,228,32||,0,,,,|||]Starmie||colburberry|1|hydropump,thunderbolt,icebeam,rapidspin|Timid|,,,252,4,252||,0,,,,|||]Tyranitar||lumberry||stoneedge,superpower,fireblast,stealthrock|Hasty|,252,,16,,240|||||]Jirachi||leftovers||psychic,thunderbolt,calmmind,wish|Bold|252,,224,,,32||,0,,,,|||]Breloom||toxicorb|1|seedbomb,superpower,machpunch,spore|Jolly|4,252,,,,252|||||',
 
-				'Machamp||lumberry|1|dynamicpunch,payback,bulletpunch,icepunch|Adamant|240,248,,,16,4|||||]Flygon||choicescarf||earthquake,outrage,uturn,stoneedge|Jolly|,252,,,4,252|||||]Breloom||toxicorb|1|substitute,focuspunch,spore,seedbomb|Adamant|12,252,,,,244|||||]Heatran||shucaberry||stealthrock,fireblast,earthpower,explosion|Naive|,,,252,4,252|||||]Gengar||leftovers|levitate|shadowball,sludgebomb,focusblast,substitute|Timid|4,,,252,,252||,0,,,,||',
+				'Machamp||lumberry|1|dynamicpunch,payback,bulletpunch,icepunch|Adamant|240,248,,,16,4|||||]Flygon||choicescarf||earthquake,outrage,uturn,stoneedge|Jolly|,252,,,4,252|||||]Breloom||toxicorb|1|substitute,focuspunch,spore,seedbomb|Adamant|12,252,,,,244|||||]Heatran||shucaberry||stealthrock,fireblast,earthpower,explosion|Naive|,,,252,4,252|||||]Gengar||leftovers|levitate|shadowball,sludgebomb,focusblast,substitute|Timid|4,,,252,,252||,0,,,,|||]Starmie||lifeorb|1|hydropump,thunderbolt,icebeam,recover|Timid|,,,252,4,252|||||',
+
 
 				'Bronzong||lumberry|1|stealthrock,gyroball,earthquake,explosion|Brave||||||]Gengar||lifeorb|levitate|shadowball,focusblast,explosion,hiddenpowerfire|Naive|||,30,,30,,30|||]Tyranitar||choiceband||stoneedge,crunch,pursuit,superpower|Adamant||M||||]Kingdra||choicespecs||hydropump,dracometeor,surf,dragonpulse|Modest|||,0,,,,|||]Flygon||choicescarf||uturn,outrage,earthquake,thunderpunch|Jolly||M||||]Lucario||lifeorb|1|closecombat,swordsdance,bulletpunch,extremespeed|Adamant||||||',
 
@@ -3584,7 +3585,7 @@ gen1uu: [
 
 				'Nidoking||lifeorb|H|earthpower,sludgewave,flamethrower,icebeam|Timid|,,,252,4,252||,0,,,,|||]Scizor||scizorite|lightmetal|swordsdance,bulletpunch,uturn,roost|Adamant|248,16,60,,124,60|M||||]Latios||lifeorb||calmmind,dracometeor,psyshock,roost|Timid|32,,,224,,252||,0,,,,|||]Rotom-Wash||leftovers||hydropump,voltswitch,willowisp,painsplit|Bold|252,,236,,20,||,0,,,,30|||]Tornadus-Therian||assaultvest||hurricane,knockoff,heatwave,uturn|Timid|248,,,8,,252|||||]Landorus-Therian||rockyhelmet||stealthrock,earthquake,stoneedge,uturn|Impish|248,,224,,28,8|||||',
 
-				'Charizard-Y||charizarditey||fireblast,solarbeam,focusblast,roost|Timid|,,,252,4,252||,0,,,,|||]Clefable||leftovers|1|stealthrock,moonblast,toxic,softboiled|Bold|248,,184,,76,||,0,,,,|||]Slowbro||leftovers|H|calmmind,scald,psyshock,slackoff|Bold|248,,216,,40,4||,0,,,,|||]Tyranitar||choicescarf||pursuit,crunch,stoneedge,superpower|Jolly|,252,4,,,252|||||]Excadrill||airballoon||swordsdance,earthquake,ironhead,rapidspin|Jolly|,252,,,4,252|||||]Keldeo||choicespecs||hydropump,scald,secretsword,hiddenpowergrass|Timid|,,,252,4,252||,0,,30,,|||',
+				'Charizard||charizarditey||fireblast,solarbeam,focusblast,roost|Timid|,,,252,4,252||,0,,,,|||]Clefable||leftovers|1|stealthrock,moonblast,toxic,softboiled|Bold|248,,184,,76,||,0,,,,|||]Slowbro||leftovers|H|calmmind,scald,psyshock,slackoff|Bold|248,,216,,40,4||,0,,,,|||]Tyranitar||choicescarf||pursuit,crunch,stoneedge,superpower|Jolly|,252,4,,,252|||||]Excadrill||airballoon||swordsdance,earthquake,ironhead,rapidspin|Jolly|,252,,,4,252|||||]Keldeo||choicespecs||hydropump,scald,secretsword,hiddenpowergrass|Timid|,,,252,4,252||,0,,30,,|||',
 
 				'Tyranitar||choiceband||stoneedge,crunch,pursuit,superpower|Adamant|156,252,,,,100|||||]Volcanion||choicespecs||steameruption,flamethrower,hiddenpowergrass,sludgebomb|Timid|,,,252,4,252||,0,,30,,|||]Latias||lifeorb||dracometeor,psyshock,defog,recover|Timid|72,,,184,,252||,0,,,,|||]Landorus-Therian||rockyhelmet||stealthrock,earthquake,uturn,smackdown|Impish|248,,228,,24,8|||||]Scizor||scizorite||bulletpunch,swordsdance,roost,superpower|Impish|248,48,104,,92,16|||||]Thundurus||lifeorb||thunderwave,thunderbolt,hiddenpowerice,knockoff|Naive|,4,,252,,252||,30,30,,,|||',
 
@@ -3798,7 +3799,14 @@ gen1uu: [
 		};
 		let realFormat = this.format.realFormat;
 		let noability = realFormat.indexOf('gen1') !== -1 || realFormat.indexOf('gen2') !== -1;
-		return Dex.fastUnpackTeam(this.prng.sample(teams[realFormat]), noability);
+		let rawteam=this.prng.sample(teams[realFormat]);
+		let team=Dex.fastUnpackTeam(rawteam, noability);
+		if(team==null){
+			console.log(rawteam);
+			rawteam='Ditto||choicescarf|H|transform||252,,,,,||,0,,,,|||]Ditto||choicescarf|H|transform||252,,,,,||,0,,,,|||]Ditto||choicescarf|H|transform||252,,,,,||,0,,,,|||]Ditto||choicescarf|H|transform||252,,,,,||,0,,,,|||]Ditto||choicescarf|H|transform||252,,,,,||,0,,,,|||]Ditto||choicescarf|H|transform||252,,,,,||,0,,,,|||';
+			return Dex.fastUnpackTeam(rawteam, noability);
+		}
+		return team;
 	}
 }
 

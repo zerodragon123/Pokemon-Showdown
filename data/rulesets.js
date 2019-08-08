@@ -413,6 +413,10 @@ let BattleFormats = {
 					this.add('poke', pokemon.side.id, details, pokemon.item ? 'item' : '');
 					
 				}
+				this.add('rule', 'Mega Rayquaza Clause: You cannot mega evolve Rayquaza');
+				for (const pokemon of this.getAllPokemon()) {
+					if (pokemon.speciesid === 'rayquaza') pokemon.canMegaEvo = null;
+				}
 			}
 			if(this.realMod==='gen1'||this.realMod==='gen2'){
 				this.add('rule', 'Freeze Clause Mod: Limit one foe frozen');
