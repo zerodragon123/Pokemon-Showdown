@@ -61,7 +61,7 @@ export class Battle extends Dex.ModdedDex {
 	readonly sides: [Side, Side] | [Side, Side, Side, Side];
 	readonly prngSeed: PRNGSeed;
 	prng: PRNG;
-	
+
 	rated: boolean | string;
 	reportExactHP: boolean;
 	reportPercentages: boolean;
@@ -114,27 +114,24 @@ export class Battle extends Dex.ModdedDex {
 	readonly send: (type: string, data: string | string[]) => void;
 
 	constructor(options: BattleOptions) {
-		
 		let format = Dex.getFormat(options.formatid, true);
 		let realFormat='';
 		let mod=format.mod;
 		if (format.id === 'gen7randomformats') {
 			// @ts-ignore
 			realFormat = new PRNG().sample(format.formatsList);	//random select one format
-			format.realFormat=realFormat;
-			
+			// @ts-ignore
+			format.realFormat = realFormat;
 			// @ts-ignore
 			mod = realFormat.substr(0, 4);				// genx
 		}
-		
+
 		//format = Dex.getFormat(options.formatid, true);
 		super(mod);
-		this.realMod=mod;
-		this.realFormat = realFormat;
-		
 		// @ts-ignore
-		
-		
+		this.realMod = mod;
+		this.realFormat = realFormat;
+
 
 		this.zMoveTable = {};
 		Object.assign(this, this.data.Scripts);

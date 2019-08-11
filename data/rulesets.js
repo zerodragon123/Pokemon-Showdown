@@ -405,32 +405,31 @@ let BattleFormats = {
 		name: 'RF-TeamPreview',
 		desc: "Allows each player to see the Pok&eacute;mon on their opponent's team before they choose their lead Pok&eacute;mon",
 		onBegin() {
-			if(this.realMod==='gen5'||this.realMod==='gen6'||this.realMod==='gen7'){
+			if (this.realMod === 'gen5' || this.realMod === 'gen6' || this.realMod === 'gen7') {
 				this.add('clearpoke');
-				
 				for (const pokemon of this.getAllPokemon()) {
 					let details = pokemon.details.replace(/(Arceus|Gourgeist|Genesect|Pumpkaboo|Silvally)(-[a-zA-Z?]+)?/g, '$1-*').replace(', shiny', '');
 					this.add('poke', pokemon.side.id, details, pokemon.item ? 'item' : '');
-					
 				}
 				this.add('rule', 'Mega Rayquaza Clause: You cannot mega evolve Rayquaza');
 				for (const pokemon of this.getAllPokemon()) {
 					if (pokemon.speciesid === 'rayquaza') pokemon.canMegaEvo = null;
 				}
 			}
-			if(this.realMod==='gen1'||this.realMod==='gen2'){
+			if (this.realMod === 'gen1' || this.realMod === 'gen2') {
 				this.add('rule', 'Freeze Clause Mod: Limit one foe frozen');
 			}
 		},
 		onTeamPreview() {
-			if(this.realMod==='gen5'||this.realMod==='gen6'||this.realMod==='gen7')
+			if (this.realMod === 'gen5' || this.realMod === 'gen6' || this.realMod === 'gen7') {
 				this.makeRequest('teampreview');
+			}
 		},
 		onSetStatus(status, target, source) {
 			if (source && source.side === target.side) {
 				return;
 			}
-			if (status.id === 'frz'&&(this.realMod==='gen1'||this.realMod==='gen2')) {
+			if (status.id === 'frz' && (this.realMod === 'gen1' || this.realMod === 'gen2')) {
 				for (const pokemon of target.side.pokemon) {
 					if (pokemon.status === 'frz') {
 						this.add('-message', 'Freeze Clause activated.');

@@ -350,7 +350,6 @@ let Formats = [
 		ruleset: ['Pokemon', 'Standard'],
 		banlist: ['Uber', 'Power Construct'],
 	},
-	
 	{
 		name: "[Gen 7] Random Formats",
 		desc: `Randomized competitive lower tiers teams of mutiple generations.`,
@@ -370,7 +369,6 @@ let Formats = [
 			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: ` + this.realFormat + ` </strong></div>`);
 		},
 	},
-	
 	{
 		name: "[Gen 7] Ubers Special",
 		threads: [
