@@ -93,6 +93,16 @@ function move(user: User, newUserid: ID) {
 	user.userid = newUserid;
 	users.set(newUserid, user);
 
+	user.forcedPublic = null;
+	if (Config.forcedpublicprefixes) {
+		for (const prefix of Config.forcedpublicprefixes) {
+			if (user.userid.startsWith(toID(prefix))) {
+				user.forcedPublic = prefix;
+				break;
+			}
+		}
+	}
+
 	return true;
 }
 function add(user: User) {
@@ -110,9 +120,9 @@ function deleteUser(user: User) {
 	prevUsers.delete('guest' + user.guestNum as ID);
 	users.delete(user.userid);
 }
-function merge(user1: User, user2: User) {
-	prevUsers.delete(user2.userid);
-	prevUsers.set(user1.userid, user2.userid);
+function merge(toRemain: User, toDestroy: User) {
+	prevUsers.delete(toRemain.userid);
+	prevUsers.set(toDestroy.userid, toRemain.userid);
 }
 
 /**
@@ -339,7 +349,7 @@ function isTrusted(name: string | User) {
 
 const connections = new Map();
 
-class Connection {
+export class Connection {
 	id: string;
 	socketid: string;
 	worker: Worker;
@@ -431,7 +441,7 @@ const SETTINGS = [
 ];
 
 // User
-class User extends Chat.MessageContext {
+export class User extends Chat.MessageContext {
 	user: User;
 	mmrCache: {[format: string]: number};
 	guestNum: number;
@@ -441,6 +451,7 @@ class User extends Chat.MessageContext {
 	userid: ID;
 	group: string;
 	avatar: string | number;
+	language: string | null;
 
 	connected: boolean;
 	connections: Connection[];
@@ -462,6 +473,7 @@ class User extends Chat.MessageContext {
 	lastPM: string;
 	team: string;
 	lastMatch: string;
+	forcedPublic: string | null;
 
 	isSysop: boolean;
 	isStaff: boolean;
@@ -503,6 +515,7 @@ class User extends Chat.MessageContext {
 		this.registered = false;
 		this.userid = '';
 		this.group = Config.groupsranking[0];
+		this.language = null;
 
 		this.avatar = DEFAULT_TRAINER_SPRITES[Math.floor(Math.random() * DEFAULT_TRAINER_SPRITES.length)];
 
@@ -538,6 +551,7 @@ class User extends Chat.MessageContext {
 		this.lastPM = '';
 		this.team = '';
 		this.lastMatch = '';
+		this.forcedPublic = null;
 
 		// settings
 		this.isSysop = false;
@@ -1053,6 +1067,11 @@ class User extends Chat.MessageContext {
 		if (oldUser.autoconfirmed) this.autoconfirmed = oldUser.autoconfirmed;
 
 		this.updateGroup(this.registered);
+		// We only propagate the 'busy' statusType through merging - merging is
+		// active enough that the user should no longer be in the 'idle' state.
+		// Doing this before merging connections ensures the updateuser message
+		// shows the correct idle state.
+		this.setStatusType((this.statusType === 'busy' || oldUser.statusType === 'busy') ? 'busy' : 'online');
 
 		for (const connection of oldUser.connections) {
 			this.mergeConnection(connection);
@@ -1090,9 +1109,6 @@ class User extends Chat.MessageContext {
 		this.latestHost = oldUser.latestHost;
 		this.latestHostType = oldUser.latestHostType;
 		this.userMessage = oldUser.userMessage || this.userMessage || '';
-		// We only propagate the 'busy' statusType through merging - merging is
-		// active enough that the user should no longer be in the 'idle' state.
-		this.statusType = (this.statusType === 'busy' || oldUser.statusType === 'busy') ? 'busy' : 'online';
 
 		oldUser.markDisconnected();
 	}
@@ -1538,6 +1554,7 @@ class User extends Chat.MessageContext {
 		if (type === this.statusType) return;
 		this.statusType = type;
 		this.updateIdentity();
+		this.update('statusType');
 	}
 	setUserMessage(message: string) {
 		if (message === this.userMessage) return;

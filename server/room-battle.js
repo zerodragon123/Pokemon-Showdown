@@ -162,6 +162,7 @@ class RoomBattleTimer {
 		this.timer = null;
 		/** @type {Set<string>} */
 		this.timerRequesters = new Set();
+		this.isFirstTurn = true;
 
 		/**
 		 * Last tick, as milliseconds since UNIX epoch.
@@ -222,9 +223,10 @@ class RoomBattleTimer {
 			}
 		}
 		this.timerRequesters.add(userid);
-		this.nextRequest(true);
 		const requestedBy = requester ? ` (requested by ${requester.name})` : ``;
 		this.battle.room.add(`|inactive|Battle timer is ON: inactive players will automatically lose when time's up.${requestedBy}`).update();
+
+		this.nextRequest();
 		return true;
 	}
 	stop(/** @type {User} */ requester) {
@@ -253,14 +255,29 @@ class RoomBattleTimer {
 		this.timer = null;
 		return true;
 	}
-	waitingForChoice(/** @type {SideID} */ slot) {
-		return !this.battle[slot].request.isWait;
-	}
-	nextRequest(isFirst = false) {
-		if (this.timer) clearTimeout(this.timer);
+	nextRequest() {
+		if (this.timer) {
+			clearTimeout(this.timer);
+			this.timer = null;
+		}
 		if (!this.timerRequesters.size) return;
 		const players = this.battle.players;
 		if (players.some(player => player.secondsLeft <= 0)) return;
+
+		/** false = U-turn or single faint, true = "new turn" */
+		let isFull = true;
+		let isEmpty = true;
+		for (const player of players) {
+			if (player.request.isWait) isFull = false;
+			if (player.request.isWait !== 'cantUndo') isEmpty = false;
+		}
+		if (isEmpty) {
+			// there are no active requests
+			return;
+		}
+		const isFirst = this.isFirstTurn;
+		this.isFirstTurn = false;
+
 		const maxTurnTime = (isFirst ? this.settings.maxFirstTurn : 0) || this.settings.maxPerTurn;
 
 		let addPerTurn = isFirst ? 0 : this.settings.addPerTurn;
@@ -275,6 +292,10 @@ class RoomBattleTimer {
 			}
 		}
 
+		if (!isFull && addPerTurn > TICK_TIME) {
+			addPerTurn = TICK_TIME;
+		}
+
 		const room = this.battle.room;
 		for (const player of players) {
 			if (!isFirst) {
@@ -286,7 +307,7 @@ class RoomBattleTimer {
 			let grace = player.secondsLeft - this.settings.starting;
 			if (grace < 0) grace = 0;
 			if (player) player.sendRoom(`|inactive|Time left: ${secondsLeft} sec this turn | ${player.secondsLeft - grace} sec total` + (grace ? ` | ${grace} sec grace` : ``));
-			if (secondsLeft <= 30) {
+			if (secondsLeft <= 30 && secondsLeft < this.settings.starting) {
 				room.add(`|inactive|${player.name} has ${secondsLeft} seconds left this turn.`);
 			}
 			if (this.debug) {
@@ -340,6 +361,7 @@ class RoomBattleTimer {
 		}
 	}
 	checkActivity() {
+		if (this.battle.ended) return;
 		for (const player of this.battle.players) {
 			const isConnected = !!(player && player.active);
 
@@ -378,7 +400,7 @@ class RoomBattleTimer {
 				player.connected = true;
 				if (this.timerRequesters.size) {
 					let timeLeft = ``;
-					if (this.waitingForChoice(player.slot)) {
+					if (!player.request.isWait) {
 						timeLeft = ` and has ${player.turnSecondsLeft} seconds left`;
 					}
 					this.battle.room.add(`|inactive|${player.name} reconnected${timeLeft}.`).update();
@@ -447,6 +469,7 @@ class RoomBattle extends RoomGames.RoomGame {
 		this.started = false;
 		this.ended = false;
 		this.active = false;
+		this.replaySaved = false;
 
 		// TypeScript bug: no `T extends RoomGamePlayer`
 		/** @type {{[userid: string]: RoomBattlePlayer}} */
@@ -482,6 +505,7 @@ class RoomBattle extends RoomGames.RoomGame {
 		 */
 		this.score = null;
 		this.inputLog = null;
+		this.turn = 0;
 
 		this.rqid = 1;
 		this.requestCount = 0;
@@ -684,6 +708,9 @@ class RoomBattle extends RoomGames.RoomGame {
 		switch (lines[0]) {
 		case 'update':
 			for (const line of lines.slice(1)) {
+				if (line.startsWith('|turn|')) {
+					this.turn = parseInt(line.slice(6));
+				}
 				this.room.add(line);
 			}
 			this.room.update();
@@ -772,8 +799,11 @@ class RoomBattle extends RoomGames.RoomGame {
 		} else {
 			this.logData = null;
 		}
-		if (Config.autosavereplays) {
-			let uploader = Users.get(winnerid || p1id);
+		// If a replay was saved at any point or we were configured to autosavereplays,
+		// reupload when the battle is over to overwrite the partial data (and potentially
+		// reflect any changes that may have been made to the replay's hidden status).
+		if (this.replaySaved || Config.autosavereplays) {
+			const uploader = Users.get(winnerid || p1id);
 			if (uploader && uploader.connections[0]) {
 				Chat.parse('/savereplay', this.room, uploader, uploader.connections[0]);
 			}
@@ -781,6 +811,11 @@ class RoomBattle extends RoomGames.RoomGame {
 		const parentGame = this.room.parent && this.room.parent.game;
 		if (parentGame && parentGame.onBattleWin) {
 			parentGame.onBattleWin(this.room, winnerid);
+		}
+		// If the room's replay was hidden, disable users from joining after the game is over
+		if (this.room.hideReplay) {
+			this.room.modjoin = '%';
+			this.room.isPrivate = 'hidden';
 		}
 		this.room.update();
 	}
@@ -997,6 +1032,14 @@ class RoomBattle extends RoomGames.RoomGame {
 		return player;
 	}
 
+	forcedPublic() {
+		if (!this.rated) return;
+		for (const player of this.players) {
+			const user = player.getUser();
+			if (user && user.forcedPublic) return user.forcedPublic;
+		}
+	}
+
 	makePlayer(/** @type {User} */ user) {
 		const num = this.players.length + 1;
 		return new RoomBattlePlayer(user, this, num);
@@ -1187,7 +1230,7 @@ const PM = new StreamProcessManager(module, () => {
 if (!PM.isParentProcess) {
 	// This is a child process!
 	global.Config = require(/** @type {any} */('../.server-dist/config-loader')).Config;
-	global.Chat = require('./chat');
+	global.Chat = require(/** @type {any} */('../.server-dist/chat'));
 	// @ts-ignore ???
 	global.Monitor = {
 		/**

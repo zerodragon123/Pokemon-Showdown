@@ -88,6 +88,7 @@ class BasicRoom {
 		this.chatRoomData = null;
 		/** @type {boolean | 'hidden' | 'voice'} */
 		this.isPrivate = false;
+		this.hideReplay = false;
 		this.isPersonal = false;
 		/** @type {string | boolean} */
 		this.isHelp = false;
@@ -112,8 +113,9 @@ class BasicRoom {
 		this.filterStretching = false;
 		this.filterEmojis = false;
 		this.filterCaps = false;
-		this.mafiaEnabled = true;
+		this.mafiaDisabled = false;
 		this.unoDisabled = false;
+		this.blackjackDisabled = false;
 		/** @type {'%' | boolean} */
 		this.toursEnabled = false;
 		this.tourAnnouncements = false;
@@ -626,14 +628,14 @@ class GlobalRoom extends BasicRoom {
 	}
 
 	/**
-	 * @param {string} filter "formatfilter, elofilter"
+	 * @param {string} filter "formatfilter, elofilter, usernamefilter"
 	 */
 	getBattles(filter) {
 		let rooms = /** @type {GameRoom[]} */ ([]);
 		let skipCount = 0;
-		const [formatFilter, eloFilterString] = filter.split(',');
+		const [formatFilter, eloFilterString, usernameFilter] = filter.split(',');
 		const eloFilter = +eloFilterString;
-		if (this.battleCount > 150 && !formatFilter && !eloFilter) {
+		if (this.battleCount > 150 && !formatFilter && !eloFilter && !usernameFilter) {
 			skipCount = this.battleCount - 150;
 		}
 		for (const room of Rooms.rooms.values()) {
@@ -641,15 +643,21 @@ class GlobalRoom extends BasicRoom {
 			if (room.type !== 'battle') continue;
 			if (formatFilter && formatFilter !== room.format) continue;
 			if (eloFilter && (!room.rated || room.rated < eloFilter)) continue;
+			if (usernameFilter && room.battle) {
+				const p1userid = room.battle.p1.userid;
+				const p2userid = room.battle.p2.userid;
+				if (!p1userid || !p2userid) continue;
+				if (!p1userid.startsWith(usernameFilter) && !p2userid.startsWith(usernameFilter)) continue;
+			}
 			if (skipCount && skipCount--) continue;
 
 			rooms.push(room);
 		}
 
-		let roomTable = /** @type {{[roomid: string]: AnyObject}} */ ({});
+		let roomTable = /** @type {{[roomid: string]: {p1?: string, p2?: string, minElo?: 'tour' | number}}} */ ({});
 		for (let i = rooms.length - 1; i >= rooms.length - 100 && i >= 0; i--) {
 			let room = rooms[i];
-			/** @type {{p1?: string, p2?: string, minElo?: string | number}} */
+			/** @type {{p1?: string, p2?: string, minElo?: 'tour' | number}} */
 			let roomData = {};
 			if (room.active && room.battle) {
 				if (room.battle.p1) roomData.p1 = room.battle.p1.name;
@@ -1207,9 +1215,14 @@ class BasicChatRoom extends BasicRoom {
 	/**
 	 * @param {'j' | 'l' | 'n'} type
 	 * @param {string} entry
+	 * @param {User} user
 	 */
-	reportJoin(type, entry) {
-		if (this.reportJoins) {
+	reportJoin(type, entry, user) {
+		let reportJoins = this.reportJoins;
+		if (reportJoins && this.modchat && !user.authAtLeast(this.modchat, this)) {
+			reportJoins = false;
+		}
+		if (reportJoins) {
 			this.add(`|${type}|${entry}`).update();
 			return;
 		}
@@ -1290,7 +1303,7 @@ class BasicChatRoom extends BasicRoom {
 		if (this.users[user.userid]) return false;
 
 		if (user.named) {
-			this.reportJoin('j', user.getIdentityWithStatus(this.id));
+			this.reportJoin('j', user.getIdentityWithStatus(this.id), user);
 		}
 
 		this.users[user.userid] = user;
@@ -1318,12 +1331,12 @@ class BasicChatRoom extends BasicRoom {
 		delete this.users[oldid];
 		this.users[user.userid] = user;
 		if (joining) {
-			this.reportJoin('j', user.getIdentityWithStatus(this.id));
+			this.reportJoin('j', user.getIdentityWithStatus(this.id), user);
 			if (this.staffMessage && user.can('mute', null, this)) this.sendUser(user, '|raw|<div class="infobox">(Staff intro:)<br /><div>' + this.staffMessage.replace(/\n/g, '') + '</div></div>');
 		} else if (!user.named) {
-			this.reportJoin('l', oldid);
+			this.reportJoin('l', oldid, user);
 		} else {
-			this.reportJoin('n', user.getIdentityWithStatus(this.id) + '|' + oldid);
+			this.reportJoin('n', user.getIdentityWithStatus(this.id) + '|' + oldid, user);
 		}
 		if (this.poll && user.userid in this.poll.voters) this.poll.updateFor(user);
 		return true;
@@ -1336,9 +1349,9 @@ class BasicChatRoom extends BasicRoom {
 		if (user && user.connected) {
 			if (!this.users[user.userid]) return false;
 			if (user.named) {
-				this.reportJoin('n', user.getIdentityWithStatus(this.id) + '|' + user.userid);
+				this.reportJoin('n', user.getIdentityWithStatus(this.id) + '|' + user.userid, user);
 			} else {
-				this.reportJoin('l', user.userid);
+				this.reportJoin('l', user.userid, user);
 			}
 		}
 		return true;
@@ -1357,7 +1370,7 @@ class BasicChatRoom extends BasicRoom {
 		this.userCount--;
 
 		if (user.named) {
-			this.reportJoin('l', user.getIdentity(this.id));
+			this.reportJoin('l', user.getIdentity(this.id), user);
 		}
 		if (this.game && this.game.onLeave) this.game.onLeave(user);
 		return true;
@@ -1541,17 +1554,17 @@ class GameRoom extends BasicChatRoom {
 		return this.game['p' + (num + 1)];
 	}
 	/**
-	 * @param {User} user
+	 * @param {User | null} user
 	 */
 	requestModchat(user) {
-		if (user === null) {
+		if (!user) {
 			this.modchatUser = '';
 			return;
-		} else if (user.can('modchat') || !this.modchatUser || this.modchatUser === user.userid) {
+		} else if (!this.modchatUser || this.modchatUser === user.userid || this.getAuth(user) !== Users.PLAYER_SYMBOL) {
 			this.modchatUser = user.userid;
 			return;
 		} else {
-			return "Invite-only can only be turned off by the user who turned it on, or staff";
+			return "Modchat can only be changed by the user who turned it on, or by staff";
 		}
 	}
 	/**
@@ -1686,8 +1699,9 @@ let Rooms = Object.assign(getRoom, {
 			roomTitle = `${p1name} vs. ${p2name}`;
 		}
 		const room = Rooms.createGameRoom(roomid, roomTitle, options);
+		const battle = new Rooms.RoomBattle(room, formatid, options);
 		// @ts-ignore TODO: make RoomBattle a subclass of RoomGame
-		room.game = new Rooms.RoomBattle(room, formatid, options);
+		room.game = battle;
 
 		let inviteOnly = (options.inviteOnly || []);
 		for (const user of players) {
@@ -1696,12 +1710,18 @@ let Rooms = Object.assign(getRoom, {
 				user.inviteOnlyNextBattle = false;
 			}
 		}
-		if (options.tour && !room.tour.modjoin) inviteOnly = [];
 		if (inviteOnly.length) {
-			room.modjoin = '%';
-			room.isPrivate = 'hidden';
-			room.privacySetter = new Set(inviteOnly);
-			room.add(`|raw|<div class="broadcast-red"><strong>This battle is invite-only!</strong><br />Users must be invited with <code>/invite</code> (or be staff) to join</div>`);
+			const prefix = battle.forcedPublic();
+			if (prefix) {
+				room.isPrivate = false;
+				room.modjoin = null;
+				room.add(`|raw|<div class="broadcast-blue"><strong>This battle is required to be public due to a player having a name prefixed by '${prefix}'.</div>`);
+			} else if (!options.tour || room.tour.modjoin) {
+				room.modjoin = '%';
+				room.isPrivate = 'hidden';
+				room.privacySetter = new Set(inviteOnly);
+				room.add(`|raw|<div class="broadcast-red"><strong>This battle is invite-only!</strong><br />Users must be invited with <code>/invite</code> (or be staff) to join</div>`);
+			}
 		}
 
 		for (const p of players) {
