@@ -53,7 +53,7 @@ exports.commands = {
 	customicon: "icon",
 	icon: {
 		set(target, room, user) {
-			if (!this.can('updateserver')) return false;
+			if (!this.user.isSysop) return false;
 			target = target.split(",");
 			for (let u in target) target[u] = target[u].trim();
 			if (target.length !== 2) return this.parse("/help icon");
