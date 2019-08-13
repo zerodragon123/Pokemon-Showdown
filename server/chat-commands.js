@@ -3141,12 +3141,21 @@ const commands = {
 	 * Server management commands
 	 *********************************************************/
 
-	async hotpatch(target, room, user) {
+	forcehotpatch: 'hotpatch',
+	async hotpatch(target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help hotpatch');
 		if (!this.can('hotpatch')) return;
 
 		const lock = Monitor.hotpatchLock;
 		const hotpatches = ['chat', 'formats', 'loginserver', 'punishments', 'dnsbl'];
+		const version = await Monitor.version();
+		let patch = target;
+		const requiresForce = (patch) =>
+			version && cmd !== 'forcehotpatch' &&
+			(Monitor.hotpatchVersions[patch] ?
+				Monitor.hotpatchVersions[patch] === version :
+				(global.__version && version === global.__version.tree));
+		const requiresForceMessage = `The git work tree has not changed since the last time ${target} was hotpatched (${version && version.slice(0, 8)}), use /forcehotpatch ${target} if you wish to hotpatch anyway.`;
 
 		try {
 			if (target === 'all') {
@@ -3157,8 +3166,10 @@ const commands = {
 					this.parse(`/hotpatch ${hotpatch}`);
 				}
 			} else if (target === 'chat' || target === 'commands') {
+				patch = 'chat';
 				if (lock['chat']) return this.errorReply(`Hot-patching chat has been disabled by ${lock['chat'].by} (${lock['chat'].reason})`);
 				if (lock['tournaments']) return this.errorReply(`Hot-patching tournaments has been disabled by ${lock['tournaments'].by} (${lock['tournaments'].reason})`);
+				if (requiresForce(patch)) return this.errorReply(requiresForceMessage);
 
 				Chat.destroy();
 
@@ -3173,7 +3184,7 @@ const commands = {
 				Chat.uncache('./server/chat-commands');
 				Chat.uncacheDir('./server/chat-plugins');
 				Chat.uncacheDir('./translations');
-				global.Chat = require('../.server-dist/chat');
+				global.Chat = require('../.server-dist/chat').Chat;
 
 				let runningTournaments = Tournaments.tournaments;
 				Chat.uncacheDir('./server/tournaments');
@@ -3182,6 +3193,7 @@ const commands = {
 				this.sendReply("Chat commands have been hot-patched.");
 			} else if (target === 'tournaments') {
 				if (lock['tournaments']) return this.errorReply(`Hot-patching tournaments has been disabled by ${lock['tournaments'].by} (${lock['tournaments'].reason})`);
+				if (requiresForce(patch)) return this.errorReply(requiresForceMessage);
 
 				let runningTournaments = Tournaments.tournaments;
 				Chat.uncacheDir('./server/tournaments');
@@ -3189,9 +3201,11 @@ const commands = {
 				Tournaments.tournaments = runningTournaments;
 				this.sendReply("Tournaments have been hot-patched.");
 			} else if (target === 'formats' || target === 'battles') {
+				patch = 'formats';
 				if (lock['formats']) return this.errorReply(`Hot-patching formats has been disabled by ${lock['formats'].by} (${lock['formats'].reason})`);
 				if (lock['battles']) return this.errorReply(`Hot-patching battles has been disabled by ${lock['battles'].by} (${lock['battles'].reason})`);
 				if (lock['validator']) return this.errorReply(`Hot-patching the validator has been disabled by ${lock['validator'].by} (${lock['validator'].reason})`);
+				if (requiresForce(patch)) return this.errorReply(requiresForceMessage);
 
 				// uncache the .sim-dist/dex.js dependency tree
 				Chat.uncacheDir('./.sim-dist');
@@ -3210,23 +3224,31 @@ const commands = {
 
 				this.sendReply("Formats have been hot-patched.");
 			} else if (target === 'loginserver') {
+				if (requiresForce(patch)) return this.errorReply(requiresForceMessage);
 				FS('config/custom.css').unwatch();
 				Chat.uncache('./.server-dist/loginserver');
 				global.LoginServer = require('../.server-dist/loginserver').LoginServer;
 				this.sendReply("The login server has been hot-patched. New login server requests will use the new code.");
 			} else if (target === 'learnsets' || target === 'validator') {
+				patch = 'validator';
 				if (lock['validator']) return this.errorReply(`Hot-patching the validator has been disabled by ${lock['validator'].by} (${lock['validator'].reason})`);
 				if (lock['formats']) return this.errorReply(`Hot-patching formats has been disabled by ${lock['formats'].by} (${lock['formats'].reason})`);
+				if (requiresForce(patch)) return this.errorReply(requiresForceMessage);
 
 				TeamValidatorAsync.PM.respawn();
 				this.sendReply("The team validator has been hot-patched. Any battles started after now will have teams be validated according to the new code.");
 			} else if (target === 'punishments') {
+				patch = 'punishments';
 				if (lock['punishments']) return this.errorReply(`Hot-patching punishments has been disabled by ${lock['punishments'].by} (${lock['punishments'].reason})`);
+				if (requiresForce(patch)) return this.errorReply(requiresForceMessage);
 
 				Chat.uncache('./server/punishments');
 				global.Punishments = require('./punishments');
 				this.sendReply("Punishments have been hot-patched.");
 			} else if (target === 'dnsbl' || target === 'datacenters' || target === 'iptools') {
+				patch = 'dnsbl';
+				if (requiresForce(patch)) return this.errorReply(requiresForceMessage);
+
 				Chat.uncache('./.server-dist/ip-tools');
 				global.IPTools = require('../.server-dist/ip-tools').IPTools;
 				IPTools.loadDatacenters();
@@ -3241,6 +3263,7 @@ const commands = {
 			Rooms.global.notifyRooms(['development', 'staff', 'upperstaff'], `|c|${user.getIdentity()}|/log ${user.name} used /hotpatch ${target} - but something failed while trying to hot-patch.`);
 			return this.errorReply(`Something failed while trying to hot-patch ${target}: \n${e.stack}`);
 		}
+		Monitor.hotpatchVersions[patch] = version;
 		Rooms.global.notifyRooms(['development', 'staff', 'upperstaff'], `|c|${user.getIdentity()}|/log ${user.name} used /hotpatch ${target}`);
 	},
 	hotpatchhelp: [
@@ -3255,6 +3278,7 @@ const commands = {
 		`/hotpatch loginserver - reloads new loginserver code`,
 		`/hotpatch tournaments - reloads new tournaments code`,
 		`/hotpatch all - hot-patches chat, tournaments, formats, login server, punishments, and dnsbl`,
+		`/forcehotpatch [target] - as above, but performs the update regardless of whether the history has changed in git`,
 	],
 
 	hotpatchlock: 'nohotpatch',
@@ -3579,7 +3603,7 @@ const commands = {
 			return this.errorReply("For safety reasons, /kill can only be used during lockdown.");
 		}
 
-		if (Chat.updateServerLock) {
+		if (Monitor.updateServerLock) {
 			return this.errorReply("Wait for /updateserver to finish before using /kill.");
 		}
 
@@ -3628,11 +3652,11 @@ const commands = {
 			return this.errorReply(`/updateserver - Access denied.`);
 		}
 
-		if (Chat.updateServerLock) {
+		if (Monitor.updateServerLock) {
 			return this.errorReply(`/updateserver - Another update is already in progress (or a previous update crashed).`);
 		}
 
-		Chat.updateServerLock = true;
+		Monitor.updateServerLock = true;
 
 		const logRoom = Rooms('staff') || room;
 
@@ -3657,7 +3681,7 @@ const commands = {
 		let [code, stdout, stderr] = await exec(`git fetch`);
 		if (code) throw new Error(`updateserver: Crash while fetching - make sure this is a Git repository`);
 		if (!stdout && !stderr) {
-			Chat.updateServerLock = false;
+			Monitor.updateServerLock = false;
 			this.sendReply(`There were no updates.`);
 			[code, stdout, stderr] = await exec('../build');
 			if (stderr) {
@@ -3715,7 +3739,7 @@ const commands = {
 			return this.errorReply(`Crash while rebuilding: ${stderr}`);
 		}
 		this.sendReply(`Rebuilt.`);
-		Chat.updateServerLock = false;
+		Monitor.updateServerLock = false;
 	},
 
 	memusage: 'memoryusage',
