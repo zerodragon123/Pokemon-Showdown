@@ -309,6 +309,13 @@ const commands = {
 	},
 	showpunishmentshelp: [`/showpunishments - Shows the current punishments in the room. Requires: % @ # & ~`],
 
+	sgp: 'showglobalpunishments',
+	showglobalpunishments(target, room, user) {
+		if (!this.can('lock')) return;
+		return this.parse(`/join view-globalpunishments`);
+	},
+	showglobalpunishmentshelp: [`/showpunishments - Shows the current global punishments. Requires: % @ # & ~`],
+
 	'!host': true,
 	host(target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help host');
@@ -611,6 +618,8 @@ const commands = {
 					if (move.flags['punch']) details["&#10003; Punch"] = "";
 					if (move.flags['powder']) details["&#10003; Powder"] = "";
 					if (move.flags['reflectable']) details["&#10003; Bounceable"] = "";
+					if (move.flags['charge']) details["&#10003; Two-turn move"] = "";
+					if (move.flags['recharge']) details["&#10003; Has recharge turn"] = "";
 					if (move.flags['gravity'] && mod.gen >= 4) details["&#10007; Suppressed by Gravity"] = "";
 					if (move.flags['dance'] && mod.gen >= 7) details["&#10003; Dance move"] = "";
 
@@ -661,10 +670,10 @@ const commands = {
 					}[move.target] || "Unknown";
 
 					if (move.id === 'snatch' && mod.gen >= 3) {
-						details['<a href="https://${Config.routes.dex}/moves/snatch">Snatchable Moves</a>'] = '';
+						details[`<a href="https://${Config.routes.dex}/moves/snatch">Snatchable Moves</a>`] = '';
 					}
 					if (move.id === 'mirrormove') {
-						details['<a href="https://${Config.routes.dex}/moves/mirrormove">Mirrorable Moves</a>'] = '';
+						details[`<a href="https://${Config.routes.dex}/moves/mirrormove">Mirrorable Moves</a>`] = '';
 					}
 					if (move.isUnreleased) {
 						details["Unreleased in Gen " + mod.gen] = "";
@@ -1514,7 +1523,8 @@ const commands = {
 			`- <a href="https://www.smogon.com/forums/threads/3496279/">Beginner's Guide to Pok&eacute;mon Showdown</a><br />` +
 			`- <a href="https://www.smogon.com/dp/articles/intro_comp_pokemon">An introduction to competitive Pok&eacute;mon</a><br />` +
 			`- <a href="https://www.smogon.com/sm/articles/sm_tiers">What do 'OU', 'UU', etc mean?</a><br />` +
-			`- <a href="https://www.smogon.com/xyhub/tiers">What are the rules for each format? What is 'Sleep Clause'?</a>`
+			`- <a href="https://www.smogon.com/dex/sm/formats/">What are the rules for each format?</a><br />` +
+			`- <a href="https://www.smogon.com/sm/articles/clauses">What is 'Sleep Clause' and other clauses?</a>`
 		);
 	},
 	introhelp: [
@@ -2491,44 +2501,26 @@ const commands = {
 
 /** @type {PageTable} */
 const pages = {
-	punishments(query, user, connection) {
+	punishments(query, user) {
 		this.title = 'Punishments';
 		let buf = "";
 		this.extractRoom();
 		if (!user.named) return Rooms.RETRY_AFTER_LOGIN;
 		if (!this.room.chatRoomData) return;
 		if (!this.can('mute', null, this.room)) return;
-		const sortedPunishments = Punishments.getPunishmentsOfRoom(this.room).sort((a, b) =>
-			// Ascending order
-			a.expiresIn - b.expiresIn
-		);
-		if (sortedPunishments.length) {
-			buf += `<div class="pad"><h2>List of active punishments:</h2>`;
-			buf += `<table style="border: 1px solid black; border-collapse:collapse; width:100%;">`;
-			buf += `<tr>`;
-			buf += `<th style="border: 1px solid black;">Username</th>`;
-			buf += `<th style="border: 1px solid black;">Punishment type</th>`;
-			buf += `<th style="border: 1px solid black;">Expire time</th>`;
-			buf += `<th style="border: 1px solid black;">Reason</th>`;
-			buf += `<th style="border: 1px solid black;">Alts</th>`;
-			if (user.can('ban')) buf += `<th style="border: 1px solid black;">IPs</th>`;
-			buf += `</tr>`;
-			for (const punishment of sortedPunishments) {
-				let expireString = Chat.toDurationString(punishment.expiresIn, {precision: 1});
-				buf += `<tr>`;
-				buf += `<td style="border: 1px solid black;">${punishment.id}</td>`;
-				buf += `<td style="border: 1px solid black;">${punishment.punishType.toLowerCase()}</td>`;
-				buf += `<td style="border: 1px solid black;">${expireString}</td>`;
-				buf += (punishment.reason) ? `<td style="border: 1px solid black;">${punishment.reason}</td>` : `<td style="border: 1px solid black;"> - </td>`;
-				buf += (punishment.alts.length) ? `<td style="border: 1px solid black;">${punishment.alts.join(", ")}</td>` : `<td style="border: 1px solid black;"> - </td>`;
-				buf += (user.can('ban') && punishment.ips.length) ? `<td style="border: 1px solid black;">${punishment.ips.join(", ")}</td>` : (user.can('ban') && !punishment.ips.length) ? `<td style="border: 1px solid black;"> - </td>` : ``;
-				buf += `</tr>`;
-			}
-			buf += `</table>`;
-			buf += `</div>`;
-		} else {
-			buf += `<h2>No user in ${this.room} is currently punished.</h2>`;
-		}
+		// Ascending order
+		const sortedPunishments = Array.from(Punishments.getPunishments(this.room.id)).sort((a, b) => a[1].expiresTime - b[1].expiresTime);
+		buf += Punishments.visualizePunishments(sortedPunishments, user);
+		return buf;
+	},
+	globalpunishments(query, user) {
+		this.title = 'Global Punishments';
+		let buf = "";
+		if (!user.named) return Rooms.RETRY_AFTER_LOGIN;
+		if (!this.can('lock')) return;
+		// Ascending order
+		const sortedPunishments = Array.from(Punishments.getPunishments()).sort((a, b) => a[1].expireTime - b[1].expireTime);
+		buf += Punishments.visualizePunishments(sortedPunishments, user);
 		return buf;
 	},
 };

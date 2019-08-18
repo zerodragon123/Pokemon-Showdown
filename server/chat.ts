@@ -26,9 +26,9 @@ To reload chat commands:
 'use strict';
 
 type Room = import('./rooms').Room;
-type ChatRoom = import('./rooms').ChatRoomType;
-type GameRoom = import('./rooms').GameRoomType;
-type BasicChatRoom = import('./rooms').BasicChatRoomType;
+type ChatRoom = import('./rooms').ChatRoom;
+type GameRoom = import('./rooms').GameRoom;
+type BasicChatRoom = import('./rooms').BasicChatRoom;
 
 type User = import('./users').User;
 type Connection = import('./users').Connection;
@@ -284,9 +284,9 @@ function statusfilter(status: string, user: User) {
  *********************************************************/
 
 // language id -> language name
-const languages: Map<string, string> = new Map();
+const languages = new Map<string, string>();
 // language id -> (english string -> translated string)
-const translations: Map<string, Map<string, [string, string[], string[]]>> = new Map();
+const translations = new Map<string, Map<string, [string, string[], string[]]>>();
 
 // tslint:disable-next-line: no-floating-promises
 FS(TRANSLATION_DIRECTORY).readdir().then(files => {
@@ -1842,11 +1842,11 @@ export interface Monitor {
 
 const filterWords: {[k: string]: FilterWord[]} = {};
 const monitors: {[k: string]: Monitor} = {};
-const namefilterwhitelist: Map<string, string> = new Map();
+const namefilterwhitelist = new Map<string, string>();
 /**
  * Inappropriate userid : forcerenaming staff member's userid
  */
-const forceRenames: Map<ID, string> = new Map();
+const forceRenames = new Map<ID, string> ();
 
 function registerMonitor(id: string, entry: Monitor) {
 	if (!Chat.filterWords[id]) Chat.filterWords[id] = [];

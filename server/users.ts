@@ -25,9 +25,9 @@
 
 'use strict';
 
-type GameRoom = import('./rooms').GameRoomType;
-type BasicRoom = import('./rooms').BasicRoomType;
-type BasicChatRoom = import('./rooms').BasicChatRoomType;
+type GameRoom = import('./rooms').GameRoom;
+type BasicRoom = import('./rooms').BasicRoom;
+type BasicChatRoom = import('./rooms').BasicChatRoom;
 
 type Room = import('./rooms').Room;
 
@@ -354,6 +354,12 @@ export class Connection {
 	socketid: string;
 	worker: Worker;
 	inRooms: Set<string>;
+	/**
+	 * This can be null during initialization and after disconnecting,
+	 * but we're asserting it non-null for ease of use. The main risk
+	 * is async code, where you need to re-check that it's not null
+	 * before using it.
+	 */
 	user: User;
 	ip: string;
 	protocol: string;
@@ -373,12 +379,6 @@ export class Connection {
 		this.worker = worker;
 		this.inRooms = new Set();
 
-		/**
-		 * This can be null during initialization and after disconnecting,
-		 * but we're asserting it non-null for ease of use. The main risk
-		 * is async code, where you need to re-check that it's not null
-		 * before using it.
-		 */
 		this.user = user!;
 
 		this.ip = ip || '';
@@ -467,7 +467,11 @@ export class User extends Chat.MessageContext {
 	prevNames: {[id: /** ID */ string]: string};
 
 	inRooms: Set<string>;
+	/**
+	 * Set of room IDs
+	 */
 	games: Set<string>;
+	/** Millisecond timestamp for last battle decision */
 	lastDecision: number;
 	lastChallenge: number;
 	lastPM: string;
@@ -539,11 +543,7 @@ export class User extends Chat.MessageContext {
 		this.prevNames = Object.create(null);
 		this.inRooms = new Set();
 
-		/**
-		 * Set of room IDs
-		 */
 		this.games = new Set();
-		/** Millisecond timestamp for last battle decision */
 		this.lastDecision = 0;
 
 		// misc state
@@ -1179,7 +1179,7 @@ export class User extends Chat.MessageContext {
 		this.isStaff = Config.groups[this.group] && (Config.groups[this.group].lock || Config.groups[this.group].root);
 		if (!this.isStaff) {
 			const staffRoom = Rooms('staff');
-			this.isStaff = (staffRoom && staffRoom.auth && staffRoom.auth[this.userid]);
+			this.isStaff = !!(staffRoom && staffRoom.auth && staffRoom.auth[this.userid]);
 		}
 		if (this.trusted) {
 			if (this.locked && this.permalocked) {
@@ -1210,7 +1210,7 @@ export class User extends Chat.MessageContext {
 		this.isStaff = Config.groups[this.group] && (Config.groups[this.group].lock || Config.groups[this.group].root);
 		if (!this.isStaff) {
 			const staffRoom = Rooms('staff');
-			this.isStaff = (staffRoom && staffRoom.auth && staffRoom.auth[this.userid]);
+			this.isStaff = !!(staffRoom && staffRoom.auth && staffRoom.auth[this.userid]);
 		}
 		if (wasStaff !== this.isStaff) this.update('isStaff');
 		Rooms.global.checkAutojoin(this);
@@ -1724,8 +1724,8 @@ function socketReceive(worker: Worker, workerid: number, socketid: string, messa
 	}
 }
 
-const users: Map<ID, User> = new Map();
-const prevUsers: Map<ID, ID> = new Map();
+const users = new Map<ID, User>();
+const prevUsers = new Map<ID, ID>();
 let numUsers = 0;
 
 export const Users = Object.assign(getUser, {
