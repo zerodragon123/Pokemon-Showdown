@@ -630,14 +630,10 @@ export class GlobalRoom extends BasicRoom {
 
 		const typeOrder = ['punishment', 'normal', 'staff', 'leadership'];
 
-		rankList = (rankList.map(function (x, i) {
-			return {index: i, data: x};
-		})).sort((a, b) => {
+		rankList = (rankList.map((x, i) => ({index: i, data: x}))).sort((a, b) => {
 			if (typeOrder.indexOf(b.data.type) - typeOrder.indexOf(a.data.type) === 0) return a.index - b.index;
 			return typeOrder.indexOf(b.data.type) - typeOrder.indexOf(a.data.type);
-		}).map(function(val){
-			return val.data;
-		})
+		}).map(val => val.data);
 
 		// add the punishment types at the very end.
 		for (const rank in Config.punishgroups) {
