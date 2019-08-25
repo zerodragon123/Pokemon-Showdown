@@ -12,7 +12,7 @@
  *
  * The command API is (mostly) documented in chat-plugins/COMMANDS.md
  *
- * @license MIT license
+ * @license MIT
  */
 
 /*
@@ -24,14 +24,6 @@ To reload chat commands:
 */
 
 'use strict';
-
-type Room = import('./rooms').Room;
-type ChatRoom = import('./rooms').ChatRoom;
-type GameRoom = import('./rooms').GameRoom;
-type BasicChatRoom = import('./rooms').BasicChatRoom;
-
-type User = import('./users').User;
-type Connection = import('./users').Connection;
 
 export type PageHandler = (this: PageContext, query: string[], user: User, connection: Connection)
 	=> Promise<string | null | void> | string | null | void;
@@ -402,7 +394,7 @@ class MessageContext {
 	}
 }
 
-class PageContext extends MessageContext {
+export class PageContext extends MessageContext {
 	connection: Connection;
 	room: Room;
 	pageid: string;
@@ -412,7 +404,7 @@ class PageContext extends MessageContext {
 		super(options.user, options.language);
 
 		this.connection = options.connection;
-		this.room = Rooms('global');
+		this.room = Rooms.get('global');
 		this.pageid = options.pageid;
 
 		this.initialized = false;
@@ -433,7 +425,7 @@ class PageContext extends MessageContext {
 
 		// Since we assume pageids are all in the form of view-pagename-roomid
 		// if someone is calling this function, so this is the only case we cover (for now)
-		const room = Rooms(parts[2]);
+		const room = Rooms.get(parts[2]);
 		if (!room) {
 			this.send(`<h2>Invalid room.</h2>`);
 			return false;
@@ -480,7 +472,7 @@ class PageContext extends MessageContext {
 	}
 }
 
-class CommandContext extends MessageContext {
+export class CommandContext extends MessageContext {
 
 	message: string;
 	pmTarget: User | undefined;
@@ -1098,7 +1090,7 @@ class CommandContext extends MessageContext {
 				if (!domain || !host) return false;
 				return LINK_WHITELIST.includes(host) || LINK_WHITELIST.includes(`*.${domain}`);
 			});
-			if (!allLinksWhitelisted && !(targetUser && targetUser.can('lock'))) {
+			if (!allLinksWhitelisted && !(targetUser && targetUser.can('lock') || (room && room.isHelp))) {
 				this.errorReply("Your account must be autoconfirmed to send links to other users, except for global staff.");
 				return false;
 			}
