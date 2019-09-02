@@ -2822,7 +2822,7 @@ const commands = {
 			}
 			// Notify staff when a trusted user gets their messages hidden
 			if (!room.isPrivate) {
-				const staffRoom = Rooms('staff');
+				const staffRoom = Rooms.get('staff');
 				if (staffRoom) staffRoom.addByUser(user, `<<${room.id}>> ${user.name} hid trusted user ${targetUser.name}'s messages.`);
 			}
 		}
@@ -3218,22 +3218,19 @@ const commands = {
 				Chat.uncache('./.server-dist/chat');
 				Chat.uncache('./server/chat-commands');
 				Chat.uncacheDir('./server/chat-plugins');
+				Chat.uncacheDir('./.server-dist/chat-plugins');
 				Chat.uncacheDir('./translations');
 				global.Chat = require('../.server-dist/chat').Chat;
 
-				let runningTournaments = Tournaments.tournaments;
 				Chat.uncacheDir('./.server-dist/tournaments');
 				global.Tournaments = require('../.server-dist/tournaments').Tournaments;
-				Tournaments.tournaments = runningTournaments;
 				this.sendReply("Chat commands have been hot-patched.");
 			} else if (target === 'tournaments') {
 				if (lock['tournaments']) return this.errorReply(`Hot-patching tournaments has been disabled by ${lock['tournaments'].by} (${lock['tournaments'].reason})`);
 				if (requiresForce(patch)) return this.errorReply(requiresForceMessage);
 
-				let runningTournaments = Tournaments.tournaments;
 				Chat.uncacheDir('./.server-dist/tournaments');
 				global.Tournaments = require('../.server-dist/tournaments').Tournaments;
-				Tournaments.tournaments = runningTournaments;
 				this.sendReply("Tournaments have been hot-patched.");
 			} else if (target === 'formats' || target === 'battles') {
 				patch = 'formats';
@@ -3277,8 +3274,8 @@ const commands = {
 				if (lock['punishments']) return this.errorReply(`Hot-patching punishments has been disabled by ${lock['punishments'].by} (${lock['punishments'].reason})`);
 				if (requiresForce(patch)) return this.errorReply(requiresForceMessage);
 
-				Chat.uncache('./server/punishments');
-				global.Punishments = require('./punishments');
+				Chat.uncache('./.server-dist/punishments');
+				global.Punishments = require('../.server-dist/punishments').Punishments;
 				this.sendReply("Punishments have been hot-patched.");
 			} else if (target === 'dnsbl' || target === 'datacenters' || target === 'iptools') {
 				patch = 'dnsbl';
