@@ -54,32 +54,31 @@ exports.commands = {
 	icon: {
 		set(target, room, user) {
 			if (!this.user.isSysop) return false;
-			target = target.split(",");
-			for (let u in target) target[u] = target[u].trim();
-			if (target.length !== 2) return this.parse("/help icon");
-			if (toID(target[0]).length > 19) return this.errorReply("Usernames are not this long...");
-			if (icons[toID(target[0])]) return this.errorReply("This user already has a custom userlist icon.  Do /icon delete [user] and then set their new icon.");
-			this.sendReply(`|raw|You have given ${target[0]} an icon.`);
-			Monitor.log(`${target[0]} has received an icon from ${user.name}.`);
-			this.privateModAction(`|raw|(${target[0]} has received icon: <img src="${target[1]}" width="32" height="32"> from ${user.name}.)`);
-			this.modlog("ICON", target[0], `Set icon to ${target[1]}`);
-			if (Users(target[0]) && Users(target[0]).connected) Users(target[0]).popup(`|html|${user.name} has set your userlist icon to: <img src="${target[1]}" width="32" height="32"><br /><center>Refresh, If you don't see it.</center>`);
-			icons[toID(target[0])] = target[1];
+			let targets = target.split(",");
+			for (let u in targets) targets[u] = targets[u].trim();
+			if (targets.length !== 2) return this.parse("/help icon");
+			const targetName = toID(targets[0]);
+			if (targetName.length > 19) return this.errorReply("Usernames are not this long...");
+			if (icons[targetName]) return this.errorReply("This user already has a custom userlist icon.  Do /icon delete [user] and then set their new icon.");
+			this.sendReply(`|raw|You have given ${targets[0]} an icon.`);
+			Monitor.log(`${targets[0]} has received an icon from ${user.name}.`);
+			this.privateModAction(`|raw|(${targets[0]} has received icon: <img src="${targets[1]}" width="32" height="32"> from ${user.name}.)`);
+			this.modlog("ICON", targets[0], `Set icon to ${target[1]}`);
+			icons[targetName] = targets[1];
 			updateIcons();
 		},
 
 		remove: "delete",
 		delete(target, room, user) {
 			if (!this.can('updateserver')) return false;
-			target = toID(target);
-			if (!icons[toID(target)]) return this.errorReply(`/icon - ${target} does not have an icon.`);
-			delete icons[toID(target)];
+			const targetName = toID(target);
+			if (!icons[targetName]) return this.errorReply(`/icon - ${targetName} does not have an icon.`);
+			delete icons[targetName];
 			updateIcons();
-			this.sendReply(`You removed ${target}'s icon.`);
-			Monitor.log(`${user.name} removed ${target}'s icon.`);
-			this.privateModAction(`(${target}'s icon was removed by ${user.name}.)`);
-			this.modlog("ICON", target, `Removed icon`);
-			if (Users(target) && Users(target).connected) Users(target).popup(`|html|${user.name} has removed your userlist icon.`);
+			this.sendReply(`You removed ${targetName}'s icon.`);
+			Monitor.log(`${user.name} removed ${targetName}'s icon.`);
+			this.privateModAction(`(${targetName}'s icon was removed by ${user.name}.)`);
+			this.modlog("ICON", targetName, `Removed icon`);
 		},
 
 		"": "help",
