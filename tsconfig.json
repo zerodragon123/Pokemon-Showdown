@@ -38,6 +38,7 @@
         "./server/chat-plugins/uno.js",
         "./server/chat-plugins/wifi.js",
         "./server/server-plugins/icon.js",
-        "./sim/**/*"
+        "./sim/**/*",
+        "./tools/set-import/*.ts"
     ]
 }

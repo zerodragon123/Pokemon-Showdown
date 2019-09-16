@@ -1558,6 +1558,12 @@ export class User extends Chat.MessageContext {
 		this.userMessage = '';
 		this.updateIdentity();
 	}
+	getAccountStatusString() {
+		return this.trusted === this.userid ? `[trusted]`
+			: this.autoconfirmed === this.userid ? `[ac]`
+			: this.registered ? `[registered]`
+			: `[unregistered]`;
+	}
 	clearPrev() {
 		this.noTrace = true;
 	}
