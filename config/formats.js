@@ -19,7 +19,7 @@ let Formats = [
 		team: 'random',
 		challengeShow: false,
 		rated: false,
-		ruleset: ['PotD', 'Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['PotD', 'Obtainable', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
 		onBegin() {
 			this.add('html', `<div class="broadcast-red"><strong>本分级仅用于国服论坛积分显示，天梯对战不计分。具体积分规则见<a href="http://chinapsim.org./topic/63/">国服积分说明帖</a>.</strong></div>`);
 		},
@@ -374,7 +374,7 @@ let Formats = [
 		mod: 'gen7',
 		forcedLevel: 50,
 		timer: {starting: 7 * 60, addPerTurn: 0, maxPerTurn: 55, maxFirstTurn: 90, grace: 90, timeoutAutoChoose: true, dcTimerBank: false},
-		ruleset: ['Pokemon', 'PSChina Clause'],
+		ruleset: ['Obtainable', 'PSChina Clause'],
 		requirePlus: true,
 	},
 	{
@@ -382,7 +382,7 @@ let Formats = [
 
 		mod: 'gen7',
 		searchShow: false,
-		ruleset: ['Pokemon', 'Standard'],
+		ruleset: ['Obtainable', 'Standard'],
 		banlist: ['Uber', 'Arena Trap', 'Power Construct', 'Shadow Tag', 'Baton Pass'],
 	},
 	{
@@ -394,7 +394,7 @@ let Formats = [
 			validate: [1, 3],
 			battle: 3,
 		},
-		ruleset: ['Pokemon', 'Standard'],
+		ruleset: ['Obtainable', 'Standard'],
 		banlist: ['Uber', 'Power Construct'],
 	},
 	{
@@ -403,7 +403,7 @@ let Formats = [
 
 		//mod: new PRNG().sample(['gen7','gen3']),
 		team: 'randomFormats',
-		ruleset: ['Pokemon', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod', 'RF-TeamPreview'],
+		ruleset: ['Obtainable', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod', 'RF-TeamPreview'],
 		mod: 'gen7',
 		// @ts-ignore
 		formatsList: [
@@ -425,7 +425,7 @@ let Formats = [
 		],
 
 		mod: 'gen7',
-		ruleset: ['Pokemon', 'Standard', 'Team Preview', 'Mega Rayquaza Clause'],
+		ruleset: ['Obtainable', 'Standard', 'Team Preview', 'Mega Rayquaza Clause'],
 		banlist: ['Baton Pass', 'Gothorita', 'Gothitelle'],
 		onValidateSet(set) {
 			if (set.species === 'Necrozma-Dusk-Mane' && set.moves.includes('swordsdance')) {
@@ -445,7 +445,7 @@ let Formats = [
 		],
 
 		mod: 'gen7',
-		ruleset: ['Pokemon', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Obtainable', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 	},
 
 	// US/UM Doubles
@@ -739,7 +739,7 @@ let Formats = [
 			battle: 4,
 		},
 		timer: {starting: 7 * 60, addPerTurn: 0, maxPerTurn: 55, maxFirstTurn: 90, grace: 90, timeoutAutoChoose: true, dcTimerBank: false},
-		ruleset: ['Pokemon', 'Minimal GBU', 'Team Preview'],
+		ruleset: ['Obtainable', 'Minimal GBU', 'Team Preview'],
 	},
 
 	// Other Metagames
@@ -920,7 +920,7 @@ let Formats = [
 		],
 
 		mod: 'bhplus',
-		ruleset: ['Pokemon', 'Swagger Clause', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Obtainable', 'Swagger Clause', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Groudon-Primal', 'Arena Trap', 'Huge Power', 'Innards Out', 'Magnet Pull', 'Moody', 'Parental Bond', 'Pure Power', 'Shadow Tag', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Comatose + Sleep Talk', 'Stakeout', 'Protean'],
 
 		/*onModifyMove: function (move, pokemon) {
@@ -1219,7 +1219,7 @@ let Formats = [
 		],
 
 		mod: 'bhplus',
-		ruleset: ['Pokemon', 'Swagger Clause', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Obtainable', 'Swagger Clause', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Groudon-Primal', 'Arena Trap', 'Huge Power', 'Innards Out', 'Moody', 'Parental Bond', 'Pure Power', 'Shadow Tag', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Comatose + Sleep Talk', 'Assist'],
 	},
 	{
@@ -1227,7 +1227,7 @@ let Formats = [
 		desc: `PO version of Classic Hackmons in GEN 7.`,
 
 		mod: 'bhplus',
-		ruleset: ['Pokemon', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Obtainable', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: [],
 		maxLevel: 100,
 		defaultLevel: 100,
@@ -1237,7 +1237,7 @@ let Formats = [
 		desc: `Anything that can be hacked in-game and is usable in local battles is allowed.`,
 
 		mod: 'gen5',
-		ruleset: ['Pokemon', 'OHKO Clause', 'Sleep Clause Mod', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
+		ruleset: ['Obtainable', 'OHKO Clause', 'Sleep Clause Mod', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
 		banlist: ['Arena Trap', 'Huge Power', 'Pure Power', 'Shadow Tag', 'Wonder Guard'],
 	},
 	{
@@ -1249,7 +1249,7 @@ let Formats = [
 
 		mod: 'gen4',
 		searchShow: false,
-		ruleset: ['Pokemon', 'Ability Clause', 'OHKO Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Obtainable', 'Ability Clause', 'OHKO Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Arena Trap', 'Huge Power', 'Pure Power', 'Shadow Tag', 'Wonder Guard', 'Drizzle ++ Swift Swim', 'Drought ++ Chlorophyll', 'Sand Stream ++ Sand Rush'],
 	},
 

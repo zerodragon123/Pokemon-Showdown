@@ -119,26 +119,22 @@ export class Battle {
 
 	constructor(options: BattleOptions) {
 		// kirliavc stuff:
-		let tempFormat = Dex.getFormat(options.formatid, true);
+		let format = Dex.getFormat(options.formatid, true);
 		let realFormat='';
-		let mod=tempFormat.mod;
-		if (tempFormat.id === 'gen7randomformats') {
+		let mod=format.mod;
+		if (format.id === 'gen7randomformats') {
 			// @ts-ignore
 			realFormat = new PRNG().sample(format.formatsList);	//random select one format
 			// @ts-ignore
-			tempFormat.realFormat = realFormat;
+			format.realFormat = realFormat;
 			// @ts-ignore
 			mod = realFormat.substr(0, 4);				// genx
 		}
 
-		//format = Dex.getFormat(options.formatid, true);
-		super(mod);
 		// @ts-ignore
 		this.realMod = mod;
 		this.realFormat = realFormat;
 
-		// end of kirliavc stuff
-		const format = tempFormat // fsk placeholder.
 		// const format = Dex.getFormat(options.formatid, true);
 		this.format = format;
 		this.dex = Dex.forFormat(format);
