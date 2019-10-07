@@ -29,6 +29,7 @@ const PLAYER_SYMBOL = '\u2606';
 const HOST_SYMBOL = '\u2605';
 
 const THROTTLE_DELAY = 600;
+const THROTTLE_DELAY_TRUSTED = 100;
 const THROTTLE_BUFFER_LIMIT = 6;
 const THROTTLE_MULTILINE_WARN = 3;
 const THROTTLE_MULTILINE_WARN_STAFF = 6;
@@ -74,21 +75,21 @@ Date.prototype.Format = function (fmt) { //author: meizz
 };
 
 function move(user: User, newUserid: ID) {
-	if (user.userid === newUserid) return true;
+	if (user.id === newUserid) return true;
 	if (!user) return false;
 
 	// doing it this way mathematically ensures no cycles
 	prevUsers.delete(newUserid);
-	prevUsers.set(user.userid, newUserid);
+	prevUsers.set(user.id, newUserid);
 
-	users.delete(user.userid);
-	user.userid = newUserid;
+	users.delete(user.id);
+	user.id = newUserid;
 	users.set(newUserid, user);
 
 	user.forcedPublic = null;
 	if (Config.forcedpublicprefixes) {
 		for (const prefix of Config.forcedpublicprefixes) {
-			if (user.userid.startsWith(toID(prefix))) {
+			if (user.id.startsWith(toID(prefix))) {
 				user.forcedPublic = prefix;
 				break;
 			}
@@ -98,23 +99,23 @@ function move(user: User, newUserid: ID) {
 	return true;
 }
 function add(user: User) {
-	if (user.userid) throw new Error(`Adding a user that already exists`);
+	if (user.id) throw new Error(`Adding a user that already exists`);
 
 	numUsers++;
 	user.guestNum = numUsers;
 	user.name = `Guest ${numUsers}`;
-	user.userid = toID(user.name);
+	user.id = toID(user.name);
 
-	if (users.has(user.userid)) throw new Error(`userid taken: ${user.userid}`);
-	users.set(user.userid, user);
+	if (users.has(user.id)) throw new Error(`userid taken: ${user.id}`);
+	users.set(user.id, user);
 }
 function deleteUser(user: User) {
 	prevUsers.delete('guest' + user.guestNum as ID);
-	users.delete(user.userid);
+	users.delete(user.id);
 }
 function merge(toRemain: User, toDestroy: User) {
-	prevUsers.delete(toRemain.userid);
-	prevUsers.set(toDestroy.userid, toRemain.userid);
+	prevUsers.delete(toRemain.id);
+	prevUsers.set(toDestroy.id, toRemain.id);
 }
 
 /**
@@ -134,7 +135,7 @@ function merge(toRemain: User, toDestroy: User) {
  */
 function getUser(name: string | User | null, exactName = false) {
 	if (!name || name === '!') return null;
-	if ((name as User).userid) return name as User;
+	if ((name as User).id) return name as User;
 	let userid = toID(name);
 	let i = 0;
 	if (!exactName) {
@@ -174,7 +175,7 @@ function findUsers(userids: ID[], ips: string[], options: {forPunishment?: boole
 	for (const user of users.values()) {
 		if (!options.forPunishment && !user.named && !user.connected) continue;
 		if (!options.includeTrusted && user.trusted) continue;
-		if (userids.includes(user.userid)) {
+		if (userids.includes(user.id)) {
 			matches.push(user);
 			continue;
 		}
@@ -308,8 +309,7 @@ function setOfflineGroup(name: string, group: string, forceTrusted: boolean) {
 		name = usergroup ? usergroup.substr(1) : name;
 		usergroups[userid] = group + name;
 	}
-	// tslint:disable-next-line:no-floating-promises
-	exportUsergroups();
+	void exportUsergroups();
 	return true;
 }
 function isUsernameKnown(name: string) {
@@ -339,7 +339,7 @@ function isTrusted(name: string | User) {
  * User and Connection classes
  *********************************************************/
 
-const connections = new Map();
+const connections = new Map<string, Connection>();
 
 export class Connection {
 	id: string;
@@ -385,7 +385,7 @@ export class Connection {
 		this.connectedAt = now;
 	}
 	sendTo(roomid: RoomID | BasicRoom | null, data: string) {
-		if (roomid && typeof roomid !== 'string') roomid = (roomid as BasicRoom).id;
+		if (roomid && typeof roomid !== 'string') roomid = (roomid as BasicRoom).roomid;
 		if (roomid && roomid !== 'lobby') data = `>${roomid}\n${data}`;
 		Sockets.socketSend(this.worker, this.socketid, data);
 		Monitor.countNetworkUse(data.length);
@@ -411,18 +411,18 @@ export class Connection {
 	}
 
 	joinRoom(room: Room) {
-		if (this.inRooms.has(room.id)) return;
-		this.inRooms.add(room.id);
-		Sockets.roomAdd(this.worker, room.id, this.socketid);
+		if (this.inRooms.has(room.roomid)) return;
+		this.inRooms.add(room.roomid);
+		Sockets.roomAdd(this.worker, room.roomid, this.socketid);
 	}
 	leaveRoom(room: Room) {
-		if (this.inRooms.has(room.id)) {
-			this.inRooms.delete(room.id);
-			Sockets.roomRemove(this.worker, room.id, this.socketid);
+		if (this.inRooms.has(room.roomid)) {
+			this.inRooms.delete(room.roomid);
+			Sockets.roomRemove(this.worker, room.roomid, this.socketid);
 		}
 	}
 	toString() {
-		let buf = this.user ? `${this.user.userid}[${this.user.connections.indexOf(this)}]` : `[disconnected]`;
+		let buf = this.user ? `${this.user.id}[${this.user.connections.indexOf(this)}]` : `[disconnected]`;
 		buf += `:${this.ip}`;
 		if (this.protocol !== 'websocket') buf += `:${this.protocol}`;
 		return buf;
@@ -445,7 +445,7 @@ export class User extends Chat.MessageContext {
 	name: string;
 	named: boolean;
 	registered: boolean;
-	userid: ID;
+	id: ID;
 	group: string;
 	avatar: string | number;
 	language: string | null;
@@ -515,7 +515,7 @@ export class User extends Chat.MessageContext {
 		this.name = "";
 		this.named = false;
 		this.registered = false;
-		this.userid = '';
+		this.id = '';
 		this.group = Config.groupsranking[0];
 		this.language = null;
 
@@ -592,7 +592,7 @@ export class User extends Chat.MessageContext {
 	}
 
 	sendTo(roomid: RoomID | BasicRoom | null, data: string) {
-		if (roomid && typeof roomid !== 'string') roomid = (roomid as BasicRoom).id;
+		if (roomid && typeof roomid !== 'string') roomid = (roomid as BasicRoom).roomid;
 		if (roomid && roomid !== 'global' && roomid !== 'lobby') data = `>${roomid}\n${data}`;
 		for (const connection of this.connections) {
 			if (roomid && !connection.inRooms.has(roomid)) continue;
@@ -750,7 +750,7 @@ export class User extends Chat.MessageContext {
 
 		const whitelist = Config.consoleips || ['127.0.0.1'];
 		// on the IP whitelist OR the userid whitelist
-		return whitelist.includes(connection.ip) || whitelist.includes(this.userid);
+		return whitelist.includes(connection.ip) || whitelist.includes(this.id);
 	}
 	/**
 	 * Special permission check for promoting and demoting
@@ -779,12 +779,12 @@ export class User extends Chat.MessageContext {
 	 */
 	async rename(name: string, token: string, newlyRegistered: boolean, connection: Connection) {
 		let userid = toID(name);
-		if (userid !== this.userid) {
+		if (userid !== this.id) {
 			for (const roomid of this.games) {
 				const room = Rooms.get(roomid);
 				if (!room || !room.game || room.game.ended) {
 					this.games.delete(roomid);
-					console.log(`desynced roomgame ${roomid} renaming ${this.userid} -> ${userid}`);
+					console.log(`desynced roomgame ${roomid} renaming ${this.id} -> ${userid}`);
 					continue;
 				}
 				if (room.game.allowRenames || !this.named) continue;
@@ -829,7 +829,7 @@ export class User extends Chat.MessageContext {
 			this.send(`|nametaken||Your name contains a banned word.`);
 			return false;
 		} else {
-			if (userid === this.userid && !newlyRegistered) {
+			if (userid === this.id && !newlyRegistered) {
 				return this.forceRename(name, this.registered);
 			}
 		}
@@ -924,9 +924,9 @@ export class User extends Chat.MessageContext {
 				this.autoconfirmed = userid;
 			} else if (userType === '5') {
 				this.permalocked = userid;
-				Punishments.lock(this, Date.now() + PERMALOCK_CACHE_TIME, userid, `Permalocked as ${name}`);
+				Punishments.lock(this, Date.now() + PERMALOCK_CACHE_TIME, userid, true, `Permalocked as ${name}`);
 			} else if (userType === '6') {
-				Punishments.lock(this, Date.now() + PERMALOCK_CACHE_TIME, userid, `Permabanned as ${name}`);
+				Punishments.lock(this, Date.now() + PERMALOCK_CACHE_TIME, userid, true, `Permabanned as ${name}`);
 				this.disconnectAll();
 			}
 		}
@@ -957,7 +957,7 @@ export class User extends Chat.MessageContext {
 					user.prevNames[i] = this.prevNames[i];
 				}
 			}
-			if (this.named) user.prevNames[this.userid] = this.name;
+			if (this.named) user.prevNames[this.id] = this.name;
 			this.destroy();
 
 			Punishments.checkName(user, userid, registered);
@@ -987,8 +987,8 @@ export class User extends Chat.MessageContext {
 		}
 
 		const oldname = this.name;
-		const oldid = this.userid;
-		if (userid !== this.userid) {
+		const oldid = this.id;
+		if (userid !== this.id) {
 			this.cancelReady();
 
 			if (!Users.move(this, userid)) {
@@ -1018,12 +1018,12 @@ export class User extends Chat.MessageContext {
 		for (const roomid of this.games) {
 			const room = Rooms.get(roomid);
 			if (!room) {
-				Monitor.warn(`while renaming, room ${roomid} expired for user ${this.userid} in rooms ${[...this.inRooms]} and games ${[...this.games]}`);
+				Monitor.warn(`while renaming, room ${roomid} expired for user ${this.id} in rooms ${[...this.inRooms]} and games ${[...this.games]}`);
 				this.games.delete(roomid);
 				continue;
 			}
 			if (!room.game) {
-				Monitor.warn(`game desync for user ${this.userid} in room ${room.id}`);
+				Monitor.warn(`game desync for user ${this.id} in room ${room.roomid}`);
 				this.games.delete(roomid);
 				continue;
 			}
@@ -1126,9 +1126,9 @@ export class User extends Chat.MessageContext {
 		for (const roomid of connection.inRooms) {
 			const room = Rooms.get(roomid);
 			if (!this.inRooms.has(roomid)) {
-				if (Punishments.checkNameInRoom(this, room.id)) {
+				if (Punishments.checkNameInRoom(this, room.roomid)) {
 					// the connection was in a room that this user is banned from
-					connection.sendTo(room.id, `|deinit`);
+					connection.sendTo(room.roomid, `|deinit`);
 					connection.leaveRoom(room);
 					continue;
 				}
@@ -1145,7 +1145,7 @@ export class User extends Chat.MessageContext {
 		this.updateReady(connection);
 	}
 	debugData() {
-		let str = `${this.group}${this.name} (${this.userid})`;
+		let str = `${this.group}${this.name} (${this.id})`;
 		for (const [i, connection] of this.connections.entries()) {
 			str += ` socket${i}[`;
 			str += [...connection.inRooms].join(`, `);
@@ -1169,24 +1169,24 @@ export class User extends Chat.MessageContext {
 			return;
 		}
 		this.registered = true;
-		if (this.userid in usergroups) {
-			this.group = usergroups[this.userid].charAt(0);
+		if (this.id in usergroups) {
+			this.group = usergroups[this.id].charAt(0);
 		} else {
 			this.group = Config.groupsranking[0];
 		}
 
-		if (Config.customavatars && Config.customavatars[this.userid]) {
-			this.avatar = Config.customavatars[this.userid];
+		if (Config.customavatars && Config.customavatars[this.id]) {
+			this.avatar = Config.customavatars[this.id];
 		}
 
 		this.isStaff = Config.groups[this.group] && (Config.groups[this.group].lock || Config.groups[this.group].root);
 		if (!this.isStaff) {
 			const staffRoom = Rooms.get('staff');
-			this.isStaff = !!(staffRoom && staffRoom.auth && staffRoom.auth[this.userid]);
+			this.isStaff = !!(staffRoom && staffRoom.auth && staffRoom.auth[this.id]);
 		}
 		if (this.trusted) {
 			if (this.locked && this.permalocked) {
-				Monitor.log(`[CrisisMonitor] Trusted user '${this.userid}' is ${this.permalocked !== this.userid ? `an alt of permalocked user '${this.permalocked}'` : `a permalocked user`}, and was automatically demoted from ${this.distrust()}.`);
+				Monitor.log(`[CrisisMonitor] Trusted user '${this.id}' is ${this.permalocked !== this.id ? `an alt of permalocked user '${this.permalocked}'` : `a permalocked user`}, and was automatically demoted from ${this.distrust()}.`);
 				return;
 			}
 			this.locked = null;
@@ -1213,21 +1213,20 @@ export class User extends Chat.MessageContext {
 		this.isStaff = Config.groups[this.group] && (Config.groups[this.group].lock || Config.groups[this.group].root);
 		if (!this.isStaff) {
 			const staffRoom = Rooms.get('staff');
-			this.isStaff = !!(staffRoom && staffRoom.auth && staffRoom.auth[this.userid]);
+			this.isStaff = !!(staffRoom && staffRoom.auth && staffRoom.auth[this.id]);
 		}
 		if (wasStaff !== this.isStaff) this.update('isStaff');
 		Rooms.global.checkAutojoin(this);
 		if (this.registered) {
 			if (forceTrusted || this.group !== Config.groupsranking[0]) {
-				usergroups[this.userid] = this.group + this.name;
-				this.trusted = this.userid;
-				this.autoconfirmed = this.userid;
+				usergroups[this.id] = this.group + this.name;
+				this.trusted = this.id;
+				this.autoconfirmed = this.id;
 			} else {
-				delete usergroups[this.userid];
+				delete usergroups[this.id];
 				this.trusted = '';
 			}
-			// tslint:disable-next-line:no-floating-promises
-			exportUsergroups();
+			void exportUsergroups();
 		}
 	}
 	/**
@@ -1243,7 +1242,7 @@ export class User extends Chat.MessageContext {
 		}
 		for (const room of Rooms.global.chatRooms) {
 			if (!room.isPrivate && room.auth && userid in room.auth && room.auth[userid] !== '+') {
-				removed.push(room.auth[userid] + room.id);
+				removed.push(room.auth[userid] + room.roomid);
 				room.auth[userid] = '+';
 			}
 		}
@@ -1269,7 +1268,7 @@ export class User extends Chat.MessageContext {
 	onDisconnect(connection: Connection) {
 		for (const [i, connected] of this.connections.entries()) {
 			if (connected === connection) {
-				// console.log('DISCONNECT: ' + this.userid);
+				// console.log('DISCONNECT: ' + this.id);
 				if (this.connections.length <= 1) {
 					this.markDisconnected();
 				}
@@ -1305,7 +1304,7 @@ export class User extends Chat.MessageContext {
 		let connection = null;
 		this.markDisconnected();
 		for (let i = this.connections.length - 1; i >= 0; i--) {
-			// console.log('DESTROY: ' + this.userid);
+			// console.log('DESTROY: ' + this.id);
 			connection = this.connections[i];
 			for (const roomid of connection.inRooms) {
 				this.leaveRoom(Rooms.get(roomid), connection, true);
@@ -1314,11 +1313,11 @@ export class User extends Chat.MessageContext {
 		}
 		if (this.connections.length) {
 			// should never happen
-			throw new Error(`Failed to drop all connections for ${this.userid}`);
+			throw new Error(`Failed to drop all connections for ${this.id}`);
 		}
 		for (const roomid of this.inRooms) {
 			// should never happen.
-			throw new Error(`Room miscount: ${roomid} not left for ${this.userid}`);
+			throw new Error(`Room miscount: ${roomid} not left for ${this.id}`);
 		}
 		this.inRooms.clear();
 	}
@@ -1338,12 +1337,12 @@ export class User extends Chat.MessageContext {
 		return "[" + (prevNames.length ? prevNames[prevNames.length - 1] : this.name) + "]";
 	}
 	getLastId() {
-		if (this.named) return this.userid;
+		if (this.named) return this.id;
 		const prevNames = Object.keys(this.prevNames);
-		return (prevNames.length ? prevNames[prevNames.length - 1] : this.userid) as ID;
+		return (prevNames.length ? prevNames[prevNames.length - 1] : this.id) as ID;
 	}
 	async tryJoinRoom(roomid: RoomID | Room, connection: Connection) {
-		roomid = roomid && (roomid as Room).id ? (roomid as Room).id : roomid as RoomID;
+		roomid = roomid && (roomid as Room).roomid ? (roomid as Room).roomid : roomid as RoomID;
 		const room = Rooms.search(roomid);
 		if (!room && roomid.startsWith('view-')) {
 			return Chat.resolvePage(roomid, this, connection);
@@ -1373,12 +1372,12 @@ export class User extends Chat.MessageContext {
 			}
 		}
 
-		if (!this.can('bypassall') && Punishments.isRoomBanned(this, room.id)) {
+		if (!this.can('bypassall') && Punishments.isRoomBanned(this, room.roomid)) {
 			connection.sendTo(roomid, `|noinit|joinfailed|You are banned from the room "${roomid}".`);
 			return false;
 		}
 
-		if (Rooms.aliases.get(roomid) === room.id) {
+		if (Rooms.aliases.get(roomid) === room.roomid) {
 			connection.send(`>${roomid}\n|deinit`);
 		}
 
@@ -1399,9 +1398,9 @@ export class User extends Chat.MessageContext {
 			}
 			return;
 		}
-		if (!connection.inRooms.has(room.id)) {
-			if (!this.inRooms.has(room.id)) {
-				this.inRooms.add(room.id);
+		if (!connection.inRooms.has(room.roomid)) {
+			if (!this.inRooms.has(room.roomid)) {
+				this.inRooms.add(room.roomid);
 				room.onJoin(this, connection);
 			}
 			connection.joinRoom(room);
@@ -1414,18 +1413,18 @@ export class User extends Chat.MessageContext {
 		force: boolean = false
 	) {
 		room = Rooms.get(room);
-		if (room.id === 'global') {
+		if (room.roomid === 'global') {
 			// you can't leave the global room except while disconnecting
 			if (!force) return false;
 			this.cancelReady();
 		}
-		if (!this.inRooms.has(room.id)) {
+		if (!this.inRooms.has(room.roomid)) {
 			return false;
 		}
 		for (const curConnection of this.connections) {
 			if (connection && curConnection !== connection) continue;
-			if (curConnection.inRooms.has(room.id)) {
-				curConnection.sendTo(room.id, `|deinit`);
+			if (curConnection.inRooms.has(room.roomid)) {
+				curConnection.sendTo(room.roomid, `|deinit`);
 				curConnection.leaveRoom(room);
 			}
 			if (connection) break;
@@ -1434,18 +1433,18 @@ export class User extends Chat.MessageContext {
 		let stillInRoom = false;
 		if (connection) {
 			// @ts-ignore TypeScript inferring wrong type for room
-			stillInRoom = this.connections.some(conn => conn.inRooms.has(room.id));
+			stillInRoom = this.connections.some(conn => conn.inRooms.has(room.roomid));
 		}
 		if (!stillInRoom) {
 			room.onLeave(this);
-			this.inRooms.delete(room.id);
+			this.inRooms.delete(room.roomid);
 		}
 	}
 
 	cancelReady() {
 		// setting variables because this can't be short-circuited
 		const searchesCancelled = Ladders.cancelSearches(this);
-		const challengesCancelled = Ladders.clearChallenges(this.userid);
+		const challengesCancelled = Ladders.clearChallenges(this.id);
 		if (searchesCancelled || challengesCancelled) {
 			this.popup(`Your searches and challenges have been cancelled because you changed your username.`);
 		}
@@ -1480,8 +1479,7 @@ export class User extends Chat.MessageContext {
 			return false; // but end the loop here
 		}
 
-		let throttleDelay = THROTTLE_DELAY;
-		if (this.group !== ' ') throttleDelay /= 2;
+		const throttleDelay = this.trusted ? THROTTLE_DELAY_TRUSTED : THROTTLE_DELAY;
 
 		if (this.chatQueueTimeout) {
 			if (!this.chatQueue) this.chatQueue = []; // this should never happen
@@ -1491,10 +1489,10 @@ export class User extends Chat.MessageContext {
 				);
 				return false;
 			} else {
-				this.chatQueue.push([message, room.id, connection]);
+				this.chatQueue.push([message, room.roomid, connection]);
 			}
 		} else if (now < this.lastChatMessage + throttleDelay) {
-			this.chatQueue = [[message, room.id, connection]];
+			this.chatQueue = [[message, room.roomid, connection]];
 			this.startChatQueue(throttleDelay - (now - this.lastChatMessage));
 		} else {
 			this.lastChatMessage = now;
@@ -1505,7 +1503,7 @@ export class User extends Chat.MessageContext {
 	}
 	startChatQueue(delay: number | null = null) {
 		if (delay === null) {
-			delay = (this.group !== ' ' ? THROTTLE_DELAY / 2 : THROTTLE_DELAY) - (Date.now() - this.lastChatMessage);
+			delay = (this.trusted ? THROTTLE_DELAY_TRUSTED : THROTTLE_DELAY) - (Date.now() - this.lastChatMessage);
 		}
 
 		this.chatQueueTimeout = setTimeout(
@@ -1547,8 +1545,7 @@ export class User extends Chat.MessageContext {
 			// room is expired, do nothing
 		}
 
-		let throttleDelay = THROTTLE_DELAY;
-		if (this.group !== ' ') throttleDelay /= 2;
+		const throttleDelay = this.trusted ? THROTTLE_DELAY_TRUSTED : THROTTLE_DELAY;
 
 		if (this.chatQueue.length) {
 			this.chatQueueTimeout = setTimeout(
@@ -1574,10 +1571,10 @@ export class User extends Chat.MessageContext {
 		this.updateIdentity();
 	}
 	getAccountStatusString() {
-		return this.trusted === this.userid ? `[trusted]`
-			: this.autoconfirmed === this.userid ? `[ac]`
+		return this.trusted === this.id ? `[trusted]`
+			: this.autoconfirmed === this.id ? `[ac]`
 			: this.registered ? `[registered]`
-			: `[unregistered]`;
+			: ``;
 	}
 	clearPrev() {
 		this.noTrace = true;
@@ -1587,13 +1584,13 @@ export class User extends Chat.MessageContext {
 		for (const roomid of this.games) {
 			const room = Rooms.get(roomid);
 			if (!room) {
-				Monitor.warn(`while deallocating, room ${roomid} did not exist for ${this.userid} in rooms ${[...this.inRooms]} and games ${[...this.games]}`);
+				Monitor.warn(`while deallocating, room ${roomid} did not exist for ${this.id} in rooms ${[...this.inRooms]} and games ${[...this.games]}`);
 				this.games.delete(roomid);
 				continue;
 			}
 			const game = room.game;
 			if (!game) {
-				Monitor.warn(`while deallocating, room ${roomid} did not have a game for ${this.userid} in rooms ${[...this.inRooms]} and games ${[...this.games]}`);
+				Monitor.warn(`while deallocating, room ${roomid} did not have a game for ${this.id} in rooms ${[...this.inRooms]} and games ${[...this.games]}`);
 				this.games.delete(roomid);
 				continue;
 			}
@@ -1605,7 +1602,7 @@ export class User extends Chat.MessageContext {
 		Users.delete(this);
 	}
 	toString() {
-		return this.userid;
+		return this.id;
 	}
 }
 
@@ -1670,14 +1667,12 @@ function socketConnect(
 	}
 	// Emergency mode connections logging
 	if (Config.emergency) {
-		// tslint:disable-next-line:no-floating-promises
-		FS('logs/cons.emergency.log').append('[' + ip + ']\n');
+		void FS('logs/cons.emergency.log').append('[' + ip + ']\n');
 	}
 
 	const user = new User(connection);
 	connection.user = user;
-	// tslint:disable-next-line: no-floating-promises
-	Punishments.checkIp(user, connection);
+	void Punishments.checkIp(user, connection);
 	// Generate 1024-bit challenge string.
 	require('crypto').randomBytes(128, (err: Error | null, buffer: Buffer) => {
 		if (err) {
@@ -1727,7 +1722,7 @@ function socketReceive(worker: Worker, workerid: number, socketid: string, messa
 	if (!user) return;
 
 	// The client obviates the room id when sending messages to Lobby by default
-	const roomId = message.substr(0, pipeIndex) || (Rooms.lobby || Rooms.global).id;
+	const roomId = message.substr(0, pipeIndex) || (Rooms.lobby || Rooms.global).roomid;
 	message = message.slice(pipeIndex + 1);
 
 	const room = Rooms.get(roomId);
@@ -1741,15 +1736,14 @@ function socketReceive(worker: Worker, workerid: number, socketid: string, messa
 	const lines = message.split('\n');
 	if (!lines[lines.length - 1]) lines.pop();
 	if (lines.length > (user.isStaff ||
-		(room.auth && room.auth[user.userid] && room.auth[user.userid] !== '+') ? THROTTLE_MULTILINE_WARN_STAFF
+		(room.auth && room.auth[user.id] && room.auth[user.id] !== '+') ? THROTTLE_MULTILINE_WARN_STAFF
 			: THROTTLE_MULTILINE_WARN)) {
 		connection.popup(`You're sending too many lines at once. Try using a paste service like [[Pastebin]].`);
 		return;
 	}
 	// Emergency logging
 	if (Config.emergency) {
-		// tslint:disable-next-line:no-floating-promises
-		FS('logs/emergency.log').append(`[${user} (${connection.ip})] ${roomId}|${message}\n`);
+		void FS('logs/emergency.log').append(`[${user} (${connection.ip})] ${roomId}|${message}\n`);
 	}
 
 	const startTime = Date.now();

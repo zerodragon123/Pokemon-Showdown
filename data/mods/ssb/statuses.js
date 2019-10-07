@@ -250,7 +250,7 @@ let BattleStatuses = {
 		onStart() {
 			this.add(`c|+Averardo|ECCOMI`);
 		},
-		onSwitchIn() {
+		onSwitchOut() {
 			this.add(`c|+Averardo|Scillato (PA)`);
 		},
 		onFaint() {
@@ -490,10 +490,10 @@ let BattleStatuses = {
 	eien: {
 		noCopy: true,
 		onStart() {
-			this.add(`c|@Eien|umu!`);
+			this.add(`c|&Eien|umu!`);
 		},
 		onFaint() {
-			this.add(`c|@Eien|This game is Bad Civilization...`);
+			this.add(`c|&Eien|This game is Bad Civilization...`);
 		},
 	},
 	elgino: {
@@ -730,7 +730,7 @@ let BattleStatuses = {
 			this.add(`c|+inactive|I'll keep an eye out for you next time...`);
 		},
 		onFaint() {
-			this.add(`c|+inactive|/me turns to stone`);
+			this.add(`c|+inactive|/me turns to stone and crumbles`);
 		},
 	},
 	irritated: {
@@ -897,9 +897,9 @@ let BattleStatuses = {
 			for (const target of pokemon.side.foe.active) {
 				if (!target || target.fainted) continue;
 				for (const moveSlot of target.moveSlots) {
-					const move = this.getMove(moveSlot.move);
+					const move = this.dex.getMove(moveSlot.move);
 					const moveType = move.id === 'hiddenpower' ? target.hpType : move.type;
-					if (move.category !== 'Status' && (this.getImmunity(moveType, pokemon) && this.getEffectiveness(moveType, pokemon) > 0 || move.ohko)) {
+					if (move.category !== 'Status' && (this.dex.getImmunity(moveType, pokemon) && this.dex.getEffectiveness(moveType, pokemon) > 0 || move.ohko)) {
 						this.add('-ability', pokemon, 'Anticipation');
 						return;
 					}
@@ -1390,7 +1390,10 @@ let BattleStatuses = {
 		},
 		onSwitchOut(pokemon) {
 			this.add(`c|@Snaquaza|Lynch Hoeen while I'm away...`);
-			if (pokemon.m.claimHP) pokemon.m.claimHP = null;
+			if (pokemon.m.claimHP) {
+				pokemon.hp = pokemon.m.claimHP;
+				pokemon.m.claimHP = null;
+			}
 		},
 		onFaint() {
 			this.add(`c|@Snaquaza|How did you know I was scum?`);
@@ -1472,10 +1475,10 @@ let BattleStatuses = {
 			let silentRemove = ['reflect', 'lightscreen', 'auroraveil', 'safeguard', 'mist'];
 			for (const sideCondition of removeAll) {
 				if (target.side.removeSideCondition(sideCondition)) {
-					if (!(silentRemove.includes(sideCondition))) this.add('-sideend', target.side, this.getEffect(sideCondition).name, '[from] move: No Fun Zone', '[of] ' + source);
+					if (!(silentRemove.includes(sideCondition))) this.add('-sideend', target.side, this.dex.getEffect(sideCondition).name, '[from] move: No Fun Zone', '[of] ' + source);
 				}
 				if (source.side.removeSideCondition(sideCondition)) {
-					if (!(silentRemove.includes(sideCondition))) this.add('-sideend', source.side, this.getEffect(sideCondition).name, '[from] move: No Fun Zone', '[of] ' + source);
+					if (!(silentRemove.includes(sideCondition))) this.add('-sideend', source.side, this.dex.getEffect(sideCondition).name, '[from] move: No Fun Zone', '[of] ' + source);
 				}
 			}
 			this.add('-clearallboost');
@@ -1727,9 +1730,7 @@ let BattleStatuses = {
 		noCopy: true,
 		onStart(pokemon) {
 			this.add('-message', `${pokemon.illusion ? pokemon.illusion.name : pokemon.name}'s weight has doubled.`);
-		},
-		onModifyWeight(weight) {
-			return weight * 2;
+			pokemon.weighthg *= 2;
 		},
 	},
 	// Gooey volatile for Decem's move
@@ -1793,7 +1794,8 @@ let BattleStatuses = {
 			this.add('-message', `${pokemon.illusion ? pokemon.illusion.name : pokemon.name}'s next attack will hit multiple times!`);
 		},
 		onPrepareHit(source, target, move) {
-			if (move.category !== 'Status') {
+			// beat up relies on its multihit being the number of valid allies
+			if (move.category !== 'Status' && move.id !== 'beatup') {
 				move.multihit = [2, 5];
 				move.basePower = 25;
 				this.effectData.usedup = true;
@@ -2053,7 +2055,7 @@ let BattleStatuses = {
 			this.add('-sidestart', side, 'move: Stealth Rock');
 		},
 		onSwitchIn(pokemon) {
-			let typeMod = this.clampIntRange(pokemon.runEffectiveness(this.getActiveMove('stealthrock')), -6, 6);
+			let typeMod = this.dex.clampIntRange(pokemon.runEffectiveness(this.dex.getActiveMove('stealthrock')), -6, 6);
 			this.damage(pokemon.maxhp * Math.pow(2, typeMod) / 8);
 		},
 	},
@@ -2068,7 +2070,7 @@ let BattleStatuses = {
 		onSwitchIn(pokemon) {
 			if (!pokemon.isGrounded()) return;
 			this.add('-activate', pokemon, 'move: Sticky Web');
-			this.boost({spe: -1}, pokemon, pokemon.side.foe.active[0], this.getActiveMove('stickyweb'));
+			this.boost({spe: -1}, pokemon, pokemon.side.foe.active[0], this.dex.getActiveMove('stickyweb'));
 		},
 	},
 	toxicspikes: {

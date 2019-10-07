@@ -600,7 +600,6 @@ exports.grouplist = [
 	},
 	{
 		symbol: ' ',
-		ip: 's',
 	},
 	{
 		name: 'Locked',
