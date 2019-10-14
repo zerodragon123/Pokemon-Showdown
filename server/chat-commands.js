@@ -1873,7 +1873,6 @@ const commands = {
 			if (!targetUser || !globalWarn) return this.errorReply(`User '${this.targetUsername}' not found.`);
 
 			this.addModAction(`${targetUser.name} would be warned by ${user.name} but is offline.${(target ? ` (${target})` : ``)}`);
-			this.modlog('WARN OFFLINE', targetUser, target, {noalts: 1});
 			this.globalModlog('WARN OFFLINE', targetUser, ` by ${user.id}${(target ? `: ${target}` : ``)}`);
 			return;
 		}
@@ -1894,8 +1893,11 @@ const commands = {
 		}
 
 		this.addModAction(`${targetUser.name} was warned by ${user.name}.${(target ? ` (${target})` : ``)}`);
-		this.modlog('WARN', targetUser, target, {noalts: 1});
-		if (globalWarn) this.globalModlog('WARN', targetUser, ` by ${user.id}${(target ? `: ${target}` : ``)}`);
+		if (globalWarn) {
+			this.globalModlog('WARN', targetUser, ` by ${user.id}${(target ? `: ${target}` : ``)}`);
+		} else {
+			this.modlog('WARN', targetUser, target, {noalts: 1});
+		}
 		targetUser.send(`|c|~|/warn ${target}`);
 
 		const userid = targetUser.getLastId();
@@ -1903,6 +1905,9 @@ const commands = {
 		if (userid !== toID(this.inputUsername)) this.add(`|unlink|${toID(this.inputUsername)}`);
 
 		targetUser.lastWarnedAt = now;
+
+		// Automatically upload replays as evidence/reference to the punishment
+		if (globalWarn && room.battle) this.parse('/savereplay forpunishment');
 	},
 	warnhelp: [`/warn OR /k [username], [reason] - Warns a user showing them the Pok\u00e9mon Showdown Rules and [reason] in an overlay. Requires: % @ # & ~`],
 
@@ -2452,8 +2457,12 @@ const commands = {
 		}
 		if (!this.can('receiveauthmessages', null, room)) return false;
 		target = target.replace(/\n/g, "; ");
-		this.modlog('NOTE', null, target);
-		if (room.roomid === 'staff' || room.roomid === 'upperstaff') this.globalModlog('NOTE', null, ` by ${user.id}: ${target}`);
+		if (room.roomid === 'staff' || room.roomid === 'upperstaff') {
+			this.globalModlog('NOTE', null, ` by ${user.id}: ${target}`);
+		} else {
+			this.modlog('NOTE', null, target);
+		}
+
 		return this.privateModAction(`(${user.name} notes: ${target})`);
 	},
 	modnotehelp: [`/modnote [note] - Adds a moderator note that can be read through modlog. Requires: % @ # & ~`],
@@ -2734,14 +2743,12 @@ const commands = {
 		if (targetUser.connected) {
 			forceRenameMessage = `was forced to choose a new name by ${user.name}${(reason ? `: ${reason}` : ``)}`;
 			this.globalModlog('FORCERENAME', targetUser, ` by ${user.name}${(reason ? `: ${reason}` : ``)}`);
-			this.modlog('FORCERENAME', targetUser, reason, {noip: 1, noalts: 1});
 			Chat.forceRenames.set(targetUser.id, (Chat.forceRenames.get(targetUser.id) || 0) + 1);
 			Ladders.cancelSearches(targetUser);
 			targetUser.send(`|nametaken||${user.name} considers your name inappropriate${(reason ? `: ${reason}` : ".")}`);
 		} else {
 			forceRenameMessage = `would be forced to choose a new name by ${user.name} but is offline${(reason ? `: ${reason}` : ``)}`;
 			this.globalModlog('FORCERENAME OFFLINE', targetUser, ` by ${user.name}${(reason ? `: ${reason}` : ``)}`);
-			this.modlog('FORCERENAME OFFLINE', targetUser, reason, {noip: 1, noalts: 1});
 			if (!Chat.forceRenames.has(targetUser.id)) Chat.forceRenames.set(targetUser.id, 0);
 		}
 
@@ -2837,15 +2844,8 @@ const commands = {
 		let userid = toID(this.inputUsername);
 
 		if (!this.can('mute', null, room)) return;
-		if (targetUser && targetUser.trusted && targetUser !== user) {
-			if (!cmd.includes('force')) {
-				return this.errorReply(`${target} is a trusted user, are you sure you want to hide their messages? Use /forcehidetext if you're sure.`);
-			}
-			// Notify staff when a trusted user gets their messages hidden
-			if (!room.isPrivate) {
-				const staffRoom = Rooms.get('staff');
-				if (staffRoom) staffRoom.addByUser(user, `<<${room.roomid}>> ${user.name} hid trusted user ${targetUser.name}'s messages.`);
-			}
+		if (targetUser && targetUser.trusted && targetUser !== user && !cmd.includes('force')) {
+			return this.errorReply(`${target} is a trusted user, are you sure you want to hide their messages? Use /forcehidetext if you're sure.`);
 		}
 
 		if (targetUser && cmd.includes('alt')) {
@@ -3035,7 +3035,7 @@ const commands = {
 		const userRank = Config.groupsranking.indexOf(room.getAuth(user));
 		for (const userid of targets) {
 			if (!userid) return this.errorReply(`User '${userid}' is not a valid userid.`);
-			const targetRank = Config.groupsranking.indexOf(room.getAuth({userid}));
+			const targetRank = Config.groupsranking.indexOf(room.getAuth({id: userid}));
 			if (targetRank >= userRank) return this.errorReply(`/blacklistname - Access denied: ${userid} is of equal or higher authority than you.`);
 
 			Punishments.roomBlacklist(room, null, null, userid, reason);
@@ -4162,7 +4162,6 @@ const commands = {
 		}
 
 		const forPunishment = target === 'forpunishment';
-		if (forPunishment && !this.can('lock')) return false;
 
 		const battle = room.battle;
 		// retrieve spectator log (0) if there are privacy concerns
@@ -4196,6 +4195,7 @@ const commands = {
 		connection.send('|queryresponse|savereplay|' + JSON.stringify({
 			log: data,
 			id: room.roomid.substr(7),
+			silent: forPunishment || target === 'silent',
 		}));
 	},
 

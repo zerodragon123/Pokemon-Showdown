@@ -757,7 +757,7 @@ let Formats = [
 		],
 
 		mod: 'gen7',
-		ruleset: ['[Gen 7] OU', '!Obtainable Abilities', '!Obtainable Moves'],
+		ruleset: ['[Gen 7] OU'],
 		banlist: [
 			'Blacephalon', 'Chansey', 'Cresselia', 'Hoopa-Unbound', 'Kartana', 'Kyurem-Black', 'Regigigas', 'Shedinja', 'Slaking', 'Gyaradosite',
 			'Huge Power', 'Imposter', 'Innards Out', 'Pure Power', 'Speed Boost', 'Water Bubble', 'Assist', 'Chatter', 'Shell Smash',
@@ -791,22 +791,31 @@ let Formats = [
 				this.format.abilityMap = abilityMap;
 			}
 
-			// First validate that the pokemon is a valid forme
-			let problems = this.validateForme(set);
-			if (problems.length) return problems;
+			let problem = this.validateForme(set);
+			if (problem.length) return problem;
 
 			let template = Dex.getTemplate(set.species);
+			if (!template.exists || template.isNonstandard) return [`The Pok\u00e9mon "${set.species}" does not exist.`];
+			if (template.isUnreleased) return [`${template.species} is unreleased.`];
+
 			let megaTemplate = Dex.getTemplate(Dex.getItem(set.item).megaStone);
 			if (template.tier === 'Uber' || megaTemplate.tier === 'Uber' || this.format.banlist.includes(template.species)) return [`${megaTemplate.tier === 'Uber' ? megaTemplate.species : template.species} is banned.`];
 
+			let name = set.name;
+
 			let ability = Dex.getAbility(set.ability);
+			if (!ability.exists || ability.isNonstandard) return [`${name} needs to have a valid ability.`];
 			// @ts-ignore
 			let pokemonWithAbility = this.format.abilityMap[ability.id];
 			if (!pokemonWithAbility) return [`"${set.ability}" is not available on a legal Pok\u00e9mon.`];
 
+			// @ts-ignore
+			this.format.debug = true;
+
 			let canonicalSource = ''; // Specific for the basic implementation of Donor Clause (see onValidateTeam).
 			// @ts-ignore
 			let validSources = set.abilitySources = []; // Evolution families
+
 			for (const donor of pokemonWithAbility) {
 				let donorTemplate = Dex.getTemplate(donor);
 				// @ts-ignore
@@ -814,9 +823,8 @@ let Formats = [
 
 				if (validSources.includes(evoFamily)) continue;
 
-				if (set.name === set.species) delete set.name;
 				set.species = donorTemplate.species;
-				problems = this.validateSet(set, teamHas) || [];
+				const problems = this.validateSet(set, teamHas) || [];
 
 				if (!problems.length) {
 					canonicalSource = donorTemplate.species;
@@ -827,16 +835,18 @@ let Formats = [
 					break;
 				}
 			}
+			// @ts-ignore
+			this.format.debug = false;
 
+			set.name = name;
 			set.species = template.species;
 			if (!validSources.length) {
-				if (pokemonWithAbility.length > 1) return [`${template.species}'s set is illegal.`];
-				problems.unshift(`${template.species} has an illegal set with an ability from ${Dex.getTemplate(pokemonWithAbility[0]).name}.`);
-				return problems;
+				if (pokemonWithAbility.length > 1) return [`${name}'s set is illegal.`];
+				return [`${name} has an illegal set with an ability from ${Dex.getTemplate(pokemonWithAbility[0]).name}.`];
 			}
 
 			// Protocol: Include the data of the donor species in the `ability` data slot.
-			// Afterwards, we are going to reset the name to what the user intended. :]
+			// Afterwards, we are going to reset it to what the user intended. :]
 			set.ability = `${set.ability}0${canonicalSource}`;
 		},
 		onValidateTeam(team, format) {
@@ -892,7 +902,7 @@ let Formats = [
 
 		mod: 'gen7',
 		ruleset: ['[Gen 7] Ubers'],
-		banlist: ['Gengar-Mega', 'Rufflet', 'Arena Trap', 'Shadow Tag', 'Eevium Z', 'Eviolite', 'Deep Sea Tooth', 'Light Ball'],
+		banlist: ['Gengar-Mega', 'Pawniard', 'Rufflet', 'Arena Trap', 'Shadow Tag', 'Eevium Z', 'Eviolite', 'Deep Sea Tooth', 'Light Ball'],
 		onModifyTemplate(template, target, source) {
 			if (source) return;
 			if (Object.values(template.baseStats).reduce((x, y) => x + y) > 350) return;
@@ -1374,7 +1384,7 @@ let Formats = [
 		onBegin() {
 			this.add('raw|SUPER STAFF BROS <b>BRAWL</b>!!');
 			this.add('message', 'GET READY FOR THE NEXT BATTLE!');
-			if (this.teamGenerator.allXfix) this.add(`c|&HoeenHero|Oops I dropped my bag of xfix sets sorry!`);
+			if (this.teamGenerator.allXfix) this.add(`c|~HoeenHero|Oops I dropped my bag of xfix sets sorry!`);
 			this.add(`raw|<div class='broadcast-green'><b>Wondering what all these custom moves, abilities, and items do?<br />Check out the <a href="https://www.smogon.com/articles/super-staff-bros-brawl" target="_blank">Super Staff Bros Brawl Guide</a> and find out!</b></div>`);
 		},
 		onSwitchInPriority: 100,
@@ -2203,7 +2213,7 @@ let Formats = [
 		gameType: 'doubles',
 		searchShow: false,
 		debug: true,
-		ruleset: ['Obtainable', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['HP Percentage Mod', 'Cancel Mod'],
 	},
 	{
 		name: "[Gen 2] Ubers",

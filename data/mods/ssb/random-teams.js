@@ -375,8 +375,8 @@ class RandomStaffBrosTeams extends RandomTeams {
 			},
 			'Iyarito': {
 				species: 'Vaporeon', ability: 'Poison Heal', item: 'Leftovers', gender: 'F',
-				moves: ['Scald', 'Wish', 'Toxic'],
-				signatureMove: 'Víbora',
+				moves: ['Scald', 'Recover', 'Toxic'],
+				signatureMove: 'Rosa Rosa',
 				evs: {hp: 252, def: 220, spd: 36}, nature: 'Bold', shiny: true,
 			},
 			'Jolteonite': {
@@ -435,7 +435,7 @@ class RandomStaffBrosTeams extends RandomTeams {
 			},
 			'Level 51': {
 				species: 'Porygon2', ability: 'Stamina', item: 'Eviolite', gender: 'N',
-				moves: ['Recover', ['Seismic Toss', 'Night Shade'], ['Cosmic Power', 'Aqua Ring']],
+				moves: ['Recover', ['Seismic Toss', 'Night Shade'], 'Cosmic Power'],
 				signatureMove: 'Next Level Strats',
 				evs: {hp: 236, def: 220, spd: 48, spe: 4}, ivs: {atk: 0}, nature: 'Calm',
 			},

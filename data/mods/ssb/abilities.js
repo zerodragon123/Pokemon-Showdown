@@ -173,7 +173,7 @@ let BattleAbilities = {
 		name: "Distortion World",
 		isNonstandard: "Custom",
 		onStart() {
-			this.field.setTerrain('distortionworld');
+			this.field.addPseudoWeather('distortionworld');
 		},
 	},
 	// A Quag To The Past
@@ -875,7 +875,7 @@ let BattleAbilities = {
 		},
 		onModifyDef(def, pokemon) {
 			if (this.field.isWeather(['raindance', 'primordialsea'])) {
-				return this.chainModify(1.5);
+				return this.chainModify(2);
 			}
 		},
 	},
