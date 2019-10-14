@@ -763,10 +763,10 @@ export class User extends Chat.MessageContext {
 	}
 	updateIdentity(roomid: RoomID | null = null) {
 		if (roomid) {
-			return Rooms.get(roomid).onUpdateIdentity(this);
+			return Rooms.get(roomid)!.onUpdateIdentity(this);
 		}
 		for (const inRoomID of this.inRooms) {
-			Rooms.get(inRoomID).onUpdateIdentity(this);
+			Rooms.get(inRoomID)!.onUpdateIdentity(this);
 		}
 	}
 	/**
@@ -1030,7 +1030,7 @@ export class User extends Chat.MessageContext {
 			room.game.onRename(this, oldid, joining, isForceRenamed);
 		}
 		for (const roomid of this.inRooms) {
-			Rooms.get(roomid).onRename(this, oldid, joining);
+			Rooms.get(roomid)!.onRename(this, oldid, joining);
 		}
 		if (isForceRenamed) this.trackRename = oldname;
 		return true;
@@ -1057,7 +1057,7 @@ export class User extends Chat.MessageContext {
 	merge(oldUser: User) {
 		oldUser.cancelReady();
 		for (const roomid of oldUser.inRooms) {
-			Rooms.get(roomid).onLeave(oldUser);
+			Rooms.get(roomid)!.onLeave(oldUser);
 		}
 
 		if (this.locked === '#dnsbl' && !oldUser.locked) this.locked = null;
@@ -1124,7 +1124,7 @@ export class User extends Chat.MessageContext {
 		connection.send(this.getUpdateuserText());
 		connection.user = this;
 		for (const roomid of connection.inRooms) {
-			const room = Rooms.get(roomid);
+			const room = Rooms.get(roomid)!;
 			if (!this.inRooms.has(roomid)) {
 				if (Punishments.checkNameInRoom(this, room.roomid)) {
 					// the connection was in a room that this user is banned from
@@ -1273,7 +1273,7 @@ export class User extends Chat.MessageContext {
 					this.markDisconnected();
 				}
 				for (const roomid of connection.inRooms) {
-					this.leaveRoom(Rooms.get(roomid), connection, true);
+					this.leaveRoom(Rooms.get(roomid)!, connection, true);
 				}
 				--this.ips[connection.ip];
 				this.connections.splice(i, 1);
@@ -1284,7 +1284,7 @@ export class User extends Chat.MessageContext {
 			for (const roomid of this.inRooms) {
 				// should never happen.
 				Monitor.debug(`!! room miscount: ${roomid} not left`);
-				Rooms.get(roomid).onLeave(this);
+				Rooms.get(roomid)!.onLeave(this);
 			}
 			// cleanup
 			this.inRooms.clear();
@@ -1307,7 +1307,7 @@ export class User extends Chat.MessageContext {
 			// console.log('DESTROY: ' + this.id);
 			connection = this.connections[i];
 			for (const roomid of connection.inRooms) {
-				this.leaveRoom(Rooms.get(roomid), connection, true);
+				this.leaveRoom(Rooms.get(roomid)!, connection, true);
 			}
 			connection.destroy();
 		}
@@ -1412,7 +1412,7 @@ export class User extends Chat.MessageContext {
 		connection: Connection | null = null,
 		force: boolean = false
 	) {
-		room = Rooms.get(room);
+		room = Rooms.get(room)!;
 		if (room.roomid === 'global') {
 			// you can't leave the global room except while disconnecting
 			if (!force) return false;

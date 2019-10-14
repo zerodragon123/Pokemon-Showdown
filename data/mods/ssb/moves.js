@@ -561,15 +561,9 @@ let BattleMovedex = {
 			this.add('-anim', source, 'Dark Void', source);
 			this.add('-anim', target, 'Dark Void', target);
 		},
-		terrain: 'distortionworld',
+		pseudoWeather: 'distortionworld',
 		effect: {
 			duration: 5,
-			durationCallback(source, effect) {
-				if (source && source.hasItem('terrainextender')) {
-					return 8;
-				}
-				return 5;
-			},
 			onBasePower(basePower, attacker, defender, move) {
 				if (move.type === 'Ghost') {
 					this.debug('distortion world boost');
@@ -2223,14 +2217,14 @@ let BattleMovedex = {
 		type: "Psychic",
 	},
 	// Iyarito
-	vbora: {
+	rosarosa: {
 		accuracy: true,
 		basePower: 0,
 		category: "Status",
 		desc: "Cures the user's party of all status conditions, then poisons the user.",
 		shortDesc: "Cures party's statuses, then poisons self.",
-		id: "vbora",
-		name: "Víbora",
+		id: "rosarosa",
+		name: "Rosa Rosa",
 		isNonstandard: "Custom",
 		pp: 5,
 		flags: {mirror: 1, snatch: 1},
@@ -2258,8 +2252,8 @@ let BattleMovedex = {
 		accuracy: 100,
 		basePower: 90,
 		category: "Physical",
-		desc: "Damages the target and restores user's HP by 25% of its total health.",
-		shortDesc: "Damages the target and heals 25% total HP.",
+		desc: "Damages the target and restores user's HP by 15% of its total health.",
+		shortDesc: "Damages the target and heals 15% total HP.",
 		id: "hyperforcestrike",
 		name: "Hyperforce Strike",
 		isNonstandard: "Custom",
@@ -2999,7 +2993,7 @@ let BattleMovedex = {
 		},
 		category: "Physical",
 		desc: "Base Power rises by 20 for each of the user's positive stat stage changes. The user loses any defensive boosts not from Stockpile.",
-		shortDesc: "+20 BP per boost. Resets non-Stockpile boosts.",
+		shortDesc: "+20 BP per boost. Lose non-Stockpile +Def/SpD.",
 		id: "tippingover",
 		name: "Tipping Over",
 		isNonstandard: "Custom",
@@ -3384,7 +3378,7 @@ let BattleMovedex = {
 		onHit(target, source) {
 			if (target.name === 'HoeenHero') {
 				this.add(`c|@pluviometer|HoennHero*`);
-				this.add(`c|&HoeenHero|I can speel`);
+				this.add(`c|~HoeenHero|I can speel`);
 			}
 		},
 		secondary: {
