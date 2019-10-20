@@ -129,6 +129,7 @@ export class Battle {
 			format.realFormat = realFormat;
 			// @ts-ignore
 			mod = realFormat.substr(0, 4);				// genx
+			format.mod=mod;
 		}
 
 		// @ts-ignore
