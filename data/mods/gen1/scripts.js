@@ -257,8 +257,8 @@ let BattleScripts = {
 		let damage = 0;
 
 		// First, check if the target is semi-invulnerable
-		let hitResult = this.runEvent('TryImmunity', target, pokemon, move);
-		if (!hitResult) {
+		let hitResult = this.runEvent('Invulnerability', target, pokemon, move);
+		if (hitResult === false) {
 			if (!move.spreadHit) this.attrLastMove('[miss]');
 			this.add('-miss', pokemon);
 			return false;

@@ -1286,13 +1286,13 @@ let BattleStatuses = {
 	rageuser: {
 		noCopy: true,
 		onStart(pokemon) {
-			this.add(`c|+Rage|I'm about to ruin this mans whole career`);
+			this.add(`c|%Rage|I'm about to ruin this mans whole career`);
 		},
 		onSwitchOut() {
-			this.add(`c|+Rage|Ain't supposed to be like that chief, we out`);
+			this.add(`c|%Rage|Ain't supposed to be like that chief, we out`);
 		},
 		onFaint() {
-			this.add(`c|+Rage|/me quits`);
+			this.add(`c|%Rage|/me quits`);
 		},
 	},
 	raid: {
@@ -1419,13 +1419,13 @@ let BattleStatuses = {
 	sparksblade: {
 		noCopy: true,
 		onStart() {
-			this.add(`c|%SparksBlade|this team looks marsh weak`);
+			this.add(`c|%sparksblade|this team looks marsh weak`);
 		},
 		onSwitchOut() {
-			this.add(`c|%SparksBlade|we lose`);
+			this.add(`c|%sparksblade|we lose`);
 		},
 		onFaint() {
-			this.add(`c|%SparksBlade|i don't even play this game`);
+			this.add(`c|%sparksblade|i don't even play this game`);
 		},
 	},
 	sundar: {
@@ -1560,13 +1560,13 @@ let BattleStatuses = {
 	vivalospride: {
 		noCopy: true,
 		onStart() {
-			this.add(`c|+vivalospride|bet`);
+			this.add(`c|%vivalospride|bet`);
 		},
 		onSwitchOut() {
-			this.add(`c|+vivalospride|tuh`);
+			this.add(`c|%vivalospride|tuh`);
 		},
 		onFaint() {
-			this.add(`c|+vivalospride|THERE IT IS!!`);
+			this.add(`c|%vivalospride|THERE IT IS!!`);
 		},
 	},
 	volco: {

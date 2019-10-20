@@ -167,8 +167,8 @@ let BattleScripts = {
 			return false;
 		}
 
-		hitResult = this.runEvent('TryImmunity', target, pokemon, move);
-		if (!hitResult) {
+		hitResult = this.runEvent('Invulnerability', target, pokemon, move);
+		if (hitResult === false) {
 			if (!move.spreadHit) this.attrLastMove('[miss]');
 			this.add('-miss', pokemon);
 			return false;

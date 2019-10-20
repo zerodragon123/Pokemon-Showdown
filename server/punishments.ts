@@ -324,7 +324,7 @@ export const Punishments = new class {
 			if (ip.includes('/')) {
 				rangebans.push(ip);
 			} else if (!Punishments.ips.has(ip)) {
-				Punishments.ips.set(ip, ['BAN', '#ipban', Infinity, '']);
+				Punishments.ips.set(ip, ['LOCK', '#ipban', Infinity, '']);
 			}
 		}
 		Punishments.checkRangeBanned = IPTools.checker(rangebans);
@@ -1124,6 +1124,8 @@ export const Punishments = new class {
 		} else {
 			if (punishUserid === '#hostfilter') {
 				user.popup(`Due to spam, you can't chat using a proxy. (Your IP ${user.latestIp} appears to be a proxy.)`);
+			} else if (punishUserid === '#ipban') {
+				user.popup(`你的IP (${user.latestIp}) 被Pokemon Showdown中国服务器永久封禁，因为该IP曾被用于刷屏、攻击服务器等行为。如果你的IP被不小心误封，请加入PS国服讨论群[群号:451507969]，并联系管理员解封。注意：请不要使用任何代理登录PS。`);
 			} else if (!user.lockNotified) {
 				user.send(`|popup||html|You are locked${bannedUnder}. ${user.permalocked ? `This lock is permanent.` : `Your lock will expire in a few days.`}${reason}${appeal}`);
 			}
@@ -1135,7 +1137,12 @@ export const Punishments = new class {
 
 	checkIp(user: User, connection: Connection) {
 		const ip = connection.ip;
-		const punishment = Punishments.ipSearch(ip);
+		let punishment = Punishments.ipSearch(ip);
+
+		if (!punishment && Punishments.checkRangeBanned(ip)) {
+			punishment = ['LOCK', '#ipban', Infinity, ''];
+		}
+
 		if (punishment) {
 			if (Punishments.sharedIps.has(user.latestIp)) {
 				if (!user.locked && !user.autoconfirmed) {
@@ -1183,17 +1190,11 @@ export const Punishments = new class {
 		const punishment = Punishments.ipSearch(ip);
 		if (punishment && punishment[0] === 'BAN') {
 			banned = punishment[1];
-		} else if (Punishments.checkRangeBanned(ip)) {
-			banned = '#ipban';
 		}
 		if (!banned) return false;
 
-		if (banned === '#ipban') {
-			connection.send(`|popup||modal|你的IP (${ip}) 被Pokemon Showdown中国服务器永久封禁，因为该IP曾被用于刷屏、攻击服务器等行为。||如果你的IP被不小心误封，请加入PS国服讨论群[群号:451507969]，并联系管理员解封。||注意：请不要使用任何代理登录PS。`);
-		} else {
-			const appeal = (Config.appealurl ? `||||Or you can appeal at: ${Config.appealurl}` : ``);
-			connection.send(`|popup||modal|You are banned because you have the same IP (${ip}) as banned user '${banned}'. Your ban will expire in a few days.${appeal}`);
-		}
+		const appeal = (Config.appealurl ? `||||Or you can appeal at: ${Config.appealurl}` : ``);
+		connection.send(`|popup||modal|You are banned because you have the same IP (${ip}) as banned user '${banned}'. Your ban will expire in a few days.${appeal}`);
 		Monitor.notice(`CONNECT BLOCKED - IP BANNED: ${ip} (${banned})`);
 
 		return banned;

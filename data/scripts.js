@@ -280,7 +280,7 @@ let BattleScripts = {
 		/** @type {((targets: Pokemon[], pokemon: Pokemon, move: ActiveMove) => (number | boolean | "" | undefined)[] | undefined)[]} */
 		let moveSteps = [
 			// 0. check for semi invulnerability
-			this.hitStepTryImmunityEvent,
+			this.hitStepInvulnerabilityEvent,
 
 			// 1. run the 'TryHit' event (Protect, Magic Bounce, Volt Absorb, etc.) (this is step 2 in gens 5 & 6, and step 5 in gen 4)
 			this.hitStepTryHitEvent,
@@ -356,14 +356,12 @@ let BattleScripts = {
 		if (move.spreadHit) this.attrLastMove('[spread] ' + hitSlot.join(','));
 		return moveResult;
 	},
-	hitStepTryImmunityEvent(targets, pokemon, move) {
-		const hitResults = this.runEvent('TryImmunity', targets, pokemon, move);
+	hitStepInvulnerabilityEvent(targets, pokemon, move) {
+		const hitResults = this.runEvent('Invulnerability', targets, pokemon, move);
 		for (const [i, target] of targets.entries()) {
 			if (hitResults[i] === false) {
 				if (!move.spreadHit) this.attrLastMove('[miss]');
 				this.add('-miss', pokemon, target);
-			} else {
-				hitResults[i] = hitResults[i] || false;
 			}
 		}
 		return hitResults;
@@ -861,7 +859,15 @@ let BattleScripts = {
 					didSomething = this.combineResults(didSomething, hitResult);
 				}
 				if (moveData.heal && !target.fainted) {
-					let d = target.heal((this.gen < 5 ? Math.floor : Math.round)(target.maxhp * moveData.heal[0] / moveData.heal[1]));
+					if (target.hp >= target.maxhp) {
+						this.add('-fail', pokemon, 'heal');
+						this.attrLastMove('[still]');
+						damage[i] = this.combineResults(damage[i], false);
+						didAnything = this.combineResults(didAnything, null);
+						continue;
+					}
+					let amount = target.maxhp * moveData.heal[0] / moveData.heal[1];
+					let d = target.heal((this.gen < 5 ? Math.floor : Math.round)(amount));
 					if (!d && d !== 0) {
 						this.add('-fail', pokemon);
 						this.attrLastMove('[still]');

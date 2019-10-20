@@ -205,7 +205,7 @@ class RandomTeams {
 			} else if (template.learnset) {
 				// @ts-ignore
 				pool = Object.keys(template.learnset).filter(moveid => template.learnset[moveid].find(learned => learned.startsWith(this.gen)));
-				if (template.species.substr(0, 6) === 'Rotom-') {
+				if (template.species.substr(0, 9) === 'Necrozma-' || template.species.substr(0, 6) === 'Rotom-') {
 					const learnset = this.dex.getTemplate(template.baseSpecies).learnset;
 					if (learnset) pool = [...new Set(pool.concat(Object.keys(learnset)))];
 				}
@@ -1471,7 +1471,7 @@ class RandomTeams {
 			item = '';
 		} else if (((hasMove['darkpulse'] && ability === 'Fur Coat' && counter.setupType) || (hasMove['suckerpunch'] && ability === 'Moxie' && counter['Dark'] < 2)) && !teamDetails.zMove) {
 			item = 'Darkinium Z';
-		} else if (hasMove['outrage'] && counter.setupType && !teamDetails.zMove) {
+		} else if (hasMove['outrage'] && counter.setupType && !hasMove['fly'] && !teamDetails.zMove) {
 			item = 'Dragonium Z';
 		} else if (hasMove['electricterrain'] || ability === 'Electric Surge' && hasMove['thunderbolt']) {
 			item = 'Electrium Z';

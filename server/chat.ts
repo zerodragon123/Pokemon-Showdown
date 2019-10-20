@@ -665,7 +665,7 @@ export class CommandContext extends MessageContext {
 		buf += note.replace(/\n/gm, ' ');
 
 		Rooms.global.modlog(buf);
-		this.room.modlog(buf);
+		if (this.room !== Rooms.global) this.room.modlog(buf);
 	}
 	modlog(
 		action: string,
@@ -1896,7 +1896,7 @@ export const Chat = new class {
 /**
  * Used by ChatMonitor.
  */
-export type FilterWord = [string | RegExp, string, string | null, number];
+export type FilterWord = [RegExp, string, string, string | null, number];
 
 export type MonitorHandler = (
 	this: CommandContext,

@@ -90,14 +90,13 @@ let BattleScripts = {
 
 		return Math.floor(baseDamage);
 	},
-	hitStepTryImmunityEvent(targets, pokemon, move) {
-		const hitResults = this.runEvent('TryImmunity', targets, pokemon, move);
+	hitStepInvulnerabilityEvent(targets, pokemon, move) {
+		const hitResults = this.runEvent('Invulnerability', targets, pokemon, move);
 		for (const [i, target] of targets.entries()) {
-			if (!hitResults[i]) {
+			if (hitResults[i] === false) {
 				this.attrLastMove('[miss]');
 				this.add('-miss', pokemon, target);
 			}
-			hitResults[i] = hitResults[i] || false;
 		}
 		return hitResults;
 	},

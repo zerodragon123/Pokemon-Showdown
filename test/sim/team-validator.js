@@ -61,6 +61,20 @@ describe('Team Validator', function () {
 		assert(illegal);
 	});
 
+	it('should validate Gen 7 IVs', function () {
+		let team = [
+			{species: 'yveltal', ability: 'darkaura', moves: ['hiddenpowerfighting'], evs: {hp: 1}},
+		];
+		let illegal = TeamValidator.get('gen7ubers').validateTeam(team);
+		assert(illegal);
+
+		team = [
+			{species: 'latiasmega', ability: 'levitate', item: 'latiasite', moves: ['hiddenpowerfighting'], evs: {hp: 1}},
+		];
+		illegal = TeamValidator.get('gen7ubers').validateTeam(team);
+		assert.strictEqual(illegal, null);
+	});
+
 	it('should reject non-existent natures', function () {
 		let team = [
 			{species: 'pikachu', ability: 'static', moves: ['thunderbolt'], nature: 'nonexistentNature', evs: {hp: 1}},
@@ -202,6 +216,12 @@ describe('Team Validator', function () {
 		];
 		illegal = TeamValidator.get('gen2ou').validateTeam(team);
 		assert(illegal);
+
+		team = [
+			{species: 'weezing', ability: 'levitate', moves: ['painsplit', 'willowisp'], evs: {hp: 1}},
+		];
+		illegal = TeamValidator.get('gen3ou').validateTeam(team);
+		assert.strictEqual(illegal, null);
 
 		// chainbreed smeargle to snubbull to chansey
 		team = [
@@ -420,6 +440,18 @@ describe('Team Validator', function () {
 		];
 		let illegal = TeamValidator.get('gen7anythinggoes@@@-Pikachu').validateTeam(team);
 		assert(illegal);
+
+		team = [
+			{species: 'greninja', ability: 'battlebond', moves: ['surf'], evs: {hp: 1}},
+		];
+		illegal = TeamValidator.get('gen7anythinggoes@@@-Greninja-Ash').validateTeam(team);
+		assert(illegal);
+
+		team = [
+			{species: 'greninja', ability: 'battlebond', moves: ['surf'], evs: {hp: 1}},
+		];
+		illegal = TeamValidator.get('gen7anythinggoes@@@!Obtainable Formes,-Greninja-Ash').validateTeam(team);
+		assert.strictEqual(illegal, null);
 	});
 
 	it('should allow Pokemon to be unbanned', function () {

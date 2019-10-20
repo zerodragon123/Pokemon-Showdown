@@ -210,37 +210,25 @@ let BattleMovedex = {
 	// Akasianse
 	quickreload: {
 		accuracy: 100,
-		basePower: 90,
+		basePower: 0,
 		category: "Physical",
-		desc: "Removes Reflect, Light Screen, Aurora Veil, Safeguard, Mist, Spikes, Toxic Spikes, Stealth Rock, and Sticky Web from both of the field sides. The target's evasion is lowered by one stage. The user switches out after damaging the target.",
-		shortDesc: "Clears screens/hazards, foe evasion -1, switches.",
+		desc: "Uses Defog and then attempts to use U-Turn.",
+		shortDesc: "Uses Defog, then U-Turn.",
 		id: "quickreload",
 		name: "Quick Reload",
 		isNonstandard: "Custom",
 		pp: 15,
 		priority: 0,
-		flags: {mirror: 1, protect: 1},
+		flags: {mirror: 1, protect: 1, authentic: 1},
 		onTryMove() {
 			this.attrLastMove('[still]');
 		},
-		onPrepareHit(target, source) {
-			this.add('-anim', source, "Defog", target);
-			this.add('-anim', source, "U-Turn", target);
+		onHit(target, source) {
+			this.useMove('Defog', source, target);
+			let move = this.dex.getActiveMove('uturn');
+			move.basePower = 90;
+			this.useMove(move, source, target);
 		},
-		onHit(target, source, move) {
-			let removeAll = ['reflect', 'lightscreen', 'auroraveil', 'safeguard', 'mist', 'spikes', 'toxicspikes', 'stealthrock', 'stickyweb'];
-			let silentRemove = ['reflect', 'lightscreen', 'auroraveil', 'safeguard', 'mist'];
-			for (const sideCondition of removeAll) {
-				if (target.side.removeSideCondition(sideCondition)) {
-					if (!(silentRemove.includes(sideCondition))) this.add('-sideend', target.side, this.dex.getEffect(sideCondition).name, '[from] move: Quick Reload', '[of] ' + source);
-				}
-				if (source.side.removeSideCondition(sideCondition)) {
-					if (!(silentRemove.includes(sideCondition))) this.add('-sideend', source.side, this.dex.getEffect(sideCondition).name, '[from] move: Quick Reload', '[of] ' + source);
-				}
-			}
-		},
-		boosts: {evasion: -1},
-		selfSwitch: true,
 		secondary: null,
 		target: "normal",
 		type: "Bug",
@@ -2721,7 +2709,14 @@ let BattleMovedex = {
 		onHit(target, source, move) {
 			let napWeather = this.field.pseudoWeather['naptime'];
 			// Trigger sleep clause if not the original user
-			if (!target.trySetStatus('slp', napWeather.source, move)) return false;
+			if (target !== napWeather.source) {
+				for (const ally of target.side.pokemon) {
+					if (ally.status === 'slp') {
+						if (!(ally.statusData.source && ally.statusData.source.side === ally.side)) return false;
+					}
+				}
+			}
+			if (!target.setStatus('slp', napWeather.source, move)) return false;
 			target.statusData.time = 2;
 			target.statusData.startTime = 2;
 			this.heal(target.maxhp / 2); // Aesthetic only as the healing happens after you fall asleep in-game
@@ -3319,7 +3314,7 @@ let BattleMovedex = {
 		name: "Tea Break",
 		pp: 5,
 		priority: 0,
-		flags: {protect: 1},
+		flags: {protect: 1, authentic: 1},
 		sleepUsable: true,
 		onTryMove(pokemon) {
 			this.attrLastMove('[still]');
@@ -3645,10 +3640,10 @@ let BattleMovedex = {
 	// Rach
 	stunner: {
 		accuracy: 85,
-		basePower: 100,
+		basePower: 95,
 		category: "Physical",
-		desc: "Has a 70% chance to raise the user's Attack by one stage and a 20% chance to paralyze the foe or cause them to flinch.",
-		shortDesc: "70% user's Atk +1. 20% flinch or paralyze foe.",
+		desc: "Has a 50% chance to raise the user's Attack by one stage and a 20% chance to paralyze the foe or cause them to flinch.",
+		shortDesc: "50% user's Atk +1. 20% flinch or paralyze foe.",
 		id: "stunner",
 		name: "Stunner",
 		pp: 10,
@@ -3663,7 +3658,7 @@ let BattleMovedex = {
 		flags: {protect: 1, mirror: 1, contact: 1},
 		secondaries: [
 			{
-				chance: 70,
+				chance: 50,
 				self: {
 					boosts: {atk: 1},
 				},
@@ -4096,7 +4091,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Dark",
 	},
-	// SparksBlade
+	// sparksblade
 	kratosmana: {
 		accuracy: 100,
 		basePower: 250,

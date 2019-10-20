@@ -476,6 +476,7 @@ let BattleAbilities = {
 				}
 			}
 			if (statsLowered) {
+				this.add('-ability', target, 'Competitive');
 				this.boost({spa: 2}, target, target, null, true);
 			}
 		},
@@ -647,6 +648,7 @@ let BattleAbilities = {
 				}
 			}
 			if (statsLowered) {
+				this.add('-ability', target, 'Defiant');
 				this.boost({atk: 2}, target, target, null, true);
 			}
 		},
@@ -1582,7 +1584,7 @@ let BattleAbilities = {
 				if (target.volatiles['substitute']) {
 					this.add('-immune', target);
 				} else {
-					this.boost({atk: -1}, target, pokemon);
+					this.boost({atk: -1}, target, pokemon, null, true);
 				}
 			}
 		},
@@ -2170,6 +2172,10 @@ let BattleAbilities = {
 	},
 	"noguard": {
 		shortDesc: "Every move used by or against this Pokemon will always hit.",
+		onAnyInvulnerabilityPriority: 1,
+		onAnyInvulnerability(target, source, move) {
+			if (move && (source === this.effectData.target || target === this.effectData.target)) return 0;
+		},
 		onAnyAccuracy(accuracy, target, source, move) {
 			if (move && (source === this.effectData.target || target === this.effectData.target)) {
 				return true;
@@ -3589,7 +3595,7 @@ let BattleAbilities = {
 		onAfterDamage(damage, target, source, effect) {
 			if (effect && effect.flags['contact']) {
 				this.add('-ability', target, 'Tangling Hair');
-				this.boost({spe: -1}, source, target, null, false, true);
+				this.boost({spe: -1}, source, target, null, true);
 			}
 		},
 		id: "tanglinghair",

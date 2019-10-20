@@ -123,14 +123,10 @@ let BattleMovedex = {
 	bounce: {
 		inherit: true,
 		effect: {
-			onTryImmunity(target, source, move) {
+			onInvulnerability(target, source, move) {
 				if (['gust', 'twister', 'skyuppercut', 'thunder', 'hurricane', 'smackdown', 'thousandarrows', 'helpinghand'].includes(move.id)) {
 					return;
 				}
-				if (source.hasAbility('noguard') || target.hasAbility('noguard')) {
-					return;
-				}
-				if (source.volatiles['lockon'] && target === source.volatiles['lockon'].source) return;
 				return false;
 			},
 		},
@@ -242,14 +238,10 @@ let BattleMovedex = {
 	dig: {
 		inherit: true,
 		effect: {
-			onTryImmunity(target, source, move) {
+			onInvulnerability(target, source, move) {
 				if (['earthquake', 'magnitude', 'helpinghand'].includes(move.id)) {
 					return;
 				}
-				if (source.hasAbility('noguard') || target.hasAbility('noguard')) {
-					return;
-				}
-				if (source.volatiles['lockon'] && target === source.volatiles['lockon'].source) return;
 				return false;
 			},
 		},
@@ -257,14 +249,10 @@ let BattleMovedex = {
 	dive: {
 		inherit: true,
 		effect: {
-			onTryImmunity(target, source, move) {
+			onInvulnerability(target, source, move) {
 				if (['surf', 'whirlpool', 'helpinghand'].includes(move.id)) {
 					return;
 				}
-				if (source.hasAbility('noguard') || target.hasAbility('noguard')) {
-					return;
-				}
-				if (source.volatiles['lockon'] && target === source.volatiles['lockon'].source) return;
 				return false;
 			},
 		},
@@ -352,14 +340,10 @@ let BattleMovedex = {
 	fly: {
 		inherit: true,
 		effect: {
-			onTryImmunity(target, source, move) {
+			onInvulnerability(target, source, move) {
 				if (['gust', 'twister', 'skyuppercut', 'thunder', 'hurricane', 'smackdown', 'thousandarrows', 'helpinghand'].includes(move.id)) {
 					return;
 				}
-				if (source.hasAbility('noguard') || target.hasAbility('noguard')) {
-					return;
-				}
-				if (source.volatiles['lockon'] && target === source.volatiles['lockon'].source) return;
 				return false;
 			},
 		},
@@ -940,14 +924,10 @@ let BattleMovedex = {
 	shadowforce: {
 		inherit: true,
 		effect: {
-			onTryImmunity(target, source, move) {
+			onInvulnerability(target, source, move) {
 				if (move.id === 'helpinghand') {
 					return;
 				}
-				if (source.hasAbility('noguard') || target.hasAbility('noguard')) {
-					return;
-				}
-				if (source.volatiles['lockon'] && target === source.volatiles['lockon'].source) return;
 				return false;
 			},
 		},
@@ -1004,7 +984,7 @@ let BattleMovedex = {
 			}
 		},
 		effect: {
-			onAnyTryImmunity(target, source, move) {
+			onAnyInvulnerability(target, source, move) {
 				if (target !== this.effectData.target && target !== this.effectData.source) {
 					return;
 				}
@@ -1014,10 +994,6 @@ let BattleMovedex = {
 				if (['gust', 'twister', 'skyuppercut', 'thunder', 'hurricane', 'smackdown', 'thousandarrows', 'helpinghand'].includes(move.id)) {
 					return;
 				}
-				if (source.hasAbility('noguard') || target.hasAbility('noguard')) {
-					return;
-				}
-				if (source.volatiles['lockon'] && target === source.volatiles['lockon'].source) return;
 				return false;
 			},
 		},
