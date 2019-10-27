@@ -914,7 +914,7 @@ const commands = {
 		let targetRoom = Rooms.createChatRoom(roomid, `[G] ${title}`, {
 			isPersonal: true,
 			isPrivate: 'hidden',
-			uptime: parent ? null : Date.now(),
+			creationTime: parent ? null : Date.now(),
 			modjoin: parent ? null : '+',
 			parentid: parent,
 			auth: {},
@@ -939,9 +939,9 @@ const commands = {
 
 	'!groupchatuptime': true,
 	groupchatuptime(target, room, user) {
-		if (!room || !room.uptime) return this.errorReply("Can only be used in a groupchat.");
+		if (!room || !room.creationTime) return this.errorReply("Can only be used in a groupchat.");
 		if (!this.runBroadcast()) return;
-		const uptime = Chat.toDurationString(Date.now() - room.uptime);
+		const uptime = Chat.toDurationString(Date.now() - room.creationTime);
 		this.sendReplyBox(`Groupchat uptime: <b>${uptime}</b>`);
 	},
 	groupchatuptimehelp: [`/groupchatuptime - Displays the uptime if the current room is a groupchat.`],
@@ -4024,9 +4024,19 @@ const commands = {
 					playerUser.sendTo(room, Chat.html`|html|${user.name} wants to extract the battle input log. <button name="send" value="/allowexportinputlog ${user.id}">Share your team and choices with "${user.name}"</button>`);
 				}
 			}
-			return this.addModAction(`${user.name} wants to extract the battle input log.`);
+			this.addModAction(`${user.name} wants to extract the battle input log.`);
+		} else {
+			// Re-request to make the buttons appear again for users who have not allowed extraction
+			let logExported = true;
+			for (const player of battle.players) {
+				const playerUser = player.getUser();
+				if (!playerUser || battle.allowExtraction[user.id].has(playerUser.id)) continue;
+				logExported = false;
+				playerUser.sendTo(room, Chat.html`|html|${user.name} wants to extract the battle input log. <button name="send" value="/allowexportinputlog ${user.id}">Share your team and choices with "${user.name}"</button>`);
+			}
+			if (logExported) return this.errorReply(`You already extracted the battle input log.`);
+			this.sendReply(`Battle input log re-requested.`);
 		}
-		return this.errorReply("You have already requested extraction.");
 	},
 	exportinputloghelp: [`/exportinputlog - Asks players in a battle for permission to export an inputlog. Requires: & ~`],
 

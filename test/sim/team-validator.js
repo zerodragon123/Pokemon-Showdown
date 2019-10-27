@@ -277,6 +277,13 @@ describe('Team Validator', function () {
 		illegal = TeamValidator.get('gen5ou').validateTeam(team);
 		assert.strictEqual(illegal, null);
 
+		// Nidoqueen can't breed but can still get egg moves from prevos
+		team = [
+			{species: 'nidoqueen', ability: 'poisonpoint', moves: ['charm'], evs: {hp: 1}},
+		];
+		illegal = TeamValidator.get('gen6ou').validateTeam(team);
+		assert.strictEqual(illegal, null);
+
 		team = [
 			{species: 'armaldo', ability: 'battlearmor', moves: ['knockoff', 'rapidspin'], evs: {hp: 1}},
 		];
