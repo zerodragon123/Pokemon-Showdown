@@ -313,8 +313,9 @@ export class LadderStore {
 	}
 	indexOfUser_noID(username: string, createIfNeeded = false, initscore = 1000) {
 		if (!this.ladder) throw new Error(`Must be called with ladder loaded`);
+		
 		for (const [i, user] of this.ladder.entries()) {
-			if (user[0] === username) return i;
+			if (user[2] === username) return i;
 		}
 		if (createIfNeeded) {
 			const index = this.ladder.length;

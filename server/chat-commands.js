@@ -4806,6 +4806,7 @@ const commands = {
 		}
 		Ladders("gen7ps").updateScore(username, score, reason);
 		this.globalModlog(`'PS国服积分`, username, `积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
+		this.addModAction(`用户ID: ${username}, 增加PS国服积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
 		// this.addModAction(`'PS国服积分 用户名:${username}, 积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
 	},
 	pschinascorehelp: [
