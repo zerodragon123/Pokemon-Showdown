@@ -1122,10 +1122,10 @@ export const Punishments = new class {
 			user.resetName();
 			user.updateIdentity();
 		} else {
-			if (punishUserid === '#hostfilter') {
-				user.popup(`Due to spam, you can't chat using a proxy. (Your IP ${user.latestIp} appears to be a proxy.)`);
-			} else if (punishUserid === '#ipban') {
-				user.popup(`你的IP (${user.latestIp}) 被Pokemon Showdown中国服务器永久封禁，因为该IP曾被用于刷屏、攻击服务器等行为。如果你的IP被不小心误封，请加入PS国服讨论群[群号:451507969]，并联系管理员解封。注意：请不要使用任何代理登录PS。`);
+			if (punishUserid === '#hostfilter' || punishUserid === '#ipban') {
+				user.send(`|popup||html|Your IP (${user.latestIp}) is currently locked due to being a proxy. We automatically lock these connections since they are used to spam, hack, or otherwise attack our server. Disable any proxies you are using to connect to PS.\n\n<a href="view-help-request--appeal"><button class="button">Help me with a lock from a proxy</button></a>`);
+			} else if (user.latestHostType === 'proxy' && user.locked !== user.id) {
+				user.send(`|popup||html|你被${bannedUnder}封禁，IP为(${user.latestIp})，因为该IP曾被用于刷屏、攻击服务器等行为。如果你的IP被误封，请加入PS国服讨论群[群号:451507969]，并联系管理员解封。注意：请不要使用任何代理登录PS。\n\n<a href="view-help-request--appeal"><button class="button">Help me with a lock from a proxy</button></a>`);
 			} else if (!user.lockNotified) {
 				user.send(`|popup||html|You are locked${bannedUnder}. ${user.permalocked ? `This lock is permanent.` : `Your lock will expire in a few days.`}${reason}${appeal}`);
 			}
@@ -1158,7 +1158,6 @@ export const Punishments = new class {
 
 		return IPTools.lookup(ip).then(({dnsbl, host, hostType}) => {
 			user = connection.user || user;
-			if (user.locked === '#hostfilter') user.locked = null;
 
 			if (hostType === 'proxy' && !user.trusted && !user.locked) {
 				user.locked = '#hostfilter';

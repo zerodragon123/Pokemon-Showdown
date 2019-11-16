@@ -832,6 +832,11 @@ export class TeamValidator {
 			} else if (allowEVs && !capEVs && [508, 510].includes(totalEV)) {
 				problems.push(`${name} has exactly 510 EVs, but this format does not restrict you to 510 EVs: you can max out every EV (If this was intentional, add exactly 1 to one of your EVs, which won't change its stats but will tell us that it wasn't a mistake).`);
 			}
+			// Check for level import errors from user in VGC -> DOU, etc.
+			// Note that in VGC etc (maxForcedLevel: 50), `set.level` will be 100 here for validation purposes
+			if (set.level === 50 && this.format.maxLevel !== 50 && allowEVs && totalEV % 4 === 0) {
+				problems.push(`${name} is level 50, but this format allows level 100 Pokémon. (If this was intentional, add exactly 1 to one of your EVs, which won't change its stats but will tell us that it wasn't a mistake).`);
+			}
 		}
 
 		if (allowEVs && capEVs && totalEV > 510) {
@@ -884,7 +889,8 @@ export class TeamValidator {
 		let eventTemplate = template;
 		if (source.charAt(1) === 'S') {
 			const splitSource = source.substr(source.charAt(2) === 'T' ? 3 : 2).split(' ');
-			eventTemplate = this.dex.getTemplate(splitSource[1]);
+			const dex = (this.dex.gen === 1 ? Dex.mod('gen2') : this.dex);
+			eventTemplate = dex.getTemplate(splitSource[1]);
 			if (eventTemplate.eventPokemon) eventData = eventTemplate.eventPokemon[parseInt(splitSource[0], 10)];
 			if (!eventData) {
 				throw new Error(`${eventTemplate.species} from ${template.species} doesn't have data for event ${source}`);
@@ -1539,6 +1545,9 @@ export class TeamValidator {
 				if (source.charAt(1) === 'E') {
 					if (babyEvo && source.slice(2) === babyEvo) return false;
 				}
+				if (source.charAt(1) === 'D') {
+					if (babyEvo && source.slice(2) === babyEvo) return false;
+				}
 				return true;
 			});
 			if (!setSources.sources.length && !setSources.sourcesBefore) {
@@ -1742,7 +1751,7 @@ export class TeamValidator {
 					} else if (learned.charAt(1) === 'D') {
 						// DW moves:
 						//   only if that was the source
-						moveSources.add(learned);
+						moveSources.add(learned + template.id);
 					} else if (learned.charAt(1) === 'V') {
 						// Virtual Console moves:
 						//   only if that was the source

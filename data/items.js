@@ -125,14 +125,14 @@ let BattleItems = {
 			if (!this.runEvent('TryHeal', pokemon)) return false;
 		},
 		onEat(pokemon) {
-			this.heal(pokemon.maxhp / 2);
+			this.heal(pokemon.maxhp * 0.33);
 			if (pokemon.getNature().minus === 'spd') {
 				pokemon.addVolatile('confusion');
 			}
 		},
 		num: 162,
 		gen: 3,
-		desc: "Restores 1/2 max HP at 1/4 max HP or less; confuses if -SpD Nature. Single use.",
+		desc: "Restores 33% max HP at 1/4 max HP or less; confuses if -SpD Nature. Single use.",
 	},
 	"airballoon": {
 		id: "airballoon",
@@ -407,6 +407,17 @@ let BattleItems = {
 		gen: 2,
 		desc: "Restores 20 HP when at 1/2 max HP or less. Single use.",
 	},
+	"berrysweet": {
+		id: "berrysweet",
+		name: "Berry Sweet",
+		spritenum: 0,
+		fling: {
+			basePower: 10,
+		},
+		num: 1111,
+		gen: 8,
+		desc: "Evolves Milcery into Alcremie when held and spun around.",
+	},
 	"bigroot": {
 		id: "bigroot",
 		name: "Big Root",
@@ -562,6 +573,18 @@ let BattleItems = {
 		num: 165,
 		gen: 3,
 		desc: "Cannot be eaten by the holder. No effect when eaten with Bug Bite or Pluck.",
+	},
+	"blunderpolicy": {
+		id: "blunderpolicy",
+		name: "Blunder Policy",
+		spritenum: 0,
+		fling: {
+			basePower: 80,
+		},
+		// Item activation located in scripts.js
+		num: 1121,
+		gen: 8,
+		desc: "If the holder misses because of accuracy, it raises Speed by 2 stages. Single use.",
 	},
 	"bottlecap": {
 		id: "bottlecap",
@@ -846,6 +869,17 @@ let BattleItems = {
 		gen: 5,
 		desc: "Holder's Techno Blast is Ice type.",
 	},
+	"chippedpot": {
+		id: "chippedpot",
+		name: "Chipped Pot",
+		spritenum: 0,
+		fling: {
+			basePower: 80,
+		},
+		num: 1254,
+		gen: 8,
+		desc: "Evolves Sinistea into Polteageist when used.",
+	},
 	"choiceband": {
 		id: "choiceband",
 		name: "Choice Band",
@@ -954,6 +988,17 @@ let BattleItems = {
 		gen: 3,
 		desc: "Can be revived into Anorith.",
 	},
+	"cloversweet": {
+		id: "cloversweet",
+		name: "Clover Sweet",
+		spritenum: 0,
+		fling: {
+			basePower: 10,
+		},
+		num: 1112,
+		gen: 8,
+		desc: "Evolves Milcery into Alcremie when held and spun around.",
+	},
 	"cobaberry": {
 		id: "cobaberry",
 		name: "Coba Berry",
@@ -1025,6 +1070,17 @@ let BattleItems = {
 		num: 572,
 		gen: 5,
 		desc: "Can be revived into Tirtouga.",
+	},
+	"crackedpot": {
+		id: "crackedpot",
+		name: "Cracked Pot",
+		spritenum: 0,
+		fling: {
+			basePower: 80,
+		},
+		num: 1253,
+		gen: 8,
+		desc: "Evolves Sinistea into Polteageist when used.",
 	},
 	"custapberry": {
 		id: "custapberry",
@@ -1470,6 +1526,35 @@ let BattleItems = {
 		gen: 5,
 		desc: "If holder survives a hit, it immediately switches out to a chosen ally. Single use.",
 	},
+	"ejectpack": {
+		id: "ejectpack",
+		name: "Eject Pack",
+		spritenum: 0,
+		fling: {
+			basePower: 50,
+		},
+		onAfterBoost(boost, target, source, effect) {
+			let eject = false;
+			for (let i in boost) {
+				// @ts-ignore
+				if (boost[i] < 0) {
+					eject = true;
+				}
+			}
+			if (eject) {
+				if (source && target.hp) {
+					if (!this.canSwitch(target.side)) return;
+					for (const pokemon of this.getAllActive()) {
+						if (pokemon.switchFlag === true) return;
+					}
+					if (target.useItem()) target.switchFlag = true;
+				}
+			}
+		},
+		num: 1119,
+		gen: 8,
+		desc: "When the holder's stats are lowered, it will be switched out of battle.",
+	},
 	"electirizer": {
 		id: "electirizer",
 		name: "Electirizer",
@@ -1747,14 +1832,14 @@ let BattleItems = {
 			if (!this.runEvent('TryHeal', pokemon)) return false;
 		},
 		onEat(pokemon) {
-			this.heal(pokemon.maxhp / 2);
+			this.heal(pokemon.maxhp * 0.33);
 			if (pokemon.getNature().minus === 'atk') {
 				pokemon.addVolatile('confusion');
 			}
 		},
 		num: 159,
 		gen: 3,
-		desc: "Restores 1/2 max HP at 1/4 max HP or less; confuses if -Atk Nature. Single use.",
+		desc: "Restores 33% max HP at 1/4 max HP or less; confuses if -Atk Nature. Single use.",
 	},
 	"firegem": {
 		id: "firegem",
@@ -1891,6 +1976,17 @@ let BattleItems = {
 		gen: 5,
 		desc: "Holder's weight is halved.",
 	},
+	"flowersweet": {
+		id: "flowersweet",
+		name: "Flower Sweet",
+		spritenum: 10,
+		fling: {
+			basePower: 0,
+		},
+		num: 1113,
+		gen: 8,
+		desc: "Evolves Milcery into Alcremie when held and spun around.",
+	},
 	"flyinggem": {
 		id: "flyinggem",
 		name: "Flying Gem",
@@ -1973,6 +2069,54 @@ let BattleItems = {
 		num: 275,
 		gen: 4,
 		desc: "If holder's HP is full, will survive an attack that would KO it with 1 HP. Single use.",
+	},
+	"fossilizedbird": {
+		id: "fossilizedbird",
+		name: "Fossilized Bird",
+		spritenum: 0,
+		fling: {
+			basePower: 100,
+		},
+		num: 1105,
+		gen: 8,
+		desc: "Can be revived into Arctovish with Fossilized Fish or Arctozolt with Fossilized Dino.",
+		shortDesc: "Can be combined with certain fossils.",
+	},
+	"fossilizeddino": {
+		id: "fossilizeddino",
+		name: "Fossilized Dino",
+		spritenum: 0,
+		fling: {
+			basePower: 100,
+		},
+		num: 1108,
+		gen: 8,
+		desc: "Can be revived into Dracozolt with Fossilized Drake or Arctozolt with Fossilized Bird.",
+		shortDesc: "Can be combined with certain fossils.",
+	},
+	"fossilizeddrake": {
+		id: "fossilizeddrake",
+		name: "Fossilized Drake",
+		spritenum: 0,
+		fling: {
+			basePower: 100,
+		},
+		num: 1107,
+		gen: 8,
+		desc: "Can be revived into Dracozolt with Fossilized Dino or Dracovish with Fossilized Fish.",
+		shortDesc: "Can be combined with certain fossils.",
+	},
+	"fossilizedfish": {
+		id: "fossilizedfish",
+		name: "Fossilized Fish",
+		spritenum: 0,
+		fling: {
+			basePower: 100,
+		},
+		num: 1106,
+		gen: 8,
+		desc: "Can be revived into Dracovish with Fossilized Drake or Arctovish with Fossilized Bird.",
+		shortDesc: "Can be combined with certain fossils.",
 	},
 	"friendball": {
 		id: "friendball",
@@ -2406,6 +2550,18 @@ let BattleItems = {
 		isPokeball: true,
 		desc: "A Poke Ball for catching very heavy Pokemon.",
 	},
+	"heavydutyboots": {
+		id: "heavydutyboots",
+		name: "Heavy-Duty Boots",
+		spritenum: 0,
+		fling: {
+			basePower: 80,
+		},
+		num: 1120,
+		gen: 8,
+		desc: "Prevents the effects of traps set on the battlefield.",
+		// Hazard Immunity implemented in moves.js
+	},
 	"helixfossil": {
 		id: "helixfossil",
 		name: "Helix Fossil",
@@ -2477,14 +2633,14 @@ let BattleItems = {
 			if (!this.runEvent('TryHeal', pokemon)) return false;
 		},
 		onEat(pokemon) {
-			this.heal(pokemon.maxhp / 2);
+			this.heal(pokemon.maxhp * 0.33);
 			if (pokemon.getNature().minus === 'def') {
 				pokemon.addVolatile('confusion');
 			}
 		},
 		num: 163,
 		gen: 3,
-		desc: "Restores 1/2 max HP at 1/4 max HP or less; confuses if -Def Nature. Single use.",
+		desc: "Restores 33% max HP at 1/4 max HP or less; confuses if -Def Nature. Single use.",
 	},
 	"icegem": {
 		id: "icegem",
@@ -2530,7 +2686,7 @@ let BattleItems = {
 		},
 		num: 849,
 		gen: 7,
-		desc: "Evolves Alolan Sandshrew into Alolan Sandslash and Alolan Vulpix into Alolan Ninetales when used.",
+		desc: "Evolves Alolan Sandshrew into Alolan Sandslash, Alolan Vulpix into Alolan Ninetales, and Eevee into Glaceon when used.",
 		shortDesc: "Evolves certain species of Pokemon when used.",
 	},
 	"icicleplate": {
@@ -2908,7 +3064,7 @@ let BattleItems = {
 		},
 		num: 85,
 		gen: 1,
-		desc: "Evolves Gloom into Vileplume, Weepinbell into Victreebel, Exeggcute into Exeggutor or Alolan Exeggutor, Nuzleaf into Shiftry, and Pansage into Simisage when used.",
+		desc: "Evolves Gloom into Vileplume, Weepinbell into Victreebel, Exeggcute into Exeggutor or Alolan Exeggutor, Eevee into Leafeon, Nuzleaf into Shiftry, and Pansage into Simisage when used.",
 		shortDesc: "Evolves certain species of Pokemon when used.",
 	},
 	"leftovers": {
@@ -3066,6 +3222,17 @@ let BattleItems = {
 		gen: 2,
 		isPokeball: true,
 		desc: "Poke Ball for catching Pokemon that are the opposite gender of your Pokemon.",
+	},
+	"lovesweet": {
+		id: "lovesweet",
+		name: "Love Sweet",
+		spritenum: 0,
+		fling: {
+			basePower: 10,
+		},
+		num: 1110,
+		gen: 8,
+		desc: "Evolves Milcery into Alcremie when held and spun around.",
 	},
 	"lucarionite": {
 		id: "lucarionite",
@@ -3256,14 +3423,14 @@ let BattleItems = {
 			if (!this.runEvent('TryHeal', pokemon)) return false;
 		},
 		onEat(pokemon) {
-			this.heal(pokemon.maxhp / 2);
+			this.heal(pokemon.maxhp * 0.33);
 			if (pokemon.getNature().minus === 'spe') {
 				pokemon.addVolatile('confusion');
 			}
 		},
 		num: 161,
 		gen: 3,
-		desc: "Restores 1/2 max HP at 1/4 max HP or less; confuses if -Spe Nature. Single use.",
+		desc: "Restores 33% max HP at 1/4 max HP or less; confuses if -Spe Nature. Single use.",
 	},
 	"magostberry": {
 		id: "magostberry",
@@ -4718,6 +4885,17 @@ let BattleItems = {
 		isPokeball: true,
 		desc: "A Poke Ball that works well on Pokemon species that were previously caught.",
 	},
+	"ribbonsweet": {
+		id: "ribbonsweet",
+		name: "Ribbon Sweet",
+		spritenum: 0,
+		fling: {
+			basePower: 10,
+		},
+		num: 1115,
+		gen: 8,
+		desc: "Evolves Milcery into Alcremie when held and spun around.",
+	},
 	"rindoberry": {
 		id: "rindoberry",
 		name: "Rindo Berry",
@@ -4835,6 +5013,22 @@ let BattleItems = {
 		gen: 5,
 		desc: "If holder is hit by a contact move, the attacker loses 1/6 of its max HP.",
 	},
+	"roomservice": {
+		id: "roomservice",
+		name: "Room Service",
+		spritenum: 0,
+		fling: {
+			basePower: 100,
+		},
+		onUpdate(pokemon) {
+			if (this.field.getPseudoWeather('trickroom') && pokemon.useItem()) {
+				this.boost({spe: -1});
+			}
+		},
+		num: 1122,
+		gen: 8,
+		desc: "If Trick Room is active, lowers holder's Speed by 1 stage. Single use.",
+	},
 	"rootfossil": {
 		id: "rootfossil",
 		name: "Root Fossil",
@@ -4906,6 +5100,36 @@ let BattleItems = {
 		num: 212,
 		gen: 4,
 		desc: "If holder is hit by a special move, attacker loses 1/8 of its max HP. Single use.",
+	},
+	"rustedshield": {
+		id: "rustedshield",
+		name: "Rusted Shield",
+		spritenum: 0,
+		onTakeItem(item, pokemon, source) {
+			if ((source && source.baseTemplate.num === 889) || pokemon.baseTemplate.num === 889) {
+				return false;
+			}
+			return true;
+		},
+		forcedForme: "Zamazenta-Crowned",
+		num: 1104,
+		gen: 8,
+		desc: "If held by a Zamazenta, this item changes it to Crowned Forme.",
+	},
+	"rustedsword": {
+		id: "rustedsword",
+		name: "Rusted Sword",
+		spritenum: 0,
+		onTakeItem(item, pokemon, source) {
+			if ((source && source.baseTemplate.num === 888) || pokemon.baseTemplate.num === 888) {
+				return false;
+			}
+			return true;
+		},
+		forcedForme: "Zacian-Crowned",
+		num: 1103,
+		gen: 8,
+		desc: "If held by a Zacian, this item changes it to Crowned Forme.",
 	},
 	"sablenite": {
 		id: "sablenite",
@@ -5489,6 +5713,17 @@ let BattleItems = {
 		gen: 3,
 		desc: "Raises a random stat by 2 when at 1/4 max HP or less (not acc/eva). Single use.",
 	},
+	"starsweet": {
+		id: "starsweet",
+		name: "Star Sweet",
+		spritenum: 0,
+		fling: {
+			basePower: 10,
+		},
+		num: 1114,
+		gen: 8,
+		desc: "Evolves Milcery into Alcremie when held and spun around.",
+	},
 	"steelixite": {
 		id: "steelixite",
 		name: "Steelixite",
@@ -5613,6 +5848,17 @@ let BattleItems = {
 		gen: 4,
 		desc: "Holder's Rock-type attacks have 1.2x power. Judgment is Rock type.",
 	},
+	"strawberrysweet": {
+		id: "strawberrysweet",
+		name: "Strawberry Sweet",
+		spritenum: 0,
+		fling: {
+			basePower: 10,
+		},
+		num: 1109,
+		gen: 8,
+		desc: "Evolves Milcery into Alcremie when held and spun around.",
+	},
 	"sunstone": {
 		id: "sunstone",
 		name: "Sun Stone",
@@ -5638,6 +5884,17 @@ let BattleItems = {
 		num: 752,
 		gen: 6,
 		desc: "If held by a Swampert, this item allows it to Mega Evolve in battle.",
+	},
+	"sweetapple": {
+		id: "sweetapple",
+		name: "Sweet Apple",
+		spritenum: 0,
+		fling: {
+			basePower: 30,
+		},
+		num: 1116,
+		gen: 8,
+		desc: "Evolves Applin into Appletun when used.",
 	},
 	"tamatoberry": {
 		id: "tamatoberry",
@@ -5688,6 +5945,17 @@ let BattleItems = {
 		gen: 7,
 		desc: "If held by a Tapu with Nature's Madness, it can use Guardian of Alola.",
 	},
+	"tartapple": {
+		id: "tartapple",
+		name: "Tart Apple",
+		spritenum: 0,
+		fling: {
+			basePower: 30,
+		},
+		num: 1117,
+		gen: 8,
+		desc: "Evolves Applin into Flapple when used.",
+	},
 	"terrainextender": {
 		id: "terrainextender",
 		name: "Terrain Extender",
@@ -5716,6 +5984,22 @@ let BattleItems = {
 		gen: 2,
 		desc: "If held by a Cubone or a Marowak, its Attack is doubled.",
 	},
+	"throatspray": {
+		id: "throatspray",
+		name: "Throat Spray",
+		spritenum: 0,
+		fling: {
+			basePower: 30,
+		},
+		onAfterMoveSecondarySelf(target, source, move) {
+			if (move.flags['sound'] && target.useItem()) {
+				this.boost({spa: 1}); // TODO: Find exact value, and whether this activates before or after use
+			}
+		},
+		num: 1118,
+		gen: 8,
+		desc: "Raises holder's Special Attack by 1 stage after using a sound move. Single use.",
+	},
 	"thunderstone": {
 		id: "thunderstone",
 		name: "Thunder Stone",
@@ -5725,7 +6009,7 @@ let BattleItems = {
 		},
 		num: 83,
 		gen: 1,
-		desc: "Evolves Pikachu into Raichu or Alolan Raichu, Eevee into Jolteon, and Eelektrik into Eelektross when used.",
+		desc: "Evolves Pikachu into Raichu or Alolan Raichu, Eevee into Jolteon, Eelektrik into Eelektross, and Charjabug into Vikavolt when used.",
 		shortDesc: "Evolves certain species of Pokemon when used.",
 	},
 	"timerball": {
@@ -6088,14 +6372,14 @@ let BattleItems = {
 			if (!this.runEvent('TryHeal', pokemon)) return false;
 		},
 		onEat(pokemon) {
-			this.heal(pokemon.maxhp / 2);
+			this.heal(pokemon.maxhp * 0.33);
 			if (pokemon.getNature().minus === 'spa') {
 				pokemon.addVolatile('confusion');
 			}
 		},
 		num: 160,
 		gen: 3,
-		desc: "Restores 1/2 max HP at 1/4 max HP or less; confuses if -SpA Nature. Single use.",
+		desc: "Restores 33% max HP at 1/4 max HP or less; confuses if -SpA Nature. Single use.",
 	},
 	"wiseglasses": {
 		id: "wiseglasses",
