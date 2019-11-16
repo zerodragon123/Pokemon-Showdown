@@ -740,6 +740,7 @@ let Formats = [
 	///////////////////////////////////////////////////////////////////
 	{
 		section: "Sword/Shield",
+		column: 2,
 	},
 	{
 		name: "[Gen 8] Random Battle",
@@ -798,7 +799,7 @@ let Formats = [
 
 	{
 		section: "OM of the Month",
-		column: 2,
+		// column: 2,
 	},
 	{
 		name: "[Gen 8] Balanced Hackmons (beta)",
@@ -1247,14 +1248,14 @@ let Formats = [
 		searchShow: false,
 		ruleset: ['Obtainable', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
 	},
-	{
+	/*{
 		name: "[Gen 7] Hackmons Cup",
 		desc: `Randomized teams of level-balanced Pok&eacute;mon with absolutely any ability, moves, and item.`,
 
 		mod: 'gen7',
 		team: 'randomHC',
 		ruleset: ['Obtainable', 'HP Percentage Mod', 'Cancel Mod'],
-	},
+	},*/
 	{
 		name: "[Gen 7] Doubles Hackmons Cup",
 
