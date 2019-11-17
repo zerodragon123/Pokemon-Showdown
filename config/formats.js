@@ -757,19 +757,21 @@ let Formats = [
 		],
 
 		mod: 'gen8',
-		ruleset: ['Obtainable', 'Species Clause', 'Nickname Clause', 'Moody Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Endless Battle Clause'],
+		ruleset: ['Obtainable', 'Standard', 'Team Preview'],
 		banlist: ['Uber', 'Baton Pass'],
+		requireGalar: true,
 	},
 	{
 		name: "[Gen 8] Doubles OU (beta)",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/np-swsh-dou-stage-0-begin-again.3656244/">Doubles OU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3656244/">Doubles OU Metagame Discussion</a>`,
 		],
 
 		mod: 'gen8',
 		gameType: 'doubles',
 		ruleset: ['Obtainable', 'Standard Doubles', 'Team Preview'],
 		banlist: ['DUber', 'Gravity ++ Hypnosis', 'Gravity ++ Lovely Kiss', 'Gravity ++ Sing', 'Gravity ++ Sleep Powder'],
+		requireGalar: true,
 	},
 	{
 		name: "[Gen 8] Custom Game",
@@ -820,8 +822,11 @@ let Formats = [
 		],
 
 		mod: 'gen8',
-		ruleset: ['-Nonexistent', 'OHKO Clause', 'Evasion Moves Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Endless Battle Clause'],
-		banlist: ['Arena Trap', 'Contrary', 'Huge Power', 'Illusion', 'Innards Out', 'Libero', 'Magnet Pull', 'Moody', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Comatose + Sleep Talk'],
+		ruleset: ['-Nonexistent', 'OHKO Clause', 'Evasion Moves Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Sleep Clause Mod', 'Endless Battle Clause'],
+		banlist: [
+			'Arena Trap', 'Contrary', 'Huge Power', 'Illusion', 'Innards Out', 'Libero', 'Magnet Pull', 'Moody', 'Neutralizing Gas',
+			'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard', 'Comatose + Sleep Talk',
+		],
 	},
 	{
 		name: "[Gen 7] Tier Shift",

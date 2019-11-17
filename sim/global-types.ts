@@ -234,6 +234,7 @@ interface EventMethods {
 	onTakeItem?: ((this: Battle, item: Item, pokemon: Pokemon, source: Pokemon, move?: ActiveMove) => boolean | void) | boolean
 	onTerrain?: (this: Battle, pokemon: Pokemon) => void
 	onTerrainStart?: (this: Battle, target: Pokemon, source: Pokemon, terrain: PureEffect) => void
+	onWeatherStart?: (this: Battle, target: Pokemon, source: Pokemon, weather: PureEffect) => void
 	onTrapPokemon?: (this: Battle, pokemon: Pokemon) => void
 	onTryAddVolatile?: (this: Battle, status: PureEffect, target: Pokemon, source: Pokemon, sourceEffect: Effect) => boolean | null | void
 	onTryEatItem?: boolean | ((this: Battle, item: Item, pokemon: Pokemon) => boolean | void)
@@ -317,6 +318,7 @@ interface EventMethods {
 	onAllyTakeItem?: ((this: Battle, item: Item, pokemon: Pokemon, source: Pokemon, move?: ActiveMove) => boolean | void) | boolean
 	onAllyTerrain?: (this: Battle, pokemon: Pokemon) => void
 	onAllyTerrainStart?: (this: Battle, target: Pokemon, source: Pokemon, terrain: PureEffect) => void
+	onAllyWeatherStart?: (this: Battle, target: Pokemon, source: Pokemon, weather: PureEffect) => void
 	onAllyTrapPokemon?: (this: Battle, pokemon: Pokemon) => void
 	onAllyTryAddVolatile?: (this: Battle, status: PureEffect, target: Pokemon, source: Pokemon, sourceEffect: Effect) => boolean | null | void
 	onAllyTryEatItem?: boolean | ((this: Battle, item: Item, pokemon: Pokemon) => boolean | void)
@@ -400,6 +402,7 @@ interface EventMethods {
 	onFoeTakeItem?: ((this: Battle, item: Item, pokemon: Pokemon, source: Pokemon, move?: ActiveMove) => boolean | void) | boolean
 	onFoeTerrain?: (this: Battle, pokemon: Pokemon) => void
 	onFoeTerrainStart?: (this: Battle, target: Pokemon, source: Pokemon, terrain: PureEffect) => void
+	onFoeWeatherStart?: (this: Battle, target: Pokemon, source: Pokemon, weather: PureEffect) => void
 	onFoeTrapPokemon?: (this: Battle, pokemon: Pokemon) => void
 	onFoeTryAddVolatile?: (this: Battle, status: PureEffect, target: Pokemon, source: Pokemon, sourceEffect: Effect) => boolean | null | void
 	onFoeTryEatItem?: boolean | ((this: Battle, item: Item, pokemon: Pokemon) => boolean | void)
@@ -483,6 +486,7 @@ interface EventMethods {
 	onSourceTakeItem?: ((this: Battle, item: Item, pokemon: Pokemon, source: Pokemon, move?: ActiveMove) => boolean | void) | boolean
 	onSourceTerrain?: (this: Battle, pokemon: Pokemon) => void
 	onSourceTerrainStart?: (this: Battle, target: Pokemon, source: Pokemon, terrain: PureEffect) => void
+	onSourceWeatherStart?: (this: Battle, target: Pokemon, source: Pokemon, weather: PureEffect) => void
 	onSourceTrapPokemon?: (this: Battle, pokemon: Pokemon) => void
 	onSourceTryAddVolatile?: (this: Battle, status: PureEffect, target: Pokemon, source: Pokemon, sourceEffect: Effect) => boolean | null | void
 	onSourceTryEatItem?: boolean | ((this: Battle, item: Item, pokemon: Pokemon) => boolean | void)
@@ -566,6 +570,7 @@ interface EventMethods {
 	onAnyTakeItem?: ((this: Battle, item: Item, pokemon: Pokemon, source: Pokemon, move?: ActiveMove) => boolean | void) | boolean
 	onAnyTerrain?: (this: Battle, pokemon: Pokemon) => void
 	onAnyTerrainStart?: (this: Battle, target: Pokemon, source: Pokemon, terrain: PureEffect) => void
+	onAnyWeatherStart?: (this: Battle, target: Pokemon, source: Pokemon, weather: PureEffect) => void
 	onAnyTrapPokemon?: (this: Battle, pokemon: Pokemon) => void
 	onAnyTryAddVolatile?: (this: Battle, status: PureEffect, target: Pokemon, source: Pokemon, sourceEffect: Effect) => boolean | null | void
 	onAnyTryEatItem?: boolean | ((this: Battle, item: Item, pokemon: Pokemon) => boolean | void)
@@ -997,6 +1002,7 @@ interface FormatsData extends EventMethods {
 	rated?: boolean
 	requirePentagon?: boolean
 	requirePlus?: boolean
+	requireGalar?: boolean
 	restrictedAbilities?: string[]
 	restrictedMoves?: string[]
 	restrictedStones?: string[]
