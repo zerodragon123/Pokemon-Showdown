@@ -1190,6 +1190,7 @@ let BattleScripts = {
 	},
 
 	getMaxMove(move, pokemon) {
+		if (typeof move === 'string') move = this.dex.getMove(move);
 		if (pokemon.canGigantamax) {
 			let gMaxTemplate = this.dex.getTemplate(pokemon.canGigantamax);
 			let gMaxMove = this.dex.getMove(gMaxTemplate.isGigantamax);
@@ -1200,14 +1201,18 @@ let BattleScripts = {
 	},
 
 	getActiveMaxMove(move, pokemon) {
+		if (typeof move === 'string') move = this.dex.getActiveMove(move);
 		let maxMove = this.dex.getActiveMove(this.maxMoveTable[move.category === 'Status' ? move.category : move.type]);
 		if (pokemon.canGigantamax) {
 			let gMaxTemplate = this.dex.getTemplate(pokemon.canGigantamax);
 			let gMaxMove = this.dex.getActiveMove(gMaxTemplate.isGigantamax ? gMaxTemplate.isGigantamax : '');
 			if (gMaxMove.exists && gMaxMove.type === move.type) maxMove = gMaxMove;
 		}
-		// @ts-ignore
-		maxMove.basePower = move.zMovePower; // TODO defined a Max Move Power in all moves and use that
+		if (move.category !== 'Status') {
+			if (!move.gmaxPower) throw new Error(`${move.name} doesn't have a gmaxPower`);
+			maxMove.basePower = move.gmaxPower;
+			maxMove.category = move.category;
+		}
 		maxMove.maxPowered = true;
 		return maxMove;
 	},

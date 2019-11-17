@@ -528,7 +528,8 @@ let BattleAbilities = {
 		num: 212,
 	},
 	"cottondown": {
-		shortDesc: "",
+		desc: "When the Pokémon is hit by an attack, it scatters cotton fluff around and lowers the Speed stat of all Pokémon except itself.",
+		shortDesc: "Lowers Speed of all Pokémon except itself when hit by an attack.",
 		onAfterDamage(damage, target, source, effect) {
 			if (effect && effect.effectType === 'Move' && effect.id !== 'confused') {
 				this.add('-ability', target, 'Cotton Down');
@@ -622,7 +623,7 @@ let BattleAbilities = {
 		num: 186,
 	},
 	"dauntlessshield": {
-		shortDesc: "",
+		shortDesc: "Boosts the Pokémon's Defense stat when the Pokémon enters a battle.",
 		onSwitchIn(pokemon) {
 			// TODO: exact defense boost. This is a placeholder value
 			this.boost({def: 1}, pokemon);
@@ -1284,30 +1285,35 @@ let BattleAbilities = {
 		num: 183,
 	},
 	"gorillatactics": {
-		shortDesc: "",
+		shortDesc: "Boosts the Pokémon's Attack stat but only allows the use of the first selected move.",
 		onStart(pokemon) {
 			pokemon.abilityData.choiceLock = "";
 		},
 		onBeforeMove(pokemon, target, move) {
-			if (pokemon.abilityData.choiceLock && pokemon.abilityData.choiceLock !== move.id && move.id !== 'struggle') {
+			if (move.isZPowered || move.maxPowered || move.id === 'struggle') return;
+			if (pokemon.abilityData.choiceLock && pokemon.abilityData.choiceLock !== move.id) {
 				// Fails unless ability is being ignored (these events will not run), no PP lost.
 				this.addMove('move', pokemon, move.name);
 				this.attrLastMove('[still]');
+				this.debug("Disabled by Gorilla Tactics");
 				this.add('-fail', pokemon);
 				return false;
 			}
 		},
 		onModifyMove(move, pokemon) {
+			if (move.isZPowered || move.maxPowered || move.id === 'struggle') return;
 			pokemon.abilityData.choiceLock = move.id;
 		},
 		onModifyAtkPriority: 1,
-		onModifyAtk(atk) {
+		onModifyAtk(atk, pokemon) {
+			if (pokemon.volatiles['dynamax']) return;
 			// PLACEHOLDER
 			this.debug('Gorilla Tactics Atk Boost');
 			return this.chainModify(1.5);
 		},
 		onDisableMove(pokemon) {
 			if (!pokemon.abilityData.choiceLock) return;
+			if (pokemon.volatiles['dynamax']) return;
 			for (const moveSlot of pokemon.moveSlots) {
 				if (moveSlot.id !== pokemon.abilityData.choiceLock) {
 					pokemon.disableMove(moveSlot.id, false, this.effectData.sourceEffect);
@@ -1344,7 +1350,8 @@ let BattleAbilities = {
 		num: 229,
 	},
 	"gulpmissile": {
-		shortDesc: "",
+		desc: "When the Pokémon uses Surf or Dive, it will come back with prey. When it takes damage, it will spit out the prey to attack.",
+		shortDesc: "Get prey with Surf/Dive. When taking damage, prey is used to attack.",
 		// TODO
 		id: "gulpmissile",
 		name: "Gulp Missile",
@@ -1454,7 +1461,8 @@ let BattleAbilities = {
 		num: 37,
 	},
 	"hungerswitch": {
-		shortDesc: "",
+		desc: "The Pokémon changes its form, alternating between its Full Belly Mode and Hangry Mode after the end of each turn.",
+		shortDesc: "Changes between Full Belly and Hangry Mode at the end of each turn.",
 		onResidual(pokemon) {
 			if (pokemon.template.baseSpecies !== 'Morpeko' || pokemon.transformed) return;
 			let targetForme = pokemon.template.species === 'Morpeko' ? 'Morpeko-Hangry' : 'Morpeko';
@@ -1534,7 +1542,8 @@ let BattleAbilities = {
 		num: 115,
 	},
 	"iceface": {
-		shortDesc: "",
+		desc: "The Pokémon's ice head can take a physical attack as a substitute, but the attack also changes the Pokémon's appearance. The ice will be restored when it hails.",
+		shortDesc: "Pokémon's head functions as substitute for a physical attack. Restored in hail.",
 		onDamagePriority: 1,
 		onDamage(damage, target, source, effect) {
 			if (effect && effect.effectType === 'Move' && effect.category === 'Physical' && target.template.speciesid === 'eiscue' && !target.transformed) {
@@ -1585,7 +1594,7 @@ let BattleAbilities = {
 		num: 248,
 	},
 	"icescales": {
-		shortDesc: "",
+		shortDesc: "The Pokémon is protected by ice scales, which halve the damage taken from special moves.",
 		// TODO verify this is the correct way to implement this
 		onModifySpD(spd) {
 			return this.chainModify(2);
@@ -1751,7 +1760,7 @@ let BattleAbilities = {
 		num: 22,
 	},
 	"intrepidsword": {
-		shortDesc: "",
+		shortDesc: "Boosts the Pokémon's Attack stat when the Pokémon enters a battle.",
 		onSwitchIn(pokemon) {
 			// TODO: exact attack boost. This is a placeholder value
 			this.boost({atk: 1}, pokemon);
@@ -1861,7 +1870,7 @@ let BattleAbilities = {
 		num: 26,
 	},
 	"libero": {
-		shortDesc: "",
+		shortDesc: "Changes the Pokémon's type to the type of the move it's about to use.",
 		onPrepareHit(source, target, move) {
 			if (move.hasBounced) return;
 			let type = move.type;
@@ -2111,7 +2120,7 @@ let BattleAbilities = {
 		num: 196,
 	},
 	"mimicry": {
-		shortDesc: "",
+		shortDesc: "Changes the Pokémon's type depending on the terrain.",
 		onUpdate(pokemon) {
 			// PLACEHOLDERS. What types are used for each terrain? Does the type revert after?
 			let type = pokemon.baseTemplate.types;
@@ -2163,7 +2172,7 @@ let BattleAbilities = {
 		num: 58,
 	},
 	"mirrorarmor": {
-		shortDesc: "",
+		shortDesc: "Bounces back only the stat-lowering effects that the Pokémon receives.",
 		onBoost(boost, target, source, effect) {
 			// Don't bounce self stat changes, or boosts that have already bounced
 			if (target === source || !boost || effect.id === 'mirrorarmor') return;
@@ -2413,7 +2422,8 @@ let BattleAbilities = {
 		num: 233,
 	},
 	"neutralizinggas": {
-		shortDesc: "",
+		desc: "If the Pokémon with Neutralizing Gas is in the battle, the effects of all Pokémon's Abilities will be nullified or will not be triggered.",
+		shortDesc: "Nullifies abilities while on the field.",
 		// Ability suppression implemented in sim/pokemon.ts:Pokemon#ignoringAbility
 		// TODO Will abilities that already started start again? (Intimidate seems like a good test case)
 		onPreStart(pokemon) {
@@ -2590,7 +2600,7 @@ let BattleAbilities = {
 		num: 184,
 	},
 	"pastelveil": {
-		shortDesc: "",
+		shortDesc: "Protects the Pokémon and its ally Pokémon from being poisoned.",
 		onAllySwitchIn(pokemon) {
 			if (['psn', 'tox'].includes(pokemon.status)) {
 				this.add('-activate', this.effectData.target, 'ability: Pastel Veil');
@@ -2615,7 +2625,8 @@ let BattleAbilities = {
 		num: 257,
 	},
 	"perishbody": {
-		shortDesc: "",
+		desc: "When hit by a move that makes direct contact, the Pokémon and the attacker will faint after three turns unless they switch out of battle.",
+		shortDesc: "When hit by a contact move, the Pokémon and the attacker faint in 3 turns.",
 		onAfterDamage(damage, target, source, move) {
 			if (!move.flags['contact']) return;
 
@@ -2806,7 +2817,7 @@ let BattleAbilities = {
 		num: 223,
 	},
 	"powerspot": {
-		shortDesc: "",
+		shortDesc: "Just being next to the Pokémon powers up moves.",
 		// TODO lack of information, "Just being next to the Pokémon powers up moves" is too vague.
 		id: "powerspot",
 		name: "Power Spot",
@@ -2882,7 +2893,7 @@ let BattleAbilities = {
 		num: 232,
 	},
 	"propellertail": {
-		shortDesc: "",
+		shortDesc: "Ignores the effects of opposing Pokémon's Abilities and moves that draw in moves.",
 		onRedirectTargetPriority: 3,
 		onRedirectTarget(target, source, source2, move) {
 			// Fires for all pokemon on the ability holder's side apparently
@@ -2925,7 +2936,8 @@ let BattleAbilities = {
 		num: 227,
 	},
 	"punkrock": {
-		shortDesc: "",
+		desc: "Boosts the power of sound-based moves. The Pokémon also takes half the damage from these kinds of moves.",
+		shortDesc: "Boosts sound move power, 0.5× damage from sound moves.",
 		// TODO boost the power of sound based moves by how much?
 		onModifyAtk(atk, attacker, defender, move) {
 			if (move.flags.sound) {
@@ -3085,7 +3097,7 @@ let BattleAbilities = {
 		// TODO Needs research. Following berries aren't supported currently:
 		// Custap, Jacoba, Rowap, Lanslat, Leppa, Micle
 		// Check if they are affected by ripen.
-		shortDesc: "",
+		shortDesc: "Ripens Berries and doubles their effect.",
 		onTryHeal(damage, target, source, effect) {
 			if (effect && /** @type {Item} */(effect).isBerry) {
 				this.debug(`Ripen doubled healing`);
@@ -3220,7 +3232,7 @@ let BattleAbilities = {
 		num: 146,
 	},
 	"sandspit": {
-		shortDesc: "",
+		shortDesc: "The Pokémon creates a sandstorm when it's hit by an attack.",
 		onAfterDamage(damage, target, source, effect) {
 			if (effect && effect.effectType === 'Move' && effect.id !== 'confused' && this.field.getWeather().id !== 'sandstorm') {
 				this.field.setWeather('sandstorm');
@@ -3331,7 +3343,8 @@ let BattleAbilities = {
 		num: 113,
 	},
 	"screencleaner": {
-		shortDesc: "",
+		desc: "When the Pokémon enters a battle, the effects of Light Screen, Reflect, and Aurora Veil are nullified for both opposing and ally Pokémon.",
+		shortDesc: "Removes Screens and Veil Effects on switchin.",
 		onStart(pokemon) {
 			for (let sideCondition of ['reflect', 'lightscreen', 'auroraveil']) {
 				if (pokemon.side.removeSideCondition(sideCondition)) {
@@ -3661,7 +3674,7 @@ let BattleAbilities = {
 	"soundproof": {
 		shortDesc: "This Pokemon is immune to sound-based moves, including Heal Bell.",
 		onTryHit(target, source, move) {
-			if (move.flags['sound']) {
+			if (move.target !== 'self' && move.flags['sound']) {
 				this.add('-immune', target, '[from] ability: Soundproof');
 				return null;
 			}
@@ -3723,7 +3736,7 @@ let BattleAbilities = {
 		num: 100,
 	},
 	"stalwart": {
-		shortDesc: "",
+		shortDesc: "Ignores the effects of opposing Pokémon's Abilities and moves that draw in moves.",
 		onRedirectTargetPriority: 3,
 		onRedirectTarget(target, source, source2, move) {
 			// Fires for all pokemon on the ability holder's side apparently
@@ -3790,10 +3803,10 @@ let BattleAbilities = {
 		num: 80,
 	},
 	"steamengine": {
-		shortDesc: "",
+		shortDesc: "This Pokemon's Speed is raised by 6 stages after it is damaged by Fire/Water moves.",
 		onAfterDamage(damage, target, source, effect) {
 			if (effect && ['Water', 'Fire'].includes(effect.type)) {
-				this.boost({spe: 3});
+				this.boost({spe: 6});
 			}
 		},
 		id: "steamengine",
@@ -3823,7 +3836,7 @@ let BattleAbilities = {
 		num: 200,
 	},
 	"steelyspirit": {
-		shortDesc: "",
+		shortDesc: "Powers up ally Pokémon's Steel-type moves.",
 		onAllyModifyAtk(atk, source, target, move) {
 			if (source !== this.effectData.target && move.type === 'Steel') {
 				// Placeholder
@@ -4400,7 +4413,8 @@ let BattleAbilities = {
 		num: 10,
 	},
 	"wanderingspirit": {
-		shortDesc: "",
+		desc: "The Pokémon exchanges Abilities with a Pokémon that hits it with a move that makes direct contact.",
+		shortDesc: "Exchanges abilities when hitting a Pokémon with a contact move.",
 		onAfterDamage(damage, target, source, move) {
 			// Are these actually banned? Makes sense for them to be banned to me
 			let bannedAbilities = ['battlebond', 'comatose', 'disguise', 'illusion', 'multitype', 'powerconstruct', 'rkssystem', 'schooling', 'shieldsdown', 'stancechange', 'wonderguard', 'zenmode'];
@@ -4612,7 +4626,7 @@ let BattleAbilities = {
 		num: 147,
 	},
 	"zenmode": {
-		desc: "If this Pokemon is a Darmanitan, it changes to Zen Mode if it has 1/2 or less of its maximum HP at the end of a turn. If Darmanitan's HP is above 1/2 of its maximum HP at the end of a turn, it changes back to Standard Mode. This Ability cannot be removed or suppressed.",
+		desc: "If this Pokemon is a Darmanitan or Darmanitan-Galar, it changes to Zen Mode if it has 1/2 or less of its maximum HP at the end of a turn. If Darmanitan's HP is above 1/2 of its maximum HP at the end of a turn, it changes back to Standard Mode. This Ability cannot be removed or suppressed.",
 		shortDesc: "If Darmanitan, at end of turn changes Mode to Standard if > 1/2 max HP, else Zen.",
 		onResidualOrder: 27,
 		onResidual(pokemon) {
@@ -4625,19 +4639,31 @@ let BattleAbilities = {
 				pokemon.addVolatile('zenmode'); // in case of base Darmanitan-Zen
 				pokemon.removeVolatile('zenmode');
 			}
+			if (pokemon.hp <= pokemon.maxhp / 2 && pokemon.template.speciesid === 'darmanitangalar') {
+				pokemon.addVolatile('zenmode');
+			} else if (pokemon.hp > pokemon.maxhp / 2 && pokemon.template.speciesid === 'darmanitanzengalar') {
+				pokemon.addVolatile('zenmode'); // in case of base Darmanitan-Zen
+				pokemon.removeVolatile('zenmode');
+			}
 		},
 		onEnd(pokemon) {
 			if (!pokemon.volatiles['zenmode'] || !pokemon.hp) return;
 			pokemon.transformed = false;
 			delete pokemon.volatiles['zenmode'];
-			pokemon.formeChange('Darmanitan', this.effect, false, '[silent]');
+			if (pokemon.template.speciesid === 'darmanitanzen') pokemon.formeChange('Darmanitan', this.effect, false, '[silent]');
+			if (pokemon.template.speciesid === 'darmanitanzengalar') pokemon.formeChange('Darmanitan-Galar', this.effect, false, '[silent]');
 		},
 		effect: {
 			onStart(pokemon) {
-				if (pokemon.template.speciesid !== 'darmanitanzen') pokemon.formeChange('Darmanitan-Zen');
+				if (!pokemon.template.species.includes('Galar')) {
+					if (pokemon.template.speciesid !== 'darmanitanzen') pokemon.formeChange('Darmanitan-Zen');
+				} else {
+					if (pokemon.template.speciesid !== 'darmanitanzengalar') pokemon.formeChange('Darmanitan-Zen-Galar');
+				}
 			},
 			onEnd(pokemon) {
-				pokemon.formeChange('Darmanitan');
+				if (pokemon.template.forme === 'Zen') pokemon.formeChange('Darmanitan');
+				if (pokemon.template.forme === 'Zen-Galar') pokemon.formeChange('Darmanitan-Galar');
 			},
 		},
 		id: "zenmode",

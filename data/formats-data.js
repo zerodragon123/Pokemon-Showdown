@@ -3195,7 +3195,7 @@ let BattleFormatsData = {
 		encounters: [
 			{"generation": 6, "level": 13, "maxEggMoves": 1},
 		],
-		tier: "Lombre",
+		tier: "NFE",
 	},
 	ludicolo: {
 		randomBattleMoves: ["focusblast", "gigadrain", "hydropump", "icebeam", "raindance", "scald"],
@@ -4910,70 +4910,88 @@ let BattleFormatsData = {
 	arceusbug: {
 		eventOnly: true,
 		requiredItems: ["Insect Plate", "Buginium Z"],
+		isNonstandard: "Past",
 	},
 	arceusdark: {
 		eventOnly: true,
 		requiredItems: ["Dread Plate", "Darkinium Z"],
+		isNonstandard: "Past",
 	},
 	arceusdragon: {
 		eventOnly: true,
 		requiredItems: ["Draco Plate", "Dragonium Z"],
+		isNonstandard: "Past",
 	},
 	arceuselectric: {
 		eventOnly: true,
 		requiredItems: ["Zap Plate", "Electrium Z"],
+		isNonstandard: "Past",
 	},
 	arceusfairy: {
 		eventOnly: true,
 		requiredItems: ["Pixie Plate", "Fairium Z"],
+		isNonstandard: "Past",
 	},
 	arceusfighting: {
 		eventOnly: true,
 		requiredItems: ["Fist Plate", "Fightinium Z"],
+		isNonstandard: "Past",
 	},
 	arceusfire: {
 		eventOnly: true,
 		requiredItems: ["Flame Plate", "Firium Z"],
+		isNonstandard: "Past",
 	},
 	arceusflying: {
 		eventOnly: true,
 		requiredItems: ["Sky Plate", "Flyinium Z"],
+		isNonstandard: "Past",
 	},
 	arceusghost: {
 		eventOnly: true,
 		requiredItems: ["Spooky Plate", "Ghostium Z"],
+		isNonstandard: "Past",
 	},
 	arceusgrass: {
 		eventOnly: true,
 		requiredItems: ["Meadow Plate", "Grassium Z"],
+		isNonstandard: "Past",
+		tier: "Illegal",
 	},
 	arceusground: {
 		eventOnly: true,
 		requiredItems: ["Earth Plate", "Groundium Z"],
+		isNonstandard: "Past",
 	},
 	arceusice: {
 		eventOnly: true,
 		requiredItems: ["Icicle Plate", "Icium Z"],
+		isNonstandard: "Past",
 	},
 	arceuspoison: {
 		eventOnly: true,
 		requiredItems: ["Toxic Plate", "Poisonium Z"],
+		isNonstandard: "Past",
 	},
 	arceuspsychic: {
 		eventOnly: true,
 		requiredItems: ["Mind Plate", "Psychium Z"],
+		isNonstandard: "Past",
 	},
 	arceusrock: {
 		eventOnly: true,
 		requiredItems: ["Stone Plate", "Rockium Z"],
+		isNonstandard: "Past",
 	},
 	arceussteel: {
 		eventOnly: true,
 		requiredItems: ["Iron Plate", "Steelium Z"],
+		isNonstandard: "Past",
 	},
 	arceuswater: {
 		eventOnly: true,
 		requiredItems: ["Splash Plate", "Waterium Z"],
+		isNonstandard: "Past",
 	},
 	victini: {
 		eventPokemon: [
@@ -5331,6 +5349,10 @@ let BattleFormatsData = {
 		randomBattleMoves: ["earthquake", "flareblitz", "iciclecrash", "superpower", "uturn"],
 		tier: "New",
 		doublesTier: "New",
+	},
+	darmanitanzengalar: {
+		requiredAbility: "Zen Mode",
+		battleOnly: true,
 	},
 	maractus: {
 		randomBattleMoves: ["solarbeam", "sunnyday", "synthesis", "weatherball"],
@@ -5856,7 +5878,7 @@ let BattleFormatsData = {
 		tier: "Unreleased",
 	},
 	virizion: {
-		randomBattleMoves: ["closecombat", "leafblade", "stonedge", "substitute", "swordsdance"],
+		randomBattleMoves: ["closecombat", "leafblade", "stoneedge", "substitute", "swordsdance"],
 		eventPokemon: [
 			{"generation": 5, "level": 42, "shiny": 1, "moves": ["helpinghand", "retaliate", "gigadrain", "sacredsword"]},
 			{"generation": 5, "level": 45, "shiny": 1, "moves": ["helpinghand", "retaliate", "gigadrain", "sacredsword"]},
@@ -6007,6 +6029,7 @@ let BattleFormatsData = {
 	keldeoresolute: {
 		eventOnly: true,
 		requiredMove: "Secret Sword",
+		isUnreleased: true,
 	},
 	meloetta: {
 		eventPokemon: [
@@ -6037,18 +6060,22 @@ let BattleFormatsData = {
 	genesectburn: {
 		eventOnly: true,
 		requiredItem: "Burn Drive",
+		isNonstandard: "Past",
 	},
 	genesectchill: {
 		eventOnly: true,
 		requiredItem: "Chill Drive",
+		isNonstandard: "Past",
 	},
 	genesectdouse: {
 		eventOnly: true,
 		requiredItem: "Douse Drive",
+		isNonstandard: "Past",
 	},
 	genesectshock: {
 		eventOnly: true,
 		requiredItem: "Shock Drive",
+		isNonstandard: "Past",
 	},
 	chespin: {
 		isNonstandard: "Past",
@@ -7252,8 +7279,8 @@ let BattleFormatsData = {
 		tier: "Illegal",
 	},
 	magearnaoriginal: {
-		isUnreleased: true,
-		tier: "Unreleased",
+		isNonstandard: "Past",
+		tier: "Illegal",
 	},
 	marshadow: {
 		randomBattleMoves: ["bulkup", "closecombat", "icepunch", "rocktomb", "shadowsneak", "spectralthief"],
@@ -7317,13 +7344,16 @@ let BattleFormatsData = {
 		tier: "Unreleased",
 	},
 	grookey: {
+		unreleasedHidden: true,
 		tier: "LC",
 	},
 	thwackey: {
+		unreleasedHidden: true,
 		tier: "NFE",
 	},
 	rillaboom: {
 		randomBattleMoves: ["drumbeating", "highhorsepower", "knockoff", "superpower", "swordsdance", "uturn", "woodhammer"],
+		unreleasedHidden: true,
 		tier: "New",
 		doublesTier: "New",
 	},
@@ -7360,12 +7390,10 @@ let BattleFormatsData = {
 	},
 	greedent: {
 		randomBattleMoves: ["bodyslam", "crunch", "earthquake", "seedbomb", "superpower", "swordsdance", "wildcharge"],
-		unreleasedHidden: true,
 		tier: "New",
 		doublesTier: "New",
 	},
 	rookidee: {
-		unreleasedHidden: true,
 		tier: "LC",
 	},
 	corvisquire: {
@@ -7449,7 +7477,7 @@ let BattleFormatsData = {
 		tier: "NFE",
 	},
 	coalossal: {
-		randomBattleMoves: ["crunch", "firefang", "nuzzle", "playrough", "psychicfangs", "thunderfang", "voltswitch"],
+		randomBattleMoves: ["earthquake", "fireblast", "rapidspin", "spikes", "stealthrock", "stoneedge"],
 		tier: "New",
 		doublesTier: "New",
 	},
@@ -7509,7 +7537,7 @@ let BattleFormatsData = {
 		tier: "LC",
 	},
 	barraskewda: {
-		randomBattleMoves: ["aquajet", "closecombat", "crunch", "liquidation", "poisonjab", "raindance"],
+		randomBattleMoves: ["aquajet", "closecombat", "crunch", "liquidation", "poisonjab"],
 		tier: "New",
 		doublesTier: "New",
 	},

@@ -815,7 +815,7 @@ interface MoveData extends EffectData, MoveEventMethods {
 	terrain?: string
 	thawsTarget?: boolean
 	useTargetOffensive?: boolean
-	useSourceDefensive?: boolean
+	useSourceDefensiveAsOffensive?: boolean
 	volatileStatus?: string
 	weather?: string
 	willCrit?: boolean
@@ -823,6 +823,7 @@ interface MoveData extends EffectData, MoveEventMethods {
 	zMovePower?: number
 	zMoveEffect?: string
 	zMoveBoost?: SparseBoostsTable
+	gmaxPower?: number
 	basePowerCallback?: (this: Battle, pokemon: Pokemon, target: Pokemon, move: ActiveMove) => number | false | null
 }
 

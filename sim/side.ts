@@ -148,6 +148,7 @@ export class Side {
 				if (action.targetLoc && this.active.length > 1) details += ` ${action.targetLoc}`;
 				if (action.mega) details += (action.pokemon!.item === 'ultranecroziumz' ? ` ultra` : ` mega`);
 				if (action.zmove) details += ` zmove`;
+				if (action.maxMove) details += ` dynamax`;
 				return `move ${action.moveid}${details}`;
 			case 'switch':
 			case 'instaswitch':
@@ -465,7 +466,7 @@ export class Side {
 			// Gen 4 and earlier announce a Pokemon has no moves left before the turn begins, and only to that player's side.
 			if (this.battle.gen <= 4) this.send('-activate', pokemon, 'move: Struggle');
 			moveid = 'struggle';
-		} else if (!zMove) {
+		} else if (!zMove && !(megaDynaOrZ === 'dynamax' || pokemon.volatiles['dynamax'])) {
 			// Check for disabled moves
 			let isEnabled = false;
 			let disabledSource = '';

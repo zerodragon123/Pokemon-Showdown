@@ -329,10 +329,11 @@ let BattleStatuses = {
 				pokemon.removeVolatile('choicelock');
 				return;
 			}
-			if (!pokemon.ignoringItem() && move.id !== this.effectData.move && move.id !== 'struggle') {
+			if (!pokemon.ignoringItem() && !pokemon.volatiles['dynamax'] && move.id !== this.effectData.move && move.id !== 'struggle') {
 				// Fails unless the Choice item is being ignored, and no PP is lost
 				this.addMove('move', pokemon, move.name);
 				this.attrLastMove('[still]');
+				this.debug("Disabled by Choice item lock");
 				this.add('-fail', pokemon);
 				return false;
 			}
@@ -342,7 +343,7 @@ let BattleStatuses = {
 				pokemon.removeVolatile('choicelock');
 				return;
 			}
-			if (pokemon.ignoringItem()) {
+			if (pokemon.ignoringItem() || pokemon.volatiles['dynamax']) {
 				return;
 			}
 			for (const moveSlot of pokemon.moveSlots) {
@@ -715,37 +716,42 @@ let BattleStatuses = {
 		num: 0,
 		duration: 3,
 		onStart(pokemon) {
-			this.add('-dynamax', pokemon);
-			this.debug(`Dynamax Start: ${pokemon} (${pokemon.side.name})`);
+			//this.add('-dynamax', pokemon);
+			this.add('-start', pokemon, "Dynamax");
 			if (pokemon.canGigantamax) pokemon.formeChange(pokemon.canGigantamax);
-			let ratio = (2 / 3); // Changes based on dynamax level, static (LVL 0) until we know the levels
+			if (pokemon.species === 'Shedinja') return;
+			let ratio = (1 / 2); // Changes based on dynamax level, static (LVL 10) until we know the levels
 			pokemon.maxhp = Math.floor(pokemon.maxhp / ratio);
 			pokemon.hp = Math.floor(pokemon.hp / ratio);
 			// TODO work on display for healing
 			this.add('-heal', pokemon, pokemon.getHealth, '[from] Dynamax');
 		},
 		onFlinch: false,
-		onSwitchOut(pokemon) {
+		onBeforeSwitchOut(pokemon) {
 			// Run the end event
 			// pokemon.volatiles.dynamax.onEnd(pokemon);
-			this.add('-undynamax', pokemon);
-			this.debug(`Dynamax End: ${pokemon} (${pokemon.side.name})`);
+			//this.add('-undynamax', pokemon);
+			this.add('-end', pokemon, "Dynamax");
 			if (pokemon.canGigantamax) pokemon.formeChange(pokemon.baseTemplate.species);
-			let ratio = (2 / 3); // Changes based on dynamax level, static (LVL 0) until we know the levels
+			if (pokemon.species === 'Shedinja') return;
+			let ratio = (1 / 2); // Changes based on dynamax level, static (LVL 10) until we know the levels
 			pokemon.maxhp = Math.floor(pokemon.maxhp * ratio); // TODO prevent maxhp loss
 			pokemon.hp = Math.floor(pokemon.hp * ratio);
+			if (pokemon.hp <= 0) pokemon.hp = 1;
 			// TODO work on display for healing
 			this.add('-heal', pokemon, pokemon.getHealth, '[from] Dynamax');
 		},
 		onEnd(pokemon) {
 			// Play animation
 			// Modify HP - Work with LVL 0 for now
-			this.add('-undynamax', pokemon);
-			this.debug(`Dynamax End: ${pokemon} (${pokemon.side.name})`);
+			//this.add('-undynamax', pokemon);
+			this.add('-end', pokemon, "Dynamax");
 			if (pokemon.canGigantamax) pokemon.formeChange(pokemon.baseTemplate.species);
-			let ratio = (2 / 3); // Changes based on dynamax level, static (LVL 0) until we know the levels
+			if (pokemon.species === 'Shedinja') return;
+			let ratio = (1 / 2); // Changes based on dynamax level, static (LVL 10) until we know the levels
 			pokemon.maxhp = Math.floor(pokemon.maxhp * ratio); // TODO prevent maxhp loss
 			pokemon.hp = Math.floor(pokemon.hp * ratio);
+			if (pokemon.hp <= 0) pokemon.hp = 1;
 			// TODO work on display for healing
 			this.add('-heal', pokemon, pokemon.getHealth, '[from] Dynamax');
 		},

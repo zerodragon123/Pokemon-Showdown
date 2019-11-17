@@ -1032,7 +1032,6 @@ let BattleMovedex = {
 		shortDesc: "Summons Reflect.",
 		id: "baddybad",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Baddy Bad",
 		pp: 15,
@@ -1075,7 +1074,7 @@ let BattleMovedex = {
 			onTryHitPriority: 3,
 			onTryHit(target, source, move) {
 				if (!move.flags['protect']) {
-					if (move.isZ) target.getMoveHitData(move).zBrokeProtect = true;
+					if (move.isZ || move.isMax) target.getMoveHitData(move).zBrokeProtect = true;
 					return;
 				}
 				this.add('-activate', target, 'move: Protect');
@@ -1629,7 +1628,7 @@ let BattleMovedex = {
 		pp: 10,
 		priority: 0,
 		flags: {contact: 1, protect: 1, mirror: 1},
-		useSourceDefensive: true,
+		useSourceDefensiveAsOffensive: true,
 		secondary: null,
 		target: "normal",
 		type: "Fighting",
@@ -1743,6 +1742,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Ground",
 		zMovePower: 100,
+		gmaxPower: 130,
 		contestType: "Tough",
 	},
 	"bonerush": {
@@ -1762,6 +1762,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Ground",
 		zMovePower: 140,
+		gmaxPower: 130,
 		contestType: "Tough",
 	},
 	"boomburst": {
@@ -1838,7 +1839,6 @@ let BattleMovedex = {
 		shortDesc: "User recovers 50% of the damage dealt.",
 		id: "bouncybubble",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Bouncy Bubble",
 		pp: 15,
@@ -1891,8 +1891,8 @@ let BattleMovedex = {
 		accuracy: 100,
 		basePower: 60,
 		category: "Physical",
-		desc: "100% chance to lower the foe's Defense by 1 stage. Hits all adjecent foes.",
-		shortDesc: "100% chance to lower adjacent foes' Def by 1.",
+		desc: "100% chance to lower the foe's Attack by 1 stage. Hits all adjecent foes.",
+		shortDesc: "100% chance to lower adjacent foes' Atk by 1.",
 		id: "breakingswipe",
 		name: "Breaking Swipe",
 		pp: 15,
@@ -1901,7 +1901,7 @@ let BattleMovedex = {
 		secondary: {
 			chance: 100,
 			boosts: {
-				def: -1,
+				atk: -1,
 			},
 		},
 		target: "allAdjacentFoes",
@@ -2177,6 +2177,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Grass",
 		zMovePower: 140,
+		gmaxPower: 130,
 		contestType: "Cool",
 	},
 	"burnup": {
@@ -2218,7 +2219,6 @@ let BattleMovedex = {
 		shortDesc: "100% chance to paralyze the foe.",
 		id: "buzzybuzz",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Buzzy Buzz",
 		pp: 15,
@@ -2548,18 +2548,18 @@ let BattleMovedex = {
 		accuracy: true,
 		basePower: 0,
 		category: "Status",
-		desc: "Raises the user's Attack, Defense, Special Attack, Special Defense, and Speed by 1 stage in exchange for the user losing 1/2 of its maximum HP, rounded down. Fails if the user would faint or if its Attck, Defense, Special Attack, Special Defense, and Speed stat stages are 6.",
-		shortDesc: "User loses 50% max HP. Raises all stats by 1.",
+		desc: "Raises the user's Attack, Defense, Special Attack, Special Defense, and Speed by 1 stage in exchange for the user losing 1/3 of its maximum HP, rounded down. Fails if the user would faint or if its Attack, Defense, Special Attack, Special Defense, and Speed stat stages are 6.",
+		shortDesc: "User loses 33% max HP. Raises all stats by 1.",
 		id: "clangoroussoul",
 		name: "Clangorous Soul",
 		pp: 5,
 		priority: 0,
 		flags: {snatch: 1, sound: 1},
 		onHit(target) {
-			if (target.hp <= target.maxhp / 2 || target.boosts.atk >= 6 || target.boosts.def >= 6 || target.boosts.spa >= 6 || target.boosts.spd >= 6 || target.boosts.spe >= 6 || target.maxhp === 1) { // Shedinja clause
+			if (target.hp <= target.maxhp / 3 || target.boosts.atk >= 6 || target.boosts.def >= 6 || target.boosts.spa >= 6 || target.boosts.spd >= 6 || target.boosts.spe >= 6 || target.maxhp === 1) { // Shedinja clause
 				return false;
 			}
-			this.directDamage(target.maxhp / 2);
+			this.directDamage(target.maxhp / 3);
 			this.boost({atk: 1, def: 1, spa: 1, spd: 1, spe: 1}, target);
 		},
 		secondary: null,
@@ -2685,6 +2685,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 100,
+		gmaxPower: 100,
 		contestType: "Tough",
 	},
 	"confide": {
@@ -3037,6 +3038,7 @@ let BattleMovedex = {
 		target: "scripted",
 		type: "Fighting",
 		zMovePower: 100,
+		gmaxPower: 75,
 		contestType: "Tough",
 	},
 	"courtchange": {
@@ -3051,27 +3053,33 @@ let BattleMovedex = {
 		pp: 10,
 		priority: 0,
 		flags: {mirror: 1},
-		onHit(target, source) {
-			const sideConditions = {'spikes': 1, 'toxicspikes': 1, 'stealthrock': 1, 'stickyweb': 1, 'lightscreen': 1, 'reflect': 1, 'auroraveil': 1};
-			for (let i in sideConditions) {
-				let sourceLayers = source.side.sideConditions[i] ? (source.side.sideConditions[i].layers || 1) : 1;
-				let targetLayers = target.side.sideConditions[i] ? (target.side.sideConditions[i].layers || 1) : 1;
-				if (source.side.removeSideCondition(i)) {
-					this.add('-sideend', source.side, this.dex.getEffect(i).name, '[from] move: Court Change', '[of] ' + source);
-					for (sourceLayers; sourceLayers > 0; sourceLayers--) {
-						target.side.addSideCondition(i, source);
-					}
+		onHitField(target, source) {
+			const sideConditions = [
+				'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'lightscreen', 'reflect', 'auroraveil',
+			];
+			const side1 = this.sides[0];
+			const side2 = this.sides[1];
+			for (let id of sideConditions) {
+				let sourceLayers = side1.sideConditions[id] ? (side1.sideConditions[id].layers || 1) : 0;
+				let targetLayers = side2.sideConditions[id] ? (side2.sideConditions[id].layers || 1) : 0;
+				if (sourceLayers === targetLayers) continue;
+				const effectName = this.dex.getEffect(id).name;
+				if (side1.removeSideCondition(id)) {
+					this.add('-sideend', side1, effectName, '[from] move: Court Change', '[of] ' + source);
 				}
-				if (target.side.removeSideCondition(i)) {
-					this.add('-sideend', target.side, this.dex.getEffect(i).name, '[from] move: Court Change', '[of] ' + target);
-					for (targetLayers; targetLayers > 0; targetLayers--) {
-						source.side.addSideCondition(i, target);
-					}
+				if (side2.removeSideCondition(id)) {
+					this.add('-sideend', side2, effectName, '[from] move: Court Change', '[of] ' + source);
+				}
+				for (; targetLayers > 0; targetLayers--) {
+					side1.addSideCondition(id, source);
+				}
+				for (; sourceLayers > 0; sourceLayers--) {
+					side2.addSideCondition(id, source);
 				}
 			}
 		},
 		secondary: null,
-		target: "any",
+		target: "all",
 		type: "Normal",
 	},
 	"covet": {
@@ -3268,6 +3276,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 190,
+		gmaxPower: 140,
 		contestType: "Tough",
 	},
 	"curse": {
@@ -3956,6 +3965,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 140,
+		gmaxPower: 120,
 		contestType: "Cool",
 	},
 	"doubleironbash": {
@@ -3966,7 +3976,6 @@ let BattleMovedex = {
 		desc: "Hits twice. If the first hit breaks the target's substitute, it will take damage for the second hit. Has a 30% chance to flinch the target.",
 		shortDesc: "Hits twice. 30% chance to flinch.",
 		id: "doubleironbash",
-		isNonstandard: "LGPE",
 		isUnreleased: true,
 		isViable: true,
 		name: "Double Iron Bash",
@@ -3981,6 +3990,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Steel",
 		zMovePower: 180,
+		gmaxPower: 140,
 		contestType: "Clever",
 	},
 	"doublekick": {
@@ -4000,6 +4010,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Fighting",
 		zMovePower: 100,
+		gmaxPower: 80,
 		contestType: "Cool",
 	},
 	"doubleslap": {
@@ -4161,7 +4172,7 @@ let BattleMovedex = {
 		desc: "In singles, this move hits the target twice. In doubles, this move hits each target once.",
 		shortDesc: "Singles: Hits twice. Doubles: Hits each once.",
 		id: "dragondarts",
-		name: "dragondarts",
+		name: "Dragon Darts",
 		pp: 10,
 		priority: 0,
 		flags: {protect: 1, mirror: 1},
@@ -4175,6 +4186,7 @@ let BattleMovedex = {
 		},
 		target: "normal",
 		type: "Dragon",
+		gmaxPower: 130,
 	},
 	"dragonhammer": {
 		num: 692,
@@ -4408,6 +4420,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Dragon",
 		zMovePower: 100,
+		gmaxPower: 130,
 		contestType: "Tough",
 	},
 	"dynamaxcannon": {
@@ -4706,6 +4719,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Electric",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Cool",
 	},
 	"electroweb": {
@@ -4868,6 +4882,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Tough",
 	},
 	"endure": {
@@ -5637,6 +5652,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Ground",
 		zMovePower: 180,
+		gmaxPower: 130,
 		contestType: "Tough",
 	},
 	"flail": {
@@ -5674,6 +5690,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Cute",
 	},
 	"flameburst": {
@@ -5956,7 +5973,6 @@ let BattleMovedex = {
 		shortDesc: "30% chance to flinch the target.",
 		id: "floatyfall",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Floaty Fall",
 		pp: 15,
@@ -6398,7 +6414,6 @@ let BattleMovedex = {
 		shortDesc: "Eliminates all stat changes.",
 		id: "freezyfrost",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Freezy Frost",
 		pp: 15,
@@ -6476,6 +6491,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Cute",
 	},
 	"furyattack": {
@@ -6550,6 +6566,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 100,
+		gmaxPower: 100,
 		contestType: "Tough",
 	},
 	"fusionbolt": {
@@ -6695,6 +6712,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Steel",
 		zMovePower: 180,
+		gmaxPower: 130,
 		contestType: "Clever",
 	},
 	"gearup": {
@@ -6902,7 +6920,6 @@ let BattleMovedex = {
 		shortDesc: "Summons Light Screen.",
 		id: "glitzyglow",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Glitzy Glow",
 		pp: 15,
@@ -7343,10 +7360,17 @@ let BattleMovedex = {
 		pp: 20,
 		priority: 0,
 		flags: {contact: 1, protect: 1, mirror: 1, nonsky: 1},
+		onTryHit(pokemon, target, move) {
+			if (!pokemon.volatiles['dynamax']) return;
+			this.add('-fail', pokemon);
+			this.attrLastMove('[still]');
+			return null;
+		},
 		secondary: null,
 		target: "normal",
 		type: "Grass",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Cute",
 	},
 	"grasspledge": {
@@ -7505,7 +7529,7 @@ let BattleMovedex = {
 		desc: "Has a 100% chance to lower the target's Defense by 1 stage.",
 		shortDesc: "100% chance to lower the target's Defense by 1.",
 		id: "gravapple",
-		name: "gravapple",
+		name: "Grav Apple",
 		pp: 10,
 		priority: 0,
 		flags: {protect: 1, mirror: 1},
@@ -7790,6 +7814,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 180,
+		gmaxPower: 130,
 		contestType: "Cool",
 	},
 	"gunkshot": {
@@ -7855,6 +7880,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Steel",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Cool",
 	},
 	"hail": {
@@ -8284,10 +8310,17 @@ let BattleMovedex = {
 		pp: 10,
 		priority: 0,
 		flags: {contact: 1, protect: 1, mirror: 1, nonsky: 1},
+		onTryHit(pokemon, target, move) {
+			if (!pokemon.volatiles['dynamax']) return;
+			this.add('-fail', pokemon);
+			this.attrLastMove('[still]');
+			return null;
+		},
 		secondary: null,
 		target: "normal",
 		type: "Fire",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Tough",
 	},
 	"heatwave": {
@@ -8342,10 +8375,17 @@ let BattleMovedex = {
 		pp: 10,
 		priority: 0,
 		flags: {contact: 1, protect: 1, mirror: 1, nonsky: 1},
+		onTryHit(pokemon, target, move) {
+			if (!pokemon.volatiles['dynamax']) return;
+			this.add('-fail', pokemon);
+			this.attrLastMove('[still]');
+			return null;
+		},
 		secondary: null,
 		target: "normal",
 		type: "Steel",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Tough",
 	},
 	"helpinghand": {
@@ -8858,6 +8898,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 180,
+		gmaxPower: 130,
 		contestType: "Cool",
 	},
 	"hornleech": {
@@ -9359,6 +9400,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Ice",
 		zMovePower: 140,
+		gmaxPower: 130,
 		contestType: "Beautiful",
 	},
 	"icywind": {
@@ -9680,7 +9722,7 @@ let BattleMovedex = {
 		accuracy: 100,
 		basePower: 80,
 		category: "Physical",
-		desc: "Prevents the user and the target from switching out. The target and the target can still switch out if either of them is holding Shed Shell or uses Baton Pass, Parting Shot, U-turn, or Volt Switch. If the target leaves the field using Baton Pass, the replacement will remain trapped. The effect ends if either Pokemon faints.",
+		desc: "Prevents the user and the target from switching out. The user and the target can still switch out if either of them is holding Shed Shell or uses Baton Pass, Parting Shot, U-turn, or Volt Switch. If the target leaves the field using Baton Pass, the replacement will remain trapped. The effect ends if either Pokemon faints.",
 		shortDesc: "Prevents the user and the target from switching out.",
 		id: "jawlock",
 		name: "Jaw Lock",
@@ -9816,7 +9858,7 @@ let BattleMovedex = {
 			onTryHitPriority: 3,
 			onTryHit(target, source, move) {
 				if (!move.flags['protect'] || move.category === 'Status') {
-					if (move.isZ) target.getMoveHitData(move).zBrokeProtect = true;
+					if (move.isZ || move.isMax) target.getMoveHitData(move).zBrokeProtect = true;
 					return;
 				}
 				this.add('-activate', target, 'move: Protect');
@@ -10418,6 +10460,12 @@ let BattleMovedex = {
 		pp: 20,
 		priority: 0,
 		flags: {contact: 1, protect: 1, mirror: 1},
+		onTryHit(pokemon, target, move) {
+			if (!pokemon.volatiles['dynamax']) return;
+			this.add('-fail', pokemon);
+			this.attrLastMove('[still]');
+			return null;
+		},
 		secondary: null,
 		target: "normal",
 		type: "Fighting",
@@ -10927,6 +10975,7 @@ let BattleMovedex = {
 		target: "allAdjacent",
 		type: "Ground",
 		zMovePower: 140,
+		gmaxPower: 140,
 		contestType: "Tough",
 	},
 	"maliciousmoonsault": {
@@ -10976,7 +11025,7 @@ let BattleMovedex = {
 			onTryHitPriority: 3,
 			onTryHit(target, source, move) {
 				if (!move.flags['protect']) {
-					if (move.isZ) target.getMoveHitData(move).zBrokeProtect = true;
+					if (move.isZ || move.isMax) target.getMoveHitData(move).zBrokeProtect = true;
 					return;
 				}
 				if (move && (move.target === 'self' || move.category === 'Status')) return;
@@ -11116,7 +11165,7 @@ let BattleMovedex = {
 	"maxguard": {
 		num: 743,
 		accuracy: true,
-		basePower: 1,
+		basePower: 0,
 		category: "Status",
 		shortDesc: "Prevents all moves from affecting the user this turn.",
 		id: "maxguard",
@@ -12571,6 +12620,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Clever",
 	},
 	"naturepower": {
@@ -13449,7 +13499,6 @@ let BattleMovedex = {
 		shortDesc: "Max happiness: 102 power. Can't miss.",
 		id: "pikapapow",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Pika Papow",
 		pp: 20,
@@ -13477,6 +13526,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Bug",
 		zMovePower: 140,
+		gmaxPower: 130,
 		contestType: "Cool",
 	},
 	"plasmafists": {
@@ -13934,6 +13984,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Dark",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Clever",
 	},
 	"poweruppunch": {
@@ -14078,7 +14129,7 @@ let BattleMovedex = {
 			onTryHitPriority: 3,
 			onTryHit(target, source, move) {
 				if (!move.flags['protect']) {
-					if (move.isZ) target.getMoveHitData(move).zBrokeProtect = true;
+					if (move.isZ || move.isMax) target.getMoveHitData(move).zBrokeProtect = true;
 					return;
 				}
 				this.add('-activate', target, 'move: Protect');
@@ -14431,6 +14482,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Dark",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Cool",
 	},
 	"purify": {
@@ -14629,7 +14681,7 @@ let BattleMovedex = {
 				// (e.g. it blocks 0 priority moves boosted by Prankster or Gale Wings; Quick Claw/Custap Berry do not count)
 				if (move.priority <= 0.1) return;
 				if (!move.flags['protect']) {
-					if (move.isZ) target.getMoveHitData(move).zBrokeProtect = true;
+					if (move.isZ || move.isMax) target.getMoveHitData(move).zBrokeProtect = true;
 					return;
 				}
 				this.add('-activate', target, 'move: Quick Guard');
@@ -15139,6 +15191,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Cute",
 	},
 	"revelationdance": {
@@ -15289,6 +15342,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Rock",
 		zMovePower: 140,
+		gmaxPower: 130,
 		contestType: "Tough",
 	},
 	"rockclimb": {
@@ -15821,7 +15875,6 @@ let BattleMovedex = {
 		shortDesc: "Summons Leech Seed.",
 		id: "sappyseed",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Sappy Seed",
 		pp: 15,
@@ -16109,6 +16162,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Fighting",
 		zMovePower: 100,
+		gmaxPower: 75,
 		contestType: "Tough",
 	},
 	"selfdestruct": {
@@ -16353,6 +16407,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Ice",
 		zMovePower: 180,
+		gmaxPower: 130,
 		contestType: "Beautiful",
 	},
 	"shellsmash": {
@@ -16617,7 +16672,6 @@ let BattleMovedex = {
 		shortDesc: "100% chance to burn the foe.",
 		id: "sizzlyslide",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Sizzly Slide",
 		pp: 15,
@@ -17577,7 +17631,6 @@ let BattleMovedex = {
 		shortDesc: "Cures the user's party of all status conditions.",
 		id: "sparklyswirl",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Sparkly Swirl",
 		pp: 15,
@@ -17684,6 +17737,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 100,
+		gmaxPower: 120,
 		contestType: "Cool",
 	},
 	"spikes": {
@@ -17753,7 +17807,7 @@ let BattleMovedex = {
 			onTryHitPriority: 3,
 			onTryHit(target, source, move) {
 				if (!move.flags['protect']) {
-					if (move.isZ) target.getMoveHitData(move).zBrokeProtect = true;
+					if (move.isZ || move.isMax) target.getMoveHitData(move).zBrokeProtect = true;
 					return;
 				}
 				this.add('-activate', target, 'move: Protect');
@@ -17936,7 +17990,6 @@ let BattleMovedex = {
 		shortDesc: "30% chance to paralyze the target.",
 		id: "splishysplash",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Splishy Splash",
 		pp: 15,
@@ -18321,6 +18374,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Psychic",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Clever",
 	},
 	"stormthrow": {
@@ -18348,8 +18402,8 @@ let BattleMovedex = {
 		accuracy: 95,
 		basePower: 90,
 		category: "Special",
-		desc: "Has a 100% chance to lower the target's Special Attack by 1 stage.",
-		shortDesc: "100% chance to lower the target's Sp. Atk by 1.",
+		desc: "Has a 20% chance to confuse the target.",
+		shortDesc: "20% chance to confuse the target.",
 		id: "strangesteam",
 		isViable: true,
 		name: "Strange Steam",
@@ -19081,6 +19135,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 140,
+		gmaxPower: 130,
 		contestType: "Cute",
 	},
 	"tailwhip": {
@@ -19169,8 +19224,8 @@ let BattleMovedex = {
 		accuracy: 100,
 		basePower: 0,
 		category: "Status",
-		desc: "If the target lost HP, the user takes recoil damage equal to 1/4 the HP lost by the target, rounded half up, but not less than 1 HP.",
-		shortDesc: "Has 1/4 recoil.",
+		desc: "Lowers the target's Speed by 1 stage. Until the target switches out, it takes 2x damage from Fire moves.",
+		shortDesc: "-1 Spe. Target takes 2x damage from Fire moves.",
 		id: "tarshot",
 		name: "Tar Shot",
 		pp: 20,
@@ -19187,7 +19242,7 @@ let BattleMovedex = {
 			onSourceModifyDamage(damage, source, target, move) {
 				if (target.volatiles['tarshot'] && this.dex.getActiveMove(move).type === 'Fire') {
 					// TODO: Figure out damage modifier
-					return this.chainModify(1.2);
+					return this.chainModify(2);
 				}
 			},
 			onResidualOrder: 21,
@@ -19276,7 +19331,7 @@ let BattleMovedex = {
 		desc: "Forces all active Pokemon to consume their held berries. This move bypasses Substitutes.",
 		shortDesc: "All active Pokemon consume held Berries.",
 		id: "teatime",
-		name: "Tea Time",
+		name: "Teatime",
 		pp: 10,
 		priority: 0,
 		flags: {authentic: 1},
@@ -19285,7 +19340,7 @@ let BattleMovedex = {
 				for (const active of side.active) {
 					let item = active.getItem();
 					if (active.hp && item.isBerry) {
-						this.add('-enditem', target, item.name, '[from] eat', '[move] Tea Time', '[of] ' + active);
+						this.add('-enditem', target, item.name, '[from] eat', '[move] Teatime', '[of] ' + active);
 						if (this.singleEvent('Eat', item, null, active, null, null)) {
 							this.runEvent('EatItem', active, null, null, item);
 							// TODO: Test
@@ -20094,6 +20149,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Fighting",
 		zMovePower: 120,
+		gmaxPower: 80,
 		contestType: "Cool",
 	},
 	"tropkick": {
@@ -20154,6 +20210,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Cool",
 	},
 	"twineedle": {
@@ -20177,6 +20234,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Bug",
 		zMovePower: 100,
+		gmaxPower: 100,
 		contestType: "Cool",
 	},
 	"twinkletackle": {
@@ -20350,7 +20408,6 @@ let BattleMovedex = {
 		shortDesc: "Max happiness: 102 power. Can't miss.",
 		id: "veeveevolley",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Veevee Volley",
 		pp: 20,
@@ -20785,6 +20842,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 160,
+		gmaxPower: 130,
 		contestType: "Beautiful",
 	},
 	"whirlpool": {
@@ -20856,7 +20914,7 @@ let BattleMovedex = {
 				if (move && move.target !== 'allAdjacent' && move.target !== 'allAdjacentFoes') {
 					return;
 				}
-				if (move.isZ) {
+				if (move.isZ || move.isMax) {
 					target.getMoveHitData(move).zBrokeProtect = true;
 					return;
 				}
@@ -21144,6 +21202,7 @@ let BattleMovedex = {
 		target: "normal",
 		type: "Normal",
 		zMovePower: 190,
+		gmaxPower: 140,
 		contestType: "Tough",
 	},
 	"xscissor": {
@@ -21274,7 +21333,6 @@ let BattleMovedex = {
 		shortDesc: "Nearly always goes first. Always crits.",
 		id: "zippyzap",
 		isNonstandard: "LGPE",
-		isUnreleased: true,
 		isViable: true,
 		name: "Zippy Zap",
 		pp: 15,

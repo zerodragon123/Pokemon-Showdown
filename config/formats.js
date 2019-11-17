@@ -761,6 +761,17 @@ let Formats = [
 		banlist: ['Uber', 'Baton Pass'],
 	},
 	{
+		name: "[Gen 8] Doubles OU (beta)",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/np-swsh-dou-stage-0-begin-again.3656244/">Doubles OU Metagame Discussion</a>`,
+		],
+
+		mod: 'gen8',
+		gameType: 'doubles',
+		ruleset: ['Obtainable', 'Standard Doubles', 'Team Preview'],
+		banlist: ['DUber', 'Gravity ++ Hypnosis', 'Gravity ++ Lovely Kiss', 'Gravity ++ Sing', 'Gravity ++ Sleep Powder'],
+	},
+	{
 		name: "[Gen 8] Custom Game",
 
 		mod: 'gen8',
@@ -810,7 +821,7 @@ let Formats = [
 
 		mod: 'gen8',
 		ruleset: ['-Nonexistent', 'OHKO Clause', 'Evasion Moves Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Endless Battle Clause'],
-		banlist: ['Arena Trap', 'Contrary', 'Huge Power', 'Illusion', 'Innards Out', 'Magnet Pull', 'Moody', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Comatose + Sleep Talk'],
+		banlist: ['Arena Trap', 'Contrary', 'Huge Power', 'Illusion', 'Innards Out', 'Libero', 'Magnet Pull', 'Moody', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Comatose + Sleep Talk'],
 	},
 	{
 		name: "[Gen 7] Tier Shift",
@@ -1248,14 +1259,14 @@ let Formats = [
 		searchShow: false,
 		ruleset: ['Obtainable', 'HP Percentage Mod', 'Cancel Mod', 'Team Preview'],
 	},
-	/*{
+	{
 		name: "[Gen 7] Hackmons Cup",
 		desc: `Randomized teams of level-balanced Pok&eacute;mon with absolutely any ability, moves, and item.`,
 
 		mod: 'gen7',
 		team: 'randomHC',
 		ruleset: ['Obtainable', 'HP Percentage Mod', 'Cancel Mod'],
-	},*/
+	},
 	{
 		name: "[Gen 7] Doubles Hackmons Cup",
 

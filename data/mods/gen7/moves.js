@@ -102,6 +102,10 @@ let BattleMovedex = {
 		inherit: true,
 		isNonstandard: null,
 	},
+	doubleironbash: {
+		inherit: true,
+		isNonstandard: "LGPE",
+	},
 	doubleslap: {
 		inherit: true,
 		isNonstandard: null,
@@ -150,6 +154,10 @@ let BattleMovedex = {
 		inherit: true,
 		isNonstandard: null,
 	},
+	grassknot: {
+		inherit: true,
+		onTryHit() {},
+	},
 	grasswhistle: {
 		inherit: true,
 		isNonstandard: null,
@@ -169,6 +177,14 @@ let BattleMovedex = {
 	heartstamp: {
 		inherit: true,
 		isNonstandard: null,
+	},
+	heatcrash: {
+		inherit: true,
+		onTryHit() {},
+	},
+	heavyslam: {
+		inherit: true,
+		onTryHit() {},
 	},
 	hiddenpower: {
 		inherit: true,
@@ -287,7 +303,7 @@ let BattleMovedex = {
 			onTryHitPriority: 3,
 			onTryHit(target, source, move) {
 				if (!move.flags['protect'] || move.category === 'Status') {
-					if (move.isZ) target.getMoveHitData(move).zBrokeProtect = true;
+					if (move.isZ || move.isMax) target.getMoveHitData(move).zBrokeProtect = true;
 					return;
 				}
 				this.add('-activate', target, 'move: Protect');
@@ -317,6 +333,10 @@ let BattleMovedex = {
 	lightthatburnsthesky: {
 		inherit: true,
 		isNonstandard: null,
+	},
+	lowkick: {
+		inherit: true,
+		onTryHit() {},
 	},
 	luckychant: {
 		inherit: true,

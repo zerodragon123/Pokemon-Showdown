@@ -586,7 +586,7 @@ export class Template extends BasicEffect implements Readonly<BasicEffect & Temp
 	readonly isMega?: boolean;
 	/** True if a pokemon is primal. */
 	readonly isPrimal?: boolean;
-	/** True if a pokemon is gigantamax. */
+	/** Name of its Gigantamax move, if a pokemon is gigantamax. */
 	readonly isGigantamax?: string;
 	/** True if a pokemon is a forme that is only accessible in battle. */
 	readonly battleOnly?: boolean;
@@ -680,7 +680,7 @@ export class Template extends BasicEffect implements Readonly<BasicEffect & Temp
 		this.battleOnly = !!data.battleOnly || !!this.isMega || !!this.isGigantamax || undefined;
 
 		if (!this.gen && this.num >= 1) {
-			if (this.num >= 810 || this.forme === 'Galar' || this.isGigantamax) {
+			if (this.num >= 810 || this.forme === 'Galar' || this.forme === 'Gmax') {
 				this.gen = 8;
 			} else if (this.num >= 722 || this.forme.startsWith('Alola') || this.forme === 'Starter') {
 				this.gen = 7;
@@ -776,10 +776,10 @@ export class Move extends BasicEffect implements Readonly<BasicEffect & MoveData
 	 * move damage.
 	 */
 	readonly defensiveCategory?: MoveCategory;
-	/** Whether or not this move uses the target's boosts. */
+	/** Uses the target's Atk/SpA as the attacking stat, instead of the user's. */
 	readonly useTargetOffensive: boolean;
-	/** Whether or not this move uses the user's boosts. */
-	readonly useSourceDefensive: boolean;
+	/** Use the user's Def/SpD as the attacking stat, instead of Atk/SpA. */
+	readonly useSourceDefensiveAsOffensive: boolean;
 	/** Whether or not this move ignores negative attack boosts. */
 	readonly ignoreNegativeOffensive: boolean;
 	/** Whether or not this move ignores positive defense boosts. */
@@ -799,6 +799,8 @@ export class Move extends BasicEffect implements Readonly<BasicEffect & MoveData
 	readonly noPPBoosts: boolean;
 	/** Is this move a Z-Move? */
 	readonly isZ: boolean | string;
+	/** Max/G-Max move power */
+	readonly gmaxPower?: number;
 	readonly flags: MoveFlags;
 	/** Whether or not the user must switch after using this move. */
 	readonly selfSwitch?: ID | boolean;
@@ -848,7 +850,7 @@ export class Move extends BasicEffect implements Readonly<BasicEffect & MoveData
 		this.category = data.category!;
 		this.defensiveCategory = data.defensiveCategory || undefined;
 		this.useTargetOffensive = !!data.useTargetOffensive;
-		this.useSourceDefensive = !!data.useSourceDefensive;
+		this.useSourceDefensiveAsOffensive = !!data.useSourceDefensiveAsOffensive;
 		this.ignoreNegativeOffensive = !!data.ignoreNegativeOffensive;
 		this.ignorePositiveDefensive = !!data.ignorePositiveDefensive;
 		this.ignoreOffensive = !!data.ignoreOffensive;
@@ -869,8 +871,46 @@ export class Move extends BasicEffect implements Readonly<BasicEffect & MoveData
 		this.stab = data.stab || undefined;
 		this.volatileStatus = typeof data.volatileStatus === 'string' ? (data.volatileStatus as ID) : undefined;
 
+		if (this.category !== 'Status' && !this.gmaxPower) {
+			if (!this.basePower) {
+				this.gmaxPower = 100;
+			} else if (['Fighting', 'Poison'].includes(this.type)) {
+				if (this.basePower >= 150) {
+					this.gmaxPower = 100;
+				} else if (this.basePower >= 110) {
+					this.gmaxPower = 95;
+				} else if (this.basePower >= 75) {
+					this.gmaxPower = 95;
+				} else if (this.basePower >= 65) {
+					this.gmaxPower = 85;
+				} else if (this.basePower >= 45) {
+					this.gmaxPower = 75;
+				} else  {
+					this.gmaxPower = 10;
+				}
+			} else {
+				if (this.basePower >= 150) {
+					this.gmaxPower = 150;
+				} else if (this.basePower >= 110) {
+					this.gmaxPower = 140;
+				} else if (this.basePower >= 75) {
+					this.gmaxPower = 130;
+				} else if (this.basePower >= 65) {
+					this.gmaxPower = 120;
+				} else if (this.basePower >= 55) {
+					this.gmaxPower = 110;
+				} else if (this.basePower >= 45) {
+					this.gmaxPower = 100;
+				} else  {
+					this.gmaxPower = 90;
+				}
+			}
+		}
+
 		if (!this.gen) {
-			if (this.num >= 622) {
+			if (this.num >= 742) {
+				this.gen = 8;
+			} else if (this.num >= 622) {
 				this.gen = 7;
 			} else if (this.num >= 560) {
 				this.gen = 6;
