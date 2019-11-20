@@ -292,14 +292,22 @@ class RandomTeams {
 		// Pick six random pokemon--no repeats, even among formes
 		// Also need to either normalize for formes or select formes at random
 		// Unreleased are okay but no CAP
-		let last = [0, 151, 251, 386, 493, 649, 721, 807][this.gen];
+		let last = [0, 151, 251, 386, 493, 649, 721, 807, 890][this.gen];
+
+		/**@type {number[]} */
+		let pool = [];
+		for (let id in this.dex.data.FormatsData) {
+			if (!this.dex.data.Pokedex[id] || this.dex.data.FormatsData[id].isNonstandard) continue;
+			let num = this.dex.data.Pokedex[id].num;
+			if (pool.includes(num)) continue;
+			if (num > last) break;
+			pool.push(num);
+		}
+
 		/**@type {{[k: string]: number}} */
 		let hasDexNumber = {};
 		for (let i = 0; i < 6; i++) {
-			let num;
-			do {
-				num = this.random(last) + 1;
-			} while (num in hasDexNumber);
+			let num = this.sampleNoReplace(pool);
 			hasDexNumber[num] = i;
 		}
 
@@ -1045,7 +1053,7 @@ class RandomTeams {
 					(hasType['Electric'] && (!counter['Electric'] || (hasMove['voltswitch'] && counter.stab < 2))) ||
 					(hasType['Fairy'] && !counter['Fairy'] && !hasAbility['Pixilate'] && (counter.setupType || !counter['Status'])) ||
 					(hasType['Fighting'] && !counter['Fighting'] && (template.baseStats.atk >= 110 || hasAbility['Justified'] || hasAbility['Unburden'] || counter.setupType || !counter['Status'])) ||
-					(hasType['Fire'] && !counter['Fire'] && !hasAbility['Libero']) ||
+					(hasType['Fire'] && !counter['Fire']) ||
 					(hasType['Flying'] && !counter['Flying'] && (hasAbility['Serene Grace'] || (hasType['Normal'] && movePool.includes('bravebird')))) ||
 					(hasType['Ghost'] && !hasType['Dark'] && !counter['Ghost'] && !hasAbility['Steelworker']) ||
 					(hasType['Grass'] && !counter['Grass'] && !hasType['Fairy'] && !hasType['Poison'] && !hasType['Steel']) ||
@@ -1139,7 +1147,7 @@ class RandomTeams {
 				} else if (ability === 'Defiant' || ability === 'Moxie') {
 					rejectAbility = !counter['Physical'] || hasMove['dragontail'];
 				} else if (ability === 'Gluttony') {
-					rejectAbility = !hasMove['bellydrum'];
+					rejectAbility = !hasMove['bellydrum'] && !abilities.includes('Cheek Pouch');
 				} else if (ability === 'Harvest') {
 					rejectAbility = abilities.includes('Frisk');
 				} else if (ability === 'Hydration' || ability === 'Rain Dish' || ability === 'Swift Swim') {
@@ -1154,6 +1162,8 @@ class RandomTeams {
 					rejectAbility = template.types.includes('Electric');
 				} else if (ability === 'Liquid Voice') {
 					rejectAbility = !counter['sound'];
+				} else if (ability === 'Magic Guard') {
+					rejectAbility = abilities.includes('Tinted Lens');
 				} else if (ability === 'Magnet Pull') {
 					rejectAbility = !!counter['Normal'] || !hasType['Electric'] && !hasMove['earthpower'];
 				} else if (ability === 'Mold Breaker') {
@@ -1195,7 +1205,7 @@ class RandomTeams {
 				} else if (ability === 'Technician') {
 					rejectAbility = !counter['technician'] || hasMove['tailslap'];
 				} else if (ability === 'Tinted Lens') {
-					rejectAbility = abilities.includes('Prankster') || hasMove['protect'] || counter['damage'] >= counter.damagingMoves.length || (counter.Status > 2 && !counter.setupType);
+					rejectAbility = abilities.includes('Prankster') || counter['damage'] >= counter.damagingMoves.length || (counter.Status > 2 && !counter.setupType);
 				} else if (ability === 'Torrent') {
 					rejectAbility = !counter['Water'];
 				} else if (ability === 'Unaware') {
@@ -1250,6 +1260,8 @@ class RandomTeams {
 			} else {
 				item = isDoubles || this.randomChance(1, 2) ? 'Sitrus Berry' : 'Leftovers';
 			}
+		} else if (ability === 'Cheek Pouch' || ability === 'Gluttony') {
+			item = this.sample(['Aguav', 'Figy', 'Iapapa', 'Mago', 'Wiki']) + ' Berry';
 		} else if (ability === 'Emergency Exit' && !!counter['Status']) {
 			item = 'Sitrus Berry';
 		} else if (ability === 'Imposter') {
@@ -1263,16 +1275,12 @@ class RandomTeams {
 		} else if (template.evos.length) {
 			item = 'Eviolite';
 		} else if (hasMove['bellydrum']) {
-			if (ability === 'Gluttony') {
-				item = this.sample(['Aguav', 'Figy', 'Iapapa', 'Mago', 'Wiki']) + ' Berry';
-			} else {
-				item = 'Sitrus Berry';
-			}
+			item = 'Sitrus Berry';
 		} else if (hasMove['copycat'] && counter.Physical >= 3) {
 			item = 'Choice Band';
 		} else if (hasMove['shellsmash']) {
 			item = (ability === 'Solid Rock' && !!counter['priority']) ? 'Weakness Policy' : 'White Herb';
-		} else if ((ability === 'Guts' || hasMove['facade'] || hasMove['psychoshift']) && !hasMove['sleeptalk']) {
+		} else if ((ability === 'Guts' || hasMove['facade']) && !hasMove['sleeptalk']) {
 			item = (hasType['Fire'] || ability === 'Quick Feet' || ability === 'Toxic Boost') ? 'Toxic Orb' : 'Flame Orb';
 		} else if ((ability === 'Magic Guard' && counter.damagingMoves.length > 1) || (ability === 'Sheer Force' && !!counter['sheerforce'])) {
 			item = 'Life Orb';
@@ -1330,6 +1338,8 @@ class RandomTeams {
 			item = 'Focus Sash';
 
 		// This is the "REALLY can't think of a good item" cutoff
+		} else if (this.dex.getEffectiveness('Rock', template) >= 2) {
+			item = 'Heavy-Duty Boots';
 		} else if (hasMove['stickyweb'] && ability === 'Sturdy') {
 			item = 'Mental Herb';
 		} else if (ability === 'Serene Grace' && hasMove['airslash'] && template.baseStats.spe > 100) {
@@ -1407,9 +1417,8 @@ class RandomTeams {
 			if (hasMove['substitute'] && hasMove['reversal']) {
 				// Reversal users should be able to use four Substitutes
 				if (hp % 4 > 0) break;
-			} else if (hasMove['substitute'] && (item === 'Petaya Berry' || item === 'Sitrus Berry' || ability === 'Power Construct' && item !== 'Leftovers')) {
-				// Three Substitutes should activate Petaya Berry for Dedenne
-				// Two Substitutes should activate Sitrus Berry or Power Construct
+			} else if (hasMove['substitute'] && item === 'Sitrus Berry') {
+				// Two Substitutes should activate Sitrus Berry
 				if (hp % 4 === 0) break;
 			} else if (hasMove['bellydrum'] && (item === 'Sitrus Berry' || ability === 'Gluttony')) {
 				// Belly Drum should activate Sitrus Berry
@@ -1425,11 +1434,6 @@ class RandomTeams {
 		if (!counter['Physical'] && !hasMove['copycat'] && !hasMove['transform']) {
 			evs.atk = 0;
 			ivs.atk = 0;
-		}
-
-		if (ability === 'Beast Boost' && counter.Special < 1) {
-			evs.spa = 0;
-			ivs.spa = 0;
 		}
 
 		if (hasMove['gyroball'] || hasMove['metalburst'] || hasMove['trickroom']) {
@@ -1480,7 +1484,7 @@ class RandomTeams {
 		let pokemon = [];
 
 		// For Monotype
-		let isMonotype = this.format.id === 'gen7monotyperandombattle';
+		let isMonotype = this.format.id === 'gen8monotyperandombattle';
 		let typePool = Object.keys(this.dex.data.TypeChart);
 		let type = this.sample(typePool);
 

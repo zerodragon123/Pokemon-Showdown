@@ -12,7 +12,7 @@ Ratings and how they work:
 
  1: Ineffective
 	  An ability that has minimal effect or is only useful in niche situations.
-	ex. Inner Focus, Suction Cups
+	ex. Light Metal, Suction Cups
 
  2: Useful
 	  An ability that can be generally useful.
@@ -743,7 +743,7 @@ let BattleAbilities = {
 		num: 190,
 	},
 	"disguise": {
-		desc: "If this Pokemon is a Mimikyu, the first hit it takes in battle deals 0 neutral damage. Its disguise is then broken and it changes to Busted Form. Confusion damage also breaks the disguise.",
+		desc: "If this Pokemon is a Mimikyu, the first hit it takes in battle deals 0 neutral damage. Its disguise is then broken, it changes to Busted Form, and it loses 1/10 of its max HP. Confusion damage also breaks the disguise.",
 		shortDesc: "If this Pokemon is a Mimikyu, the first hit it takes in battle deals 0 neutral damage.",
 		onDamagePriority: 1,
 		onDamage(damage, target, source, effect) {
@@ -763,6 +763,7 @@ let BattleAbilities = {
 			if (['mimikyu', 'mimikyutotem'].includes(pokemon.template.speciesid) && this.effectData.busted) {
 				let templateid = pokemon.template.speciesid === 'mimikyutotem' ? 'Mimikyu-Busted-Totem' : 'Mimikyu-Busted';
 				pokemon.formeChange(templateid, this.effect, true);
+				this.damage(pokemon.maxhp / 10, pokemon, pokemon);
 			}
 		},
 		id: "disguise",
@@ -1476,7 +1477,7 @@ let BattleAbilities = {
 	"hustle": {
 		desc: "This Pokemon's Attack is multiplied by 1.5 and the accuracy of its physical attacks is multiplied by 0.8.",
 		shortDesc: "This Pokemon's Attack is 1.5x and accuracy of its physical attacks is 0.8x.",
-		// This should be applied directly to the stat as opposed to chaining witht he others
+		// This should be applied directly to the stat as opposed to chaining with the others
 		onModifyAtkPriority: 5,
 		onModifyAtk(atk) {
 			return this.modify(atk, 1.5);
@@ -1692,7 +1693,7 @@ let BattleAbilities = {
 		num: 215,
 	},
 	"innerfocus": {
-		shortDesc: "This Pokemon cannot be made to flinch.",
+		shortDesc: "This Pokemon cannot be made to flinch. Immune to Intimidate.",
 		onFlinch: false,
 		id: "innerfocus",
 		name: "Inner Focus",
@@ -1719,7 +1720,7 @@ let BattleAbilities = {
 		num: 15,
 	},
 	"intimidate": {
-		desc: "On switch-in, this Pokemon lowers the Attack of adjacent opposing Pokemon by 1 stage. Own Tempo, Inner Focus, Keen Eye, and Pokemon behind a substitute are immune.",
+		desc: "On switch-in, this Pokemon lowers the Attack of adjacent opposing Pokemon by 1 stage. Inner Focus, Oblivious, Own Tempo, Scrappy, and Pokemon behind a substitute are immune.",
 		shortDesc: "On switch-in, this Pokemon lowers the Attack of adjacent opponents by 1 stage.",
 		onStart(pokemon) {
 			let activated = false;
@@ -1731,7 +1732,7 @@ let BattleAbilities = {
 				}
 				if (target.volatiles['substitute']) {
 					this.add('-immune', target);
-				} else if (target.hasAbility(['Own Tempo', 'Inner Focus', 'Keen Eye'])) {
+				} else if (target.hasAbility(['Inner Focus', 'Oblivious', 'Own Tempo', 'Scrappy'])) {
 					this.add('-immune', target, `[from] ability: ${this.dex.getAbility(target.ability).name}`);
 				} else {
 					this.boost({atk: -1}, target, pokemon, null, true);
@@ -1740,7 +1741,7 @@ let BattleAbilities = {
 		},
 		id: "intimidate",
 		name: "Intimidate",
-		rating: 4,
+		rating: 3.5,
 		num: 22,
 	},
 	"intrepidsword": {
@@ -2471,8 +2472,8 @@ let BattleAbilities = {
 		num: 96,
 	},
 	"oblivious": {
-		desc: "This Pokemon cannot be infatuated or taunted. Gaining this Ability while affected cures it.",
-		shortDesc: "This Pokemon cannot be infatuated or taunted. Gaining this Ability cures it.",
+		desc: "This Pokemon cannot be infatuated or taunted. Gaining this Ability while affected cures it. Immune to Intimidate.",
+		shortDesc: "This Pokemon cannot be infatuated or taunted. Immune to Intimidate.",
 		onUpdate(pokemon) {
 			if (pokemon.volatiles['attract']) {
 				this.add('-activate', pokemon, 'ability: Oblivious');
@@ -2539,7 +2540,8 @@ let BattleAbilities = {
 		num: 65,
 	},
 	"owntempo": {
-		shortDesc: "This Pokemon cannot be confused. Gaining this Ability while confused cures it.",
+		desc: "This Pokemon cannot be confused. Gaining this Ability while confused cures it. Immune to Intimidate.",
+		shortDesc: "This Pokemon cannot be confused. Immune to Intimidate.",
 		onUpdate(pokemon) {
 			if (pokemon.volatiles['confusion']) {
 				this.add('-activate', pokemon, 'ability: Own Tempo');
@@ -3006,10 +3008,15 @@ let BattleAbilities = {
 		num: 44,
 	},
 	"rattled": {
-		desc: "This Pokemon's Speed is raised by 1 stage if hit by a Bug-, Dark-, or Ghost-type attack.",
-		shortDesc: "This Pokemon's Speed is raised 1 stage if hit by a Bug-, Dark-, or Ghost-type attack.",
+		desc: "This Pokemon's Speed is raised by 1 stage if hit by a Bug-, Dark-, or Ghost-type attack, or Intimidate.",
+		shortDesc: "Speed is raised 1 stage if hit by a Bug-, Dark-, or Ghost-type attack, or Intimidated.",
 		onAfterDamage(damage, target, source, effect) {
 			if (effect && (effect.type === 'Dark' || effect.type === 'Bug' || effect.type === 'Ghost')) {
+				this.boost({spe: 1});
+			}
+		},
+		onAfterBoost(boost, target, source, effect) {
+			if (effect && effect.id === 'intimidate') {
 				this.boost({spe: 1});
 			}
 		},
@@ -3313,7 +3320,8 @@ let BattleAbilities = {
 		num: 208,
 	},
 	"scrappy": {
-		shortDesc: "This Pokemon can hit Ghost types with Normal- and Fighting-type moves.",
+		desc: "This Pokemon can hit Ghost types with Normal- and Fighting-type moves. Immune to Intimidate.",
+		shortDesc: "Fighting, Normal moves hit Ghost. Immune to Intimidate.",
 		onModifyMovePriority: -5,
 		onModifyMove(move) {
 			if (!move.ignoreImmunity) move.ignoreImmunity = {};

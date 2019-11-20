@@ -4788,6 +4788,7 @@ let BattleFormatsData = {
 		doublesTier: "(DUU)",
 	},
 	sylveon: {
+		inherit: true,
 		randomBattleMoves: ["hypervoice", "calmmind", "psyshock", "hiddenpowerfire", "wish", "protect"],
 		randomDoubleBattleMoves: ["hypervoice", "calmmind", "wish", "protect", "psyshock", "helpinghand", "shadowball", "hiddenpowerground"],
 		tier: "UU",
@@ -5038,6 +5039,10 @@ let BattleFormatsData = {
 		isNonstandard: null,
 		tier: "(PU)",
 		doublesTier: "(DUU)",
+	},
+	gumshoostotem: {
+		inherit: true,
+		isNonstandard: null,
 	},
 	grubbin: {
 		tier: "LC",

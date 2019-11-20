@@ -516,6 +516,10 @@ let BattleFormatsData = {
 		tier: "Illegal",
 	},
 	pikachugmax: {
+		eventPokemon: [
+			{"generation": 8, "level": 10, "isHidden": false, "moves": ["growl", "quickattack", "thunderwave", "doubleteam"]},
+		],
+		eventOnly: true,
 		isGigantamax: "G-Max Volt Crash",
 		tier: "New",
 		doublesTier: "New",
@@ -820,8 +824,9 @@ let BattleFormatsData = {
 	},
 	meowthgmax: {
 		eventPokemon: [
-			{"generation": 8, "level": 5, "shiny": false, "moves": ["fakeout", "growl", "slash", "payday"], "pokeball": "cherishball"},
+			{"generation": 8, "level": 5, "isHidden": false, "moves": ["fakeout", "growl", "slash", "payday"], "pokeball": "cherishball"},
 		],
+		eventOnly: true,
 		isGigantamax: "G-Max Gold Rush",
 		tier: "New",
 		doublesTier: "New",
@@ -1936,6 +1941,10 @@ let BattleFormatsData = {
 		tier: "Illegal",
 	},
 	eeveegmax: {
+		eventPokemon: [
+			{"generation": 8, "level": 10, "isHidden": false, "abilities": ["runaway"], "moves": ["growl", "tailwhip", "sandattack", "quickattack"]},
+		],
+		eventOnly: true,
 		isGigantamax: "G-Max Cuddle",
 		tier: "New",
 		doublesTier: "New",
@@ -2220,10 +2229,12 @@ let BattleFormatsData = {
 	mewtwomegax: {
 		requiredItem: "Mewtwonite X",
 		isNonstandard: "Past",
+		tier: "Illegal",
 	},
 	mewtwomegay: {
 		requiredItem: "Mewtwonite Y",
 		isNonstandard: "Past",
+		tier: "Illegal",
 	},
 	mew: {
 		randomBattleMoves: ["closecombat", "megahorn", "powerwhip", "psychicfangs", "swordsdance", "uturn"],
@@ -2769,6 +2780,7 @@ let BattleFormatsData = {
 		tier: "LC",
 	},
 	cursola: {
+		randomBattleMoves: ["calmmind", "shadowball", "stealthrock", "strengthsap", "willowisp"],
 		tier: "New",
 		doublesTier: "New",
 	},
@@ -5385,7 +5397,7 @@ let BattleFormatsData = {
 		doublesTier: "New",
 	},
 	sigilyph: {
-		randomBattleMoves: ["cosmicpower", "psychoshift", "roost", "storedpower"],
+		randomBattleMoves: ["airslash", "energyball", "heatwave", "psychic", "trick"],
 		tier: "New",
 		doublesTier: "New",
 	},
@@ -5489,7 +5501,7 @@ let BattleFormatsData = {
 		tier: "NFE",
 	},
 	gothitelle: {
-		randomBattleMoves: ["calmmind", "charm", "psychic", "rest"],
+		randomBattleMoves: ["cosmicpower", "rest", "storedpower", "trick"],
 		encounters: [
 			{"generation": 5, "level": 34, "isHidden": false},
 		],
@@ -6897,6 +6909,7 @@ let BattleFormatsData = {
 		eventPokemon: [
 			{"generation": 7, "level": 40, "shiny": 1, "perfectIVs": 3, "moves": ["crushclaw", "scaryface", "xscissor", "takedown"]},
 			{"generation": 7, "level": 60, "shiny": 1, "perfectIVs": 3, "moves": ["metalsound", "ironhead", "doublehit", "airslash"]},
+			{"generation": 8, "level": 50, "shiny": 1, "perfectIVs": 3, "moves": ["triattack", "xscissor", "ironhead", "takedown"]},
 		],
 		eventOnly: true,
 		tier: "NFE",
