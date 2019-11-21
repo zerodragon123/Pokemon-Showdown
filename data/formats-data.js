@@ -531,8 +531,8 @@ let BattleFormatsData = {
 	},
 	raichualola: {
 		randomBattleMoves: ["focusblast", "nastyplot", "psychic", "surf", "thunderbolt", "voltswitch"],
-		tier: "New",
-		doublesTier: "New",
+		isUnreleased: true,
+		tier: "Unreleased",
 	},
 	sandshrew: {
 		eventPokemon: [
@@ -634,7 +634,8 @@ let BattleFormatsData = {
 			{"generation": 7, "level": 10, "isHidden": false, "moves": ["celebrate", "tailwhip", "babydolleyes", "iceshard"], "pokeball": "cherishball"},
 			{"generation": 7, "level": 10, "gender": "F", "nature": "Modest", "isHidden": false, "moves": ["powdersnow"], "pokeball": "cherishball"},
 		],
-		tier: "LC",
+		isUnreleased: true,
+		tier: "Unreleased",
 	},
 	ninetales: {
 		randomBattleMoves: ["fireblast", "nastyplot", "solarbeam", "substitute", "willowisp"],
@@ -646,8 +647,8 @@ let BattleFormatsData = {
 	},
 	ninetalesalola: {
 		randomBattleMoves: ["auroraveil", "blizzard", "freezedry", "moonblast", "nastyplot", "substitute"],
-		tier: "New",
-		doublesTier: "New",
+		isUnreleased: true,
+		tier: "Unreleased",
 	},
 	igglybuff: {
 		eventPokemon: [
@@ -779,7 +780,8 @@ let BattleFormatsData = {
 		eventPokemon: [
 			{"generation": 7, "level": 10, "isHidden": false, "abilities": ["tanglinghair"], "moves": ["mudslap", "astonish", "growl", "metalclaw"], "pokeball": "cherishball"},
 		],
-		tier: "LC",
+		isUnreleased: true,
+		tier: "Unreleased",
 	},
 	dugtrio: {
 		randomBattleMoves: ["earthquake", "memento", "reversal", "stealthrock", "stoneedge", "substitute"],
@@ -796,8 +798,8 @@ let BattleFormatsData = {
 	},
 	dugtrioalola: {
 		randomBattleMoves: ["earthquake", "ironhead", "stoneedge", "substitute", "suckerpunch"],
-		tier: "New",
-		doublesTier: "New",
+		isUnreleased: true,
+		tier: "Unreleased",
 	},
 	meowth: {
 		eventPokemon: [
@@ -817,7 +819,8 @@ let BattleFormatsData = {
 		tier: "LC",
 	},
 	meowthalola: {
-		tier: "LC",
+		isUnreleased: true,
+		tier: "Unreleased",
 	},
 	meowthgalar: {
 		tier: "LC",
@@ -842,8 +845,8 @@ let BattleFormatsData = {
 	},
 	persianalola: {
 		randomBattleMoves: ["darkpulse", "hypnosis", "nastyplot", "powergem", "thunderbolt"],
-		tier: "New",
-		doublesTier: "New",
+		isUnreleased: true,
+		tier: "Unreleased",
 	},
 	perrserker: {
 		randomBattleMoves: ["closecombat", "crunch", "gunkshot", "ironhead", "playrough", "swordsdance", "uturn"],
@@ -2702,7 +2705,7 @@ let BattleFormatsData = {
 		eventPokemon: [
 			{"generation": 3, "level": 10, "gender": "M", "moves": ["scratch", "leer", "taunt", "quickattack"], "pokeball": "pokeball"},
 		],
-		tier: "LC",
+		tier: "LC Uber",
 	},
 	weavile: {
 		randomBattleMoves: ["iceshard", "iciclecrash", "lowkick", "swordsdance", "throatchop"],
@@ -2777,7 +2780,7 @@ let BattleFormatsData = {
 		tier: "Unreleased",
 	},
 	corsolagalar: {
-		tier: "LC",
+		tier: "LC Uber",
 	},
 	cursola: {
 		randomBattleMoves: ["calmmind", "shadowball", "stealthrock", "strengthsap", "willowisp"],
@@ -3859,14 +3862,17 @@ let BattleFormatsData = {
 	castformsunny: {
 		requiredAbility: 'Forecast',
 		battleOnly: true,
+		isNonstandard: "Past",
 	},
 	castformrainy: {
 		requiredAbility: 'Forecast',
 		battleOnly: true,
+		isNonstandard: "Past",
 	},
 	castformsnowy: {
 		requiredAbility: 'Forecast',
 		battleOnly: true,
+		isNonstandard: "Past",
 	},
 	kecleon: {
 		isNonstandard: "Past",
@@ -5488,7 +5494,7 @@ let BattleFormatsData = {
 		doublesTier: "New",
 	},
 	gothita: {
-		tier: "NFE",
+		tier: "LC",
 	},
 	gothorita: {
 		eventPokemon: [
@@ -6057,6 +6063,7 @@ let BattleFormatsData = {
 	meloettapirouette: {
 		requiredMove: "Relic Song",
 		battleOnly: true,
+		isNonstandard: "Past",
 	},
 	genesect: {
 		eventPokemon: [
@@ -6298,7 +6305,7 @@ let BattleFormatsData = {
 		doublesTier: "New",
 	},
 	swirlix: {
-		tier: "LC",
+		tier: "LC Uber",
 	},
 	slurpuff: {
 		randomBattleMoves: ["calmmind", "dazzlinggleam", "energyball", "flamethrower"],
@@ -7031,6 +7038,7 @@ let BattleFormatsData = {
 	miniormeteor: {
 		requiredAbility: 'Shields Down',
 		battleOnly: true,
+		isNonstandard: "Past",
 	},
 	komala: {
 		isNonstandard: "Past",

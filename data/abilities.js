@@ -524,7 +524,7 @@ let BattleAbilities = {
 		// Implemented in sim/pokemon.js:Pokemon#setStatus
 		id: "corrosion",
 		name: "Corrosion",
-		rating: 2,
+		rating: 2.5,
 		num: 212,
 	},
 	"cottondown": {
@@ -1353,7 +1353,29 @@ let BattleAbilities = {
 	"gulpmissile": {
 		desc: "When the Pokémon uses Surf or Dive, it will come back with prey. When it takes damage, it will spit out the prey to attack.",
 		shortDesc: "Get prey with Surf/Dive. When taking damage, prey is used to attack.",
-		// TODO
+		onDamagePriority: -1,
+		onDamage(damage, target, source, effect) {
+			// Needs to trigger even if cramorant is about to faint
+			if (effect && effect.effectType === 'Move' && ['cramorantgulping', 'cramorantgorging'].includes(target.template.speciesid) && !target.transformed) {
+				// Forme change before damaging to avoid a potential infinite loop with surf cramorant vs surf cramorant
+				const forme = target.template.speciesid;
+				target.formeChange('cramorant', effect);
+
+				this.damage(source.maxhp / 4, source, target, effect);
+				if (forme === 'cramorantgulping') {
+					this.boost({def: -1}, source, target, null, true);
+				} else {
+					source.trySetStatus('par', target, effect);
+				}
+			}
+		},
+		onAfterMove(source, target, move) {
+			if (!['surf', 'dive'].includes(move.id) || source.volatiles['dive'] || source.speciesid !== 'cramorant' || source.transformed) return;
+
+			// PLACEHOLDER Estimated 10% of the time you get pikachu
+			const forme = this.random(10) === 1 ? 'cramorantgorging' : 'cramorantgulping';
+			source.formeChange(forme, move);
+		},
 		id: "gulpmissile",
 		name: "Gulp Missile",
 		rating: 1.5,
@@ -1549,7 +1571,7 @@ let BattleAbilities = {
 		onDamage(damage, target, source, effect) {
 			if (effect && effect.effectType === 'Move' && effect.category === 'Physical' && target.template.speciesid === 'eiscue' && !target.transformed) {
 				this.add('-activate', target, 'ability: Ice Face');
-				target.addVolatile('iceface');
+				this.effectData.busted = true;
 				return 0;
 			}
 		},
@@ -1559,17 +1581,15 @@ let BattleAbilities = {
 			if (!target.runImmunity(move.type)) return;
 			return 0;
 		},
-		effect: {
-			onUpdate(pokemon) {
-				if (pokemon.template.speciesid === 'eiscue') {
-					pokemon.removeVolatile('iceface');
-					pokemon.formeChange('Eiscue-Noice', this.effect, true);
-				}
-			},
+		onUpdate(pokemon) {
+			if (pokemon.template.speciesid === 'eiscue' && this.effectData.busted) {
+				pokemon.formeChange('Eiscue-Noice', this.effect, true);
+			}
 		},
 		onAnyWeatherStart() {
 			const pokemon = this.effectData.target;
 			if (this.field.isWeather('hail') && pokemon.template.speciesid === 'eiscuenoice' && !pokemon.transformed) {
+				this.effectData.busted = false;
 				pokemon.formeChange('Eiscue', this.effect, true);
 			}
 		},
@@ -2207,7 +2227,7 @@ let BattleAbilities = {
 		num: 104,
 	},
 	"moody": {
-		desc: "This Pokemon has a random stat raised by 2 stages and another stat lowered by 1 stage at the end of each turn.",
+		desc: "This Pokemon has a random stat other than accuracy or evasion raised by 2 stages and another stat lowered by 1 stage at the end of each turn.",
 		shortDesc: "Raises a random stat by 2 and lowers another stat by 1 at the end of each turn.",
 		onResidualOrder: 26,
 		onResidualSubOrder: 1,
@@ -2215,6 +2235,7 @@ let BattleAbilities = {
 			let stats = [];
 			let boost = {};
 			for (let statPlus in pokemon.boosts) {
+				if (statPlus === 'accuracy' || statPlus === 'evasion') continue;
 				// @ts-ignore
 				if (pokemon.boosts[statPlus] < 6) {
 					stats.push(statPlus);
@@ -2226,6 +2247,7 @@ let BattleAbilities = {
 
 			stats = [];
 			for (let statMinus in pokemon.boosts) {
+				if (statMinus === 'accuracy' || statMinus === 'evasion') continue;
 				// @ts-ignore
 				if (pokemon.boosts[statMinus] > -6 && statMinus !== randomStat) {
 					stats.push(statMinus);
