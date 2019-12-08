@@ -463,7 +463,10 @@ export class TeamValidator {
 				if (ability.name === template.abilities['H']) {
 					setSources.isHidden = true;
 
-					if (template.unreleasedHidden && ruleTable.has('-unreleased')) {
+					let unreleasedHidden = template.unreleasedHidden;
+					if (unreleasedHidden === 'Past' && minPastGen < dex.gen) unreleasedHidden = false;
+
+					if (unreleasedHidden && ruleTable.has('-unreleased')) {
 						problems.push(`${name}'s Hidden Ability is unreleased.`);
 					} else if (['entei', 'suicune', 'raikou'].includes(template.id) && minPastGen > 1) {
 						problems.push(`${name}'s Hidden Ability is only available from Virtual Console, which is not allowed in this format.`);
@@ -1075,19 +1078,27 @@ export class TeamValidator {
 				// Impossible!
 				throw new Error(`Species ${template.name} has a required ability despite not being a battle-only forme; it should just be in its abilities table.`);
 			}
-			if (template.requiredItems && !template.requiredItems.includes(item.name)) {
-				// Memory/Drive/Griseous Orb/Plate/Z-Crystal - Forme mismatch
-				problems.push(`${name} needs to hold ${Chat.toOrList(template.requiredItems)}.`);
-			}
-			if (template.requiredMove && !set.moves.includes(toID(template.requiredMove))) {
-				// Keldeo-Resolute
-				problems.push(`${name} needs to have the move ${template.requiredMove}.`);
+			if (template.requiredItems) {
+				if (!template.requiredItems.includes(item.name)) {
+					// Memory/Drive/Griseous Orb/Plate/Z-Crystal - Forme mismatch
+					if (dex.gen <= 7 || !['Download', 'Multitype', 'RKS System'].includes(template.abilities[0]) || set.ability === template.abilities[0]) {
+						problems.push(`${name} needs to hold ${Chat.toOrList(template.requiredItems)}.`);
+					}
+				}
+				// In gen 8, non-aesthetic formes always require the real ability
+				if (dex.gen > 7 && !['Download', 'Multitype', 'RKS System'].includes(template.abilities[0]) && set.ability !== template.abilities[0]) {
+					problems.push(`${name} needs to have ${template.abilities[0]}.`);
+				}
 			}
 
 			// Mismatches between the set forme (if not base) and the item signature forme will have been rejected already.
-			// It only remains to assign the right forme to a set with the base species (Arceus/Genesect/Giratina/Silvally).
+			// It only remains to assign the right forme to a set with the base species (Arceus/Genesect/Giratina/Silvally/Zacian/Zamazenta).
 			if (item.forcedForme && template.species === dex.getTemplate(item.forcedForme).baseSpecies) {
 				set.species = item.forcedForme;
+				// Assign the correct ability
+				if (dex.gen > 7 && !['Download', 'Multitype', 'RKS System'].includes(template.abilities[0])) {
+					set.ability = template.abilities[0];
+				}
 			}
 		}
 
@@ -1204,11 +1215,16 @@ export class TeamValidator {
 			}
 			if (banReason === '') return null;
 		} else if (tierTemplate.isUnreleased) {
-			banReason = ruleTable.check('unreleased', setHas);
-			if (banReason) {
-				return `${tierTemplate.species} is unreleased.`;
+			let isUnreleased: boolean | 'Past' = tierTemplate.isUnreleased;
+			if (isUnreleased === 'Past' && (this.format.minSourceGen || 0) < dex.gen) isUnreleased = false;
+
+			if (isUnreleased) {
+				banReason = ruleTable.check('unreleased', setHas);
+				if (banReason) {
+					return `${tierTemplate.species} is unreleased.`;
+				}
+				if (banReason === '') return null;
 			}
-			if (banReason === '') return null;
 		}
 
 		return null;
@@ -1367,7 +1383,7 @@ export class TeamValidator {
 				problems.push(`${name}'s gender must be ${eventData.gender}${etc}.`);
 			}
 		}
-		let canMint = dex.gen > 7;
+		const canMint = dex.gen > 7;
 		if (eventData.nature && eventData.nature !== set.nature && !canMint) {
 			if (fastReturn) return true;
 			problems.push(`${name} must have a ${eventData.nature} nature${etc} - Mints are only available starting gen 8.`);
@@ -1690,7 +1706,7 @@ export class TeamValidator {
 
 					if (learned.charAt(1) === 'L') {
 						// special checking for level-up moves
-						if (level >= parseInt(learned.substr(2), 10) || learnedGen >= 7) {
+						if (level >= parseInt(learned.substr(2), 10) || learnedGen === 7) {
 							// we're past the required level to learn it
 							// (gen 7 level-up moves can be relearnered at any level)
 							// falls through to LMT check below
@@ -1830,9 +1846,9 @@ export class TeamValidator {
 			template = this.dex.getTemplate(template.prevo);
 			if (template.gen > Math.max(2, this.dex.gen)) return null;
 			return template;
-		} else if (template.baseSpecies !== template.species && (['Rotom', 'Necrozma'].includes(template.baseSpecies) || template.forme === 'Gmax')) {
-			// only Rotom and Necrozma inherit learnsets from base
-			return this.dex.getTemplate(template.baseSpecies);
+		} else if (template.inheritsLearnsetFrom) {
+			// For Pokemon like Rotom, Necrozma, and Gmax formes whose movesets are extensions are their base formes
+			return this.dex.getTemplate(template.inheritsLearnsetFrom);
 		}
 		return null;
 	}
