@@ -1133,17 +1133,22 @@ let BattleItems = {
 			basePower: 100,
 			type: "Ghost",
 		},
-		onModifyPriorityPriority: -1,
-		onModifyPriority(priority, pokemon) {
+		onBeforeTurn(pokemon) {
 			if (pokemon.hp <= pokemon.maxhp / 4 || (pokemon.hp <= pokemon.maxhp / 2 && pokemon.hasAbility('gluttony'))) {
-				if (pokemon.eatItem()) {
-					this.add('-activate', pokemon, 'item: Custap Berry', '[consumed]');
-					pokemon.removeVolatile('custapberry');
-					return Math.round(priority) + 0.1;
-				}
+				pokemon.eatItem();
 			}
 		},
-		onEat() { },
+		onEat(pokemon) {
+			this.add('-activate', pokemon, 'item: Custap Berry', '[consumed]');
+			pokemon.addVolatile('custapberry');
+		},
+		effect: {
+			onModifyPriorityPriority: -1,
+			onModifyPriority(priority, pokemon) {
+				return Math.round(priority) + 0.1;
+			},
+			duration: 1,
+		},
 		num: 210,
 		gen: 4,
 		desc: "Holder moves first in its priority bracket when at 1/4 max HP or less. Single use.",
@@ -4843,12 +4848,18 @@ let BattleItems = {
 	},
 	"quickclaw": {
 		id: "quickclaw",
-		onModifyPriorityPriority: -1,
-		onModifyPriority(priority, pokemon) {
+		onBeforeTurn(pokemon) {
 			if (this.randomChance(1, 5)) {
 				this.add('-activate', pokemon, 'item: Quick Claw');
-				return Math.round(priority) + 0.1;
+				pokemon.addVolatile('quickclaw');
 			}
+		},
+		effect: {
+			onModifyPriorityPriority: -1,
+			onModifyPriority(priority, pokemon) {
+				return Math.round(priority) + 0.1;
+			},
+			duration: 1,
 		},
 		name: "Quick Claw",
 		spritenum: 373,
@@ -5183,7 +5194,7 @@ let BattleItems = {
 		},
 		onUpdate(pokemon) {
 			if (this.field.getPseudoWeather('trickroom') && pokemon.useItem()) {
-				this.boost({spe: -1});
+				this.boost({spe: -1}, pokemon, pokemon);
 			}
 		},
 		num: 1122,

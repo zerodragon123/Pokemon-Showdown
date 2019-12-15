@@ -600,11 +600,11 @@ export class Template extends BasicEffect implements Readonly<BasicEffect & Temp
 	 */
 	readonly learnset?: {[moveid: string]: MoveSource[]};
 	/** Source of learnsets for Pokemon that lack their own */
-	readonly inheritsLearnsetFrom: ID;
+	readonly inheritsFrom: string | string[];
 	/** True if the only way to get this pokemon is from events. */
 	readonly eventOnly: boolean;
 	/** List of event data for each event. */
-	readonly eventPokemon?: EventInfo[] ;
+	readonly eventPokemon?: EventInfo[];
 
 	/**
 	 * Singles Tier. The Pokemon's location in the Smogon tier system.
@@ -670,13 +670,10 @@ export class Template extends BasicEffect implements Readonly<BasicEffect & Temp
 		this.isMega = !!(this.forme && ['Mega', 'Mega-X', 'Mega-Y'].includes(this.forme)) || undefined;
 		this.isGigantamax = data.isGigantamax || undefined;
 		this.battleOnly = !!data.battleOnly || !!this.isMega || !!this.isGigantamax || undefined;
-		this.inheritsLearnsetFrom = data.inheritsLearnsetFrom || undefined;
-		if (this.forme === 'Gmax') {
-			this.inheritsLearnsetFrom = toID(data.baseSpecies);
-		}
+		this.inheritsFrom = data.inheritsFrom || undefined;
 
 		if (!this.gen && this.num >= 1) {
-			if (this.num >= 810 || this.forme.endsWith('Galar') || this.forme === 'Gmax') {
+			if (this.num >= 810 || ['Gmax', 'Galar', 'Galar-Zen'].includes(this.forme)) {
 				this.gen = 8;
 			} else if (this.num >= 722 || this.forme.startsWith('Alola') || this.forme === 'Starter') {
 				this.gen = 7;

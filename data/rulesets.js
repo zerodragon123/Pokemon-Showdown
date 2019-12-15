@@ -118,12 +118,7 @@ let BattleFormats = {
 		effectType: 'ValidatorRule',
 		name: 'Obtainable Moves',
 		desc: "Makes sure moves are learnable by the species.",
-		banlist: [
-			// Leaf Blade: Gen 6+ Nuzleaf level-up
-			// Sucker Punch: Gen 4 Shiftry tutor
-			'Shiftry + Leaf Blade + Sucker Punch',
-		],
-		// Mostly hardcoded in team-validator.ts
+		// Hardcoded in team-validator.ts
 	},
 	obtainableabilities: {
 		effectType: 'ValidatorRule',
@@ -817,16 +812,6 @@ let BattleFormats = {
 			let item = this.dex.getItem(set.item);
 			if (item.isNonstandard === 'Past' && !item.zMove && !item.itemUser) {
 				return [`${set.name}'s item ${item.name} does not exist in Gen ${this.dex.gen}.`];
-			}
-		},
-		onBegin() {
-			// if you have a mega/primal or z, you can't dynamax
-			for (const pokemon of this.getAllPokemon()) {
-				const item = pokemon.getItem();
-				// this.canMegaEvo check is for Rayquaza.
-				if (item.megaStone || this.canMegaEvo(pokemon) || item.onPrimal || item.zMove) {
-					pokemon.canDynamax = false;
-				}
 			}
 		},
 	},
