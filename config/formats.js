@@ -32,7 +32,8 @@ let Formats = [
 	{
 		name: "[Gen 8] OU",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3656245/">OU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3657920/">OU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3657382/">OU Sample Teams</a>`,
 		],
 
 		mod: 'gen8',
@@ -42,9 +43,6 @@ let Formats = [
 	},
 	/*{
 		name: "[Gen 8] OU (Blitz)",
-		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3656245/">OU Metagame Discussion</a>`,
-		],
 
 		mod: 'gen8',
 		ruleset: ['[Gen 8] OU', 'Blitz'],
@@ -83,6 +81,9 @@ let Formats = [
 		ruleset: ['Obtainable', 'Little Cup', 'Standard', 'Team Preview', 'Dynamax Clause'],
 		banlist: ['Cherubi', 'Corsola-Galar', 'Gastly', 'Gothita', 'Sneasel', 'Swirlix', 'Moody', 'Baton Pass'],
 		minSourceGen: 8,
+		onBegin() {
+			if (this.rated && this.format.id === 'gen8lc') this.add('html', `<div class="broadcast-red"><strong>LC is currently suspecting Drifloon! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3658010/">suspect thread</a>.</strong></div>`);
+		},
 	},
 	{
 		name: "[Gen 8] Monotype",
@@ -339,7 +340,7 @@ let Formats = [
 			validate: [2, 4],
 			battle: 2,
 		},
-		ruleset: ['Obtainable', 'Standard Doubles', 'Accuracy Moves Clause', 'Team Preview', 'Sleep Clause Mod'],
+		ruleset: ['Obtainable', 'Standard Doubles', 'Accuracy Moves Clause', 'Team Preview', 'Dynamax Clause', 'Sleep Clause Mod'],
 		banlist: ['DUber', 'Focus Sash', 'Perish Song', 'Swagger'],
 		minSourceGen: 8,
 	},
@@ -426,18 +427,24 @@ let Formats = [
 		section: "National Dex",
 	},
 	{
-		name: "[Gen 8] National Dex (beta)",
+		name: "[Gen 8] National Dex",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3656899/">National Dex Metagame Discussion</a>`,
+		],
 
 		mod: 'gen8',
 		ruleset: ['Obtainable', 'Standard', 'Team Preview', '+Past', 'NatDex Rule'],
 		banlist: [
-			'Arceus', 'Blaziken', 'Darkrai', 'Deoxys', 'Dialga', 'Eternatus', 'Genesect', 'Gengar-Mega', 'Giratina', 'Groudon',
-			'Ho-Oh', 'Kangaskhan-Mega', 'Kyogre', 'Kyurem-Black', 'Kyurem-White', 'Landorus-Base', 'Lucario-Mega', 'Lugia', 'Lunala',
-			'Marshadow', 'Mewtwo', 'Naganadel', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Palkia', 'Pheromosa', 'Rayquaza',
-			'Reshiram', 'Salamence-Mega', 'Shaymin-Sky', 'Solgaleo', 'Xerneas', 'Yveltal', 'Zacian', 'Zamazenta', 'Zekrom',
+			'Arceus', 'Blaziken', 'Darkrai', 'Deoxys-Attack', 'Deoxys-Base', 'Deoxys-Speed', 'Dialga', 'Eternatus', 'Gengar-Mega',
+			'Giratina', 'Groudon', 'Ho-Oh', 'Kangaskhan-Mega', 'Kyogre', 'Kyurem-Black', 'Kyurem-White', 'Landorus-Base', 'Lucario-Mega',
+			'Lugia', 'Lunala', 'Marshadow', 'Mewtwo', 'Naganadel', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Palkia', 'Pheromosa',
+			'Rayquaza', 'Reshiram', 'Salamence-Mega', 'Shaymin-Sky', 'Solgaleo', 'Xerneas', 'Yveltal', 'Zacian', 'Zamazenta', 'Zekrom',
 			'Moody', 'Power Construct', 'Shadow Tag', 'Baton Pass',
 		],
 		unbanlist: ['Melmetal', 'Meltan'],
+		onBegin() {
+			if (this.rated && this.format.id === 'gen8nationaldex') this.add('html', `<div class="broadcast-red"><strong>National Dex is currently suspecting Dynamax! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3658063/">suspect thread</a>.</strong></div>`);
+		},
 	},
 	{
 		name: "[Gen 8] National Dex AG",
@@ -557,7 +564,7 @@ let Formats = [
 		],
 
 		mod: 'gen8',
-		ruleset: ['Obtainable', '!Obtainable Abilities', 'Species Clause', 'Nickname Clause', '2 Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Sleep Clause Mod', 'Endless Battle Clause'],
+		ruleset: ['Obtainable', '!Obtainable Abilities', 'Species Clause', 'Nickname Clause', '2 Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Dynamax Clause', 'Sleep Clause Mod', 'Endless Battle Clause'],
 		banlist: [
 			'Eternatus', 'Shedinja', 'Zacian', 'Zamazenta', 'Baton Pass',
 			'Arena Trap', 'Comatose', 'Contrary', 'Fluffy', 'Fur Coat', 'Huge Power', 'Ice Scales', 'Illusion', 'Imposter', 'Innards Out', 'Libero', 'Moody', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Simple', 'Stakeout', 'Speed Boost', 'Water Bubble', 'Wonder Guard',
@@ -572,8 +579,8 @@ let Formats = [
 		],
 
 		mod: 'gen8',
-		ruleset: ['[Gen 8] OU', 'STABmons Move Legality'],
-		banlist: ['Silvally', 'King\'s Rock', 'Razor Fang'],
+		ruleset: ['Obtainable', 'Standard', 'STABmons Move Legality', 'Team Preview'],
+		banlist: ['Eternatus', 'Silvally', 'Zacian', 'Zamazenta', 'King\'s Rock', 'Razor Fang', 'Moody', 'Shadow Tag', 'Baton Pass'],
 		restrictedMoves: ['Acupressure', 'Belly Drum', 'Fishious Rend', 'Shell Smash', 'Shift Gear', 'Spore'],
 		minSourceGen: 8,
 	},
@@ -610,6 +617,7 @@ let Formats = [
 			for (const pokemon of this.getAllPokemon()) {
 				pokemon.m.originalSpecies = pokemon.baseTemplate.species;
 			}
+			if (this.rated && this.format.id === 'gen8mixandmega') this.add('html', `<div class="broadcast-red"><strong>Mix and Mega is currently suspecting Eternatus! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3658002/">suspect thread</a>.</strong></div>`);
 		},
 		onSwitchIn(pokemon) {
 			// @ts-ignore
@@ -1925,8 +1933,7 @@ let Formats = [
 
 		mod: 'gen4',
 		searchShow: false,
-		ruleset: ['Obtainable', 'Standard'],
-		banlist: ['Arceus'],
+		ruleset: ['Obtainable', 'Standard', 'Arceus EV Clause'],
 	},
 	{
 		name: "[Gen 4] UU",

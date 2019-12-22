@@ -351,7 +351,7 @@ const commands = {
 	'!host': true,
 	host(target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help host');
-		if (!this.can('rangeban')) return;
+		if (!this.can('ip')) return;
 		target = target.trim();
 		if (!net.isIPv4(target)) return this.errorReply('You must pass a valid IPv4 IP to /host.');
 		IPTools.lookup(target).then(({dnsbl, host, hostType}) => {
@@ -359,7 +359,7 @@ const commands = {
 			this.sendReply(`IP ${target}: ${host || "ERROR"} [${hostType}]${dnsblMessage}`);
 		});
 	},
-	hosthelp: [`/host [ip] - Gets the host for a given IP. Requires: & ~`],
+	hosthelp: [`/host [ip] - Gets the host for a given IP. Requires: @ & ~`],
 
 	'!ipsearch': true,
 	searchip: 'ipsearch',
@@ -590,7 +590,7 @@ const commands = {
 								evos.push(`${evo.name} (${evo.evoCondition})`);
 								break;
 							case 'trade':
-								evos.push(`${evo.name} (trade)`);
+								evos.push(`${evo.name} (trade${evo.evoItem ? ` holding ${evo.evoItem}` : evo.evoCondition ? ` ${evo.evoCondition}` : ``})`);
 								break;
 							default:
 								evos.push(`${evo.name} (${evo.evoLevel})`);
@@ -2404,33 +2404,30 @@ const commands = {
 	code(target, room, user) {
 		if (!target) return this.parse('/help code');
 		if (!this.canTalk()) return;
-		if (target.startsWith('\n')) target = target.slice(1);
+		if (!this.runBroadcast(true, '!code')) return;
 		if (target.length >= 8192) return this.errorReply("Your code must be under 8192 characters long!");
-		const separator = '\n';
-		if (target.includes(separator) || target.length > 150) {
-			const params = target.split(separator);
-			let output = [];
-			let cutoff = 3;
-			for (const param of params) {
-				if (output.length < 2 && param.length > 80) cutoff = 2;
-				output.push(Chat.escapeHTML(param));
-			}
-			let code;
-			if (output.length > cutoff) {
-				code = `<div class="chat"><details class="readmore code" style="white-space: pre-wrap; display: table; tab-size: 3"><summary>${output.slice(0, cutoff).join('<br />')}</summary>${output.slice(cutoff).join('<br />')}</details></div>`;
-			} else {
-				code = `<div class="chat"><code style="white-space: pre-wrap; display: table; tab-size: 3">${output.join('<br />')}</code></div>`;
-			}
 
-			if (!this.canBroadcast(true, '!code')) return;
-			if (this.broadcastMessage && !this.can('broadcast', null, room)) return false;
-
-			if (!this.runBroadcast(true, '!code')) return;
-
-			this.sendReplyBox(code);
-		} else {
-			return this.errorReply("You can simply use ``[code]`` for code messages that are only one line.");
+		const params = target.split('\n');
+		if (!params[0]) params.unshift();
+		if (!params[params.length - 1]) params.pop();
+		if (params.length === 1 && params[0].length < 80 && !target.includes('```') && this.message.startsWith('/')) {
+			return `\`\`\`${params[0]}\`\`\``;
 		}
+		let output = [];
+		let cutoff = 3;
+		for (const param of params) {
+			if (output.length < 3 && param.length > 80) cutoff = 2;
+			output.push(Chat.escapeHTML(param));
+		}
+
+		let code;
+		if (output.length > cutoff) {
+			code = `<div class="chat"><details class="readmore code" style="white-space: pre-wrap; display: table; tab-size: 3"><summary>${output.slice(0, cutoff).join('<br />')}</summary>${output.slice(cutoff).join('<br />')}</details></div>`;
+		} else {
+			code = `<div class="chat"><code style="white-space: pre-wrap; display: table; tab-size: 3">${output.join('<br />')}</code></div>`;
+		}
+
+		this.sendReplyBox(code);
 	},
 	codehelp: [
 		`!code [code] - Broadcasts code to a room. Accepts multi-line arguments. Requires: + % @ & # ~`,
