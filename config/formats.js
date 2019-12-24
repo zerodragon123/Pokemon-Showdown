@@ -751,6 +751,15 @@ let Formats = [
 		ruleset: ['Obtainable', 'Ability Clause', 'OHKO Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Arena Trap', 'Huge Power', 'Pure Power', 'Shadow Tag', 'Wonder Guard', 'Drizzle ++ Swift Swim', 'Drought ++ Chlorophyll', 'Sand Stream ++ Sand Rush'],
 	},
+	{
+		name: "[Gen 8] Complex Ban OU",
+		desc: `A Gen 8 OU format that allows complex ban.`,
+
+		mod: 'gen8',
+		ruleset: ['Obtainable', 'Standard', 'Team Preview', 'Complex Dynamax Clause'],
+		banlist: ['Uber', 'Moody', 'Shadow Tag', 'Baton Pass'],
+		minSourceGen: 8,
+	},
 
 	// Randomized Metas
 	///////////////////////////////////////////////////////////////////

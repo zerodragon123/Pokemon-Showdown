@@ -423,6 +423,20 @@ let BattleFormats = {
 			}
 		},
 	},
+	complexdynamaxclause: {
+		effectType: 'Rule',
+		name: 'Complex Dynamax Clause',
+		desc: "Prevents a certain list of Pok&eacute;mon from dynamaxing",
+		onBegin() {
+			const dynamaxBan = ["togekiss", "gyarados", "hawlucha", "excadrill"];
+			for (let pokemon of this.getAllPokemon()) {
+				if (dynamaxBan.includes(pokemon.speciesid)) {
+					pokemon.canDynamax = false;
+				}
+			}
+			this.add('rule', '你不能极巨化以下精灵: ' + dynamaxBan);
+		},
+	},
 	itemclause: {
 		effectType: 'ValidatorRule',
 		name: 'Item Clause',
