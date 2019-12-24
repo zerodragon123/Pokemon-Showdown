@@ -428,7 +428,7 @@ let BattleFormats = {
 		name: 'Complex Dynamax Clause',
 		desc: "Prevents a certain list of Pok&eacute;mon from dynamaxing",
 		onBegin() {
-			const dynamaxBan = ["togekiss", "gyarados", "hawlucha", "excadrill"];
+			const dynamaxBan = ["togekiss", "gyarados", "hawlucha", "charizard"];
 			for (let pokemon of this.getAllPokemon()) {
 				if (dynamaxBan.includes(pokemon.speciesid)) {
 					pokemon.canDynamax = false;
