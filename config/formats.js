@@ -145,7 +145,12 @@ let Formats = [
 
 		mod: 'gen8',
 		ruleset: ['[Gen 8] OU', '+CAP'],
-		banlist: ['Crucibelle-Mega', 'Aurumoth + Quiver Dance', 'Crucibelle + Head Smash', 'Crucibelle + Low Kick', 'Tomohawk + Earth Power', 'Tomohawk + Reflect'],
+		banlist: ['Crucibelle-Mega'],
+		onValidateSet(set) {
+			if (Dex.getTemplate(set.species).isUnreleased === 'Past') {
+				return [`${set.species} is unreleased.`];
+			}
+		},
 	},
 	{
 		name: "[Gen 8] Battle Stadium Singles",
@@ -433,7 +438,7 @@ let Formats = [
 		],
 
 		mod: 'gen8',
-		ruleset: ['Obtainable', 'Standard', 'Team Preview', '+Past', 'NatDex Rule'],
+		ruleset: ['Obtainable', 'Standard ND', 'OHKO Clause', 'Evasion Moves Clause', 'Species Clause', 'Team Preview', 'Sleep Clause Mod'],
 		banlist: [
 			'Arceus', 'Blaziken', 'Darkrai', 'Deoxys-Attack', 'Deoxys-Base', 'Deoxys-Speed', 'Dialga', 'Eternatus', 'Gengar-Mega',
 			'Giratina', 'Groudon', 'Ho-Oh', 'Kangaskhan-Mega', 'Kyogre', 'Kyurem-Black', 'Kyurem-White', 'Landorus-Base', 'Lucario-Mega',
@@ -441,7 +446,6 @@ let Formats = [
 			'Rayquaza', 'Reshiram', 'Salamence-Mega', 'Shaymin-Sky', 'Solgaleo', 'Xerneas', 'Yveltal', 'Zacian', 'Zamazenta', 'Zekrom',
 			'Moody', 'Power Construct', 'Shadow Tag', 'Baton Pass',
 		],
-		unbanlist: ['Melmetal', 'Meltan'],
 		onBegin() {
 			if (this.rated && this.format.id === 'gen8nationaldex') this.add('html', `<div class="broadcast-red"><strong>National Dex is currently suspecting Dynamax! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3658063/">suspect thread</a>.</strong></div>`);
 		},
@@ -453,8 +457,7 @@ let Formats = [
 		],
 
 		mod: 'gen8',
-		ruleset: ['Obtainable', 'Team Preview', 'Nickname Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', '+Past', 'NatDex Rule'],
-		unbanlist: ['Melmetal', 'Meltan'],
+		ruleset: ['Obtainable', 'Standard ND', 'Team Preview'],
 	},
 
 	// OM of the Month
@@ -566,8 +569,9 @@ let Formats = [
 		mod: 'gen8',
 		ruleset: ['Obtainable', '!Obtainable Abilities', 'Species Clause', 'Nickname Clause', '2 Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Dynamax Clause', 'Sleep Clause Mod', 'Endless Battle Clause'],
 		banlist: [
-			'Eternatus', 'Shedinja', 'Zacian', 'Zamazenta', 'Baton Pass',
-			'Arena Trap', 'Comatose', 'Contrary', 'Fluffy', 'Fur Coat', 'Huge Power', 'Ice Scales', 'Illusion', 'Imposter', 'Innards Out', 'Libero', 'Moody', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Simple', 'Stakeout', 'Speed Boost', 'Water Bubble', 'Wonder Guard',
+			'Dracovish', 'Eternatus', 'Shedinja', 'Zacian', 'Zamazenta', 'Baton Pass',
+			'Arena Trap', 'Comatose', 'Contrary', 'Fluffy', 'Fur Coat', 'Gorilla Tactics', 'Huge Power', 'Ice Scales', 'Illusion', 'Imposter', 'Innards Out', 'Intrepid Sword',
+			'Libero', 'Moody', 'Neutralizing Gas', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Simple', 'Stakeout', 'Speed Boost', 'Water Bubble', 'Wonder Guard',
 		],
 		minSourceGen: 8,
 	},
@@ -579,8 +583,8 @@ let Formats = [
 		],
 
 		mod: 'gen8',
-		ruleset: ['Obtainable', 'Standard', 'STABmons Move Legality', 'Team Preview'],
-		banlist: ['Eternatus', 'Silvally', 'Zacian', 'Zamazenta', 'King\'s Rock', 'Razor Fang', 'Moody', 'Shadow Tag', 'Baton Pass'],
+		ruleset: ['Obtainable', 'Standard', 'STABmons Move Legality', 'Team Preview', 'Dynamax Clause'],
+		banlist: ['Darmanitan-Galar', 'Eternatus', 'Silvally', 'Zacian', 'Zamazenta', 'King\'s Rock', 'Razor Fang', 'Moody', 'Shadow Tag', 'Baton Pass'],
 		restrictedMoves: ['Acupressure', 'Belly Drum', 'Fishious Rend', 'Shell Smash', 'Shift Gear', 'Spore'],
 		minSourceGen: 8,
 	},
@@ -1256,10 +1260,6 @@ let Formats = [
 
 		mod: 'gen7',
 		ruleset: ['[Gen 7] OU', '+CAP'],
-		banlist: [
-			'Aurumoth + Quiver Dance', 'Crucibelle + Head Smash', 'Crucibelle + Low Kick',
-			'Tomohawk + Earth Power', 'Tomohawk + Reflect',
-		],
 	},
 	{
 		name: "[Gen 7] Battle Spot Singles",
@@ -1933,7 +1933,7 @@ let Formats = [
 
 		mod: 'gen4',
 		searchShow: false,
-		ruleset: ['Obtainable', 'Standard', 'Arceus EV Clause'],
+		ruleset: ['Obtainable', 'Standard', 'Arceus EV Limit'],
 	},
 	{
 		name: "[Gen 4] UU",
