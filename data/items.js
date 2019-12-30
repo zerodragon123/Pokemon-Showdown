@@ -1133,22 +1133,16 @@ let BattleItems = {
 			basePower: 100,
 			type: "Ghost",
 		},
-		onBeforeTurn(pokemon) {
+		onFractionalPriorityPriority: -1,
+		onFractionalPriority(priority, pokemon) {
 			if (pokemon.hp <= pokemon.maxhp / 4 || (pokemon.hp <= pokemon.maxhp / 2 && pokemon.hasAbility('gluttony'))) {
-				pokemon.eatItem();
+				if (pokemon.eatItem()) {
+					this.add('-activate', pokemon, 'item: Custap Berry', '[consumed]');
+					return Math.round(priority) + 0.1;
+				}
 			}
 		},
-		onEat(pokemon) {
-			this.add('-activate', pokemon, 'item: Custap Berry', '[consumed]');
-			pokemon.addVolatile('custapberry');
-		},
-		effect: {
-			onModifyPriorityPriority: -1,
-			onModifyPriority(priority, pokemon) {
-				return Math.round(priority) + 0.1;
-			},
-			duration: 1,
-		},
+		onEat() { },
 		num: 210,
 		gen: 4,
 		desc: "Holder moves first in its priority bracket when at 1/4 max HP or less. Single use.",
@@ -2203,7 +2197,7 @@ let BattleItems = {
 		fling: {
 			basePower: 10,
 		},
-		onModifyPriority(priority, pokemon) {
+		onFractionalPriority(priority, pokemon) {
 			return Math.round(priority) - 0.1;
 		},
 		num: 316,
@@ -3083,7 +3077,7 @@ let BattleItems = {
 		fling: {
 			basePower: 10,
 		},
-		onModifyPriority(priority, pokemon) {
+		onFractionalPriority(priority, pokemon) {
 			return Math.round(priority) - 0.1;
 		},
 		num: 279,
@@ -4848,18 +4842,12 @@ let BattleItems = {
 	},
 	"quickclaw": {
 		id: "quickclaw",
-		onBeforeTurn(pokemon) {
+		onFractionalPriorityPriority: -1,
+		onFractionalPriority(priority, pokemon) {
 			if (this.randomChance(1, 5)) {
 				this.add('-activate', pokemon, 'item: Quick Claw');
-				pokemon.addVolatile('quickclaw');
-			}
-		},
-		effect: {
-			onModifyPriorityPriority: -1,
-			onModifyPriority(priority, pokemon) {
 				return Math.round(priority) + 0.1;
-			},
-			duration: 1,
+			}
 		},
 		name: "Quick Claw",
 		spritenum: 373,

@@ -1208,12 +1208,6 @@ let BattleMovedex = {
 		num: 782,
 		accuracy: 100,
 		basePower: 100,
-		basePowerCallback(pokemon, target, move) {
-			if (target.volatiles['dynamax']) {
-				return move.basePower * 2;
-			}
-			return move.basePower;
-		},
 		category: "Physical",
 		desc: "Deals double damage against Dynamax and Gigantamax Pokemon.",
 		shortDesc: "Double damage against Dynamax/Gigantamax.",
@@ -1231,12 +1225,6 @@ let BattleMovedex = {
 		num: 781,
 		accuracy: 100,
 		basePower: 100,
-		basePowerCallback(pokemon, target, move) {
-			if (target.volatiles['dynamax']) {
-				return move.basePower * 2;
-			}
-			return move.basePower;
-		},
 		category: "Physical",
 		desc: "Deals double damage against Dynamax and Gigantamax Pokemon.",
 		shortDesc: "Double damage against Dynamax/Gigantamax.",
@@ -1852,7 +1840,7 @@ let BattleMovedex = {
 		accuracy: 100,
 		basePower: 60,
 		category: "Physical",
-		desc: "100% chance to lower the foe's Attack by 1 stage. Hits all adjecent foes.",
+		desc: "100% chance to lower the foe's Attack by 1 stage. Hits all adjacent foes.",
 		shortDesc: "100% chance to lower adjacent foes' Atk by 1.",
 		id: "breakingswipe",
 		name: "Breaking Swipe",
@@ -3008,29 +2996,41 @@ let BattleMovedex = {
 		priority: 0,
 		flags: {mirror: 1},
 		onHitField(target, source) {
+			const sourceSide = source.side;
+			const targetSide = source.side.foe;
 			const sideConditions = [
-				'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'lightscreen', 'reflect', 'auroraveil', 'tailwind',
+				'spikes', 'toxicspikes', 'stealthrock', 'gmaxsteelsurge', 'stickyweb', 'lightscreen', 'reflect', 'auroraveil', 'tailwind',
 			];
-			const side1 = this.sides[0];
-			const side2 = this.sides[1];
+			let success = false;
 			for (let id of sideConditions) {
-				let sourceLayers = side1.sideConditions[id] ? (side1.sideConditions[id].layers || 1) : 0;
-				let targetLayers = side2.sideConditions[id] ? (side2.sideConditions[id].layers || 1) : 0;
-				if (sourceLayers === targetLayers) continue;
 				const effectName = this.dex.getEffect(id).name;
-				if (side1.removeSideCondition(id)) {
-					this.add('-sideend', side1, effectName, '[from] move: Court Change', '[of] ' + source);
+				if (sourceSide.sideConditions[id] && targetSide.sideConditions[id]) {
+					[sourceSide.sideConditions[id], targetSide.sideConditions[id]] = [targetSide.sideConditions[id], sourceSide.sideConditions[id]];
+					this.add('-sideend', sourceSide, effectName, '[silent]');
+					this.add('-sideend', targetSide, effectName, '[silent]');
+				} else if (sourceSide.sideConditions[id] && !targetSide.sideConditions[id]) {
+					targetSide.sideConditions[id] = sourceSide.sideConditions[id];
+					delete sourceSide.sideConditions[id];
+					this.add('-sideend', sourceSide, effectName, '[silent]');
+				} else if (targetSide.sideConditions[id] && !sourceSide.sideConditions[id]) {
+					sourceSide.sideConditions[id] = targetSide.sideConditions[id];
+					delete targetSide.sideConditions[id];
+					this.add('-sideend', targetSide, effectName, '[silent]');
+				} else {
+					continue;
 				}
-				if (side2.removeSideCondition(id)) {
-					this.add('-sideend', side2, effectName, '[from] move: Court Change', '[of] ' + source);
+				let sourceLayers = sourceSide.sideConditions[id] ? (sourceSide.sideConditions[id].layers || 1) : 0;
+				let targetLayers = targetSide.sideConditions[id] ? (targetSide.sideConditions[id].layers || 1) : 0;
+				for (; sourceLayers > 0; sourceLayers--) {
+					this.add('-sidestart', sourceSide, effectName, '[silent]');
 				}
 				for (; targetLayers > 0; targetLayers--) {
-					side1.addSideCondition(id, source);
+					this.add('-sidestart', targetSide, effectName, '[silent]');
 				}
-				for (; sourceLayers > 0; sourceLayers--) {
-					side2.addSideCondition(id, source);
-				}
+				success = true;
 			}
+			if (!success) return false;
+			this.add('-activate', source, 'move: Court Change');
 		},
 		secondary: null,
 		target: "all",
@@ -4359,14 +4359,7 @@ let BattleMovedex = {
 		num: 744,
 		accuracy: 100,
 		basePower: 100,
-		basePowerCallback(pokemon, target, move) {
-			if (target.volatiles['dynamax']) {
-				return move.basePower * 2;
-			}
-			return move.basePower;
-		},
 		category: "Special",
-		// TODO: Check to see if power doubles against Gigantamax
 		desc: "Deals double damage against Dynamax and Gigantamax Pokemon.",
 		shortDesc: "Double damage against Dynamax/Gigantamax.",
 		id: "dynamaxcannon",
@@ -6824,7 +6817,7 @@ let BattleMovedex = {
 		desc: "Sleeps, poisons, or paralyzes opponent(s). Base Power scales with the base move's Base Power.",
 		shortDesc: "Foes: SLP/PSN/PAR. BP scales with base move.",
 		id: "gmaxbefuddle",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Befuddle",
 		pp: 5,
 		priority: 0,
@@ -6856,7 +6849,7 @@ let BattleMovedex = {
 		desc: "Prevents the target from switching for four or five turns (seven turns if the user is holding Grip Claw). Causes damage to the target equal to 1/8 of its maximum HP (1/6 if the user is holding Binding Band), rounded down, at the end of each turn during effect. The target can still switch out if it is holding Shed Shell or uses Baton Pass, Parting Shot, Teleport, U-turn, or Volt Switch. The effect ends if target leaves the field, or if the target uses Rapid Spin or Substitute successfully. This effect is not stackable or reset by using this or another binding move. Base Power scales with the base move's Base Power.",
 		shortDesc: "Traps/damages foes. BP scales w/ base move.",
 		id: "gmaxcentiferno",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Centiferno",
 		pp: 5,
 		priority: 0,
@@ -6882,7 +6875,7 @@ let BattleMovedex = {
 		desc: "Applies Focus Energy to the user and its allies. Base Power scales with the base move's Base Power.",
 		shortDesc: "User side: Focus Energy. BP scales w/ base move.",
 		id: "gmaxchistrike",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Chi Strike",
 		pp: 5,
 		priority: 0,
@@ -6908,7 +6901,7 @@ let BattleMovedex = {
 		desc: "Infatuates opponents. Base Power scales with the base move's Base Power.",
 		shortDesc: "Infatuates opponents. BP scales with base move.",
 		id: "gmaxcuddle",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Cuddle",
 		pp: 5,
 		priority: 0,
@@ -6934,7 +6927,7 @@ let BattleMovedex = {
 		desc: "Lowers the PP of the opponent(s) last used move. Base Power scales with the base move's Base Power.",
 		shortDesc: "Foe: Lowers PP of last move. BP scales w/ base move.",
 		id: "gmaxdepletion",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Depletion",
 		pp: 5,
 		priority: 0,
@@ -6968,7 +6961,7 @@ let BattleMovedex = {
 		desc: "Heals user and allies for 1/6 of their post-Gigantamax max HP. Base Power scales with the base move's Base Power.",
 		shortDesc: "Heals user and allies. BP scales with base move.",
 		id: "gmaxfinale",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Finale",
 		pp: 5,
 		priority: 0,
@@ -6994,7 +6987,7 @@ let BattleMovedex = {
 		desc: "Lowers the Speed of opponents by 2 stages. Base Power scales with the base move's Base Power.",
 		shortDesc: "Foes: -2 Speed. BP scales with base move's BP.",
 		id: "gmaxfoamburst",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Foam Burst",
 		pp: 5,
 		priority: 0,
@@ -7020,7 +7013,7 @@ let BattleMovedex = {
 		desc: "Confuses opponents. Base Power scales with the base move's Base Power.",
 		shortDesc: "Confuses foes. BP scales with base move's BP.",
 		id: "gmaxgoldrush",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Gold Rush",
 		pp: 5,
 		priority: 0,
@@ -7046,7 +7039,7 @@ let BattleMovedex = {
 		desc: "Summons Gravity. Base Power scales with the base move's Base Power.",
 		shortDesc: "Summons Gravity. BP scales with base move.",
 		id: "gmaxgravitas",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Gravitas",
 		pp: 5,
 		priority: 0,
@@ -7067,7 +7060,7 @@ let BattleMovedex = {
 		desc: "Poisons opponents. Base Power scales with the base move's Base Power.",
 		shortDesc: "Poisons opponents. BP scales with base move.",
 		id: "gmaxmalodor",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Malodor",
 		pp: 5,
 		priority: 0,
@@ -7092,7 +7085,7 @@ let BattleMovedex = {
 		desc: "Applies Torment to opponents. Base Power scales with the base move's Base Power.",
 		shortDesc: "Applies Torment to foes. BP scales with base move.",
 		id: "gmaxmeltdown",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Meltdown",
 		pp: 5,
 		priority: 0,
@@ -7118,7 +7111,7 @@ let BattleMovedex = {
 		desc: "Has a 50% chance of restoring all Berries on the user's side. Base Power scales with the base move's Base Power.",
 		shortDesc: "50% restore berries. BP scales w/ base move.",
 		id: "gmaxreplenish",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Replenish",
 		pp: 5,
 		priority: 0,
@@ -7150,7 +7143,7 @@ let BattleMovedex = {
 		desc: "Summons Aurora Veil. Base Power scales with the base move's Base Power.",
 		shortDesc: "Summons Aurora Veil. BP scales w/ base move.",
 		id: "gmaxresonance",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Resonance",
 		pp: 5,
 		priority: 0,
@@ -7172,7 +7165,7 @@ let BattleMovedex = {
 		desc: "Prevents the target from switching for four or five turns (seven turns if the user is holding Grip Claw). Causes damage to the target equal to 1/8 of its maximum HP (1/6 if the user is holding Binding Band), rounded down, at the end of each turn during effect. The target can still switch out if it is holding Shed Shell or uses Baton Pass, Parting Shot, Teleport, U-turn, or Volt Switch. The effect ends if target leaves the field, or if the target uses Rapid Spin or Substitute successfully. This effect is not stackable or reset by using this or another binding move. Base Power scales with the base move's Base Power.",
 		shortDesc: "Traps/damages foes. BP scales w/ base move.",
 		id: "gmaxsandblast",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Sandblast",
 		pp: 5,
 		priority: 0,
@@ -7198,7 +7191,7 @@ let BattleMovedex = {
 		desc: "Confuses opponents. Base Power scales with the base move's Base Power.",
 		shortDesc: "Confuses opponents. BP scales with base move.",
 		id: "gmaxsmite",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Smite",
 		pp: 5,
 		priority: 0,
@@ -7224,7 +7217,7 @@ let BattleMovedex = {
 		desc: "Has a 50% chance of applying Yawn to the target. Base Power scales with the base move's Base Power.",
 		shortDesc: "50% Yawn chance. BP scales w/ base move.",
 		id: "gmaxsnooze",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Snooze",
 		pp: 5,
 		priority: 0,
@@ -7253,7 +7246,7 @@ let BattleMovedex = {
 		desc: "Sets a Steel-type entry hazard. Base Power scales with the base move's Base Power.",
 		shortDesc: "Sets Steel entry hazard. BP scales w/ base move.",
 		id: "gmaxsteelsurge",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Steelsurge",
 		pp: 5,
 		priority: 0,
@@ -7266,7 +7259,7 @@ let BattleMovedex = {
 		},
 		effect: {
 			onStart(side) {
-				this.add('-sidestart', side, 'move: Steelsurge');
+				this.add('-sidestart', side, 'move: G-Max Steelsurge');
 			},
 			onSwitchIn(pokemon) {
 				if (pokemon.hasItem('heavydutyboots')) return;
@@ -7287,7 +7280,7 @@ let BattleMovedex = {
 		desc: "Sets Stealth Rock. Base Power scales with the base move's Base Power.",
 		shortDesc: "Sets Stealth Rock. BP scales w/ base move's BP.",
 		id: "gmaxstonesurge",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Stonesurge",
 		pp: 5,
 		priority: 0,
@@ -7311,7 +7304,7 @@ let BattleMovedex = {
 		desc: "Opponents are each randomly paralyzed or poisoned. Base Power scales with the base move's Base Power.",
 		shortDesc: "Foe(s): Par/Psn. BP scales with base move's BP.",
 		id: "gmaxstunshock",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Stun Shock",
 		pp: 10,
 		priority: 0,
@@ -7342,7 +7335,7 @@ let BattleMovedex = {
 		desc: "Cures status on user's team. Base Power scales with the base move's Base Power.",
 		shortDesc: "Cures team's statuses. BP scales with base move's BP.",
 		id: "gmaxsweetness",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Sweetness",
 		pp: 10,
 		priority: 0,
@@ -7369,7 +7362,7 @@ let BattleMovedex = {
 		desc: "Lowers opponents' evasion by 1 stage. Base Power scales with the base move's Base Power.",
 		shortDesc: "Foe(s): -1 evasion. BP scales with base move's BP.",
 		id: "gmaxtartness",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Tartness",
 		pp: 10,
 		priority: 0,
@@ -7395,7 +7388,7 @@ let BattleMovedex = {
 		desc: "Traps opponents. Base Power scales with the base move's Base Power.",
 		shortDesc: "Traps foe(s). BP scales with base move's BP.",
 		id: "gmaxterror",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Terror",
 		pp: 10,
 		priority: 0,
@@ -7421,7 +7414,7 @@ let BattleMovedex = {
 		desc: "Damages opponent(s) by 1/8 of their maximum HP for four turns. Base Power scales with the base move's Base Power.",
 		shortDesc: "Damages foes for 4 turns. BP scales w/ base move.",
 		id: "gmaxvolcalith",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Volcalith",
 		pp: 10,
 		priority: 0,
@@ -7459,7 +7452,7 @@ let BattleMovedex = {
 		desc: "Paralyzes opponents. Base Power scales with the base move's Base Power.",
 		shortDesc: "Paralyzes foe(s). BP scales with base move's BP.",
 		id: "gmaxvoltcrash",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Volt Crash",
 		pp: 10,
 		priority: 0,
@@ -7485,7 +7478,7 @@ let BattleMovedex = {
 		desc: "Damages non-Fire-type opponent(s) by 1/6 of their maximum HP for four turns. Base Power scales with the base move's Base Power.",
 		shortDesc: "Damages foes for 4 turns. BP scales w/ base move.",
 		id: "gmaxwildfire",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Wildfire",
 		pp: 10,
 		priority: 0,
@@ -7524,7 +7517,7 @@ let BattleMovedex = {
 		desc: "Removes Reflect, Light Screen, Aurora Veil, Spikes, Toxic Spikes, Stealth Rock, Sticky Web, Mist, Safeguard, G-Max Steelsurge, and Terrains from the field. This move's Base Power scales with the base move's Base Power.",
 		shortDesc: "Clears field. BP scales with base move's BP.",
 		id: "gmaxwindrage",
-		isNonstandard: "Custom",
+		isNonstandard: "Unobtainable",
 		name: "G-Max Wind Rage",
 		pp: 10,
 		priority: 0,
@@ -18663,7 +18656,7 @@ let BattleMovedex = {
 		flags: {snatch: 1},
 		onTryHit(target, source, move) {
 			let item = source.getItem();
-			if (item.isBerry && source.eatItem()) {
+			if (item.isBerry && source.eatItem(true)) {
 				this.boost({def: 2}, source, null, null, false, true);
 			} else {
 				return false;
@@ -19447,7 +19440,7 @@ let BattleMovedex = {
 		accuracy: true,
 		basePower: 0,
 		category: "Status",
-		desc: "Forces all active Pokemon to consume their held berries. This move bypasses Substitutes.",
+		desc: "Forces all active Pokemon to consume their held berries. This move bypasses Substitutes and Unnerve.",
 		shortDesc: "All active Pokemon consume held Berries.",
 		id: "teatime",
 		name: "Teatime",
@@ -19463,14 +19456,8 @@ let BattleMovedex = {
 				} else {
 					let item = active.getItem();
 					if (active.hp && item.isBerry) {
-						// Not using `eatItem` as we need to bypass Unnerve.
-						this.add('-enditem', target, item.name, '[from] eat', '[move] Teatime', '[of] ' + active);
-						if (this.singleEvent('Eat', item, null, active, null, null)) {
-							this.runEvent('EatItem', active, null, null, item);
-							// TODO: Test
-							if (item.id === 'leppaberry') active.staleness = 'external';
-						}
-						if (item.onEat) active.ateBerry = true;
+						// bypasses Unnerve
+						active.eatItem(true);
 						result = true;
 					}
 				}
