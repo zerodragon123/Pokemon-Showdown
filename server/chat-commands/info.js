@@ -1275,7 +1275,7 @@ const commands = {
 
 			if (!pokemon) {
 				let testPoke = Dex.getTemplate(arg);
-				if (testPoke.baseStats) {
+				if (testPoke.exists) {
 					pokemon = testPoke.baseStats;
 					baseSet = true;
 					continue;
@@ -2433,7 +2433,6 @@ const commands = {
 	},
 	codehelp: [
 		`!code [code] - Broadcasts code to a room. Accepts multi-line arguments. Requires: + % @ & # ~`,
-		`In order to use !code in private messages you must be a global voice or higher`,
 		`/code [code] - Shows you code. Accepts multi-line arguments.`,
 	],
 };

@@ -5895,9 +5895,9 @@ let BattleMovedex = {
 		onHit(target, source) {
 			let success = false;
 			if (this.field.isTerrain('grassyterrain')) {
-				success = !!this.heal(this.modify(target.maxhp, 0.667)); // TODO: find out the real value
+				success = !!this.heal(this.modify(target.baseMaxhp, 0.667)); // TODO: find out the real value
 			} else {
-				success = !!this.heal(Math.ceil(target.maxhp * 0.5));
+				success = !!this.heal(Math.ceil(target.baseMaxhp * 0.5));
 			}
 			if (success && target.side.id !== source.side.id) {
 				target.staleness = 'external';
@@ -6968,9 +6968,9 @@ let BattleMovedex = {
 		flags: {},
 		isMax: "Alcremie",
 		self: {
-			onAfterHit(source) {
+			onAfterHit(target, source, move) {
 				for (let pokemon of source.side.active) {
-					this.heal(pokemon.maxhp / 6, pokemon, source);
+					this.heal(pokemon.maxhp / 6, pokemon, source, move);
 				}
 			},
 		},
@@ -8438,9 +8438,9 @@ let BattleMovedex = {
 		onHit(target, source) {
 			let success = false;
 			if (source.hasAbility('megalauncher')) {
-				success = !!this.heal(this.modify(target.maxhp, 0.75));
+				success = !!this.heal(this.modify(target.baseMaxhp, 0.75));
 			} else {
-				success = !!this.heal(Math.ceil(target.maxhp * 0.5));
+				success = !!this.heal(Math.ceil(target.baseMaxhp * 0.5));
 			}
 			if (success && target.side.id !== source.side.id) {
 				target.staleness = 'external';
@@ -9161,7 +9161,7 @@ let BattleMovedex = {
 			atk: 1,
 		},
 		secondary: null,
-		target: "allyTeam",
+		target: "allies",
 		type: "Normal",
 		zMoveBoost: {atk: 1},
 		contestType: "Cool",
@@ -9807,7 +9807,7 @@ let BattleMovedex = {
 		priority: 0,
 		flags: {protect: 1, authentic: 1, mystery: 1},
 		onHit(target, source) {
-			if (!target.lastMove) return false;
+			if (!target.lastMove || target.volatiles['dynamax']) return false;
 			const lastMove = target.lastMove;
 			const moveIndex = target.moves.indexOf(lastMove.id);
 			const noInstruct = [
@@ -13966,7 +13966,11 @@ let BattleMovedex = {
 		onTryHit(target, source, move) {
 			if (source.side === target.side) {
 				move.basePower = 0;
-				move.heal = [1, 2];
+			}
+		},
+		onHit(target, source) {
+			if (source.side === target.side) {
+				this.heal(Math.floor(target.baseMaxhp * 0.5));
 			}
 		},
 		secondary: null,

@@ -12213,7 +12213,7 @@ let BattlePokedex = {
 		color: "Blue",
 		prevo: "charjabug",
 		evoType: "useItem",
-		evoCondition: "Thunder Stone",
+		evoItem: "Thunder Stone",
 		eggGroups: ["Bug"],
 		otherFormes: ["vikavolttotem"],
 	},
@@ -15069,6 +15069,7 @@ let BattlePokedex = {
 		weightkg: 355,
 		color: "Blue",
 		eggGroups: ["Undiscovered"],
+		inheritsFrom: "zacian",
 	},
 	zamazenta: {
 		num: 889,
@@ -15096,6 +15097,7 @@ let BattlePokedex = {
 		weightkg: 785,
 		color: "Red",
 		eggGroups: ["Undiscovered"],
+		inheritsFrom: "zamazenta",
 	},
 	eternatus: {
 		num: 890,
