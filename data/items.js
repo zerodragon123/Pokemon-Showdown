@@ -269,6 +269,7 @@ let BattleItems = {
 		},
 		num: 104,
 		gen: 4,
+		isNonstandard: "Past",
 		desc: "Can be revived into Shieldon.",
 	},
 	"aspearberry": {
@@ -1027,6 +1028,7 @@ let BattleItems = {
 		},
 		num: 100,
 		gen: 3,
+		isNonstandard: "Past",
 		desc: "Can be revived into Anorith.",
 	},
 	"cloversweet": {
@@ -1110,6 +1112,7 @@ let BattleItems = {
 		},
 		num: 572,
 		gen: 5,
+		isNonstandard: "Past",
 		desc: "Can be revived into Tirtouga.",
 	},
 	"crackedpot": {
@@ -1322,6 +1325,7 @@ let BattleItems = {
 		},
 		num: 102,
 		gen: 3,
+		isNonstandard: "Past",
 		desc: "Can be revived into Kabuto.",
 	},
 	"dousedrive": {
@@ -1470,7 +1474,7 @@ let BattleItems = {
 		num: 576,
 		gen: 5,
 		isPokeball: true,
-		desc: "A special Poke Ball that appears out of nowhere in a bag at the Entree Forest.",
+		desc: "A Poke Ball that makes it easier to catch wild Pokémon while they're asleep.",
 	},
 	"dubiousdisc": {
 		id: "dubiousdisc",
@@ -1699,7 +1703,7 @@ let BattleItems = {
 		},
 		num: 34,
 		gen: 2,
-		desc: "Restores 50 HP to one Pokemon but lowers Happiness.",
+		desc: "Restores 60 HP to one Pokemon.",
 	},
 	"enigmaberry": {
 		id: "enigmaberry",
@@ -1734,13 +1738,15 @@ let BattleItems = {
 		},
 		onModifyDefPriority: 2,
 		onModifyDef(def, pokemon) {
-			if (pokemon.baseTemplate.nfe) {
+			// Temporary hardcode for Slowpoke-Galar since it's a special case
+			if (pokemon.baseTemplate.nfe || pokemon.baseTemplate.species === 'Slowpoke-Galar') {
 				return this.chainModify(1.5);
 			}
 		},
 		onModifySpDPriority: 2,
 		onModifySpD(spd, pokemon) {
-			if (pokemon.baseTemplate.nfe) {
+			// Temporary hardcode for Slowpoke-Galar since it's a special case
+			if (pokemon.baseTemplate.nfe || pokemon.baseTemplate.species === 'Slowpoke-Galar') {
 				return this.chainModify(1.5);
 			}
 		},
@@ -2654,6 +2660,7 @@ let BattleItems = {
 		},
 		num: 101,
 		gen: 3,
+		isNonstandard: "Past",
 		desc: "Can be revived into Omanyte.",
 	},
 	"heracronite": {
@@ -2932,6 +2939,7 @@ let BattleItems = {
 		},
 		num: 710,
 		gen: 6,
+		isNonstandard: "Past",
 		desc: "Can be revived into Tyrunt.",
 	},
 	"kasibberry": {
@@ -4177,6 +4185,7 @@ let BattleItems = {
 		},
 		num: 103,
 		gen: 3,
+		isNonstandard: "Past",
 		desc: "Can be revived into Aerodactyl.",
 	},
 	"oranberry": {
@@ -4452,6 +4461,7 @@ let BattleItems = {
 		},
 		num: 573,
 		gen: 5,
+		isNonstandard: "Past",
 		desc: "Can be revived into Archen.",
 	},
 	"poisonbarb": {
@@ -5198,6 +5208,7 @@ let BattleItems = {
 		},
 		num: 99,
 		gen: 3,
+		isNonstandard: "Past",
 		desc: "Can be revived into Lileep.",
 	},
 	"roseincense": {
@@ -5359,6 +5370,7 @@ let BattleItems = {
 		},
 		num: 711,
 		gen: 6,
+		isNonstandard: "Past",
 		desc: "Can be revived into Amaura.",
 	},
 	"salacberry": {
@@ -5645,6 +5657,7 @@ let BattleItems = {
 		},
 		num: 105,
 		gen: 4,
+		isNonstandard: "Past",
 		desc: "Can be revived into Cranidos.",
 	},
 	"skyplate": {
@@ -6325,7 +6338,8 @@ let BattleItems = {
 		// Implemented in statuses.js, moves.js, and abilities.js
 		num: 1123,
 		gen: 8,
-		desc: "Blocks the holder from receiving any effects of Sunny Day/Rain Dance.",
+		desc: "The holder is immune to the weather-based modifiers of the attacker's moves in the effects of Sunny Day and Rain Dance. However, the user's Weather Ball and own weather-based abilities will not activate.",
+		shortDesc: "Blocks the holder from the effects of sun/rain",
 	},
 	"venusaurite": {
 		id: "venusaurite",
