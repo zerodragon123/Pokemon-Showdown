@@ -178,7 +178,7 @@ let Formats = [
 				"Corviknight-Gmax", "Dreadnaw-Gmax", "Sandaconda-Gmax", "Centiskorch-Gmax",
 			];
 			for (const pokemon of this.getAllPokemon()) {
-				if (!allowedGigantamaxes.includes(pokemon.species)) pokemon.canGigantamax = null;
+				if (pokemon.canGigantamax && !allowedGigantamaxes.includes(pokemon.canGigantamax)) pokemon.canGigantamax = null;
 			}
 		},
 	},
@@ -335,7 +335,7 @@ let Formats = [
 		},
 		ruleset: ['Standard GBU', 'VGC Timer'],
 		banlist: [
-			'Alcremie-Gmax', 'Appletun-Gmax', 'Charizard-Gmax ++ Solar Power', 'Coalossal-Gmax', 'Copperajah-Gmax',
+			'Alcremie-Gmax', 'Appletun-Gmax', 'Charizard-Gmax + Solar Power', 'Coalossal-Gmax', 'Copperajah-Gmax',
 			'Duraludon-Gmax', 'Flapple-Gmax', 'Garbodor-Gmax', 'Gengar-Gmax', 'Grimmsnarl-Gmax', 'Hatterene-Gmax',
 			'Kingler-Gmax', 'Lapras-Gmax', 'Machamp-Gmax', 'Melmetal-Gmax', 'Orbeetle-Gmax', 'Slowpoke-Galar',
 			'Toxtricity-Gmax',
@@ -361,7 +361,26 @@ let Formats = [
 				"Corviknight-Gmax", "Dreadnaw-Gmax", "Sandaconda-Gmax", "Centiskorch-Gmax",
 			];
 			for (const pokemon of this.getAllPokemon()) {
-				if (!allowedGigantamaxes.includes(pokemon.species)) pokemon.canGigantamax = null;
+				if (pokemon.canGigantamax && !allowedGigantamaxes.includes(pokemon.canGigantamax)) pokemon.canGigantamax = null;
+			}
+		},
+	},
+	{
+		name: "[Gen 8] Galar Newcomers",
+		threads: [`&bullet; <a href="https://www.smogon.com/forums/threads/3658774">Galar Newcomers</a>`],
+
+		mod: 'gen8',
+		gameType: 'doubles',
+		forcedLevel: 50,
+		teamLength: {
+			validate: [4, 6],
+			battle: 4,
+		},
+		ruleset: ['Standard GBU'],
+		onValidateSet(set) {
+			let template = Dex.getTemplate(set.species);
+			if (template.gen < 8 || (template.isGigantamax && Dex.getTemplate(template.baseSpecies).gen < 8)) {
+				return [`Only Pokemon from Generation 8 are allowed.`, `(${set.species} is from Generation ${template.gen}.)`];
 			}
 		},
 	},
@@ -380,12 +399,12 @@ let Formats = [
 		},
 		ruleset: ['HP Percentage Mod', 'Cancel Mod'],
 		banlist: [
-			'Pokestar Spirit', 'Battle Bond', 'Cheek Pouch', 'Cursed Body', 'Desolate Land', 'Dry Skin', 'Fluffy', 'Fur Coat', 'Grassy Surge',
-			'Huge Power', 'Ice Body', 'Iron Barbs', 'Libero', 'Moody', 'Parental Bond', 'Perish Body', 'Poison Heal', 'Power Construct', 'Pressure',
-			'Primordial Sea', 'Protean', 'Pure Power', 'Rain Dish', 'Rough Skin', 'Sand Spit', 'Sand Stream', 'Snow Warning', 'Stamina', 'Volt Absorb',
-			'Water Absorb', 'Wonder Guard', 'Abomasite', 'Aguav Berry', 'Assault Vest', 'Berry', 'Berry Juice', 'Berserk Gene', 'Black Sludge',
-			'Enigma Berry', 'Figy Berry', 'Gold Berry', 'Iapapa Berry', 'Kangaskhanite', 'Leftovers', 'Mago Berry', 'Medichamite', 'Oran Berry',
-			'Rocky Helmet', 'Shell Bell', 'Sitrus Berry', 'Wiki Berry', 'Shedinja + Sturdy', 'Harvest + Jaboca Berry', 'Harvest + Rowap Berry',
+			'Pokestar Spirit', 'Battle Bond', 'Cheek Pouch', 'Cursed Body', 'Desolate Land', 'Dry Skin', 'Fluffy', 'Fur Coat', 'Gorilla Tactics',
+			'Grassy Surge', 'Huge Power', 'Ice Body', 'Iron Barbs', 'Libero', 'Moody', 'Parental Bond', 'Perish Body', 'Poison Heal', 'Power Construct',
+			'Pressure', 'Primordial Sea', 'Protean', 'Pure Power', 'Rain Dish', 'Rough Skin', 'Sand Spit', 'Sand Stream', 'Snow Warning', 'Stamina',
+			'Volt Absorb', 'Water Absorb', 'Wonder Guard', 'Abomasite', 'Aguav Berry', 'Assault Vest', 'Berry', 'Berry Juice', 'Berserk Gene',
+			'Black Sludge', 'Enigma Berry', 'Figy Berry', 'Gold Berry', 'Iapapa Berry', 'Kangaskhanite', 'Leftovers', 'Mago Berry', 'Medichamite',
+			'Oran Berry', 'Rocky Helmet', 'Shell Bell', 'Sitrus Berry', 'Wiki Berry', 'Shedinja + Sturdy', 'Harvest + Jaboca Berry', 'Harvest + Rowap Berry',
 		],
 		onValidateSet(set) {
 			let template = this.dex.getTemplate(set.species);
@@ -539,7 +558,7 @@ let Formats = [
 		banlist: [
 			'Eternatus-Eternamax', 'Comatose + Sleep Talk',
 			'Arena Trap', 'Contrary', 'Gorilla Tactics', 'Huge Power', 'Illusion', 'Innards Out', 'Libero', 'Magnet Pull', 'Moody',
-			'Neutralizing Gas', 'Parental Bond', 'Protean', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard',
+			'Neutralizing Gas', 'Parental Bond', 'Protean', 'Psychic Surge', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard',
 		],
 		onBegin() {
 			if (this.rated && this.format.id === 'gen8balancedhackmons') this.add('html', `<div class="broadcast-red"><strong>Balanced Hackmons is currently suspecting Shedinja! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3658789/">suspect thread</a>.</strong></div>`);

@@ -473,6 +473,7 @@ let BattleFormats = {
 				gooey: 'tanglinghair',
 				insomnia: 'vitalspirit',
 				ironbarbs: 'roughskin',
+				libero: 'protean',
 				minus: 'plus',
 				powerofalchemy: 'receiver',
 				teravolt: 'moldbreaker',
