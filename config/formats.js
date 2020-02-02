@@ -522,6 +522,9 @@ let Formats = [
 			'Rayquaza', 'Reshiram', 'Salamence-Mega', 'Shaymin-Sky', 'Solgaleo', 'Xerneas', 'Yveltal', 'Zacian', 'Zamazenta', 'Zekrom',
 			'Arena Trap', 'Moody', 'Power Construct', 'Shadow Tag', 'Baton Pass',
 		],
+		onBegin() {
+			if (this.rated && this.format.id === 'gen8nationaldex') this.add('html', `<div class="broadcast-red"><strong>National Dex is currently suspecting Genesect! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3659573/">suspect thread</a>.</strong></div>`);
+		},
 	},
 	{
 		name: "[Gen 8] National Dex AG",
@@ -563,7 +566,7 @@ let Formats = [
 		banlist: [],
 		restrictedMoves: [
 			'Baneful Bunker', 'Block', 'Copycat', 'Detect', 'Destiny Bond', 'Ingrain', 'King\'s Shield', 'Mean Look', 'Metronome',
-			'Obstruct', 'Octolock', 'Nature Power', 'Parting Shot', 'Protect', 'Roar', 'Skill Swap', 'Spiky Shield', 'Whirlwind',
+			'Obstruct', 'Octolock', 'Nature Power', 'Parting Shot', 'Protect', 'Roar', 'Skill Swap', 'Spiky Shield', 'Teleport', 'Whirlwind',
 		],
 		onValidateTeam(team, format, teamHas) {
 			for (const trademark in teamHas.trademarks) {
@@ -628,10 +631,15 @@ let Formats = [
 		mod: 'gen8',
 		ruleset: ['-Nonexistent', 'OHKO Clause', 'Evasion Moves Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Sleep Clause Mod', 'Endless Battle Clause'],
 		banlist: [
-			'Eternatus-Eternamax', 'Shedinja', 'Zacian-Crowned', 'Comatose + Sleep Talk', 'Double Iron Bash',
+			'Eternatus-Eternamax', 'Shedinja', 'Comatose + Sleep Talk', 'Double Iron Bash',
 			'Arena Trap', 'Contrary', 'Gorilla Tactics', 'Huge Power', 'Illusion', 'Innards Out', 'Libero', 'Magnet Pull', 'Moody',
 			'Neutralizing Gas', 'Parental Bond', 'Protean', 'Psychic Surge', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard',
 		],
+		onValidateSet(set) {
+			if (set.species === 'Zacian-Crowned' && (toID(set.item) !== 'rustedsword' || toID(set.ability) !== 'intrepidsword')) {
+				return [set.species + " is banned."];
+			}
+		},
 		onChangeSet(set) {
 			const item = toID(set.item);
 			if (set.species === 'Zacian' && item === 'rustedsword') {
@@ -1919,7 +1927,7 @@ let Formats = [
 
 		mod: 'gen5',
 		searchShow: false,
-		ruleset: ['Standard', '!Evasion Moves Clause'],
+		ruleset: ['Standard', '!Evasion Moves Clause', 'Sleep Clause Mod'],
 	},
 	{
 		name: "[Gen 5] UU",

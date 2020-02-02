@@ -1717,7 +1717,7 @@ let BattleAbilities = {
 		onAfterDamageOrder: 1,
 		onAfterDamage(damage, target, source, move) {
 			if (source && source !== target && move && move.effectType === 'Move' && !target.hp) {
-				this.damage(damage, source, target);
+				this.damage(target.getUndynamaxedHP(damage), source, target);
 			}
 		},
 		rating: 3.5,
@@ -2693,7 +2693,7 @@ let BattleAbilities = {
 		shortDesc: "If this Pokemon has no item, it steals the item off a Pokemon making contact with it.",
 		onAfterMoveSecondary(target, source, move) {
 			if (source && source !== target && move && move.flags['contact']) {
-				if (target.item || target.switchFlag) {
+				if (target.item || target.switchFlag || target.forceSwitchFlag || source.switchFlag === true) {
 					return;
 				}
 				let yourItem = source.takeItem(target);
