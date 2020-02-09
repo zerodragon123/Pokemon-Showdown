@@ -15,6 +15,9 @@ let Formats = [
 	{
 		name: "[Gen 8] Random Battle",
 		desc: `Randomized teams of level-balanced Pok&eacute;mon with sets that are generated to be competitively viable.`,
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3656537/">Random Battle Suggestions</a>`,
+		],
 
 		mod: 'gen8',
 		team: 'random',
@@ -63,6 +66,7 @@ let Formats = [
 		name: "[Gen 8] UU",
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3658529/">UU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3659681/">UU Sample Teams</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3659427/">UU Viability Rankings</a>`,
 		],
 
@@ -151,10 +155,7 @@ let Formats = [
 			battle: 1,
 		},
 		ruleset: ['Obtainable', 'Species Clause', 'Nickname Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Accuracy Moves Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Dynamax Clause', 'Endless Battle Clause'],
-		banlist: ['Eternatus', 'Sableye', 'Zacian', 'Zamazenta', 'Focus Sash', 'Perish Song'],
-		onBegin() {
-			if (this.rated && this.format.id === 'gen81v1') this.add('html', `<div class="broadcast-red"><strong>1v1 is currently suspecting Mew! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3659304/">suspect thread</a>.</strong></div>`);
-		},
+		banlist: ['Eternatus', 'Mew', 'Sableye', 'Zacian', 'Zamazenta', 'Moody', 'Focus Sash', 'Perish Song'],
 	},
 	{
 		name: "[Gen 8] CAP",
@@ -315,6 +316,7 @@ let Formats = [
 		name: "[Gen 8] Doubles OU",
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3656244/">Doubles OU Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3658826/">Doubles OU Sample Teams</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3658242/">Doubles OU Viability Rankings</a>`,
 		],
 
@@ -565,8 +567,8 @@ let Formats = [
 		ruleset: ['[Gen 8] OU'],
 		banlist: [],
 		restrictedMoves: [
-			'Baneful Bunker', 'Block', 'Copycat', 'Detect', 'Destiny Bond', 'Ingrain', 'King\'s Shield', 'Mean Look', 'Metronome',
-			'Obstruct', 'Octolock', 'Nature Power', 'Parting Shot', 'Protect', 'Roar', 'Skill Swap', 'Spiky Shield', 'Teleport', 'Whirlwind',
+			'Baneful Bunker', 'Block', 'Copycat', 'Detect', 'Destiny Bond', 'Ingrain', 'King\'s Shield', 'Mean Look', 'Metronome', 'Obstruct',
+			'Octolock', 'Nature Power', 'Parting Shot', 'Protect', 'Roar', 'Skill Swap', 'Sleep Talk', 'Spiky Shield', 'Teleport', 'Whirlwind',
 		],
 		onValidateTeam(team, format, teamHas) {
 			for (const trademark in teamHas.trademarks) {
@@ -740,7 +742,7 @@ let Formats = [
 		mod: 'gen8',
 		ruleset: ['Standard', 'STABmons Move Legality', 'Dynamax Clause'],
 		banlist: ['Darmanitan-Galar', 'Eternatus', 'Silvally', 'Zacian', 'Zamazenta', 'King\'s Rock', 'Razor Fang', 'Moody', 'Shadow Tag', 'Baton Pass'],
-		restrictedMoves: ['Acupressure', 'Belly Drum', 'Fishious Rend', 'Shell Smash', 'Shift Gear', 'Spore'],
+		restrictedMoves: ['Acupressure', 'Belly Drum', 'Extreme Speed', 'Fishious Rend', 'Shell Smash', 'Shift Gear', 'Spore'],
 	},
 	{
 		name: "[Gen 8] Camomons",

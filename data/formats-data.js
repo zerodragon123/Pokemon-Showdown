@@ -7459,7 +7459,7 @@ let BattleFormatsData = {
 		tier: "NFE",
 	},
 	inteleon: {
-		randomBattleMoves: ["airslash", "darkpulse", "hydropump", "icebeam", "scald", "snipeshot", "uturn"],
+		randomBattleMoves: ["airslash", "darkpulse", "hydropump", "icebeam", "scald", "uturn"],
 		unreleasedHidden: true,
 		tier: "UU",
 		doublesTier: "DUU",
@@ -7644,8 +7644,13 @@ let BattleFormatsData = {
 	},
 	toxtricitygmax: {
 		isGigantamax: "G-Max Stun Shock",
-		isUnreleased: true,
-		tier: "Unreleased",
+		tier: "Uber",
+		doublesTier: "DOU",
+	},
+	toxtricitylowkeygmax: {
+		isGigantamax: "G-Max Stun Shock",
+		tier: "Uber",
+		doublesTier: "DOU",
 	},
 	sizzlipede: {
 		tier: "LC",

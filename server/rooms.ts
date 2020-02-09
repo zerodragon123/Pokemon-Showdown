@@ -95,9 +95,11 @@ export abstract class BasicRoom {
 	logRoom: boolean;
 	language: string | false;
 	slowchat: number | false;
+	events: {[k: string]: {eventName: string, date: string, desc: string, started: boolean}};
 	filterStretching: boolean;
 	filterEmojis: boolean;
 	filterCaps: boolean;
+	jeopardyDisabled: boolean;
 	mafiaDisabled: boolean;
 	unoDisabled: boolean;
 	blackjackDisabled: boolean;
@@ -152,9 +154,11 @@ export abstract class BasicRoom {
 		this.logRoom = false;
 		this.language = false;
 		this.slowchat = false;
+		this.events = {};
 		this.filterStretching = false;
 		this.filterEmojis = false;
 		this.filterCaps = false;
+		this.jeopardyDisabled = false;
 		this.mafiaDisabled = false;
 		this.unoDisabled = false;
 		this.blackjackDisabled = false;
@@ -306,6 +310,11 @@ export abstract class BasicRoom {
 			}
 		}
 		if (this.parent) return this.parent.getMuteTime(user);
+	}
+	getGame<T extends RoomGame>(constructor: new (...args: any[]) => T): T | null {
+		// TODO: switch to `static readonly gameid` when all game files are TypeScripted
+		if (this.game && this.game.constructor.name === constructor.name) return this.game as T;
+		return null;
 	}
 	/**
 	 * Gets the group symbol of a user in the room.
