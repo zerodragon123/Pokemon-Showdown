@@ -87,7 +87,7 @@ const commands = {
 		}
 		const canViewAlts = (user === targetUser || user.can('alts', targetUser));
 		const canViewPunishments = canViewAlts || (room.isPrivate !== true && user.can('mute', targetUser, room) && targetUser.id in room.users);
-		const canViewSecretRooms = user === targetUser || (canViewAlts && targetUser.locked) || user.can('makeroom');
+		const canViewSecretRooms = user === targetUser || (canViewAlts && targetUser.locked) || user.hasSysopAccess;
 		buf += '<br />';
 
 		if (canViewAlts) {
