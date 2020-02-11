@@ -35,7 +35,7 @@ const commands = {
 			return this.errorReply(`/${cmd} - Access denied.`);
 		}
 
-		if (targetUser.hasSysopAccess && !user.hasSysopAccess) {
+		if (targetUser.hasSysopAccess() && !user.hasSysopAccess()) {
 			return this.errorReply(`/${cmd} - Access denied.`);
 		}
 
@@ -87,7 +87,10 @@ const commands = {
 		}
 		const canViewAlts = (user === targetUser || user.can('alts', targetUser));
 		const canViewPunishments = canViewAlts || (room.isPrivate !== true && user.can('mute', targetUser, room) && targetUser.id in room.users);
-		const canViewSecretRooms = user === targetUser || (canViewAlts && targetUser.locked) || user.hasSysopAccess;
+		const canViewSecretRooms = user === targetUser || (canViewAlts && targetUser.locked) || user.hasSysopAccess();
+		if (canViewAlts && user !== targetUser) {
+			console.log("ip command used by ", user.name, "on user:", targetUser.name, Chat.toTimestamp(new Date()));
+		}
 		buf += '<br />';
 
 		if (canViewAlts) {
