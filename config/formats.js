@@ -282,7 +282,7 @@ let Formats = [
 
 		mod: 'gen7',
 		searchShow: false,
-		ruleset: ['Obtainable', 'Standard', 'Team Preview', 'Mega Rayquaza Clause'],
+		ruleset: ['Obtainable', 'Standard', 'Mega Rayquaza Clause'],
 		banlist: ['Baton Pass', 'Gothorita', 'Gothitelle'],
 		onValidateSet(set) {
 			if (set.species === 'Necrozma-Dusk-Mane' && set.moves.includes('swordsdance')) {
@@ -511,7 +511,7 @@ let Formats = [
 			battle: 4,
 		},
 		timer: {starting: 7 * 60, addPerTurn: 0, maxPerTurn: 55, maxFirstTurn: 90, grace: 90, timeoutAutoChoose: true, dcTimerBank: false},
-		ruleset: ['Obtainable', 'Minimal GBU', 'Team Preview'],
+		ruleset: ['Obtainable', 'Minimal GBU'],
 	},
 
 	// National Dex
@@ -901,7 +901,7 @@ let Formats = [
 		],
 
 		mod: 'bhplus',
-		ruleset: ['Obtainable', 'Swagger Clause', 'Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Obtainable', 'Swagger Clause', '2 Ability Clause', 'OHKO Clause', 'Evasion Moves Clause', 'CFZ Clause', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Groudon-Primal', 'Arena Trap', 'Huge Power', 'Innards Out', 'Moody', 'Parental Bond', 'Pure Power', 'Shadow Tag', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Comatose + Sleep Talk', 'Assist'],
 	},
 	{
@@ -932,7 +932,7 @@ let Formats = [
 
 		mod: 'gen4',
 		searchShow: false,
-		ruleset: ['Obtainable', 'Ability Clause', 'OHKO Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Obtainable', '2 Ability Clause', 'OHKO Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Arena Trap', 'Huge Power', 'Pure Power', 'Shadow Tag', 'Wonder Guard', 'Drizzle ++ Swift Swim', 'Drought ++ Chlorophyll', 'Sand Stream ++ Sand Rush'],
 	},
 	{
@@ -940,7 +940,7 @@ let Formats = [
 		desc: `A Gen 8 OU format that allows complex ban.`,
 
 		mod: 'gen8',
-		ruleset: ['Obtainable', 'Standard', 'Team Preview', 'Complex Dynamax Clause'],
+		ruleset: ['Obtainable', 'Standard', 'Complex Dynamax Clause'],
 		banlist: ['Uber', 'Moody', 'Shadow Tag', 'Baton Pass'],
 		minSourceGen: 8,
 	},
