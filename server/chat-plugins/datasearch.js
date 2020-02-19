@@ -1748,7 +1748,7 @@ function runLearn(target, cmd) {
 	buffer += `${template.name}` + (problems ? ` <span class="message-learn-cannotlearn">can't</span> learn ` : ` <span class="message-learn-canlearn">can</span> learn `) + Chat.toListString(moveNames);
 	if (!problems) {
 		let sourceNames = {
-			E: "", S: "event", D: "dream world", V: "virtual console transfer from gen 1-2", X: "traded-back ", Y: "traded-back event",
+			'7V': "virtual console transfer from gen 1-2", '8V': "Pokémon Home transfer from LGPE", E: "", S: "event", D: "dream world", X: "traded-back ", Y: "traded-back event",
 		};
 		let sourcesBefore = setSources.sourcesBefore;
 		if (sources.length || sourcesBefore < gen) buffer += " only when obtained";
@@ -1764,7 +1764,7 @@ function runLearn(target, cmd) {
 				return source;
 			}).sort();
 			for (let source of sources) {
-				buffer += `<li>Gen ${source.charAt(0)} ${sourceNames[source.charAt(1)]}`;
+				buffer += `<li>Gen ${source.charAt(0)} ${sourceNames[source] || sourceNames[source.charAt(1)]}`;
 
 				if (source.charAt(1) === 'E') {
 					let fathers;
@@ -1788,7 +1788,21 @@ function runLearn(target, cmd) {
 			}
 		}
 		if (sourcesBefore) {
-			buffer += `<li>${(sourcesBefore < gen ? "Gen " + sourcesBefore + " or earlier" : "anywhere") + " (all moves are level-up/tutor/TM/HM in Gen " + Math.min(gen, sourcesBefore) + (sourcesBefore < gen ? " to " + gen : "")})`;
+			const sourceGen = sourcesBefore < gen ? `Gen ${sourcesBefore} or earlier` : `anywhere`;
+			if (moveNames.length === 1) {
+				if (sourcesBefore >= 8) {
+					buffer += `<li>${sourceGen} (move is level-up/tutor/TM/HM/egg in Gen ${sourcesBefore})`;
+				} else {
+					buffer += `<li>${sourceGen} (move is level-up/tutor/TM/HM in Gen ${sourcesBefore})`;
+				}
+			} else if (gen >= 8) {
+				const orEarlier = sourcesBefore < gen ? ` or level-up/tutor/TM/HM in Gen ${sourcesBefore}${
+					sourcesBefore < 7 ? " to 7" : ""
+				}` : ``;
+				buffer += `<li>${sourceGen} (all moves are level-up/tutor/TM/HM/egg in Gen ${sourcesBefore}${orEarlier})`;
+			} else {
+				buffer += `<li>${sourceGen} (all moves are level-up/tutor/TM/HM in Gen ${Math.min(gen, sourcesBefore)}${sourcesBefore < gen ? " to " + gen : ""})`;
+			}
 		}
 		if (setSources.babyOnly && sourcesBefore) {
 			buffer += `<li>must be obtained as ` + Dex.getTemplate(setSources.babyOnly).species;
