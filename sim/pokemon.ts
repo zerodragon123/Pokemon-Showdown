@@ -203,7 +203,7 @@ export class Pokemon {
 	canMegaEvo: string | null | undefined;
 	canUltraBurst: string | null | undefined;
 	canDynamax: boolean;
-	canGigantamax: string | null;
+	readonly canGigantamax: string | null;
 
 	staleness?: 'internal' | 'external';
 	pendingStaleness?: 'internal' | 'external';
@@ -601,8 +601,22 @@ export class Pokemon {
 		return hp;
 	}
 
-	getMoveTargets(move: Move, target: Pokemon): {targets: Pokemon[], pressureTargets: Pokemon[]} {
-		let targets = [];
+	/** Get targets for Dragon Darts */
+	getSmartTargets(target: Pokemon, move: ActiveMove) {
+		const target2 = target.nearbyAllies()[0];
+		if (!target2 || target2 === this || !target2.hp) {
+			move.smartTarget = false;
+			return [target];
+		}
+		if (!target.hp) {
+			move.smartTarget = false;
+			return [target2];
+		}
+		return [target, target2];
+	}
+
+	getMoveTargets(move: ActiveMove, target: Pokemon): {targets: Pokemon[], pressureTargets: Pokemon[]} {
+		let targets: Pokemon[] = [];
 		let pressureTargets;
 
 		switch (move.target) {
@@ -641,11 +655,18 @@ export class Pokemon {
 				target = possibleTarget;
 			}
 			if (target.side.active.length > 1 && !move.tracksTarget) {
-				if (!move.flags['charge'] || this.volatiles['twoturnmove'] ||
-						(move.id.startsWith('solarb') && this.battle.field.isWeather(['sunnyday', 'desolateland'])) ||
-						(this.hasItem('powerherb') && move.id !== 'skydrop')) {
-					target = this.battle.priorityEvent('RedirectTarget', this, this, this.battle.dex.getActiveMove(move), target);
+				const isCharging = move.flags['charge'] && !this.volatiles['twoturnmove'] &&
+					!(move.id.startsWith('solarb') && this.battle.field.isWeather(['sunnyday', 'desolateland'])) &&
+					!(this.hasItem('powerherb') && move.id !== 'skydrop');
+				if (!isCharging) {
+					target = this.battle.priorityEvent('RedirectTarget', this, this, move, target);
 				}
+			}
+			if (move.smartTarget) {
+				targets = this.getSmartTargets(target, move);
+				target = targets[0];
+			} else {
+				targets.push(target);
 			}
 			if (target.fainted) {
 				return {targets: [], pressureTargets: []};
@@ -653,7 +674,6 @@ export class Pokemon {
 			if (selectedTarget !== target) {
 				this.battle.retargetLastMove(target);
 			}
-			targets.push(target);
 
 			// Resolve apparent targets for Pressure.
 			if (move.pressureTarget) {
@@ -784,7 +804,7 @@ export class Pokemon {
 			}
 			let disabled = moveSlot.disabled;
 			if (this.volatiles['dynamax']) {
-				disabled = false;
+				disabled = this.maxMoveDisabled(this.battle.dex.getMove(moveSlot.id));
 			} else if (
 				(moveSlot.pp <= 0 && !this.volatiles['partialtrappinglock']) || disabled &&
 				this.side.active.length >= 2 && this.battle.targetTypeChoices(target!)
@@ -806,6 +826,10 @@ export class Pokemon {
 			});
 		}
 		return hasValidMove ? moves : [];
+	}
+
+	maxMoveDisabled(move: Move) {
+		return !!(move.category === 'Status' && (this.hasItem('assaultvest') || this.volatiles['taunt']));
 	}
 
 	getRequestData() {
@@ -1720,6 +1744,15 @@ export class Pokemon {
 			}
 		}
 		return false;
+	}
+
+	/** Specifically: is protected against a single-target damaging move */
+	isProtected() {
+		return !!(
+			this.volatiles['protect'] || this.volatiles['detect'] || this.volatiles['maxguard'] ||
+			this.volatiles['kingsshield'] || this.volatiles['spikyshield'] || this.volatiles['banefulbunker'] ||
+			this.volatiles['obstruct']
+		);
 	}
 
 	/**

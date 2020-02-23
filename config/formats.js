@@ -174,7 +174,7 @@ let Formats = [
 
 		mod: 'gen8',
 		ruleset: ['[Gen 8] OU', '+CAP'],
-		banlist: ['Crucibelle-Mega'],
+		banlist: ['Crucibelle-Mega', 'Arena Trap'],
 		onValidateSet(set) {
 			if (Dex.getTemplate(set.species).isUnreleased === 'Past') {
 				return [`${set.species} is unreleased.`];
@@ -196,13 +196,13 @@ let Formats = [
 		},
 		ruleset: ['Standard GBU'],
 		minSourceGen: 8,
-		onBegin() {
+		onValidateSet(set) {
 			const allowedGigantamaxes = [
 				"Charizard-Gmax", "Butterfree-Gmax", "Pikachu-Gmax", "Meowth-Gmax", "Eevee-Gmax", "Snorlax-Gmax",
 				"Corviknight-Gmax", "Dreadnaw-Gmax", "Sandaconda-Gmax", "Centiskorch-Gmax",
 			];
-			for (const pokemon of this.getAllPokemon()) {
-				if (pokemon.canGigantamax && !allowedGigantamaxes.includes(pokemon.canGigantamax)) pokemon.canGigantamax = null;
+			if (set.species.endsWith('-Gmax') && !allowedGigantamaxes.includes(set.species)) {
+				return [`${set.species} is not an allowed Gigantamax in this format.`];
 			}
 		},
 	},
@@ -384,13 +384,13 @@ let Formats = [
 		},
 		ruleset: ['Standard GBU'],
 		minSourceGen: 8,
-		onBegin() {
+		onValidateSet(set) {
 			const allowedGigantamaxes = [
 				"Charizard-Gmax", "Butterfree-Gmax", "Pikachu-Gmax", "Meowth-Gmax", "Eevee-Gmax", "Snorlax-Gmax",
 				"Corviknight-Gmax", "Dreadnaw-Gmax", "Sandaconda-Gmax", "Centiskorch-Gmax",
 			];
-			for (const pokemon of this.getAllPokemon()) {
-				if (pokemon.canGigantamax && !allowedGigantamaxes.includes(pokemon.canGigantamax)) pokemon.canGigantamax = null;
+			if (set.species.endsWith('-Gmax') && !allowedGigantamaxes.includes(set.species)) {
+				return [`${set.species} is not an allowed Gigantamax in this format.`];
 			}
 		},
 	},
@@ -1172,7 +1172,7 @@ let Formats = [
 
 		mod: 'gen3',
 		// searchShow: false,
-		ruleset: ['Standard'],
+		ruleset: ['Standard', 'UU NFE Clause'],
 		banlist: ['Uber', 'OU', 'UUBL', 'Smeargle + Ingrain'],
 	},
 	{
@@ -2289,7 +2289,7 @@ let Formats = [
 
 		mod: 'gen3',
 		searchShow: false,
-		ruleset: ['[Gen 3] UU'],
+		ruleset: ['[Gen 3] UU', '!UU NFE Clause'],
 		banlist: ['UU'],
 	},
 	{

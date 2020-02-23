@@ -468,7 +468,12 @@ export class Side {
 			// Gen 4 and earlier announce a Pokemon has no moves left before the turn begins, and only to that player's side.
 			if (this.battle.gen <= 4) this.send('-activate', pokemon, 'move: Struggle');
 			moveid = 'struggle';
-		} else if (!zMove && !(megaDynaOrZ === 'dynamax' || pokemon.volatiles['dynamax'])) {
+		} else if (maxMove) {
+			// Dynamaxed; only Taunt and Assault Vest disable Max Guard
+			if (pokemon.maxMoveDisabled(maxMove)) {
+				return this.emitChoiceError(`Can't move: ${pokemon.name}'s ${maxMove.name} is disabled`);
+			}
+		} else if (!zMove) {
 			// Check for disabled moves
 			let isEnabled = false;
 			let disabledSource = '';
@@ -904,9 +909,19 @@ export class Side {
 		if (this.requestState === 'teampreview') {
 			if (!this.isChoiceDone()) this.chooseTeam();
 		} else if (this.requestState === 'switch') {
-			while (!this.isChoiceDone()) this.chooseSwitch();
+			let i = 0;
+			while (!this.isChoiceDone()) {
+				if (!this.chooseSwitch()) throw new Error(`autoChoose switch crashed: ${this.choice.error}`);
+				i++;
+				if (i > 10) throw new Error(`autoChoose failed: infinite looping`);
+			}
 		} else if (this.requestState === 'move') {
-			while (!this.isChoiceDone()) this.chooseMove();
+			let i = 0;
+			while (!this.isChoiceDone()) {
+				if (!this.chooseMove()) throw new Error(`autoChoose crashed: ${this.choice.error}`);
+				i++;
+				if (i > 10) throw new Error(`autoChoose failed: infinite looping`);
+			}
 		}
 		return true;
 	}

@@ -859,6 +859,10 @@ interface MoveData extends EffectData, MoveEventMethods {
 	 * situations, rather than just targeting a slot. (Stalwart, Snipe Shot)
 	 */
 	tracksTarget?: boolean
+	/**
+	 * Will change target if current target is unavailable. (Dragon Darts)
+	 */
+	smartTarget?: boolean
 	useTargetOffensive?: boolean
 	useSourceDefensiveAsOffensive?: boolean
 	volatileStatus?: string
@@ -1091,7 +1095,7 @@ interface Format extends Readonly<BasicEffect & FormatsData> {
 type SpreadMoveTargets = (Pokemon | false | null)[]
 type SpreadMoveDamage = (number | boolean | undefined)[]
 type ZMoveOptions = ({move: string, target: MoveTarget} | null)[]
-type DynamaxOptions = {maxMoves: ({move: string, target: MoveTarget})[], gigantamax?: string}
+type DynamaxOptions = {maxMoves: ({move: string, target: MoveTarget, disabled?: boolean})[], gigantamax?: string}
 
 interface BattleScriptsData {
 	gen: number

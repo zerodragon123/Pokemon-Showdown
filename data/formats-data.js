@@ -1532,6 +1532,7 @@ let BattleFormatsData = {
 			{"generation": 3, "level": 32},
 			{"generation": 4, "level": 15, "pokeball": "safariball"},
 		],
+		unreleasedHidden: true,
 		tier: "OU",
 		doublesTier: "DOU",
 	},

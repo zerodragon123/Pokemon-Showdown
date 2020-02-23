@@ -20,6 +20,19 @@ describe('Eject Pack', function () {
 			{species: 'Mew', ability: 'noability', moves: ['protect']},
 		]});
 		battle.makeChoices();
-		assert.strictEqual(battle.requestState, 'switch');
+		assert.equal(battle.requestState, 'switch');
+	});
+
+	it("should switch out the holder when its stats are lowered", function () {
+		battle = common.createBattle();
+		battle.setPlayer('p1', {team: [
+			{species: 'Machop', ability: 'noguard', moves: ['leer']},
+		]});
+		battle.setPlayer('p2', {team: [
+			{species: 'Magikarp', item: 'ejectpack', moves: ['splash']},
+			{species: 'Mew', moves: ['splash']},
+		]});
+		battle.makeChoices();
+		assert.equal(battle.p2.requestState, 'switch');
 	});
 });

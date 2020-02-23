@@ -7,7 +7,6 @@
 'use strict';
 
 import {FS} from '../../lib/fs';
-import * as fs from 'fs';
 
 Punishments.roomPunishmentTypes.set('GIVEAWAYBAN', 'banned from giveaways');
 
@@ -18,7 +17,7 @@ const STATS_FILE = 'config/chat-plugins/wifi.json';
 
 let stats: {[k: string]: number[]} = {};
 try {
-	stats = JSON.parse(fs.readFileSync(`../../${STATS_FILE}`).toString());
+	stats = JSON.parse(FS(STATS_FILE).readIfExistsSync() || "{}");
 } catch (e) {
 	if (e.code !== 'MODULE_NOT_FOUND' && e.code !== 'ENOENT') throw e;
 }
