@@ -1608,7 +1608,7 @@ export class GameRoom extends BasicChatRoom {
 		let rating = 0;
 		if (battle.ended && this.rated) rating = this.rated;
 		console.log("starting upload replay: ", this.roomid.substr(7), "at time:", Chat.toTimestamp(new Date()));
-		const [success] = await LoginServer.request('prepreplay', {
+		const response = await LoginServer.request('prepreplay', {
 			id: this.roomid.substr(7),
 			loghash: datahash,
 			p1: battle.p1.name,
@@ -1618,8 +1618,9 @@ export class GameRoom extends BasicChatRoom {
 			hidden: options === 'forpunishment' || (this as any).unlistReplay ? '2' : this.isPrivate || this.hideReplay ? '1' : '',
 			inputlog: battle.inputLog?.join('\n') || null,
 		});
+		const success = response[0];
+		if (!success) console.log("upload replay problem encountered: ", response, this.roomid.substr(7), "at time:", Chat.toTimestamp(new Date()));
 		if (success) battle.replaySaved = true;
-		console.log("flagged success in upload replay: ", this.roomid.substr(7), "at time:", Chat.toTimestamp(new Date()));
 		if (success && success.errorip) {
 			connection.popup(`This server's request IP ${success.errorip} is not a registered server.`);
 			return;
@@ -1629,7 +1630,6 @@ export class GameRoom extends BasicChatRoom {
 			id: this.roomid.substr(7),
 			silent: options === 'forpunishment' || options === 'silent',
 		}));
-		console.log("connection sent for replay: ", this.roomid.substr(7), "at time:", Chat.toTimestamp(new Date()));
 	}
 }
 
