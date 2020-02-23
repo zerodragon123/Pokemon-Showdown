@@ -1607,6 +1607,7 @@ export class GameRoom extends BasicChatRoom {
 		const datahash = crypto.createHash('md5').update(data.replace(/[^(\x20-\x7F)]+/g, '')).digest('hex');
 		let rating = 0;
 		if (battle.ended && this.rated) rating = this.rated;
+		console.log("starting upload replay: ", this.roomid.substr(7), "at time:", Chat.toTimestamp(new Date()));
 		const [success] = await LoginServer.request('prepreplay', {
 			id: this.roomid.substr(7),
 			loghash: datahash,
@@ -1618,6 +1619,7 @@ export class GameRoom extends BasicChatRoom {
 			inputlog: battle.inputLog?.join('\n') || null,
 		});
 		if (success) battle.replaySaved = true;
+		console.log("flagged success in upload replay: ", this.roomid.substr(7), "at time:", Chat.toTimestamp(new Date()));
 		if (success && success.errorip) {
 			connection.popup(`This server's request IP ${success.errorip} is not a registered server.`);
 			return;
@@ -1627,6 +1629,7 @@ export class GameRoom extends BasicChatRoom {
 			id: this.roomid.substr(7),
 			silent: options === 'forpunishment' || options === 'silent',
 		}));
+		console.log("connection sent for replay: ", this.roomid.substr(7), "at time:", Chat.toTimestamp(new Date()));
 	}
 }
 
