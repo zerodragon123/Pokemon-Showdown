@@ -181,8 +181,9 @@ async function runModlog(
 
 async function checkRoomModlog(pathString: string, regex: RegExp | null, results: SortedLimitedLengthList) {
 	const fileStream = await FS(pathString).createReadStream();
-	const line = await fileStream.readLine();
-	while (line !== null) {
+	let line;
+	// tslint:disable-next-line no-conditional-assignment
+	while ((line = await fileStream.readLine()) !== null) {
 		if (!regex || regex.test(line)) {
 			results.insert(line);
 		}
@@ -286,7 +287,7 @@ function prettifyResults(
 }
 
 async function getModlog(
-	connection: Connection, roomid = 'global' as RoomID, searchString = '',
+	connection: Connection, roomid: RoomID = 'global', searchString = '',
 	maxLines = 20, onlyPunishments = false, timed = false
 ) {
 	return connection.popup("该指令暂时不可用");
@@ -567,12 +568,12 @@ export const commands: ChatCommands = {
 	timedmodlog: 'modlog',
 	modlog(target, room, user, connection, cmd) {
 		if (!room) room = Rooms.get('global') as ChatRoom | GameRoom;
-		let roomid = (room.roomid === 'staff' ? 'global' : room.roomid);
+		let roomid: RoomID = (room.roomid === 'staff' ? 'global' : room.roomid);
 
 		if (target.includes(',')) {
 			const targets = target.split(',');
 			target = targets[1].trim();
-			roomid = toID(targets[0]) || room.roomid;
+			roomid = toID(targets[0]) as RoomID || room.roomid;
 		}
 
 		const targetRoom = Rooms.search(roomid);
