@@ -290,7 +290,6 @@ async function getModlog(
 	connection: Connection, roomid: RoomID = 'global', searchString = '',
 	maxLines = 20, onlyPunishments = false, timed = false
 ) {
-	return connection.popup("该指令暂时不可用");
 	const startTime = Date.now();
 	const targetRoom = Rooms.search(roomid) as BasicChatRoom;
 	const user = connection.user;

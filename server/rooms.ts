@@ -1628,7 +1628,7 @@ export class GameRoom extends BasicChatRoom {
 		const datahash = crypto.createHash('md5').update(data.replace(/[^(\x20-\x7F)]+/g, '')).digest('hex');
 		let rating = 0;
 		if (battle.ended && this.rated) rating = this.rated;
-		console.log("starting upload replay: ", this.roomid.substr(7), "at time:", Chat.toTimestamp(new Date()));
+		// console.log("starting upload replay: ", this.roomid.substr(7), "at time:", Chat.toTimestamp(new Date()));
 		const response = await LoginServer.request('prepreplay', {
 			id: this.roomid.substr(7),
 			loghash: datahash,
@@ -1640,7 +1640,7 @@ export class GameRoom extends BasicChatRoom {
 			inputlog: battle.inputLog?.join('\n') || null,
 		});
 		const success = response[0];
-		if (!success) console.log("upload replay problem encountered: ", response, this.roomid.substr(7), "at time:", Chat.toTimestamp(new Date()));
+		// if (!success) console.log("upload replay problem encountered: ", response, this.roomid.substr(7), "at time:", Chat.toTimestamp(new Date()));
 		if (success) battle.replaySaved = true;
 		if (success && success.errorip) {
 			connection.popup(`This server's request IP ${success.errorip} is not a registered server.`);
