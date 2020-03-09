@@ -16,13 +16,13 @@ const toID = Dex.getId;
 
 type DeepPartial<T> = {
 	[P in keyof T]?: T[P] extends (infer I)[]
-	? (DeepPartial<I>)[]
-	: DeepPartial<T[P]>;
+		? (DeepPartial<I>)[]
+		: DeepPartial<T[P]>;
 };
 
 interface PokemonSets {
 	[speciesid: string]: {
-		[name: string]: DeepPartial<PokemonSet>;
+		[name: string]: DeepPartial<PokemonSet>,
 	};
 }
 
@@ -133,7 +133,7 @@ async function importGen(gen: Generation, index: string) {
 		const [u, count] = getStatisticsURL(index, format);
 		try {
 			const statistics = smogon.Statistics.process(await request(u));
-			const sets = await importUsageBasedSets(gen, format, statistics, count);
+			const sets = importUsageBasedSets(gen, format, statistics, count);
 			if (Object.keys(sets).length) {
 				data[format.id] = data[format.id] || {};
 				data[format.id]['smogon.com/stats'] = sets;
@@ -157,7 +157,7 @@ function eligible(dex: ModdedDex, id: ID) {
 	// Species with formes distinct enough to merit inclusion
 	const unique = ['darmanitan', 'meloetta', 'greninja', 'zygarde'];
 	// Too similar to their base forme/species to matter
-	const similar = ['pichu', 'pikachu', 'genesect', 'basculin', 'magearna', 'keldeo',  'vivillon'];
+	const similar = ['pichu', 'pikachu', 'genesect', 'basculin', 'magearna', 'keldeo', 'vivillon'];
 
 	if (template.battleOnly && !unique.some(f => id.startsWith(f))) return false;
 
@@ -460,7 +460,7 @@ function importUsageBasedSets(gen: Generation, format: Format, statistics: smogo
 			if (gen >= 3) {
 				const id = top(stats.Abilities) as string;
 				set.ability = fixedAbility(dex, pokemon, dex.getAbility(id).name);
-				const { nature, evs } = fromSpread(top(stats.Spreads) as string);
+				const {nature, evs} = fromSpread(top(stats.Spreads) as string);
 				set.nature = nature;
 				if (format.id !== 'gen7letsgoou') {
 					if (!evs || !Object.keys(evs).length) continue;
@@ -484,7 +484,7 @@ function getUsageThreshold(format: Format, count: number) {
 	if (count < 100) return Infinity;
 	if (count < 400) return 0.05;
 	// These formats are deemed to have playerbases of lower quality than normal
-	return format.id.match(/uber|anythinggoes|doublesou/) ? 0.03 : 0.01;
+	return /uber|anythinggoes|doublesou/.test(format.id) ? 0.03 : 0.01;
 }
 
 const STATS: StatName[] = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
@@ -496,7 +496,7 @@ function fromSpread(spread: string) {
 		const ev = Number(rev);
 		if (ev) evs[STATS[i]] = ev;
 	}
-	return { nature, evs };
+	return {nature, evs};
 }
 
 function top(weighted: {[key: string]: number}, n = 1): string | string[] | undefined {
@@ -527,7 +527,7 @@ async function importThirdPartySets(
 
 		const file = data.files[formatid];
 		const raw = await request(`${data.url}${file}`);
-		const match = raw.match(/var.*?=.*?({.*})/s);
+		const match = /var.*?=.*?({.*})/s.exec(raw);
 		if (!match) {
 			error(`Could not find sets for ${source} in ${file}`);
 			continue;
@@ -581,18 +581,18 @@ function fixThirdParty(dex: ModdedDex, pokemon: string, set: DeepPartial<Pokemon
 
 function fromShort(s: string): StatName | undefined {
 	switch (s) {
-		case 'hp':
-			return 'hp';
-		case 'at':
-			return 'atk';
-		case 'df':
-			return 'def';
-		case 'sa':
-			return 'spa';
-		case 'sd':
-			return 'spd';
-		case 'sp':
-			return 'spe';
+	case 'hp':
+		return 'hp';
+	case 'at':
+		return 'atk';
+	case 'df':
+		return 'def';
+	case 'sa':
+		return 'spa';
+	case 'sd':
+		return 'spd';
+	case 'sp':
+		return 'spe';
 	}
 }
 
@@ -665,7 +665,7 @@ function throttling<I, O>(fn: (args: I) => Promise<O>, limit: number, interval: 
 	const throttled = (args: I) => {
 		let timeout: NodeJS.Timeout;
 		return new Promise<O>((resolve, reject) => {
-			const execute = async () => {
+			const execute = () => {
 				resolve(fn(args));
 				queue.delete(timeout);
 			};

@@ -2056,7 +2056,8 @@ const commands = {
 				// Translated analysis do not support automatic redirects from a speciesid to the proper page
 				this.sendReplyBox(Chat.html`<a href="https://www.smogon.com/dex/${generation}/pokemon/${speciesid}/${formatId}/?lang=${supportedLanguages[room.language]}">${generation.toUpperCase()} ${formatName} ${pokemon.name} analysis</a>, brought to you by <a href="https://www.smogon.com">Smogon University</a>`);
 			} else if (['ou', 'uu'].includes(formatId) && generation === 'sm') {
-				this.sendReplyBox(Chat.html`<a href="https://www.smogon.com/dex/${generation}/pokemon/${speciesid}/${formatId}">${generation.toUpperCase()} ${formatName} ${pokemon.name} analysis</a>, brought to you by <a href="https://www.smogon.com">Smogon University</a><br />` +
+				this.sendReplyBox(
+					Chat.html`<a href="https://www.smogon.com/dex/${generation}/pokemon/${speciesid}/${formatId}">${generation.toUpperCase()} ${formatName} ${pokemon.name} analysis</a>, brought to you by <a href="https://www.smogon.com">Smogon University</a><br />` +
 					`Other languages: <a href="https://www.smogon.com/dex/${generation}/pokemon/${speciesid}/${formatId}/?lang=es">Español</a>, <a href="https://www.smogon.com/dex/${generation}/pokemon/${speciesid}/${formatId}/?lang=fr">Français</a>, <a href="https://www.smogon.com/dex/${generation}/pokemon/${speciesid}/${formatId}/?lang=it">Italiano</a>, ` +
 					`<a href="https://www.smogon.com/dex/${generation}/pokemon/${speciesid}/${formatId}/?lang=de">Deutsch</a>, <a href="https://www.smogon.com/dex/${generation}/pokemon/${speciesid}/${formatId}/?lang=pt">Português</a>`
 				);
@@ -2233,7 +2234,7 @@ const commands = {
 	'!dice': true,
 	roll: 'dice',
 	dice(target, room, user) {
-		if (!target || target.match(/[^\d\sdHL+-]/i)) return this.parse('/help dice');
+		if (!target || /[^\d\sdHL+-]/i.test(target)) return this.parse('/help dice');
 		if (!this.runBroadcast(true)) return;
 
 		// ~30 is widely regarded as the sample size required for sum to be a Gaussian distribution.
@@ -2409,7 +2410,8 @@ const commands = {
 			'Did you mean: 1. 3.1415926535897932384626... (Decimal)<br />' +
 			'2. 3.184809493B91866... (Duodecimal)<br />' +
 			'3. 3.243F6A8885A308D... (Hexadecimal)<br /><br />' +
-			'How many digits of pi do YOU know? Test it out <a href="http://guangcongluo.com/mempi/">here</a>!');
+			'How many digits of pi do YOU know? Test it out <a href="http://guangcongluo.com/mempi/">here</a>!'
+		);
 	},
 
 	'!code': true,

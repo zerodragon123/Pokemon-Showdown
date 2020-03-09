@@ -13,8 +13,6 @@
  * @license MIT
  */
 
-'use strict';
-
 import {FS} from '../lib/fs';
 import { consoleips } from '../config/config-example';
 
@@ -97,13 +95,12 @@ export class LadderStore {
 			this.saving = false;
 			return;
 		}
-		let stream = FS(`config/ladders/${this.formatid}.tsv`).createWriteStream();
-		//stream.write('Elo\tUsername\tW\tL\tT\tLast update\r\n');
+		const stream = FS(`config/ladders/${this.formatid}.tsv`).createWriteStream();
+		void stream.write('Elo\tUsername\tW\tL\tT\tLast update\r\n');
 		for (const row of ladder) {
-			stream.write(row.slice(1).join('\t') + '\r\n');
+			void stream.write(row.slice(1).join('\t') + '\r\n');
 		}
-		// tslint:disable-next-line no-floating-promises
-		stream.end();
+		void stream.end();
 		this.saving = false;
 	}
 
@@ -156,7 +153,7 @@ export class LadderStore {
 	async getRating(userid: string) {
 		const formatid = this.formatid;
 		const user = Users.getExact(userid);
-		if (user && user.mmrCache[formatid]) {
+		if (user?.mmrCache[formatid]) {
 			return user.mmrCache[formatid];
 		}
 		const ladder = await this.getLadder();
@@ -281,8 +278,7 @@ export class LadderStore {
 			if (p1) p1.mmrCache[formatid] = +p1newElo;
 			const p2 = Users.getExact(p2name);
 			if (p2) p2.mmrCache[formatid] = +p2newElo;
-			// tslint:disable-next-line no-floating-promises
-			this.save();
+			void this.save();
 
 			if (!room.battle) {
 				Monitor.warn(`room expired before ladder update was received`);
@@ -313,7 +309,7 @@ export class LadderStore {
 	}
 	indexOfUser_noID(username: string, createIfNeeded = false, initscore = 1000) {
 		if (!this.ladder) throw new Error(`Must be called with ladder loaded`);
-		
+
 		for (const [i, user] of this.ladder.entries()) {
 			if (user[2] === username) return i;
 		}
