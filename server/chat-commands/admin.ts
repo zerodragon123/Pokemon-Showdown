@@ -29,7 +29,11 @@ export const commands: ChatCommands = {
 
 		if (!this.runBroadcast(true, '!htmlbox')) return;
 
-		this.sendReplyBox(target);
+		if (this.broadcasting) {
+			return `/raw <div class="infobox">${target}</div>`;
+		} else {
+			this.sendReplyBox(target);
+		}
 	},
 	htmlboxhelp: [
 		`/htmlbox [message] - Displays a message, parsing HTML code contained.`,
@@ -46,7 +50,7 @@ export const commands: ChatCommands = {
 			target += Chat.html`<div style="float:right;color:#888;font-size:8pt">[${user.name}]</div><div style="clear:both"></div>`;
 		}
 
-		this.addBox(target);
+		return `/raw <div class="infobox">${target}</div>`;
 	},
 	addhtmlboxhelp: [
 		`/addhtmlbox [message] - Shows everyone a message, parsing HTML code contained. Requires: * & ~`,
@@ -77,15 +81,15 @@ export const commands: ChatCommands = {
 		let [name, html] = this.splitOne(target);
 		name = toID(name);
 		html = this.canHTML(html)!;
-		if (!html) return;
+		if (!html) return this.parse(`/help ${cmd}`);
 		if (!this.can('addhtml', null, room)) return;
 		html = Chat.collapseLineBreaksHTML(html);
 		if (!user.can('addhtml')) {
 			html += Chat.html`<div style="float:right;color:#888;font-size:8pt">[${user.name}]</div><div style="clear:both"></div>`;
 		}
 
-		html = `|uhtml${(cmd === 'changeuhtml' ? 'change' : '')}|${name}|${html}`;
-		this.add(html);
+		html = `/uhtml${(cmd === 'changeuhtml' ? 'change' : '')} ${name},${html}`;
+		return html;
 	},
 	adduhtmlhelp: [
 		`/adduhtml [name], [message] - Shows everyone a message that can change, parsing HTML code contained.  Requires: * & ~`,
@@ -228,6 +232,9 @@ export const commands: ChatCommands = {
 		if (!target) return this.parse('/help hotpatch');
 		if (!this.can('hotpatch')) return;
 
+		if (Monitor.updateServerLock) {
+			return this.errorReply("Wait for /updateserver to finish before hotpatching.");
+		}
 		const lock = Monitor.hotpatchLock;
 		const hotpatches = ['chat', 'formats', 'loginserver', 'punishments', 'dnsbl'];
 		const version = await Monitor.version();
@@ -275,6 +282,7 @@ export const commands: ChatCommands = {
 				Chat.uncacheDir('./.server-dist/chat-commands');
 				Chat.uncacheDir('./server/chat-plugins');
 				Chat.uncacheDir('./.server-dist/chat-plugins');
+				Chat.uncacheDir('./server/chat-plugins/private');
 				Chat.uncacheDir('./translations');
 				global.Chat = require('../chat').Chat;
 
@@ -429,9 +437,9 @@ export const commands: ChatCommands = {
 		if (!this.can('hotpatch')) return false;
 		this.sendReply("saving...");
 		await FS('data/learnsets.js').write(`'use strict';\n\nexports.BattleLearnsets = {\n` +
-			Object.entries(Dex.data.Learnsets).map(([speciesid, entry]) => (
-				`\t${speciesid}: {learnset: {\n` +
-				Object.entries(entry.learnset).sort(
+			Object.entries(Dex.data.Learnsets).map(([id, entry]) => (
+				`\t${id}: {learnset: {\n` +
+				Object.entries(Dex.getLearnsetData(id as ID)).sort(
 					(a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0)
 				).map(([moveid, sources]) => (
 					`\t\t${moveid}: ["` + sources.join(`", "`) + `"],\n`
@@ -906,13 +914,13 @@ export const commands: ChatCommands = {
 		let [code, stdout, stderr] = await exec(`git fetch`);
 		if (code) throw new Error(`updateserver: Crash while fetching - make sure this is a Git repository`);
 		if (!stdout && !stderr) {
-			Monitor.updateServerLock = false;
 			this.sendReply(`There were no updates.`);
 			[code, stdout, stderr] = await exec('node ../../build');
 			if (stderr) {
 				return this.errorReply(`Crash while rebuilding: ${stderr}`);
 			}
 			this.sendReply(`Rebuilt.`);
+			Monitor.updateServerLock = false;
 			return;
 		}
 
@@ -987,10 +995,12 @@ export const commands: ChatCommands = {
 		if (!user.can('hotpatch')) {
 			return this.errorReply(`/updateserver - Access denied.`);
 		}
+		Monitor.updateServerLock = true;
 		const [, , stderr] = await exec('node ../../build');
 		if (stderr) {
 			return this.errorReply(`Crash while rebuilding: ${stderr}`);
 		}
+		Monitor.updateServerLock = false;
 		this.sendReply(`Rebuilt.`);
 	},
 
@@ -1081,7 +1091,7 @@ export const commands: ChatCommands = {
 			if (/^[0-9]+$/.test(input)) {
 				return `.pokemon[${(parseInt(input) - 1)}]`;
 			}
-			return `.pokemon.find(p => p.speciesid==='${toID(targets[1])}')`;
+			return `.pokemon.find(p => p.id==='${toID(targets[1])}')`;
 		}
 		switch (cmd) {
 		case 'hp':
