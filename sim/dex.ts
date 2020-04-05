@@ -339,7 +339,7 @@ export class ModdedDex {
 		const id = toID(speciesid || '');
 		const species = this.getSpecies(id);
 		if (species.cosmeticFormes && species.cosmeticFormes.includes(id)) {
-			const form = id.slice(species.name.length);
+			const form = id.slice(species.id.length);
 			if (form) return species.name + '-' + form[0].toUpperCase() + form.slice(1);
 		}
 		return species.name;
@@ -538,7 +538,8 @@ export class ModdedDex {
 		} else if (name.startsWith('item:')) {
 			effect = this.getItem(name.slice(5));
 		} else if (name.startsWith('ability:')) {
-			effect = this.getAbility(name.slice(8));
+			const ability = this.getAbility(name.slice(8));
+			effect = Object.assign(Object.create(ability), {id: 'ability:' + ability.id});
 		}
 		if (effect) {
 			this.effectCache.set(id, effect);

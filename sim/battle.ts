@@ -303,8 +303,9 @@ export class Battle {
 		this.prng = new PRNG(this.prng.startingSeed);
 	}
 
-	suppressingAttackEvents() {
-		return this.activePokemon && this.activePokemon.isActive && this.activeMove && this.activeMove.ignoreAbility;
+	suppressingAttackEvents(target?: Pokemon) {
+		return this.activePokemon && this.activePokemon.isActive && this.activePokemon !== target &&
+			this.activeMove && this.activeMove.ignoreAbility;
 	}
 
 	setActiveMove(move?: ActiveMove | null, pokemon?: Pokemon | null, target?: Pokemon | null) {
@@ -689,7 +690,7 @@ export class Battle {
 				continue;
 			}
 			if (status.effectType === 'Ability' && !status.isUnbreakable &&
-					this.suppressingAttackEvents() && this.activePokemon !== thing) {
+					this.suppressingAttackEvents(thing as Pokemon)) {
 				// ignore attacking events
 				const AttackingEvents = {
 					BeforeMove: 1,
@@ -1248,7 +1249,7 @@ export class Battle {
 		return true;
 	}
 
-	switchIn(pokemon: Pokemon, pos: number, sourceEffect: Effect | null = null) {
+	switchIn(pokemon: Pokemon, pos: number, sourceEffect: Effect | null = null, isDrag?: boolean) {
 		if (!pokemon || pokemon.isActive) {
 			this.hint("A switch failed because the Pokémon trying to switch in is already in.");
 			return false;
@@ -1256,11 +1257,42 @@ export class Battle {
 
 		const side = pokemon.side;
 		if (pos >= side.active.length) {
-			throw new Error(`Invalid switch position ${pos}`);
+			console.log(this.getDebugLog());
+			throw new Error(`Invalid switch position ${pos} / ${side.active.length}`);
 		}
 		const oldActive = side.active[pos];
-		if (oldActive) {
-			// if a pokemon is forced out by Whirlwind/etc or Eject Button/Pack, it no longer takes its turn
+		const unfaintedActive = oldActive?.hp ? oldActive : null;
+		if (unfaintedActive) {
+			oldActive.beingCalledBack = true;
+			if (sourceEffect && (sourceEffect as Move).selfSwitch === 'copyvolatile') {
+				oldActive.switchCopyFlag = true;
+			}
+			if (!oldActive.switchCopyFlag && !isDrag) {
+				this.runEvent('BeforeSwitchOut', oldActive);
+				if (this.gen >= 5) {
+					this.eachEvent('Update');
+				}
+			}
+			if (!this.runEvent('SwitchOut', oldActive)) {
+				// Warning: DO NOT interrupt a switch-out if you just want to trap a pokemon.
+				// To trap a pokemon and prevent it from switching out, (e.g. Mean Look, Magnet Pull)
+				// use the 'trapped' flag instead.
+
+				// Note: Nothing in the real games can interrupt a switch-out (except Pursuit KOing,
+				// which is handled elsewhere); this is just for custom formats.
+				return false;
+			}
+			if (!oldActive.hp) {
+				// a pokemon fainted from Pursuit before it could switch
+				return 'pursuitfaint';
+			}
+
+			// will definitely switch out at this point
+
+			oldActive.illusion = null;
+			this.singleEvent('End', oldActive.getAbility(), oldActive.abilityData, oldActive);
+
+			// if a pokemon is forced out by Whirlwind/etc or Eject Button/Pack, it can't use its chosen move
 			this.queue.cancelAction(oldActive);
 
 			let newMove = null;
@@ -1272,9 +1304,8 @@ export class Battle {
 				pokemon.copyVolatileFrom(oldActive);
 			}
 			if (newMove) pokemon.lastMove = newMove;
+			oldActive.clearVolatile();
 		}
-		pokemon.isActive = true;
-		this.runEvent('BeforeSwitchIn', pokemon);
 		if (oldActive) {
 			oldActive.isActive = false;
 			oldActive.isStarted = false;
@@ -1283,17 +1314,50 @@ export class Battle {
 			pokemon.position = pos;
 			side.pokemon[pokemon.position] = pokemon;
 			side.pokemon[oldActive.position] = oldActive;
-			oldActive.clearVolatile();
 		}
+		pokemon.isActive = true;
 		side.active[pos] = pokemon;
 		pokemon.activeTurns = 0;
+		pokemon.activeMoveActions = 0;
 		for (const moveSlot of pokemon.moveSlots) {
 			moveSlot.used = false;
 		}
-		this.add('switch', pokemon, pokemon.getDetails);
+		this.runEvent('BeforeSwitchIn', pokemon);
+		this.add(isDrag ? 'drag' : 'switch', pokemon, pokemon.getDetails);
+		if (isDrag && this.gen === 2) pokemon.draggedIn = this.turn;
 		if (sourceEffect) this.log[this.log.length - 1] += `|[from]${sourceEffect.fullname}`;
+		pokemon.previouslySwitchedIn++;
+
 		this.queue.insertChoice({choice: 'runUnnerve', pokemon});
-		this.queue.insertChoice({choice: 'runSwitch', pokemon});
+		if (isDrag && this.gen >= 5) {
+			// runSwitch happens immediately so that Mold Breaker can make hazards bypass Clear Body and Levitate
+			this.runSwitch(pokemon);
+		} else {
+			this.queue.insertChoice({choice: 'runSwitch', pokemon});
+		}
+
+		return true;
+	}
+	runSwitch(pokemon: Pokemon) {
+		this.runEvent('Swap', pokemon);
+		this.runEvent('SwitchIn', pokemon);
+		if (this.gen <= 2 && !pokemon.side.faintedThisTurn && pokemon.draggedIn !== this.turn) {
+			this.runEvent('AfterSwitchInSelf', pokemon);
+		}
+		if (!pokemon.hp) return false;
+		pokemon.isStarted = true;
+		if (!pokemon.fainted) {
+			this.singleEvent('Start', pokemon.getAbility(), pokemon.abilityData, pokemon);
+			pokemon.abilityOrder = this.abilityOrder++;
+			this.singleEvent('Start', pokemon.getItem(), pokemon.itemData, pokemon);
+		}
+		if (this.gen === 4) {
+			for (const foeActive of pokemon.side.foe.active) {
+				foeActive.removeVolatile('substitutebroken');
+			}
+		}
+		pokemon.draggedIn = null;
+		return true;
 	}
 
 	canSwitch(side: Side) {
@@ -1316,54 +1380,17 @@ export class Battle {
 		return canSwitchIn;
 	}
 
-	dragIn(side: Side, pos?: number) {
-		if (!pos) pos = 0;
-		if (pos >= side.active.length) return false;
+	dragIn(side: Side, pos: number) {
 		const pokemon = this.getRandomSwitchable(side);
 		if (!pokemon || pokemon.isActive) return false;
-		pokemon.isActive = true;
-		this.runEvent('BeforeSwitchIn', pokemon);
-		if (side.active[pos]) {
-			const oldActive = side.active[pos];
-			if (!oldActive.hp) {
-				return false;
-			}
-			if (!this.runEvent('DragOut', oldActive)) {
-				return false;
-			}
-			this.runEvent('SwitchOut', oldActive);
-			oldActive.illusion = null;
-			this.singleEvent('End', oldActive.getAbility(), oldActive.abilityData, oldActive);
-			oldActive.isActive = false;
-			oldActive.isStarted = false;
-			oldActive.usedItemThisTurn = false;
-			oldActive.position = pokemon.position;
-			pokemon.position = pos;
-			side.pokemon[pokemon.position] = pokemon;
-			side.pokemon[oldActive.position] = oldActive;
-			this.queue.cancelMove(oldActive);
-			oldActive.clearVolatile();
+		const oldActive = side.active[pos];
+		if (!oldActive) throw new Error(`nothing to drag out`);
+		if (!oldActive.hp) return false;
+
+		if (!this.runEvent('DragOut', oldActive)) {
+			return false;
 		}
-		side.active[pos] = pokemon;
-		pokemon.activeTurns = 0;
-		if (this.gen === 2) pokemon.draggedIn = this.turn;
-		for (const moveSlot of pokemon.moveSlots) {
-			moveSlot.used = false;
-		}
-		this.add('drag', pokemon, pokemon.getDetails);
-		if (this.gen >= 5) {
-			this.singleEvent('PreStart', pokemon.getAbility(), pokemon.abilityData, pokemon);
-			this.runEvent('Swap', pokemon);
-			this.runEvent('SwitchIn', pokemon);
-			if (!pokemon.hp) return true;
-			pokemon.isStarted = true;
-			if (!pokemon.fainted) {
-				this.singleEvent('Start', pokemon.getAbility(), pokemon.abilityData, pokemon);
-				this.singleEvent('Start', pokemon.getItem(), pokemon.itemData, pokemon);
-			}
-		} else {
-			this.queue.insertChoice({choice: 'runSwitch', pokemon});
-		}
+		if (!this.switchIn(pokemon, pos, null, true)) return false;
 		return true;
 	}
 
@@ -2519,31 +2546,7 @@ export class Battle {
 			if (action.choice === 'switch' && action.pokemon.status && this.dex.data.Abilities.naturalcure) {
 				this.singleEvent('CheckShow', this.dex.getAbility('naturalcure'), null, action.pokemon);
 			}
-			if (action.pokemon.hp) {
-				action.pokemon.beingCalledBack = true;
-				const sourceEffect = action.sourceEffect;
-				if (sourceEffect && (sourceEffect as Move).selfSwitch === 'copyvolatile') {
-					action.pokemon.switchCopyFlag = true;
-				}
-				if (!action.pokemon.switchCopyFlag) {
-					this.runEvent('BeforeSwitchOut', action.pokemon);
-					if (this.gen >= 5) {
-						this.eachEvent('Update');
-					}
-				}
-				if (!this.runEvent('SwitchOut', action.pokemon)) {
-					// Warning: DO NOT interrupt a switch-out if you just want to trap a pokemon.
-					// To trap a pokemon and prevent it from switching out, (e.g. Mean Look, Magnet Pull)
-					// use the 'trapped' flag instead.
-
-					// Note: Nothing in BW or earlier interrupts a switch-out.
-					break;
-				}
-			}
-			if (action.pokemon.hp) {
-				action.pokemon.illusion = null;
-				this.singleEvent('End', action.pokemon.getAbility(), action.pokemon.abilityData, action.pokemon);
-			} else if (!action.pokemon.fainted) {
+			if (this.switchIn(action.target, action.pokemon.position, action.sourceEffect) === 'pursuitfaint') {
 				// a pokemon fainted from Pursuit before it could switch
 				if (this.gen <= 4) {
 					// in gen 2-4, the switch still happens
@@ -2557,30 +2560,12 @@ export class Battle {
 					break;
 				}
 			}
-			this.switchIn(action.target, action.pokemon.position, action.sourceEffect);
 			break;
 		case 'runUnnerve':
 			this.singleEvent('PreStart', action.pokemon.getAbility(), action.pokemon.abilityData, action.pokemon);
 			break;
 		case 'runSwitch':
-			this.runEvent('Swap', action.pokemon);
-			this.runEvent('SwitchIn', action.pokemon);
-			if (this.gen <= 2 && !action.pokemon.side.faintedThisTurn && action.pokemon.draggedIn !== this.turn) {
-				this.runEvent('AfterSwitchInSelf', action.pokemon);
-			}
-			if (!action.pokemon.hp) break;
-			action.pokemon.isStarted = true;
-			if (!action.pokemon.fainted) {
-				this.singleEvent('Start', action.pokemon.getAbility(), action.pokemon.abilityData, action.pokemon);
-				action.pokemon.abilityOrder = this.abilityOrder++;
-				this.singleEvent('Start', action.pokemon.getItem(), action.pokemon.itemData, action.pokemon);
-			}
-			if (this.gen === 4) {
-				for (const foeActive of action.pokemon.side.foe.active) {
-					foeActive.removeVolatile('substitutebroken');
-				}
-			}
-			action.pokemon.draggedIn = null;
+			this.runSwitch(action.pokemon);
 			break;
 		case 'runPrimal':
 			if (!action.pokemon.transformed) {
@@ -2590,7 +2575,6 @@ export class Battle {
 		case 'shift': {
 			if (!action.pokemon.isActive) return false;
 			if (action.pokemon.fainted) return false;
-			action.pokemon.activeTurns--;
 			this.swapPosition(action.pokemon, 1);
 			break;
 		}
