@@ -522,7 +522,7 @@ let BattleFormatsData = {
 		doublesTier: "(DUU)",
 	},
 	slowpoke: {
-		isUnreleased: true,
+		isNonstandard: "Unobtainable",
 		tier: "Unreleased",
 	},
 	slowpokegalar: {
@@ -613,7 +613,7 @@ let BattleFormatsData = {
 		tier: "LC Uber",
 	},
 	haunter: {
-		tier: "NU",
+		tier: "NUBL",
 		doublesTier: "NFE",
 	},
 	gengar: {
@@ -1301,7 +1301,7 @@ let BattleFormatsData = {
 		isNonstandard: "Past",
 	},
 	sneasel: {
-		tier: "NU",
+		tier: "NUBL",
 		doublesTier: "LC Uber",
 	},
 	weavile: {
@@ -1334,7 +1334,7 @@ let BattleFormatsData = {
 	},
 	mamoswine: {
 		randomBattleMoves: ["earthquake", "iceshard", "iciclecrash", "knockoff", "stealthrock", "superpower"],
-		tier: "UU",
+		tier: "UUBL",
 		doublesTier: "DUU",
 	},
 	corsola: {
@@ -2084,7 +2084,7 @@ let BattleFormatsData = {
 		isNonstandard: "Past",
 	},
 	latios: {
-		randomBattleMoves: ["aurasphere", "defog", "dracometeor", "psychic", "roost", "trick"],
+		randomBattleMoves: ["aurasphere", "defog", "dracometeor", "psyshock", "roost", "trick"],
 		isNonstandard: "Past",
 		tier: "Illegal",
 	},
@@ -3594,7 +3594,7 @@ let BattleFormatsData = {
 		doublesTier: "DUU",
 	},
 	xerneas: {
-		randomBattleMoves: ["closecombat", "defog", "playrough", "rockslide", "zenheadbutt"],
+		randomBattleMoves: ["calmmind", "focusblast", "moonblast", "psyshock", "thunderbolt"],
 		isNonstandard: "Past",
 		tier: "Illegal",
 	},
@@ -4174,7 +4174,7 @@ let BattleFormatsData = {
 		doublesTier: "DOU",
 	},
 	melmetalgmax: {
-		isUnreleased: true,
+		isNonstandard: "Unobtainable",
 		tier: "Unreleased",
 	},
 	grookey: {

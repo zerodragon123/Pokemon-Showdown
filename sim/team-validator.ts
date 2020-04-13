@@ -357,11 +357,6 @@ export class TeamValidator {
 			problems.push((set.name || set.species) + ' is higher than level 100.');
 		}
 
-		const nameSpecies = dex.getSpecies(set.name);
-		if (nameSpecies.exists && nameSpecies.name.toLowerCase() === set.name.toLowerCase()) {
-			// Name must not be the name of another pokemon
-			set.name = '';
-		}
 		set.name = set.name || species.baseSpecies;
 		let name = set.species;
 		if (set.species !== set.name && species.baseSpecies !== set.name) {
@@ -696,6 +691,18 @@ export class TeamValidator {
 		}
 		if (format.onValidateSet) {
 			problems = problems.concat(format.onValidateSet.call(this, set, format, setHas, teamHas) || []);
+		}
+
+		const nameSpecies = dex.getSpecies(set.name);
+		if (nameSpecies.exists && nameSpecies.name.toLowerCase() === set.name.toLowerCase()) {
+			// nickname is the name of a species
+			if (nameSpecies.baseSpecies === species.baseSpecies) {
+				set.name = species.baseSpecies;
+			} else if (nameSpecies.name !== species.name && nameSpecies.name !== species.baseSpecies) {
+				// nickname species doesn't match actual species
+				// Nickname Clause
+				problems.push(`${name} must not be nicknamed a different Pokémon species than what it actually is.`);
+			}
 		}
 
 		if (!problems.length) {
@@ -1272,17 +1279,6 @@ export class TeamValidator {
 				return `${tierSpecies.name} does not exist in this game.`;
 			}
 			if (banReason === '') return null;
-		} else if (tierSpecies.isUnreleased) {
-			let isUnreleased: boolean | 'Past' = tierSpecies.isUnreleased;
-			if (isUnreleased === 'Past' && this.minSourceGen < dex.gen) isUnreleased = false;
-
-			if (isUnreleased) {
-				banReason = ruleTable.check('unreleased', setHas);
-				if (banReason) {
-					return `${tierSpecies.name} is unreleased.`;
-				}
-				if (banReason === '') return null;
-			}
 		}
 
 		banReason = ruleTable.check('pokemontag:allpokemon');
@@ -1309,22 +1305,21 @@ export class TeamValidator {
 		if (item.isNonstandard) {
 			banReason = ruleTable.check('pokemontag:' + toID(item.isNonstandard));
 			if (banReason) {
+				if (item.isNonstandard === 'Unobtainable') {
+					return `${item.name} is not obtainable without hacking or glitches.`;
+				}
 				return `${set.name}'s item ${item.name} is tagged ${item.isNonstandard}, which is ${banReason}.`;
 			}
 			if (banReason === '') return null;
+		}
 
+		if (item.isNonstandard && item.isNonstandard !== 'Unobtainable') {
 			banReason = ruleTable.check('nonexistent', setHas);
 			if (banReason) {
 				if (['Past', 'Future'].includes(item.isNonstandard)) {
 					return `${set.name}'s item ${item.name} does not exist in Gen ${dex.gen}.`;
 				}
 				return `${set.name}'s item ${item.name} does not exist in this game.`;
-			}
-			if (banReason === '') return null;
-		} else if (item.isUnreleased) {
-			banReason = ruleTable.check('unreleased', setHas);
-			if (banReason) {
-				return `${set.name}'s item ${item.name} is unreleased.`;
 			}
 			if (banReason === '') return null;
 		}
@@ -1353,10 +1348,15 @@ export class TeamValidator {
 		if (move.isNonstandard) {
 			banReason = ruleTable.check('pokemontag:' + toID(move.isNonstandard));
 			if (banReason) {
+				if (move.isNonstandard === 'Unobtainable') {
+					return `${move.name} is not obtainable without hacking or glitches.`;
+				}
 				return `${set.name}'s move ${move.name} is tagged ${move.isNonstandard}, which is ${banReason}.`;
 			}
 			if (banReason === '') return null;
+		}
 
+		if (move.isNonstandard && move.isNonstandard !== 'Unobtainable') {
 			banReason = ruleTable.check('nonexistent', setHas);
 			if (banReason) {
 				if (['Past', 'Future'].includes(move.isNonstandard)) {

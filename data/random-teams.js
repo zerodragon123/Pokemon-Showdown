@@ -714,8 +714,7 @@ class RandomTeams {
 					if (counter.Physical + counter.Special < 3 || hasMove['rapidspin']) rejected = true;
 					break;
 				case 'zenheadbutt':
-					if (movePool.includes('bellydrum') || hasMove['bellydrum'] && hasMove['substitute']) rejected = true;
-					if (!hasType['Psychic'] && (movePool.includes('closecombat') || movePool.includes('highjumpkick'))) rejected = true;
+					if (movePool.includes('bellydrum') || movePool.includes('highjumpkick') || hasMove['bellydrum'] && hasMove['substitute']) rejected = true;
 					break;
 
 				// Set up once and only if we have the moves for it
@@ -854,8 +853,8 @@ class RandomTeams {
 					if (hasMove['hornleech'] && counter.Physical < 4) rejected = true;
 					if (hasMove['drumbeating'] || counter.Physical < 4 && movePool.includes('drumbeating')) rejected = true;
 					break;
-				case 'icebeam':
-					if (hasMove['freezedry']) rejected = true;
+				case 'freezedry':
+					if ((hasMove['blizzard'] && counter.setupType) || hasMove['icebeam'] && counter.Special < 4) rejected = true;
 					break;
 				case 'icywind':
 					if (hasMove['freezedry'] || hasMove['icebeam'] || counter.setupType) rejected = true;
@@ -952,7 +951,7 @@ class RandomTeams {
 					if (hasMove['rest'] || hasMove['selfdestruct'] || hasMove['wish']) rejected = true;
 					break;
 				case 'substitute':
-					if (hasMove['uturn'] || hasMove['rest'] && hasMove['sleeptalk']) rejected = true;
+					if (hasMove['rest'] || hasMove['uturn']) rejected = true;
 					if (movePool.includes('painsplit') || movePool.includes('roost') || movePool.includes('calmmind') && !counter['recovery']) rejected = true;
 					break;
 				case 'wideguard':

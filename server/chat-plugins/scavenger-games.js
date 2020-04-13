@@ -75,6 +75,7 @@ const TWISTS = {
 	'perfectscore': {
 		name: 'Perfect Score',
 		id: 'perfectscore',
+		desc: "Players who finish the hunt without submitting a single wrong answer get a shoutout!",
 
 		onLeave(player) {
 			if (!this.leftGame) this.leftGame = [];
@@ -93,19 +94,22 @@ const TWISTS = {
 			player.answers[currentQuestion].push(value);
 		},
 
+		onComplete(player, time, blitz) {
+			let isPerfect = Object.keys(player.answers).map(q => player.answers[q].length).every(attempts => attempts <= 1);
+			return {name: player.name, time, blitz, isPerfect};
+		},
+
 		onAfterEndPriority: 1,
 		onAfterEnd() {
-			for (const player of this.players) {
-				if (!player.answers || (this.leftGame && this.leftGame.includes(player.id))) continue; // didn't guess at all!
-				let isPerfect = Object.keys(player.answers).map(q => player.answers[q].length).every(attempts => attempts <= 1);
-				if (isPerfect) this.announce(player.name + ' has completed the hunt without a single wrong answer!');
-			}
+			let perfect = this.completed.filter(entry => entry.isPerfect).map(entry => entry.name);
+			if (perfect.length) this.announce(Chat.html`${Chat.toListString(perfect)} ${perfect.length > 1 ? 'have' : 'has'} completed the hunt without a single wrong answer!`);
 		},
 	},
 
 	'incognito': {
 		name: 'Incognito',
 		id: 'incognito',
+		desc: "Upon answering the last question correctly, the player's finishing time will not be announced in the room!  Results will only be known at the end of the hunt.",
 
 		onCorrectAnswer(player, value) {
 			if (player.currentQuestion + 1 >= this.questions.length) {
@@ -121,8 +125,13 @@ const TWISTS = {
 			let now = Date.now();
 			let time = Chat.toDurationString(now - this.startTime, {hhmmss: true});
 
-			this.preCompleted = this.preCompleted ? [...this.preCompleted, {name: player.name, time}] : [{name: player.name, time}];
+			let blitz = (((this.room.blitzPoints && this.room.blitzPoints[this.gameType]) || this.gameType === 'official') && now - this.startTime <= 60000);
+
+			let result = this.runEvent('Complete', player, time, blitz) || {name: player.name, time, blitz};
+
+			this.preCompleted = this.preCompleted ? [...this.preCompleted, result] : [result];
 			player.completed = true;
+			player.destroy();
 		},
 
 		onEnd() {
@@ -133,6 +142,7 @@ const TWISTS = {
 	'blindincognito': {
 		name: 'Blind Incognito',
 		id: 'blindincognito',
+		desc: "Upon completing the last question, neither you nor other players will know if the last question is correct!  You may be in for a nasty surprise when the hunt ends!",
 
 		onAnySubmit(player, value) {
 			if (player.completed) {
@@ -161,7 +171,11 @@ const TWISTS = {
 			let now = Date.now();
 			let time = Chat.toDurationString(now - this.startTime, {hhmmss: true});
 
-			this.preCompleted = this.preCompleted ? [...this.preCompleted, {name: player.name, time}] : [{name: player.name, time}];
+			let blitz = (((this.room.blitzPoints && this.room.blitzPoints[this.gameType]) || this.gameType === 'official') && now - this.startTime <= 60000);
+
+			let result = this.runEvent('Complete', player, time, blitz) || {name: player.name, time, blitz};
+
+			this.preCompleted = this.preCompleted ? [...this.preCompleted, result] : [result];
 			player.completed = true;
 		},
 

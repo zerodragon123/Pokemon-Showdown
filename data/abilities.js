@@ -1687,12 +1687,17 @@ let BattleAbilities = {
 	"imposter": {
 		desc: "On switch-in, this Pokemon Transforms into the opposing Pokemon that is facing it. If there is no Pokemon at that position, this Pokemon does not Transform.",
 		shortDesc: "On switch-in, this Pokemon Transforms into the opposing Pokemon that is facing it.",
+		onSwitchIn(pokemon) {
+			this.effectData.switchingIn = true;
+		},
 		onStart(pokemon) {
-			if (this.activeMove && this.activeMove.id === 'skillswap') return;
+			// Imposter does not activate when Skill Swapped or when Neutralizing Gas leaves the field
+			if (!this.effectData.switchingIn) return;
 			let target = pokemon.side.foe.active[pokemon.side.foe.active.length - 1 - pokemon.position];
 			if (target) {
 				pokemon.transformInto(target, this.dex.getAbility('imposter'));
 			}
+			this.effectData.switchingIn = false;
 		},
 		id: "imposter",
 		name: "Imposter",
@@ -2148,7 +2153,8 @@ let BattleAbilities = {
 			} else {
 				let types = pokemon.baseSpecies.types;
 				if (pokemon.getTypes().join() === types.join() || !pokemon.setType(types)) return;
-				this.add('-start', pokemon, 'typechange', types, '[from] ability: Mimicry');
+				this.add('-start', pokemon, 'typechange', types.join('/'), '[from] ability: Mimicry');
+				this.hint("Transform Mimicry changes you to your original un-transformed types.");
 			}
 		},
 		onAnyTerrainStart() {
@@ -4354,15 +4360,15 @@ let BattleAbilities = {
 		shortDesc: "This Pokemon ignores other Pokemon's stat stages when taking or doing damage.",
 		id: "unaware",
 		name: "Unaware",
-		onAnyModifyBoost(boosts, target) {
-			let source = this.effectData.target;
-			if (source === target) return;
-			if (source === this.activePokemon && target === this.activeTarget) {
+		onAnyModifyBoost(boosts, pokemon) {
+			let unawareUser = this.effectData.target;
+			if (unawareUser === pokemon) return;
+			if (unawareUser === this.activePokemon && pokemon === this.activeTarget) {
 				boosts['def'] = 0;
 				boosts['spd'] = 0;
 				boosts['evasion'] = 0;
 			}
-			if (target === this.activePokemon && source === this.activeTarget) {
+			if (pokemon === this.activePokemon && unawareUser === this.activeTarget) {
 				boosts['atk'] = 0;
 				boosts['def'] = 0;
 				boosts['spa'] = 0;

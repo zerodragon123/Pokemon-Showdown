@@ -184,8 +184,7 @@ class RandomGen5Teams extends RandomGen6Teams {
 					if (counter.setupType || !!counter['speedsetup'] || hasMove['rest'] || teamDetails.stealthRock) rejected = true;
 					break;
 				case 'switcheroo': case 'trick':
-					if (counter.Physical + counter.Special < 3 || counter.setupType) rejected = true;
-					if (hasMove['suckerpunch'] || hasMove['trickroom']) rejected = true;
+					if (counter.Physical + counter.Special < 3 || !!counter['priority']) rejected = true;
 					break;
 				case 'toxicspikes':
 					if (counter.setupType || teamDetails.toxicSpikes) rejected = true;
@@ -289,11 +288,6 @@ class RandomGen5Teams extends RandomGen6Teams {
 					break;
 				}
 
-				// Increased/decreased priority moves are unneeded with moves that boost only speed
-				if (move.priority !== 0 && !!counter['speedsetup']) {
-					rejected = true;
-				}
-
 				// This move doesn't satisfy our setup requirements:
 				if ((move.category === 'Physical' && counter.setupType === 'Special') || (move.category === 'Special' && counter.setupType === 'Physical')) {
 					// Reject STABs last in case the setup type changes later on
@@ -320,7 +314,7 @@ class RandomGen5Teams extends RandomGen6Teams {
 					(hasType['Dark'] && !counter['Dark']) ||
 					(hasType['Dragon'] && !counter['Dragon']) ||
 					(hasType['Electric'] && !counter['Electric']) ||
-					(hasType['Fighting'] && !counter['Fighting'] && (species.baseStats.atk >= 110 || hasAbility['Justified'] || counter.setupType || !counter['Status'])) ||
+					(hasType['Fighting'] && !counter['Fighting'] && (species.baseStats.atk >= 110 || hasAbility['Justified'] || hasAbility['Pure Power'] || counter.setupType || !counter['Status'])) ||
 					(hasType['Fire'] && !counter['Fire']) ||
 					(hasType['Ghost'] && !hasType['Dark'] && !counter['Ghost']) ||
 					(hasType['Ground'] && !counter['Ground'] && !hasMove['rest'] && !hasMove['sleeptalk']) ||
@@ -416,6 +410,8 @@ class RandomGen5Teams extends RandomGen6Teams {
 					rejectAbility = !hasMove['raindance'] && !teamDetails['rain'];
 				} else if (ability === 'Ice Body' || ability === 'Snow Cloak') {
 					rejectAbility = !teamDetails['hail'];
+				} else if (ability === 'Immunity') {
+					rejectAbility = abilities.includes('Toxic Boost');
 				} else if (ability === 'Lightning Rod') {
 					rejectAbility = species.types.includes('Ground');
 				} else if (ability === 'Limber') {
@@ -436,8 +432,8 @@ class RandomGen5Teams extends RandomGen6Teams {
 					rejectAbility = !counter['serenegrace'] || species.name === 'Blissey' || species.name === 'Togetic';
 				} else if (ability === 'Sheer Force') {
 					rejectAbility = !counter['sheerforce'] || (abilities.includes('Iron Fist') && counter['ironfist'] > counter['sheerforce']);
-				} else if (ability === 'Simple') {
-					rejectAbility = !counter.setupType && !hasMove['flamecharge'] && !hasMove['stockpile'];
+				} else if (ability === 'Simple' || ability === 'Weak Armor') {
+					rejectAbility = !counter.setupType;
 				} else if (ability === 'Sturdy') {
 					rejectAbility = !!counter['recoil'] && !counter['recovery'];
 				} else if (ability === 'Swarm') {
@@ -468,13 +464,13 @@ class RandomGen5Teams extends RandomGen6Teams {
 				}
 			} while (rejectAbility);
 
-			if (abilities.indexOf('Guts') >= 0 && ability !== 'Quick Feet' && hasMove['facade']) {
+			if (abilities.includes('Guts') && ability !== 'Quick Feet' && hasMove['facade']) {
 				ability = 'Guts';
 			} else if (abilities.includes('Prankster') && counter.Status > 1) {
 				ability = 'Prankster';
 			} else if (abilities.includes('Quick Feet') && hasMove['facade']) {
 				ability = 'Quick Feet';
-			} else if (abilities.indexOf('Swift Swim') >= 0 && hasMove['raindance']) {
+			} else if (abilities.includes('Swift Swim') && hasMove['raindance']) {
 				ability = 'Swift Swim';
 			}
 		} else {
@@ -514,7 +510,7 @@ class RandomGen5Teams extends RandomGen6Teams {
 			item = 'Eviolite';
 		} else if (hasMove['shellsmash']) {
 			item = 'White Herb';
-		} else if (ability === 'Harvest') {
+		} else if (ability === 'Harvest' || hasMove['bellydrum']) {
 			item = 'Sitrus Berry';
 		} else if ((ability === 'Magic Guard' || ability === 'Sheer Force') && counter.damagingMoves.length > 1) {
 			item = 'Life Orb';
@@ -604,6 +600,8 @@ class RandomGen5Teams extends RandomGen6Teams {
 			RU: 84,
 			NUBL: 85,
 			NU: 86,
+			'(NU)': 87,
+			NFE: 88,
 		};
 		/** @type {{[forme: string]: number}} */
 		let customScale = {
