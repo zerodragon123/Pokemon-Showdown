@@ -358,9 +358,11 @@ function toPokemonSet(dex: ModdedDex, format: Format, pokemon: string, set: Deep
 
 	// The validator is picky about megas having already evolved or battle only formes
 	const species = dex.getSpecies(pokemon);
-	const mega = ['Mega', 'Primal', 'Ultra'].some(f => species.forme.startsWith(f));
-	if (species.battleOnly || (mega && !format.id.includes('balancedhackmons'))) {
-		copy.species = dex.getOutOfBattleSpecies(species);
+	if (species.battleOnly && !format.id.includes('balancedhackmons')) {
+		if (typeof species.battleOnly !== 'string') {
+			throw new Error(`Got an Ultra Necrozma or Complete Zygarde outside of BH`);
+		}
+		copy.species = species.battleOnly;
 		copy.ability = dex.getSpecies(copy.species).abilities[0];
 	}
 	return copy;
@@ -440,7 +442,10 @@ export async function getStatisticsURL(
 	format: Format
 ): Promise<{url: string, count: number} | undefined> {
 	const current = index.includes(format.id);
-	const latest = await smogon.Statistics.latestDate(format.id, !current);
+	// tslint is for some reason reporting that this isn't a Promise for some reason,
+	// but breaking it out into a const seems to fix it
+	const latestPromise = smogon.Statistics.latestDate(format.id, !current);
+	const latest = await latestPromise;
 	if (!latest) return undefined;
 	return {url: smogon.Statistics.url(latest.date, format.id, current || 1500), count: latest.count};
 }

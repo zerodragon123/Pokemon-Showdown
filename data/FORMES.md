@@ -95,9 +95,11 @@ Some Pokémon can change forme out-of-battle. These include:
 - Genesect
 - Giratina
 
+PS establishes one of their formes as the "original forme", and gives the others a `changesFrom` property pointing to the original forme.
+
 If a held item is required for a Pokémon to start battle with that forme, the `requiredItem` property will track this.
 
-`{name: "Giratina-Origin", forme: "Origin", baseSpecies: "Wormadam", requiredItem: "Griseous Orb"}`
+`{name: "Giratina-Origin", forme: "Origin", baseSpecies: "Giratina", changesFrom: "Giratina", requiredItem: "Griseous Orb"}`
 
 Some changeable formes (like Arceus) are visual formes. See "Visual formes" above for more information.
 
@@ -107,12 +109,27 @@ Changeable formes are otherwise treated identically to regular formes.
 In-battle formes
 ----------------
 
-Some Pokémon change forme in the middle of a battle. These include:
+Some Pokémon change forme in the middle of a battle. These forme changes do reset stats and type.
 
-- Meloetta (Pirouette forme)
+List of all in-battle forme changes:
+
+- Ash Greninja (Battle Bond)
+- Mimikyu (Disguise)
+- Cherrim (Flower Gift)
+- Castform (Forecast)
+- Cramorant (Gulp Missile)
+- Morpeko (Hunger Switch)
+- Eiscue (Ice Face)
+- Zygarde (Power Construct)
+- Wishiwashi (Schooling)
+- Minior (Shields Down)
+- Aegislash (Stance Change)
 - Darmanitan (Zen Mode)
-- Eiscue
-- all Mega evolutions, Primal reversion, Ultra Burst
+- Meloetta (Relic Song)
+- Shaymin-Sky (Frozen status)
+- Mega evolutions
+- Primal reversions
+- Ultra Burst
 
 PS treats these identically to regular formes, but gives them a `battleOnly` property noting what forme they would be in at the start of battle:
 
@@ -136,13 +153,13 @@ PS treats these like regular in-battle formes.
 "Fake" visual in-battle formes
 ------------------------------
 
-Dynamax/Gigantamax can be thought of as visual in-battle formes, but they're different in one major way: They're not considered "real" forme changes, so the change doesn't reset types and stats changed by Reflect Type, Power Swap, etc.
+Dynamax/Gigantamax can be thought of as visual in-battle formes, but they're different in one major way: They're not considered "real" forme changes, so the change doesn't reset types and stats changed by Reflect Type, Power Split, Power Trick, etc.
 
 These include:
 
 - all Dynamax and Gigantamax changes
 
-PS treats Gigantamax formes as regular in-battle formes, but Dynamax is implemented purely as a volatile status.
+PS has dex entries for Gigantamax Pokémon (to make their sprites easier to access) but not Dynamax Pokémon.
 
 
 Event-only Ability formes
@@ -157,7 +174,19 @@ These include:
 - Zygarde (10% Forme) (with Power Construct)
 - Zygarde (50% Forme) (with Power Construct)
 
+Greninja in the game code has three formes: regular, Battle Bond, and Ash-Greninja. Battle Bond is an event-only ability forme, and Ash-Greninja is an in-battle forme of the the event-only ability forme.
+
+Zygarde works the same way, with five formes: regular 50% Zygarde, event-only Power Construct 50% Zygarde, regular 10% Zygarde, event-only Power Construct 10% Zygarde, Zygarde Complete being an in-battle only forme of either event-only Power Construct 10% Zygarde or event-only Power Construct 50% Zygarde.
+
 PS's current implementation of this is weird and will be changed in a few days; do not rely on its current implementation.
+
+
+Not formes
+----------
+
+Alcremie garnishes and Spinda spot patterns aren't considered formes by the games themselves. PS doesn't support them at all.
+
+Dynamax and Gigantamax are not considered formes by the games themselves. PS implements them correctly in the simulator as volatile statuses, but does have dex entries for Gigantamax Pokémon (treating them as in-battle formes) to make their sprites easier to access, and to make Gigantamax-capable Pokémon easier to select in the teambuilder.
 
 
 `pokedex.js`

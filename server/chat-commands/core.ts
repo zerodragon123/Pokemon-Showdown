@@ -772,7 +772,7 @@ export const commands: ChatCommands = {
 	 * Battle management commands
 	 *********************************************************/
 
-	allowexportinputlog(/** @type {string} */ target, /** @type {Room?} */ room, /** @type {User} */ user) {
+	allowexportinputlog(target, room, user) {
 		const battle = room.battle;
 		if (!battle) {
 			return this.errorReply(`Must be in a battle.`);
@@ -1242,7 +1242,7 @@ export const commands: ChatCommands = {
 		}
 		if (Config.pmmodchat) {
 			const userGroup = user.group;
-			if (Config.groupsranking.indexOf(userGroup) < Config.groupsranking.indexOf(Config.pmmodchat)) {
+			if (Config.groupsranking.indexOf(userGroup) < Config.groupsranking.indexOf(Config.pmmodchat as GroupSymbol)) {
 				const groupName = Config.groups[Config.pmmodchat].name || Config.pmmodchat;
 				this.popupReply(`Because moderated chat is set, you must be of rank ${groupName} or higher to challenge users.`);
 				return false;
