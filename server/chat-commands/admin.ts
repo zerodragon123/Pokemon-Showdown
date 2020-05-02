@@ -887,7 +887,9 @@ export const commands: ChatCommands = {
 		let date = params[3];
 		if (!p1 || !p2 || !format || ! date) return false;
 		if (!this.user.isSysop) {
-		   console.log("restore command used by ", this.user.name, "on users:", p1,p2,format,date, " at time: ", Chat.toTimestamp(new Date()));
+			this.globalModlog('REPLAYRESTORE', `${p1}, ${p2}, ${format}, ${date}`, `By ${user.name}.`);
+			// this.addModAction(`REPLAYRESTORE on ${p1}, ${p2}, ${format}, ${date} by ${user.name}.`);
+		   // console.log("restore command used by ", this.user.name, "on users:", p1,p2,format,date, " at time: ", Chat.toTimestamp(new Date()));
 		}
 		let dir = `logs/${date.substr(0, 7)}/${format}/${date}`;
 
