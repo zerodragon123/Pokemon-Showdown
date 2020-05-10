@@ -1352,8 +1352,6 @@ export class BasicChatRoom extends BasicRoom {
 			if (!this.users[user.id]) return false;
 			if (user.named) {
 				this.reportJoin('n', user.getIdentityWithStatus(this.roomid) + '|' + user.id, user);
-			} else {
-				this.reportJoin('l', user.id, user);
 			}
 		}
 		return true;
