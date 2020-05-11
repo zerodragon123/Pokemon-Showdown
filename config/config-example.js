@@ -213,6 +213,8 @@ exports.reportjoinsperiod = 0;
  */
 exports.reportbattles = true;
 
+exports.reportbattlesnewgen = "wcop";
+
 /**
  * report joins and leaves in battle - shows messages like "<USERNAME> joined" in battle
  *   Set this to false on large tournament servers where battles get a lot of joins and leaves.

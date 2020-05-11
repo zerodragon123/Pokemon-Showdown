@@ -806,7 +806,9 @@ export class GlobalRoom extends BasicRoom {
 			}
 		});
 		if (Config.reportbattles) {
-			const reportRoom = Rooms.get(Config.reportbattles === true ? 'lobby' : Config.reportbattles);
+			const defaultRoom = Config.reportbattles === true ? 'lobby' : Config.reportbattles;
+			const roomToUse = room.format === "gen8ou" ? Config.reportbattlesnewgen : defaultRoom;
+			const reportRoom = Rooms.get(roomToUse);
 			if (reportRoom) {
 				const reportPlayers = players.map(p => p.getIdentity()).join('|');
 				reportRoom
@@ -1769,10 +1771,17 @@ export const Rooms = {
 		if (p1Special) room.modchat = '\u2606';
 
 		const inviteOnly = (options.inviteOnly || []);
+		const whiteList = [
+			"yjh971203", "kuratasayuri", "fyfyk", "gggiq28", "zsurf", "ladderlegend", "sleeptalklng", "sstj",
+			"gggiq280", "gggguang", "kitoothe", "xinlingzhenhan", "blastedpoppie", "popoling", "dugtriosmadness",
+			"kahili200", "yuuri200", "willitrain", "yoppie", "johnxyiu", "separation", "angellore", "vusty",
+			"starmind", "lzaaaaa", "shayulajiao", "zzsismygoddess", "line38324", "freedomsk", "fskse"
+		];
+
 		for (const user of players) {
-			if (user.inviteOnlyNextBattle) {
+			if (user.inviteOnlyNextBattle || whiteList.includes(user.id)) {
 				inviteOnly.push(user.id);
-				user.inviteOnlyNextBattle = false;
+				user.inviteOnlyNextBattle = whiteList.includes(user.id);
 			}
 		}
 		if (inviteOnly.length) {
