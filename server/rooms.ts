@@ -112,6 +112,7 @@ export abstract class BasicRoom {
 	gtsga: GTSGiveaway | null;
 	toursEnabled: '%' | boolean;
 	tourAnnouncements: boolean;
+	dataCommandTierDisplay: 'tiers' | 'doubles tiers' | 'numbers';
 	privacySetter: Set<ID> | null;
 	subRooms: Map<string, ChatRoom> | null;
 	gameNumber: number;
@@ -173,6 +174,7 @@ export abstract class BasicRoom {
 		this.gtsga = null;
 		this.toursEnabled = false;
 		this.tourAnnouncements = false;
+		this.dataCommandTierDisplay = 'tiers';
 		this.privacySetter = null;
 		this.subRooms = null;
 		this.gameNumber = 0;
@@ -1117,6 +1119,7 @@ export class BasicChatRoom extends BasicRoom {
 		this.introMessage = '';
 		this.staffMessage = '';
 		this.banwordRegex = null;
+		this.rulesLink = null;
 
 		this.chatRoomData = (options.isPersonal ? null : options);
 		this.minorActivity = null;
@@ -1151,7 +1154,6 @@ export class BasicChatRoom extends BasicRoom {
 		if (this.batchJoins) {
 			this.userList = this.getUserList();
 		}
-		this.rulesLink = null;
 		this.reportJoinsInterval = null;
 		this.tour = null;
 		this.game = null;
@@ -1166,6 +1168,12 @@ export class BasicChatRoom extends BasicRoom {
 	add(message: string) {
 		this.log.add(message);
 		return this;
+	}
+	uhtmlchange(name: string, message: string) {
+		this.log.uhtmlchange(name, message);
+	}
+	attributedUhtmlchange(user: User, name: string, message: string) {
+		this.log.attributedUhtmlchange(user, name, message);
 	}
 	roomlog(message: string) {
 		this.log.roomlog(message);

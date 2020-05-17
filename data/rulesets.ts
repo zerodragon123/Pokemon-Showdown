@@ -110,24 +110,28 @@ export const BattleFormats: {[k: string]: FormatsData} = {
 			for (const set of team) {
 				if (set.species === 'Kyurem-White' || set.species === 'Kyurem-Black') {
 					if (kyuremCount > 0) {
-						return ['You cannot have more than one Kyurem-Black/Kyurem-White.'];
+						return [
+							`You cannot have more than one Kyurem-Black/Kyurem-White.`,
+							`(It's untradeable and you can only make one with the DNA Splicers.)`,
+						];
 					}
 					kyuremCount++;
 				}
-				if (set.species === 'Keldeo-Resolute') {
-					if (!set.moves.includes('secretsword')) {
-						return ['Keldeo-Resolute needs to have the move Secret Sword.'];
-					}
-				}
 				if (set.species === 'Necrozma-Dusk-Mane') {
 					if (necrozmaDMCount > 0) {
-						return ['You cannot have more than one Necrozma-Dusk-Mane.'];
+						return [
+							`You cannot have more than one Necrozma-Dusk-Mane`,
+							`(It's untradeable and you can only make one with the N-Solarizer.)`,
+						];
 					}
 					necrozmaDMCount++;
 				}
 				if (set.species === 'Necrozma-Dawn-Wings') {
 					if (necrozmaDWCount > 0) {
-						return ['You cannot have more than one Necrozma-Dawn-Wings.'];
+						return [
+							`You cannot have more than one Necrozma-Dawn-Wings`,
+							`(It's untradeable and you can only make one with the N-Lunarizer.)`,
+						];
 					}
 					necrozmaDWCount++;
 				}
@@ -299,7 +303,7 @@ export const BattleFormats: {[k: string]: FormatsData} = {
 				}
 				this.add('rule', 'Mega Rayquaza Clause: You cannot mega evolve Rayquaza');
 				for (const pokemon of this.getAllPokemon()) {
-					if (pokemon.speciesid === 'rayquaza') pokemon.canMegaEvo = null;
+					if (pokemon.species.id === 'rayquaza') pokemon.canMegaEvo = null;
 				}
 			}
 			if (this.realMod === 'gen1' || this.realMod === 'gen2') {
@@ -323,6 +327,29 @@ export const BattleFormats: {[k: string]: FormatsData} = {
 					}
 				}
 			}
+		},
+	},
+	onevsone: {
+		effectType: 'Rule',
+		name: 'One vs One',
+		desc: "Only allows one Pok&eacute;mon in battle",
+		onValidateTeam(team, format) {
+			if (format.gameType !== 'singles') {
+				return [`One vs One is for singles formats.`, `(Use Two vs Two in doubles)`];
+			}
+		},
+		onStart() {
+			// @ts-ignore
+			this.format.teamLength = {battle: 1};
+		},
+	},
+	twovstwo: {
+		effectType: 'Rule',
+		name: 'Two vs Two',
+		desc: "Only allows two Pok&eacute;mon in battle",
+		onStart() {
+			// @ts-ignore
+			this.format.teamLength = {battle: 2};
 		},
 	},
 	littlecup: {
