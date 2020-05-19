@@ -659,6 +659,13 @@ export class User extends Chat.MessageContext {
 		return false;
 	}
 	/**
+	 * Special permission check for wcop players
+	 */
+	hasWCOPAccess() {
+		const wcopRoom = Rooms.get('wcop');
+		return !!wcopRoom?.auth?.[this.id];
+	}
+	/**
 	 * Permission check for using the dev console
 	 *
 	 * The `console` permission is incredibly powerful because it allows the

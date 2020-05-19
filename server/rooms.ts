@@ -383,6 +383,7 @@ export abstract class BasicRoom {
 		}
 		if (!(userGroup in Config.groups)) return false;
 		if (!(modjoinGroup in Config.groups)) throw new Error(`Invalid modjoin setting in ${this.roomid}: ${modjoinGroup}`);
+		if (Config.groups[modjoinGroup].rank <= 6 && user.hasWCOPAccess()) return true;
 		return Config.groups[userGroup].rank >= Config.groups[modjoinGroup].rank;
 	}
 	mute(user: User, setTime?: number) {
