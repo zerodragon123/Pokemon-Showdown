@@ -383,7 +383,7 @@ export abstract class BasicRoom {
 		}
 		if (!(userGroup in Config.groups)) return false;
 		if (!(modjoinGroup in Config.groups)) throw new Error(`Invalid modjoin setting in ${this.roomid}: ${modjoinGroup}`);
-		if (Config.groups[modjoinGroup].rank <= 6 && user.hasWCOPAccess()) return true;
+		if (Config.groups[modjoinGroup].rank <= Config.groups["%"].rank && user.hasWCOPAccess()) return true;
 		return Config.groups[userGroup].rank >= Config.groups[modjoinGroup].rank;
 	}
 	mute(user: User, setTime?: number) {
@@ -1780,17 +1780,11 @@ export const Rooms = {
 		if (p1Special) room.modchat = '\u2606';
 
 		const inviteOnly = (options.inviteOnly || []);
-		const whiteList = [
-			"yjh971203", "kuratasayuri", "fyfyk", "gggiq28", "zsurf", "ladderlegend", "sleeptalklng", "sstj",
-			"gggiq280", "gggguang", "kitoothe", "xinlingzhenhan", "blastedpoppie", "popoling", "dugtriosmadness",
-			"kahili200", "yuuri200", "willitrain", "yoppie", "johnxyiu", "separation", "angellore", "vusty",
-			"starmind", "lzaaaaa", "shayulajiao", "zzsismygoddess", "line38324", "freedomsk", "fskse"
-		];
 
 		for (const user of players) {
-			if (user.inviteOnlyNextBattle || whiteList.includes(user.id)) {
+			if (user.inviteOnlyNextBattle || user.hasWCOPAccess()) {
 				inviteOnly.push(user.id);
-				user.inviteOnlyNextBattle = whiteList.includes(user.id);
+				user.inviteOnlyNextBattle = user.hasWCOPAccess();
 			}
 		}
 		if (inviteOnly.length) {
