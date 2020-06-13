@@ -340,16 +340,21 @@ export const BattleFormats: {[k: string]: FormatsData} = {
 		},
 		onStart() {
 			// @ts-ignore
-			this.format.teamLength = {battle: 1};
+			if (this.format.gameType === 'singles') this.format.teamLength = {battle: 1};
 		},
 	},
 	twovstwo: {
 		effectType: 'Rule',
 		name: 'Two vs Two',
 		desc: "Only allows two Pok&eacute;mon in battle",
+		onValidateTeam(team, format) {
+			if (format.gameType === 'triples') {
+				return [`Two vs Two is for non-triples formats.`];
+			}
+		},
 		onStart() {
 			// @ts-ignore
-			this.format.teamLength = {battle: 2};
+			if (this.format.gameType !== 'triples') this.format.teamLength = {battle: 2};
 		},
 	},
 	littlecup: {
@@ -1081,7 +1086,7 @@ export const BattleFormats: {[k: string]: FormatsData} = {
 			const pst: number = stats.map(stat => newSpecies.baseStats[stat]).reduce((x, y) => x + y);
 			const scale = 600 - newSpecies.baseStats['hp'];
 			for (const stat of stats) {
-				newSpecies.baseStats[stat] = this.dex.clampIntRange(newSpecies.baseStats[stat] * scale / pst, 1, 255);
+				newSpecies.baseStats[stat] = this.clampIntRange(newSpecies.baseStats[stat] * scale / pst, 1, 255);
 			}
 			return newSpecies;
 		},
