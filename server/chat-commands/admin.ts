@@ -285,7 +285,7 @@ export const commands: ChatCommands = {
 						manager.filename.startsWith(FS('server/chat-plugins').path) ||
 						manager.filename.startsWith(FS('.server-dist/chat-plugins').path)
 					) {
-						manager.destroy();
+						void manager.destroy();
 					}
 				}
 
@@ -1078,8 +1078,14 @@ export const commands: ChatCommands = {
 	async eval(target, room, user, connection) {
 		if (!this.canUseConsole()) return false;
 		if (!this.runBroadcast(true)) return;
+		const logRoom = Rooms.get('upperstaff') || Rooms.get('staff');
 
-		if (!this.broadcasting) this.sendReply(`||>> ${target}`);
+		if (this.message.startsWith('>>') && room) {
+			this.broadcasting = true;
+			this.broadcastToRoom = true;
+		}
+		this.sendReply(`|html|<table border="0" cellspacing="0" cellpadding="0"><tr><td valign="top">&gt;&gt;&nbsp;</td><td>${Chat.getReadmoreCodeBlock(target)}</td></tr><table>`);
+		logRoom?.roomlog(`>> ${target}`);
 		try {
 			/* eslint-disable no-eval, @typescript-eslint/no-unused-vars */
 			const battle = room.battle;
@@ -1092,11 +1098,12 @@ export const commands: ChatCommands = {
 			} else {
 				result = Utils.visualize(result);
 			}
-			result = result.replace(/\n/g, '\n||');
-			this.sendReply('||<< ' + result);
+			this.sendReply(`|html|<table border="0" cellspacing="0" cellpadding="0"><tr><td valign="top">&lt;&lt;&nbsp;</td><td>${Chat.getReadmoreCodeBlock(result)}</td></tr><table>`);
+			logRoom?.roomlog(`<< ${result}`);
 		} catch (e) {
-			const message = ('' + e.stack).replace(/\n *at CommandContext\.eval [\s\S]*/m, '').replace(/\n/g, '\n||');
-			this.sendReply(`|| << ${message}`);
+			const message = ('' + e.stack).replace(/\n *at CommandContext\.eval [\s\S]*/m, '');
+			this.sendReply(`|html|<table border="0" cellspacing="0" cellpadding="0"><tr><td valign="top">&lt;&lt;&nbsp;</td><td>${Chat.getReadmoreCodeBlock(message)}</td></tr><table>`);
+			logRoom?.roomlog(`<< ${message}`);
 		}
 	},
 
@@ -1146,52 +1153,88 @@ export const commands: ChatCommands = {
 		switch (cmd) {
 		case 'hp':
 		case 'h':
+			if (targets.length !== 3) {
+				this.errorReply("Incorrect command use");
+				return this.parse('/help editbattle');
+			}
 			void battle.stream.write(
 				`>eval let p=${getPlayer(targets[0]) + getPokemon(targets[1])};p.sethp(${parseInt(targets[2])});if (p.isActive)battle.add('-damage',p,p.getHealth);`
 			);
 			break;
 		case 'status':
 		case 's':
+			if (targets.length !== 3) {
+				this.errorReply("Incorrect command use");
+				return this.parse('/help editbattle');
+			}
 			void battle.stream.write(
 				`>eval let pl=${getPlayer(targets[0])};let p=pl${getPokemon(targets[1])};p.setStatus('${toID(targets[2])}');if (!p.isActive){battle.add('','please ignore the above');battle.add('-status',pl.active[0],pl.active[0].status,'[silent]');}`
 			);
 			break;
 		case 'pp':
+			if (targets.length !== 4) {
+				this.errorReply("Incorrect command use");
+				return this.parse('/help editbattle');
+			}
 			void battle.stream.write(
 				`>eval let pl=${getPlayer(targets[0])};let p=pl${getPokemon(targets[1])};p.getMoveData('${toID(targets[2])}').pp = ${parseInt(targets[3])};`
 			);
 			break;
 		case 'boost':
 		case 'b':
+			if (targets.length !== 4) {
+				this.errorReply("Incorrect command use");
+				return this.parse('/help editbattle');
+			}
 			void battle.stream.write(
 				`>eval let p=${getPlayer(targets[0]) + getPokemon(targets[1])};battle.boost({${toID(targets[2])}:${parseInt(targets[3])}},p)`
 			);
 			break;
 		case 'volatile':
 		case 'v':
+			if (targets.length !== 3) {
+				this.errorReply("Incorrect command use");
+				return this.parse('/help editbattle');
+			}
 			void battle.stream.write(
 				`>eval let p=${getPlayer(targets[0]) + getPokemon(targets[1])};p.addVolatile('${toID(targets[2])}')`
 			);
 			break;
 		case 'sidecondition':
 		case 'sc':
+			if (targets.length !== 2) {
+				this.errorReply("Incorrect command use");
+				return this.parse('/help editbattle');
+			}
 			void battle.stream.write(`>eval let p=${getPlayer(targets[0])}.addSideCondition('${toID(targets[1])}', 'debug')`);
 			break;
 		case 'fieldcondition': case 'pseudoweather':
 		case 'fc':
+			if (targets.length !== 1) {
+				this.errorReply("Incorrect command use");
+				return this.parse('/help editbattle');
+			}
 			void battle.stream.write(`>eval battle.field.addPseudoWeather('${toID(targets[0])}', 'debug')`);
 			break;
 		case 'weather':
 		case 'w':
+			if (targets.length !== 1) {
+				this.errorReply("Incorrect command use");
+				return this.parse('/help editbattle');
+			}
 			void battle.stream.write(`>eval battle.field.setWeather('${toID(targets[0])}', 'debug')`);
 			break;
 		case 'terrain':
 		case 't':
+			if (targets.length !== 1) {
+				this.errorReply("Incorrect command use");
+				return this.parse('/help editbattle');
+			}
 			void battle.stream.write(`>eval battle.field.setTerrain('${toID(targets[0])}', 'debug')`);
 			break;
 		default:
 			this.errorReply(`Unknown editbattle command: ${cmd}`);
-			break;
+			return this.parse('/help editbattle');
 		}
 	},
 	editbattlehelp: [
