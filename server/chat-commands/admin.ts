@@ -799,7 +799,7 @@ export const commands: ChatCommands = {
 	},
 
 	pschinascore(target, room, user) {
-		if (!room.staffRoom) {
+		if (!room.settings.staffRoom) {
 			this.sendReply("在staff room更新ps国服积分");
 			return false;
 		}
@@ -831,11 +831,11 @@ export const commands: ChatCommands = {
 		let userid = toID(user);
 		if (!user.isSysop && userid!==player1 && userid!==player2) return false;
 		this.sendReply("authorized");
-		let logdata = room.battle;
+		const logdata = room.battle;
 		this.sendReply(logdata);
 		if(!logdata)
 			return false;
-		let log = logdata.log;
+		const log = logdata.log;
 		const rep_head = `<!DOCTYPE html>
 		<meta charset="utf-8" />
 		<!-- version 1 -->
