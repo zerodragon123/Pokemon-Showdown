@@ -1445,6 +1445,8 @@ export class Battle {
 				pokemon.moveLastTurnResult = pokemon.moveThisTurnResult;
 				pokemon.moveThisTurnResult = undefined;
 				pokemon.hurtThisTurn = false;
+				pokemon.statsRaisedThisTurn = false;
+				pokemon.statsLoweredThisTurn = false;
 
 				pokemon.maybeDisabled = false;
 				for (const moveSlot of pokemon.moveSlots) {

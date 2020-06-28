@@ -653,6 +653,7 @@ exports.grouplist = [
 		roomonly: true,
 		alts: 's',
 		broadcast: true,
+		importinputlog: true,
 		showmedia: true,
 	},
 	{

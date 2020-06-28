@@ -35,7 +35,7 @@ export class YoutubeInterface {
 		const queryUrl = `${CHANNEL}?part=snippet%2Cstatistics&id=${encodeURIComponent(id)}&key=${Config.youtubeKey}`;
 		const raw = await Net(queryUrl).get();
 		const res = JSON.parse(raw);
-		if (!res || !res.items) return null;
+		if (!res || !res.items || res.items.length < 1) return;
 		const data = res.items[0];
 		const cache = {
 			name: data.snippet.title,
@@ -125,7 +125,7 @@ export class YoutubeInterface {
 		const queryUrl = `${ROOT}videos?part=snippet%2Cstatistics&id=${encodeURIComponent(id)}&key=${Config.youtubeKey}`;
 		const raw = await Net(queryUrl).get();
 		const res = JSON.parse(raw);
-		if (!res.items) return;
+		if (!res || !res.items || res.items.length < 1) return;
 		const video = res.items[0];
 		const info = {
 			title: video.snippet.title,
@@ -312,7 +312,7 @@ export const pages: PageTable = {
 		buffer += `<button class="button" name="send" value="/join view-channels${all ? '-all' : ''}"">`;
 		buffer += `<i class="fa fa-refresh"></i> Refresh</button><br />`;
 		buffer += `</h4><hr />`;
-		const isStaff = user.can('mute', null, Rooms.get('youtube'));
+		const isStaff = user.can('mute', null, Rooms.get('youtube')!);
 		for (const id of Utils.shuffle(Object.keys(channelData))) {
 			const name = YouTube.get(id).name;
 			const psid = YouTube.get(id).username;

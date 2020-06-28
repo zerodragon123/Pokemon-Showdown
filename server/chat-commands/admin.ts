@@ -398,7 +398,7 @@ export const commands: ChatCommands = {
 
 	hotpatchlock: 'nohotpatch',
 	nohotpatch(target, room, user) {
-		if (!this.can('declare')) return;
+		if (!this.can('gdeclare')) return;
 		if (!target) return this.parse('/help nohotpatch');
 
 		const separator = ' ';

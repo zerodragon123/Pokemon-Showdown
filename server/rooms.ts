@@ -81,7 +81,7 @@ export interface RoomSettings {
 	logRoom?: boolean;
 	language?: string | false;
 	slowchat?: number | false;
-	events?: {[k: string]: {eventName: string, date: string, desc: string, started: boolean, aliases?: string[]}};
+	events?: {[k: string]: RoomEvent | RoomEventAlias | RoomEventCategory};
 	filterStretching?: boolean;
 	filterEmojis?: boolean;
 	filterCaps?: boolean;
@@ -118,6 +118,9 @@ export interface RoomSettings {
 export type Room = GlobalRoom | GameRoom | ChatRoom;
 type Poll = import('./chat-plugins/poll').Poll;
 type Announcement = import('./chat-plugins/announcements').Announcement;
+type RoomEvent = import('./chat-plugins/room-events').RoomEvent;
+type RoomEventAlias = import('./chat-plugins/room-events').RoomEventAlias;
+type RoomEventCategory = import('./chat-plugins/room-events').RoomEventCategory;
 type Tournament = import('./tournaments/index').Tournament;
 
 export abstract class BasicRoom {
@@ -478,7 +481,7 @@ export abstract class BasicRoom {
 export class GlobalRoom extends BasicRoom {
 	readonly type: 'global';
 	readonly active: false;
-	readonly settingsList: AnyObject[];
+	readonly settingsList: RoomSettings[];
 	readonly chatRooms: ChatRoom[];
 	/**
 	 * Rooms that users autojoin upon connecting
@@ -521,15 +524,17 @@ export class GlobalRoom extends BasicRoom {
 		if (!this.settingsList.length) {
 			this.settingsList = [{
 				title: 'Lobby',
+				auth: {},
+				creationTime: Date.now(),
 				isOfficial: true,
 				autojoin: true,
-				persistSettings: true,
 			}, {
 				title: 'Staff',
+				auth: {},
+				creationTime: Date.now(),
 				isPrivate: true,
 				staffRoom: true,
 				staffAutojoin: true,
-				persistSettings: true,
 			}];
 		}
 
@@ -542,6 +547,7 @@ export class GlobalRoom extends BasicRoom {
 				Monitor.warn(`ERROR: Room number ${i} has no data and could not be loaded.`);
 				continue;
 			}
+
 			// We're okay with assinging type `ID` to `RoomID` here
 			// because the hyphens in chatrooms don't have any special
 			// meaning, unlike in helptickets, groupchats, battles etc
@@ -554,6 +560,7 @@ export class GlobalRoom extends BasicRoom {
 					Rooms.aliases.set(alias, id);
 				}
 			}
+
 			this.chatRooms.push(room);
 			if (room.settings.autojoin) this.autojoinList.push(id);
 			if (room.settings.staffAutojoin) this.staffAutojoinList.push(id);
@@ -801,6 +808,7 @@ export class GlobalRoom extends BasicRoom {
 
 		const settings = {
 			title,
+			auth: {},
 			creationTime: Date.now(),
 		};
 		const room = Rooms.createChatRoom(id, title, settings);
@@ -1097,6 +1105,7 @@ export class BasicChatRoom extends BasicRoom {
 	/** Only available in groupchats */
 	readonly type: 'chat' | 'battle';
 	minorActivity: Poll | Announcement | null;
+	minorActivityQueue: Poll[] | null;
 	banwordRegex: RegExp | true | null;
 	parent: Room | null;
 	subRooms: Map<string, ChatRoom> | null;
@@ -1127,6 +1136,7 @@ export class BasicChatRoom extends BasicRoom {
 		if (!options.isPersonal) this.persist = true;
 
 		this.minorActivity = null;
+		this.minorActivityQueue = null;
 		this.parent = null;
 		if (options.parentid) {
 			const parent = Rooms.get(options.parentid);
