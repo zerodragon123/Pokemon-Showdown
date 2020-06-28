@@ -320,7 +320,7 @@ export class LadderStore {
 		}
 		return -1;
 	}
-	async updateScore(username : string, score : string, reason : string){
+	async updateScore(username : string, score : string, reason : string) {
 		const ladder = await this.getLadder();
 		let p1newElo;
 		let p1index = this.indexOfUser_noID(username, true, 0);
