@@ -255,13 +255,13 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		banlist: ['Uber', 'Power Construct'],
 	},
 	{
-		name: "[Gen 8] Random Formats",
+		name: "[Gen 7] Random Formats",
 		desc: `Randomized competitive lower tiers teams of mutiple generations.`,
 
-		//mod: new PRNG().sample(['gen7','gen3']),
+		// mod: new PRNG().sample(['gen7','gen3']),
 		team: 'randomFormats',
 		ruleset: ['Obtainable', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod', 'RF-TeamPreview'],
-		mod: 'gen8',
+		mod: 'gen7',
 		// @ts-ignore
 		formatsList: [
 			'gen1ou', 'gen1ubers', 'gen1uu',
@@ -270,8 +270,8 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 			'gen4ou', 'gen4ubers', 'gen4uu', 'gen4nu', 'gen4pu', 'gen4lc',
 			'gen5ou', 'gen5ubers', 'gen5uu', 'gen5ru', 'gen5nu', 'gen5pu', 'gen5lc',
 			'gen6ou', 'gen6ubers', 'gen6uu', 'gen6ru', 'gen6nu', 'gen6pu', 'gen6lc',
-			'gen7ou', 'gen7ubers', 'gen7uu', 'gen7ru', 'gen7nu', 'gen7pu', 'gen7lc',
-			'gen8ou', 'gen8ubers', 'gen8uu', 'gen8ru', 'gen8nu', 'gen8pu', 'gen8lc',
+			// 'gen7ou', 'gen7ubers', 'gen7uu', 'gen7ru', 'gen7nu', 'gen7pu', 'gen7lc',
+			// 'gen8ou', 'gen8ubers', 'gen8uu', 'gen8ru', 'gen8nu', 'gen8pu', 'gen8lc',
 		],
 		realFormat: '',
 		onBegin() {
