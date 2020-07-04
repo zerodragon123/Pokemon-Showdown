@@ -637,7 +637,8 @@ exports.grouplist = [
 		name: "Champion",
 		inherit: '+',
 		alts: 's',
-		broadcast: true,
+		show: true,
+		showmedia: true,
 	},
 	{
 		symbol: '\u2606',
