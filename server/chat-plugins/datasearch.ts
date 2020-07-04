@@ -10,6 +10,7 @@
 
 import {QueryProcessManager} from '../../lib/process-manager';
 import {Utils} from '../../lib/utils';
+import { strict } from 'assert';
 
 interface DexOrGroup {
 	abilities: {[k: string]: boolean};
@@ -243,28 +244,24 @@ export const commands: ChatCommands = {
 							  
 	'!bp33': true,						  
 	bp33(target, room, user, connection, cmd, message){
-		if (target === "" || target === "gen8"){
-			return this.parse("/randpoke 11");
-		} else if (target === "gen1") {
-			return this.parse("/randpoke 11,!gen2,!gen3,!gen4,!gen5,!gen6,!gen7,!gen8,natdex");
-		} else if (target === "gen2") {
-			return this.parse("/randpoke 11,!gen3,!gen4,!gen5,!gen6,!gen7,!gen8,natdex");
-		} else if (target === "gen3") {
-			return this.parse("/randpoke 11,!gen4,!gen5,!gen6,!gen7,!gen8,natdex");
-		} else if (target === "gen4") {
-			return this.parse("/randpoke 11,!gen5,!gen6,!gen7,!gen8,natdex");
-		} else if (target === "gen5") {
-			return this.parse("/randpoke 11,!gen6,!gen7,!gen8,natdex");
-		} else if (target === "gen6") {
-			return this.parse("/randpoke 11,!gen7,!gen8,natdex");
-		} else if (target === "gen7") {
-			return this.parse("/randpoke 11,!gen8,natdex");
+		if (target.replace(/gen[1-8]/i, "") == "") {
+			let toParse = message[0] + "randpoke 11";
+			if (target.length > 0) {
+				let gen = parseInt(target[3]);
+				if (gen < 8) {
+					for (let i = 8; i > gen; i--) {
+						toParse += ", !gen" + i;
+					}
+					toParse += ", natdex";
+				}
+			}
+			return this.parse(toParse);
 		} else {
 			return this.parse("/bp33help");
 		}
 	},
 	bp33help: [
-		`/randompokemon gen - 指定一个世代开启bp33精灵池`,
+		`/bp33 gen[1-8] - 指定一个世代随机生成bp33精灵池`,
 	],
 			
 	'!movesearch': true,
