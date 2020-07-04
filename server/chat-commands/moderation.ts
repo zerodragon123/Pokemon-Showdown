@@ -227,7 +227,7 @@ export const commands: ChatCommands = {
 		let userLookup = '';
 		if (cmd === 'roomauth1') userLookup = `\n\nTo look up auth for a user, use /userauth ${target}`;
 		let targetRoom = room;
-		if (target) targetRoom = Rooms.search(target) as ChatRoom | GameRoom;
+		if (target) targetRoom = Rooms.search(target)!;
 		if (!targetRoom || targetRoom.roomid === 'global' || !targetRoom.checkModjoin(user)) {
 			return this.errorReply(`The room "${target}" does not exist.`);
 		}
@@ -262,7 +262,7 @@ export const commands: ChatCommands = {
 				const also = buffer.length === 0 ? `` : ` also`;
 				buffer.push(`${curRoom.title} is a ${roomType}subroom of ${curRoom.parent.title}, so ${curRoom.parent.title} users${inheritedUserType}${also} have authority in this room.`);
 			}
-			curRoom = curRoom.parent as ChatRoom | GameRoom;
+			curRoom = curRoom.parent;
 		}
 		if (!buffer.length) {
 			connection.popup(`The room '${targetRoom.title}' has no auth. ${userLookup}`);
@@ -375,7 +375,7 @@ export const commands: ChatCommands = {
 	leave: 'part',
 	part(target, room, user, connection) {
 		const targetRoom = target ? Rooms.search(target) : room;
-		if (!targetRoom || targetRoom === Rooms.global) {
+		if (!targetRoom) {
 			if (target.startsWith('view-')) return;
 			return this.errorReply(`The room '${target}' does not exist.`);
 		}
@@ -844,7 +844,7 @@ export const commands: ChatCommands = {
 	unlockip(target, room, user) {
 		target = target.trim();
 		if (!target) return this.parse('/help unlock');
-		if (!this.can('ban')) return false;
+		if (!this.can('globalban')) return false;
 		const range = target.charAt(target.length - 1) === '*';
 		if (range && !this.can('rangeban')) return false;
 
@@ -890,7 +890,7 @@ export const commands: ChatCommands = {
 		if (!target && REQUIRE_REASONS) {
 			return this.errorReply("Global bans require a reason.");
 		}
-		if (!this.can('ban', targetUser)) return false;
+		if (!this.can('globalban', targetUser)) return false;
 		const name = targetUser.getLastName();
 		const userid = targetUser.getLastId();
 
@@ -963,7 +963,7 @@ export const commands: ChatCommands = {
 	globalunban: 'unglobalban',
 	unglobalban(target, room, user) {
 		if (!target) return this.parse(`/help unglobalban`);
-		if (!this.can('ban')) return false;
+		if (!this.can('globalban')) return false;
 
 		const name = Punishments.unban(target);
 
@@ -1829,7 +1829,7 @@ export const commands: ChatCommands = {
 	blacklists: 'showblacklist',
 	showbl: 'showblacklist',
 	showblacklist(target, room, user, connection, cmd) {
-		if (target) room = Rooms.search(target) as ChatRoom | GameRoom;
+		if (target) room = Rooms.search(target)!;
 		if (!room) return this.errorReply(`The room "${target}" was not found.`);
 		if (!this.can('mute', null, room)) return false;
 		const SOON_EXPIRING_TIME = 3 * 30 * 24 * 60 * 60 * 1000; // 3 months
@@ -1851,7 +1851,7 @@ export const commands: ChatCommands = {
 			}
 		}
 
-		if (user.can('ban')) {
+		if (user.can('globalban')) {
 			const roomIps = Punishments.roomIps.get(room.roomid);
 
 			if (roomIps) {
@@ -1888,7 +1888,7 @@ export const commands: ChatCommands = {
 
 	markshared(target, room, user) {
 		if (!target) return this.parse('/help markshared');
-		if (!this.can('ban')) return false;
+		if (!this.can('globalban')) return false;
 		let [ip, note] = this.splitOne(target);
 		if (!/^[0-9.*]+$/.test(ip)) return this.errorReply("Please enter a valid IP address.");
 
@@ -1916,7 +1916,7 @@ export const commands: ChatCommands = {
 
 	unmarkshared(target, room, user) {
 		if (!target) return this.parse('/help unmarkshared');
-		if (!this.can('ban')) return false;
+		if (!this.can('globalban')) return false;
 		if (!/^[0-9.*]+$/.test(target)) return this.errorReply("Please enter a valid IP address.");
 
 		if (!Punishments.sharedIps.has(target)) return this.errorReply("This IP isn't marked as shared.");

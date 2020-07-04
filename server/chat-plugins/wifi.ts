@@ -34,7 +34,7 @@ class Giveaway {
 	gaNumber: number;
 	host: User;
 	giver: User;
-	room: ChatRoom | GameRoom;
+	room: Room;
 	ot: string;
 	tid: string;
 	prize: string;
@@ -45,7 +45,7 @@ class Giveaway {
 	sprite: string;
 
 	constructor(
-		host: User, giver: User, room: ChatRoom | GameRoom,
+		host: User, giver: User, room: Room,
 		ot: string, tid: string, prize: string
 	) {
 		this.gaNumber = room.nextGameNumber();
@@ -111,15 +111,15 @@ class Giveaway {
 		return false;
 	}
 
-	static checkBanned(room: ChatRoom | GameRoom, user: User) {
+	static checkBanned(room: Room, user: User) {
 		return Punishments.getRoomPunishType(room, toID(user)) === 'GIVEAWAYBAN';
 	}
 
-	static ban(room: ChatRoom | GameRoom, user: User, reason: string) {
+	static ban(room: Room, user: User, reason: string) {
 		Punishments.roomPunish(room, user, ['GIVEAWAYBAN', toID(user), Date.now() + BAN_DURATION, reason]);
 	}
 
-	static unban(room: ChatRoom | GameRoom, user: User) {
+	static unban(room: Room, user: User) {
 		Punishments.roomUnpunish(room, toID(user), 'GIVEAWAYBAN', false);
 	}
 
@@ -219,7 +219,7 @@ export class QuestionGiveaway extends Giveaway {
 	winner: User | null;
 
 	constructor(
-		host: User, giver: User, room: ChatRoom | GameRoom, ot: string, tid: string,
+		host: User, giver: User, room: Room, ot: string, tid: string,
 		prize: string, question: string, answers: string[]
 	) {
 		super(host, giver, room, ot, tid, prize);
@@ -359,7 +359,7 @@ export class LotteryGiveaway extends Giveaway {
 	maxWinners: number;
 
 	constructor(
-		host: User, giver: User, room: ChatRoom | GameRoom, ot: string,
+		host: User, giver: User, room: Room, ot: string,
 		tid: string, prize: string, winners: number
 	) {
 		super(host, giver, room, ot, tid, prize);
@@ -484,7 +484,7 @@ export class LotteryGiveaway extends Giveaway {
 
 export class GTSGiveaway {
 	gtsNumber: number;
-	room: ChatRoom | GameRoom;
+	room: Room;
 	giver: User;
 	left: number;
 	summary: string;
@@ -497,7 +497,7 @@ export class GTSGiveaway {
 	timer: NodeJS.Timer | null;
 
 	constructor(
-		room: ChatRoom | GameRoom, giver: User, amount: number,
+		room: Room, giver: User, amount: number,
 		summary: string, deposit: string, lookfor: string
 	) {
 		this.gtsNumber = room.nextGameNumber();
@@ -635,7 +635,7 @@ const cmds: ChatCommands = {
 		if (isNaN(parseInt(tid)) || tid.length < 5 || tid.length > 6) return this.errorReply("Invalid TID");
 		const targetUser = Users.get(giver);
 		if (!targetUser || !targetUser.connected) return this.errorReply(`User '${giver}' is not online.`);
-		if (!user.can('warn', null, room) && !(user.can('broadcast', null, room) && user === targetUser)) {
+		if (!user.can('warn', null, room) && !(user.can('show', null, room) && user === targetUser)) {
 			return this.errorReply("/qg - Access denied.");
 		}
 		if (!targetUser.autoconfirmed) {
@@ -693,7 +693,7 @@ const cmds: ChatCommands = {
 		if (isNaN(parseInt(tid)) || tid.length < 5 || tid.length > 6) return this.errorReply("Invalid TID");
 		const targetUser = Users.get(giver);
 		if (!targetUser || !targetUser.connected) return this.errorReply(`User '${giver}' is not online.`);
-		if (!user.can('warn', null, room) && !(user.can('broadcast', null, room) && user === targetUser)) {
+		if (!user.can('warn', null, room) && !(user.can('show', null, room) && user === targetUser)) {
 			return this.errorReply("/lg - Access denied.");
 		}
 		if (!targetUser.autoconfirmed) {
@@ -910,7 +910,7 @@ const cmds: ChatCommands = {
 		let reply = '';
 		switch (target) {
 		case 'staff':
-			if (!this.can('broadcast', null, room)) return;
+			if (!this.can('show', null, room)) return;
 			reply = '<strong>Staff commands:</strong><br />' +
 					'- question or qg <em>User | OT | TID | Prize | Question | Answer[ | Answer2 | Answer3]</em> - Start a new question giveaway (voices can only host for themselves, staff can for all users) (Requires: + % @ # &)<br />' +
 					'- lottery or lg <em>User | OT | TID | Prize[| Number of Winners]</em> - Starts a lottery giveaway (voices can only host for themselves, staff can for all users) (Requires: + % @ # &)<br />' +
@@ -922,7 +922,7 @@ const cmds: ChatCommands = {
 					'- count <em>Mon</em> - Displays how often a certain mon has been given away. Use <code>!giveaway count</code> to broadcast this to the entire room<br />';
 			break;
 		case 'gts':
-			if (!this.can('broadcast', null, room)) return;
+			if (!this.can('show', null, room)) return;
 			reply = '<strong>GTS giveaway commands:</strong><br />' +
 					'- gts start <em>User | Amount | Summary of given mon | What to deposit | What to look for</em> - Starts a gts giveaway (Requires: % @ # &)<br />' +
 					'- gts left <em>Amount</em> - Updates the amount left for the current GTS giveaway. Without an amount specified, shows how many Pokémon are left, and who the latest winners are.<br />' +

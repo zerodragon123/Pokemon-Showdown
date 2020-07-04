@@ -507,8 +507,8 @@ export const commands: ChatCommands = {
 		target = this.splitTarget(target);
 		const targetUser = this.targetUser;
 		if (this.targetUsername === '~') {
-			this.room = Rooms.global;
 			this.pmTarget = null;
+			this.room = null;
 		} else if (!targetUser) {
 			let error = `User ${this.targetUsername} not found. Did you misspell their name?`;
 			error = `|pm|${this.user.getIdentity()}| ${this.targetUsername}|/error ${error}`;
@@ -516,7 +516,7 @@ export const commands: ChatCommands = {
 			return;
 		} else {
 			this.pmTarget = targetUser;
-			this.room = null!;
+			this.room = null;
 		}
 
 		if (targetUser && !targetUser.connected) {
@@ -547,7 +547,7 @@ export const commands: ChatCommands = {
 
 		const targetUser = this.pmTarget!; // not room means it's a PM
 
-		if (!targetRoom || targetRoom === Rooms.global) {
+		if (!targetRoom) {
 			return this.errorReply(`The room "${target}" was not found.`);
 		}
 		if (!targetRoom.checkModjoin(targetUser)) {
@@ -977,6 +977,9 @@ export const commands: ChatCommands = {
 
 	hidereplay(target, room, user, connection) {
 		if (!room || !room.battle || !this.can('joinbattle', null, room)) return;
+		if (room.tour?.forcePublic) {
+			return this.errorReply(`This battle can't have hidden replays, because the tournament is set to be forced public.`);
+		}
 		if (room.hideReplay) return this.errorReply(`The replay for this battle is already set to hidden.`);
 		room.hideReplay = true;
 		// If a replay has already been saved, /savereplay again to update the uploaded replay's hidden status
@@ -1390,7 +1393,7 @@ export const commands: ChatCommands = {
 			}
 
 			const targetRoom = Rooms.get(target);
-			if (!targetRoom || targetRoom === Rooms.global || (
+			if (!targetRoom || (
 				targetRoom.settings.isPrivate && !user.inRooms.has(targetRoom.roomid) && !user.games.has(targetRoom.roomid)
 			)) {
 				const roominfo = {id: target, error: 'not found or access denied'};

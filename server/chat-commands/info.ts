@@ -19,12 +19,12 @@ export const commands: ChatCommands = {
 	alt: 'whois',
 	alts: 'whois',
 	whoare: 'whois',
-	whois(target, room, user, connection, cmd) {
-		let usedRoom: ChatRoom | GameRoom | GlobalRoom = room;
-		if (usedRoom?.roomid === 'staff' && !this.runBroadcast()) return;
-		if (!usedRoom) usedRoom = Rooms.global;
+	altsnorecurse: 'whois',
+	whois(target, room: Room | null, user, connection, cmd) {
+		if (room?.roomid === 'staff' && !this.runBroadcast()) return;
 		const targetUser = this.targetUserOrSelf(target, user.group === ' ');
-		const showAll = (cmd === 'ip' || cmd === 'whoare' || cmd === 'alt' || cmd === 'alts');
+		const showAll = (cmd === 'ip' || cmd === 'whoare' || cmd === 'alt' || cmd === 'alts' || cmd === 'altsnorecurse');
+		const showRecursiveAlts = showAll && (cmd !== 'altsnorecurse');
 		if (!targetUser) {
 			if (showAll) return this.parse('/offlinewhois ' + target);
 			return this.errorReply("User " + this.targetUsername + " not found.");
@@ -46,8 +46,8 @@ export const commands: ChatCommands = {
 			buf += ` <small style="color:gray">(trusted${targetUser.id === trusted ? `` : `: <span class="username">${trusted}</span>`})</small>`;
 		}
 		if (!targetUser.connected) buf += ` <em style="color:gray">(offline)</em>`;
-		const roomauth = usedRoom.auth.getDirect(targetUser.id);
-		if (Config.groups[roomauth]?.name) {
+		const roomauth = room?.auth.getDirect(targetUser.id);
+		if (roomauth && Config.groups[roomauth]?.name) {
 			buf += Utils.html`<br />${Config.groups[roomauth].name} (${roomauth})`;
 		}
 		if (Config.groups[targetUser.group]?.name) {
@@ -85,8 +85,8 @@ export const commands: ChatCommands = {
 		}
 		const canViewAlts = (user === targetUser || user.can('alts', targetUser));
 		const canViewPunishments = canViewAlts ||
-			(usedRoom.settings.isPrivate !== true && user.can('mute', targetUser, usedRoom) && targetUser.id in usedRoom.users);
-		const canViewSecretRooms = user === targetUser || (canViewAlts && targetUser.locked) || user.hasSysopAccess();
+			(room && room.settings.isPrivate !== true && user.can('mute', targetUser, room) && targetUser.id in room.users);
+		const canViewSecretRooms = user === targetUser || (canViewAlts && targetUser.locked) || user.hasSysopAccess() || user.can('makeroom');
 		if (canViewAlts && user !== targetUser && !user.hasSysopAccess()) {
 			console.log("ip command used by ", user.name, "on user:", targetUser.name, Chat.toTimestamp(new Date()));
 		}
@@ -166,7 +166,7 @@ export const commands: ChatCommands = {
 			ips = ips.map(ip => {
 				const status = [];
 				const punishment = Punishments.ips.get(ip);
-				if (user.can('ip') && punishment) {
+				if (user.can('globalban') && punishment) {
 					const [punishType, userid] = punishment;
 					let punishMsg = Punishments.punishmentTypes.get(punishType) || 'punished';
 					if (userid !== targetUser.id) punishMsg += ` as ${userid}`;
@@ -234,6 +234,15 @@ export const commands: ChatCommands = {
 			}
 		}
 		this.sendReplyBox(buf);
+
+		if (showRecursiveAlts && canViewAlts) {
+			const targetId = toID(target);
+			for (const alt of Users.users.values()) {
+				if (alt !== targetUser && targetId in alt.prevNames) {
+					this.parse(`/altsnorecurse ${alt.name}`);
+				}
+			}
+		}
 	},
 	whoishelp: [
 		`/whois - Get details on yourself: alts, group, IP address, and rooms.`,
@@ -358,7 +367,7 @@ export const commands: ChatCommands = {
 	'!host': true,
 	host(target, room, user, connection, cmd) {
 		if (!target) return this.parse('/help host');
-		if (!this.can('ip')) return;
+		if (!this.can('globalban')) return;
 		target = target.trim();
 		if (!net.isIPv4(target)) return this.errorReply('You must pass a valid IPv4 IP to /host.');
 		void IPTools.lookup(target).then(({dnsbl, host, hostType}) => {
@@ -2463,7 +2472,7 @@ export const commands: ChatCommands = {
 		if (!room.settings.requestShowEnabled) {
 			return this.errorReply(`Media approvals are disabled in this room.`);
 		}
-		if (this.can('showmedia', null, room)) return this.errorReply(`Use !show instead.`);
+		if (user.can('showmedia', null, room)) return this.errorReply(`Use !show instead.`);
 		if (room.pendingApprovals?.has(user.id)) return this.errorReply('You have a request pending already.');
 		if (!toID(target)) return this.parse(`/help requestshow`);
 
@@ -2477,12 +2486,14 @@ export const commands: ChatCommands = {
 			comment: comment,
 		});
 		this.sendReply(`You have requested to show the link: ${link}${comment ? ` (with the comment ${comment})` : ''}.`);
+		const message = `|tempnotify|pendingapprovals|Pending media request!` +
+			`|${user.name} has requested to show media in ${room.title}.|new media request`;
+		room.sendRankedUsers(message, '%');
 		room.sendMods(
 			Utils.html`|uhtml|request-${user.id}|<div class="infobox">${user.name} wants to show <a href="${link}">${link}</a><br>` +
 			`<button class="button" name="send" value="/approveshow ${user.id}">Approve</button><br>` +
 			`<button class="button" name="send" value="/denyshow ${user.id}">Deny</button></div>`
 		);
-		return room.update();
 	},
 	requestshowhelp: [`/requestshow [link], [comment] - Requests permission to show media in the room.`],
 
@@ -2499,7 +2510,8 @@ export const commands: ChatCommands = {
 			return this.errorReply(`You can't approve your own /show request.`);
 		}
 		room.pendingApprovals!.delete(userid);
-		room.sendMods(`|uhtmlchange|request-${userid}|`);
+		room.sendMods(`|uhtmlchange|request-${target}|`);
+		room.sendRankedUsers(`|tempnotifyoff|pendingapprovals`, '%');
 
 		let buf;
 		if (/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)(\/|$)/i.test(request.link)) {
@@ -2515,14 +2527,14 @@ export const commands: ChatCommands = {
 				return this.errorReply('Invalid image');
 			}
 		}
-		buf += Utils.html`<br /><p style="margin-left:5px;font-size:9pt;color:gray"><small>(Requested by ${request.name})</small>`;
+		buf += Utils.html`<br /><div class="infobox"><small>(Requested by ${request.name})</small>`;
 		if (request.comment) {
-			buf += Utils.html`<br /><p style="margin-left:5px;font-size:9pt;color:gray">${request.comment}</p>`;
+			buf += Utils.html`<br />${request.comment}</small></div>`;
 		} else {
-			buf += `</small></p>`;
+			buf += `</small></div>`;
 		}
-		this.addBox(buf);
-		room.update();
+		room.add(`|c| ${request.name}|/raw ${buf}`);
+		this.privateModAction(`${user.name} approved showing media from ${request.name}.`);
 	},
 	approveshowhelp: [`/approveshow [user] - Approves the media display request of [user]. Requires: % @ # &`],
 
@@ -2534,14 +2546,23 @@ export const commands: ChatCommands = {
 		target = toID(target);
 		if (!target) return this.parse(`/help denyshow`);
 
-		const link = room.pendingApprovals?.get(target);
-		if (!link) return this.errorReply(`${target} has no pending request.`);
+		const entry = room.pendingApprovals?.get(target);
+		if (!entry) return this.errorReply(`${target} has no pending request.`);
 
 		room.pendingApprovals!.delete(target);
 		room.sendMods(`|uhtmlchange|request-${target}|`);
-		this.privateModAction(`(${user.name} denied ${target}'s request to display ${link}.)`);
+		room.sendRankedUsers(`|tempnotifyoff|pendingapprovals`, '%');
+		this.privateModAction(`(${user.name} denied ${target}'s request to display ${entry.link}.)`);
 	},
 	denyshowhelp: [`/denyshow [user] - Denies the media display request of [user]. Requires: % @ # &`],
+
+	approvallog(target, room, user) {
+		return this.parse(`/sl approved showing media from, ${room.roomid}`);
+	},
+
+	viewapprovals(target, room, user) {
+		return this.parse(`/join view-approvals-${room.roomid}`);
+	},
 
 	'!show': true,
 	async show(target, room, user) {
@@ -2624,13 +2645,15 @@ export const commands: ChatCommands = {
 export const pages: PageTable = {
 	punishments(query, user) {
 		this.title = 'Punishments';
+		const room = this.extractRoom();
+		if (!room) return;
+
 		let buf = "";
-		this.extractRoom();
 		if (!user.named) return Rooms.RETRY_AFTER_LOGIN;
-		if (!this.room.persist) return;
-		if (!this.can('mute', null, this.room)) return;
+		if (!room.persist) return;
+		if (!this.can('mute', null, room)) return;
 		// Ascending order
-		const sortedPunishments = Array.from(Punishments.getPunishments(this.room.roomid))
+		const sortedPunishments = Array.from(Punishments.getPunishments(room.roomid))
 			.sort((a, b) => a[1].expireTime - b[1].expireTime);
 		const sP = new Map();
 		for (const punishment of sortedPunishments) {
@@ -2651,6 +2674,21 @@ export const pages: PageTable = {
 			sP.set(punishment[0], punishment[1]);
 		}
 		buf += Punishments.visualizePunishments(sP, user);
+		return buf;
+	},
+	approvals(args) {
+		const room = Rooms.get(args[0]) as ChatRoom | GameRoom;
+		if (!this.can('mute', null, room)) return;
+		if (!room.pendingApprovals) room.pendingApprovals = new Map();
+		if (room.pendingApprovals.size < 1) return `<h2>No pending approvals on ${room.title}</h2>`;
+		let buf = `<div class="pad"><strong>Pending media requests on ${room.title}</strong><hr />`;
+		for (const [userid, entry] of room.pendingApprovals) {
+			buf += `<strong>${entry.name}</strong><div class="infobox">`;
+			buf += `<strong>Requester ID:</strong> ${userid}<br />`;
+			buf += `<strong>Link:</strong> <a href="${entry.link}">${entry.link}</a><br />`;
+			buf += `<strong>Comment:</strong> ${entry.comment}`;
+			buf += `</div><hr />`;
+		}
 		return buf;
 	},
 };

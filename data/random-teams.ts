@@ -726,7 +726,8 @@ export class RandomTeams {
 					if (!!counter['speedsetup'] || counter.damagingMoves.length < 2) rejected = true;
 					break;
 				case 'closecombat': case 'flashcannon':
-					if (hasMove['substitute'] || hasMove['toxic'] && movePool.includes('substitute')) rejected = true;
+					if (hasMove['substitute'] && !hasType['Fighting']) rejected = true;
+					if (hasMove['toxic'] && movePool.includes('substitute')) rejected = true;
 					if (moveid === 'closecombat' && (hasMove['highjumpkick'] || movePool.includes('highjumpkick')) && !counter.setupType) rejected = true;
 					break;
 				case 'circlethrow': case 'dragontail':
@@ -832,6 +833,9 @@ export class RandomTeams {
 				case 'hydropump':
 					if (hasMove['scald'] && ((counter.Special < 4 && !hasMove['uturn']) || (species.types.length > 1 && counter.stab < 3))) rejected = true;
 					break;
+				case 'scald':
+					if (hasMove['waterpulse']) rejected = true;
+					break;
 				case 'thunderbolt':
 					if (hasMove['powerwhip'] || hasMove['voltswitch'] && counter.stab === species.types.length) rejected = true;
 					break;
@@ -925,7 +929,6 @@ export class RandomTeams {
 					if (hasMove['dracometeor'] && counter.Special < 4) rejected = true;
 					break;
 				case 'outrage':
-					if (hasMove['dragonpulse'] && !counter.setupType) rejected = true;
 					if (counter.setupType && (hasMove['scaleshot'] || movePool.includes('scaleshot'))) rejected = true;
 					break;
 				case 'darkpulse':
@@ -1076,7 +1079,7 @@ export class RandomTeams {
 				} else if (ability === 'Cursed Body') {
 					rejectAbility = hasAbility['Infiltrator'];
 				} else if (ability === 'Defiant' || ability === 'Moxie') {
-					rejectAbility = (!counter['Physical'] || hasMove['dragontail']);
+					rejectAbility = !counter['Physical'];
 				} else if (ability === 'Early Bird') {
 					rejectAbility = (hasType['Grass'] && isDoubles);
 				} else if (ability === 'Flash Fire') {
@@ -1244,7 +1247,7 @@ export class RandomTeams {
 		} else if (ability === 'Sheer Force' && !!counter['sheerforce']) {
 			item = 'Life Orb';
 		} else if (ability === 'Unburden') {
-			item = hasMove['closecombat'] ? 'White Herb' : 'Sitrus Berry';
+			item = (hasMove['closecombat'] || hasMove['curse']) ? 'White Herb' : 'Sitrus Berry';
 		} else if (hasMove['acrobatics']) {
 			item = (ability === 'Grassy Surge') ? 'Grassy Seed' : '';
 		} else if (hasMove['auroraveil'] || hasMove['lightscreen'] && hasMove['reflect']) {
