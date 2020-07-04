@@ -617,15 +617,11 @@ exports.grouplist = [
 		announce: true,
 		warn: '\u2605u',
 		kick: true,
-<<<<<<< HEAD
 		mute: '\u2606u',
-=======
-		mute: '\u2605u',
 		lock: true,
 		forcerename: true,
 		timer: true,
 		modlog: true,
->>>>>>> smogon/master
 		alts: '%u',
 		bypassblocks: 'u%@&~',
 		receiveauthmessages: true,
