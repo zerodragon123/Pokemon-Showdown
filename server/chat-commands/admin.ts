@@ -803,7 +803,7 @@ export const commands: ChatCommands = {
 			this.sendReply("在staff room更新ps国服积分");
 			return false;
 		}
-		if (!this.can('broadcast')) return false;
+		if (!this.can('show')) return false;
 		let username = target.split(',')[0];
 		let score = target.split(',')[1];
 		let reason = target.split(',')[2];
