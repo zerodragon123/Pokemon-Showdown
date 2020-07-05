@@ -356,12 +356,6 @@ exports.watchconfig = true;
 exports.logchat = true;
 
 /**
- * logroom - whether to log sth idk.
- */
-exports.logroom = true;
-
-
-/**
  * logchallenges - whether to log challenge battles. Useful for tournament servers.
  */
 exports.logchallenges = true;
