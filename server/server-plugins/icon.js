@@ -53,7 +53,7 @@ exports.commands = {
 	customicon: "icon",
 	icon: {
 		set(target, room, user) {
-			if (!this.user.isSysop) return false;
+			if (!this.user.can("bypassall")) return this.errorReply("To set icons, you need to be an admin user.");
 			let targets = target.split(",");
 			for (let u in targets) targets[u] = targets[u].trim();
 			if (targets.length !== 2) return this.parse("/help icon");
@@ -70,7 +70,7 @@ exports.commands = {
 
 		remove: "delete",
 		delete(target, room, user) {
-			if (!this.can('updateserver')) return false;
+			if (!this.can('bypassall')) return this.errorReply("To delete icons, you need to be an admin user.");
 			const targetName = toID(target);
 			if (!icons[targetName]) return this.errorReply(`/icon - ${targetName} does not have an icon.`);
 			delete icons[targetName];
@@ -91,6 +91,6 @@ exports.commands = {
 		"Commands Include:",
 		"/icon set [user], [image url] - Gives [user] an icon of [image url]",
 		"/icon delete [user] - Deletes a user's icon",
-		"both commands require: ~",
+		"Both commands require: &",
 	],
 };
