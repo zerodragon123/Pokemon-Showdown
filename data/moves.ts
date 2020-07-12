@@ -6235,7 +6235,7 @@ export const BattleMovedex: {[moveid: string]: MoveData} = {
 		priority: 0,
 		flags: {protect: 1, mirror: 1},
 		onBasePower(basePower, pokemon) {
-			if (this.lastMoveThisTurn && this.lastMoveThisTurn.id === 'fusionflare') {
+			if (this.lastSuccessfulMoveThisTurn === 'fusionflare') {
 				this.debug('double power');
 				return this.chainModify(2);
 			}
@@ -6257,7 +6257,7 @@ export const BattleMovedex: {[moveid: string]: MoveData} = {
 		priority: 0,
 		flags: {protect: 1, mirror: 1, defrost: 1},
 		onBasePower(basePower, pokemon) {
-			if (this.lastMoveThisTurn && this.lastMoveThisTurn.id === 'fusionbolt') {
+			if (this.lastSuccessfulMoveThisTurn === 'fusionbolt') {
 				this.debug('double power');
 				return this.chainModify(2);
 			}
@@ -12548,6 +12548,7 @@ export const BattleMovedex: {[moveid: string]: MoveData} = {
 		target: "normal",
 		type: "Normal",
 		zMove: {basePower: 185},
+		maxMove: {basePower: 95},
 		contestType: "Tough",
 	},
 	mysticalfire: {

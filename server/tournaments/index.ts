@@ -36,7 +36,13 @@ export class TournamentPlayer extends Rooms.RoomGamePlayer {
 	readonly availableMatches: Set<TournamentPlayer>;
 	isBusy: boolean;
 	inProgressMatch: {to: TournamentPlayer, room: GameRoom} | null;
-	pendingChallenge: {from?: TournamentPlayer, to?: TournamentPlayer, team: string} | null;
+	pendingChallenge: {
+		from?: TournamentPlayer,
+		to?: TournamentPlayer,
+		team: string,
+		hidden: boolean,
+		inviteOnly: boolean,
+	} | null;
 	isDisqualified: boolean;
 	isEliminated: boolean;
 	autoDisqualifyWarned: boolean;
@@ -223,6 +229,7 @@ export class Tournament extends Rooms.RoomGame {
 	getCustomRules() {
 		const bans = [];
 		const unbans = [];
+		const restrictions = [];
 		const addedRules = [];
 		const removedRules = [];
 		for (const ban of this.customRules) {
@@ -231,6 +238,8 @@ export class Tournament extends Rooms.RoomGame {
 				unbans.push(ban.substr(1));
 			} else if (charAt0 === '-') {
 				bans.push(ban.substr(1));
+			} else if (charAt0 === '*') {
+				restrictions.push(ban.substr(1));
 			} else if (charAt0 === '!') {
 				removedRules.push(ban.substr(1));
 			} else {
@@ -238,8 +247,9 @@ export class Tournament extends Rooms.RoomGame {
 			}
 		}
 		const html = [];
-		if (bans.length) html.push(Utils.html`<b>Bans</b> - ${bans.join(', ')}`);
-		if (unbans.length) html.push(Utils.html`<b>Unbans</b> - ${unbans.join(', ')}`);
+		if (bans.length) html.push(Utils.html`<b>Added bans</b> - ${bans.join(', ')}`);
+		if (unbans.length) html.push(Utils.html`<b>Removed bans</b> - ${unbans.join(', ')}`);
+		if (restrictions.length) html.push(Utils.html`<b>Added Restrictions</b> - ${restrictions.join(', ')}`);
 		if (addedRules.length) html.push(Utils.html`<b>Added rules</b> - ${addedRules.join(', ')}`);
 		if (removedRules.length) html.push(Utils.html`<b>Removed rules</b> - ${removedRules.join(', ')}`);
 		return html.join(`<br />`);
@@ -896,8 +906,8 @@ export class Tournament extends Rooms.RoomGame {
 		}
 
 		to.lastActionTime = Date.now();
-		from.pendingChallenge = {to, team: ready.team};
-		to.pendingChallenge = {from, team: ready.team};
+		from.pendingChallenge = {to, team: ready.team, hidden: ready.hidden, inviteOnly: ready.inviteOnly};
+		to.pendingChallenge = {from, team: ready.team, hidden: ready.hidden, inviteOnly: ready.inviteOnly};
 		from.sendRoom(`|tournament|update|${JSON.stringify({challenging: to.name})}`);
 		to.sendRoom(`|tournament|update|${JSON.stringify({challenged: from.name})}`);
 
@@ -960,8 +970,12 @@ export class Tournament extends Rooms.RoomGame {
 			isPrivate: this.room.settings.isPrivate,
 			p1: from,
 			p1team: challenge.team,
+			p1hidden: challenge.hidden,
+			p1inviteOnly: challenge.inviteOnly,
 			p2: user,
 			p2team: ready.team,
+			p2hidden: ready.hidden,
+			p2inviteOnly: ready.inviteOnly,
 			rated: !Ladders.disabled && this.isRated,
 			challengeType: ready.challengeType,
 			tour: this,
@@ -1206,7 +1220,7 @@ const tourCommands: {basic: TourCommands, creation: TourCommands, moderation: To
 			if (Monitor.countPrepBattle(connection.ip, connection)) {
 				return;
 			}
-			void TeamValidatorAsync.get(tournament.fullFormat).validateTeam(user.team).then(result => {
+			void TeamValidatorAsync.get(tournament.fullFormat).validateTeam(user.battleSettings.team).then(result => {
 				if (result.charAt(0) === '1') {
 					connection.popup("Your team is valid for this tournament.");
 				} else {
@@ -1306,11 +1320,11 @@ const tourCommands: {basic: TourCommands, creation: TourCommands, moderation: To
 		rules: 'customrules',
 		customrules(tournament, user, params, cmd) {
 			if (cmd === 'banlist') {
-				return this.errorReply('The new syntax is: /tour rules -bannedthing, +unbannedthing, !removedrule, addedrule');
+				return this.errorReply('The new syntax is: /tour rules -bannedthing, +un[banned|restricted]thing, *restrictedthing, !removedrule, addedrule');
 			}
 			if (params.length < 1) {
 				this.sendReply("Usage: /tour rules <list of rules>");
-				this.sendReply("Rules can be: -bannedthing, +unbannedthing, !removedrule, addedrule");
+				this.sendReply("Rules can be: -bannedthing, +un[banned|restricted]thing, *restrictedthing, !removedrule, addedrule");
 				return this.parse('/tour viewrules');
 			}
 			if (tournament.isTournamentStarted) {
@@ -1568,6 +1582,7 @@ export const commands: ChatCommands = {
 	tours: 'tournament',
 	tournaments: 'tournament',
 	tournament(target, room, user, connection) {
+		if (!room) return this.requiresRoom();
 		let cmd;
 		[cmd, target] = Utils.splitFirst(target, ' ');
 		cmd = toID(cmd);
