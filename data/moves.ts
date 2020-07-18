@@ -2688,7 +2688,7 @@ export const BattleMovedex: {[moveid: string]: MoveData} = {
 			let move: Move | ActiveMove | null = this.lastMove;
 			if (!move) return;
 
-			if ((move as ActiveMove).isZOrMaxPowered) move = this.dex.getMove(move.baseMove);
+			if (move.isMax && move.baseMove) move = this.dex.getMove(move.baseMove);
 			if (noCopycat.includes(move.id) || move.isZ || move.isMax) {
 				return false;
 			}
@@ -4547,7 +4547,7 @@ export const BattleMovedex: {[moveid: string]: MoveData} = {
 				let move: Move | ActiveMove | null = target.lastMove;
 				if (!move || target.volatiles['dynamax']) return false;
 
-				if ((move as ActiveMove).isZOrMaxPowered) move = this.dex.getMove(move.baseMove);
+				if (move.isMax && move.baseMove) move = this.dex.getMove(move.baseMove);
 				const moveIndex = target.moves.indexOf(move.id);
 				if (move.isZ || noEncore.includes(move.id) || !target.moveSlots[moveIndex] || target.moveSlots[moveIndex].pp <= 0) {
 					// it failed
@@ -6759,10 +6759,10 @@ export const BattleMovedex: {[moveid: string]: MoveData} = {
 	gmaxdrumsolo: {
 		num: 1000,
 		accuracy: true,
-		basePower: 10,
+		basePower: 160,
 		category: "Physical",
-		desc: "Power is equal to the base move's Max Move power. This move ignores the abilities of opposing Pokemon.",
-		shortDesc: "Base move affects power. Ignores abilities.",
+		desc: "This move will always have 160 Base Power, and it ignores the abilities of opposing Pokemon.",
+		shortDesc: "Stronger than other Max Moves. Ignores abilities.",
 		name: "G-Max Drum Solo",
 		pp: 5,
 		priority: 0,
@@ -6801,10 +6801,10 @@ export const BattleMovedex: {[moveid: string]: MoveData} = {
 	gmaxfireball: {
 		num: 1000,
 		accuracy: true,
-		basePower: 10,
+		basePower: 160,
 		category: "Physical",
-		desc: "Power is equal to the base move's Max Move power. This move ignores the abilities of opposing Pokemon.",
-		shortDesc: "Base move affects power. Ignores abilities.",
+		desc: "This move will always have 160 Base Power, and it ignores the abilities of opposing Pokemon.",
+		shortDesc: "Stronger than other Max Moves. Ignores abilities.",
 		name: "G-Max Fire Ball",
 		pp: 5,
 		priority: 0,
@@ -6886,10 +6886,10 @@ export const BattleMovedex: {[moveid: string]: MoveData} = {
 	gmaxhydrosnipe: {
 		num: 1000,
 		accuracy: true,
-		basePower: 10,
+		basePower: 160,
 		category: "Physical",
-		desc: "Power is equal to the base move's Max Move power. This move ignores the abilities of opposing Pokemon.",
-		shortDesc: "Base move affects power. Ignores abilities.",
+		desc: "This move will always have 160 Base Power, and it ignores the abilities of opposing Pokemon.",
+		shortDesc: "Stronger than other Max Moves. Ignores abilities.",
 		name: "G-Max Hydrosnipe",
 		pp: 5,
 		priority: 0,
@@ -7705,7 +7705,7 @@ export const BattleMovedex: {[moveid: string]: MoveData} = {
 		basePower: 0,
 		category: "Status",
 		desc: "For 5 turns, the evasiveness of all active Pokemon is multiplied by 0.6. At the time of use, Bounce, Fly, Magnet Rise, Sky Drop, and Telekinesis end immediately for all active Pokemon. During the effect, Bounce, Fly, Flying Press, High Jump Kick, Jump Kick, Magnet Rise, Sky Drop, Splash, and Telekinesis are prevented from being used by all active Pokemon. Ground-type attacks, Spikes, Toxic Spikes, Sticky Web, and the Arena Trap Ability can affect Flying types or Pokemon with the Levitate Ability. Fails if this move is already in effect.",
-		shortDesc: "For 5 turns, negates all Ground immunities.",
+		shortDesc: "5 turns: no Ground immunities, 1.67x accuracy.",
 		name: "Gravity",
 		pp: 5,
 		priority: 0,

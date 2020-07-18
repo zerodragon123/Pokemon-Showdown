@@ -41,8 +41,15 @@ export type ChatHandler = (
 	cmd: string,
 	message: string
 ) => void;
+export type AnnotatedChatHandler = ChatHandler & {
+	requiresRoom: boolean,
+	broadcastable: boolean,
+};
 export interface ChatCommands {
 	[k: string]: ChatHandler | string | string[] | ChatCommands;
+}
+export interface AnnotatedChatCommands {
+	[k: string]: AnnotatedChatHandler | string | string[] | true | AnnotatedChatCommands;
 }
 
 export type SettingsHandler = (
@@ -489,7 +496,7 @@ export class CommandContext extends MessageContext {
 
 		if (cmd.endsWith(',')) cmd = cmd.slice(0, -1);
 
-		let curCommands: ChatCommands = Chat.commands;
+		let curCommands: AnnotatedChatCommands = Chat.commands;
 		let commandHandler;
 		let fullCmd = cmd;
 
@@ -516,7 +523,7 @@ export class CommandContext extends MessageContext {
 				}
 
 				fullCmd += ' ' + cmd;
-				curCommands = commandHandler as ChatCommands;
+				curCommands = commandHandler as AnnotatedChatCommands;
 			}
 		} while (commandHandler && typeof commandHandler === 'object');
 
@@ -707,7 +714,7 @@ export class CommandContext extends MessageContext {
 
 	/** like privateModAction, but also notify Staff room */
 	privateGlobalModAction(msg: string) {
-		this.privateModAction(`(${msg})`);
+		this.privateModAction(msg);
 		if (this.room?.roomid !== 'staff') {
 			Rooms.get('staff')?.addByUser(this.user, `${this.room ? `<<${this.room.roomid}>>` : `<PM:${this.pmTarget}>`} ${msg}`).update();
 		}
@@ -722,9 +729,9 @@ export class CommandContext extends MessageContext {
 	privateModAction(msg: string) {
 		if (this.room) {
 			if (this.room.roomid === 'staff') {
-				this.room.addByUser(this.user, msg);
+				this.room.addByUser(this.user, `(${msg})`);
 			} else {
-				this.room.sendModsByUser(this.user, msg);
+				this.room.sendModsByUser(this.user, `(${msg})`);
 			}
 		} else {
 			const data = this.pmTransform(`|modaction|${msg}`);
@@ -733,7 +740,7 @@ export class CommandContext extends MessageContext {
 				this.pmTarget.send(data);
 			}
 		}
-		this.roomlog(msg);
+		this.roomlog(`(${msg})`);
 	}
 	globalModlog(action: string, user: string | User | null, note?: string | null) {
 		let buf = `(${this.room ? this.room.roomid : 'global'}) ${action}: `;
@@ -963,7 +970,7 @@ export class CommandContext extends MessageContext {
 					return null;
 				}
 				if (Config.pmmodchat && !user.authAtLeast(Config.pmmodchat) &&
-					!Users.Auth.hasPermission(targetUser.group, 'promote', Config.pmmodchat as GroupSymbol)) {
+					!Users.Auth.hasPermission(targetUser, 'promote', Config.pmmodchat as GroupSymbol)) {
 					const groupName = Config.groups[Config.pmmodchat] && Config.groups[Config.pmmodchat].name || Config.pmmodchat;
 					this.errorReply(`On this server, you must be of rank ${groupName} or higher to PM users.`);
 					return null;
@@ -1292,10 +1299,10 @@ export const Chat = new class {
 	/*********************************************************
 	 * Load command files
 	 *********************************************************/
-	baseCommands: ChatCommands = undefined!;
-	commands: ChatCommands = undefined!;
-	basePages: PageTable = undefined!;
-	pages: PageTable = undefined!;
+	baseCommands!: AnnotatedChatCommands;
+	commands!: AnnotatedChatCommands;
+	basePages!: PageTable;
+	pages!: PageTable;
 	readonly destroyHandlers: (() => void)[] = [];
 	roomSettings: SettingsHandler[] = [];
 
@@ -1558,8 +1565,24 @@ export const Chat = new class {
 		}
 		this.loadPluginData(plugin);
 	}
+	annotateCommands(commandTable: AnyObject): AnnotatedChatCommands {
+		for (const cmd in commandTable) {
+			const entry = commandTable[cmd];
+			if (typeof entry === 'object') {
+				this.annotateCommands(entry);
+			}
+			if (typeof entry !== 'function') continue;
+
+			const handlerCode = entry.toString();
+			entry.requiresRoom = /\bthis\.requiresRoom\(/.test(handlerCode);
+			entry.broadcastable = /\bthis\.(?:canBroadcast|runBroadcast)\(/.test(handlerCode);
+		}
+		return commandTable;
+	}
 	loadPluginData(plugin: AnyObject) {
-		if (plugin.commands) Object.assign(Chat.commands, plugin.commands);
+		if (plugin.commands) {
+			Object.assign(Chat.commands, this.annotateCommands(plugin.commands));
+		}
 		if (plugin.pages) Object.assign(Chat.pages, plugin.pages);
 
 		if (plugin.destroy) Chat.destroyHandlers.push(plugin.destroy);

@@ -662,7 +662,7 @@ export const commands: ChatCommands = {
 			if (!targetUser.userMessage) return this.errorReply(`${targetUser.name} does not have a status set.`);
 			if (!this.can('forcerename', targetUser)) return false;
 
-			this.privateModAction(`(${targetUser.name}'s status "${targetUser.userMessage}" was cleared by ${user.name}${reason ? `: ${reason}` : ``})`);
+			this.privateModAction(`${targetUser.name}'s status "${targetUser.userMessage}" was cleared by ${user.name}${reason ? `: ${reason}` : ``}`);
 			this.globalModlog('CLEARSTATUS', targetUser, ` from "${targetUser.userMessage}" by ${user.name}${reason ? `: ${reason}` : ``}`);
 			targetUser.clearStatus();
 			targetUser.popup(`${user.name} has cleared your status message for being inappropriate${reason ? `: ${reason}` : '.'}`);
@@ -1548,8 +1548,8 @@ export const commands: ChatCommands = {
 			if (!nextNamespace) {
 				return this.errorReply(`The command '/${target}' does not exist.`);
 			}
-			if (typeof nextNamespace !== 'object') break;
-			namespace = nextNamespace;
+			if (typeof nextNamespace === 'function') break;
+			namespace = nextNamespace as import('../chat').AnnotatedChatCommands;
 		}
 
 		if (!currentBestHelp) {
