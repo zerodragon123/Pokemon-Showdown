@@ -41,6 +41,11 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		mod: 'gen8',
 		ruleset: ['Standard', 'Dynamax Clause'],
 		banlist: ['Uber', 'Arena Trap', 'Moody', 'Shadow Tag', 'Baton Pass'],
+		onBegin() {
+			if (this.rated && this.format.id === 'gen8ou') {
+				this.add('html', '<div class="broadcast-blue"><strong>OU is currently suspecting Magearna! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3667669/">suspect thread</a>.</strong></div>');
+			}
+		},
 	},
 	{
 		name: "[Gen 8] OU (Blitz)",
@@ -51,14 +56,14 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 	{
 		name: "[Gen 8] Ubers",
 		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3659981/">Ubers Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3666897/">Ubers Metagame Discussion</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3658364/">Ubers Sample Teams</a>`,
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3661412/">Ubers Viability Rankings</a>`,
 		],
 
 		mod: 'gen8',
 		ruleset: ['Standard', 'Dynamax Ubers Clause'],
-		banlist: [],
+		banlist: ['Baton Pass'],
 		restricted: ['Ditto', 'Kyurem-White', 'Lunala', 'Marshadow', 'Mewtwo', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Reshiram', 'Solgaleo', 'Zekrom'],
 	},
 	{
@@ -207,6 +212,21 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 			battle: 3,
 		},
 		ruleset: ['Standard GBU'],
+		minSourceGen: 8,
+	},
+	{
+		name: "[Gen 8] Armor Beginnings",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3667440/">Armor Beginnings Discussion</a>`,
+		],
+
+		mod: 'gen8',
+		forcedLevel: 50,
+		teamLength: {
+			validate: [3, 6],
+			battle: 3,
+		},
+		ruleset: ['Standard GBU', 'Isle of Armor Pokedex'],
 		minSourceGen: 8,
 	},
 	{
@@ -569,7 +589,7 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 
 		mod: 'gen8',
 		ruleset: ['Standard', 'Dynamax Clause'],
-		banlist: ['Corsola-Galar', 'Sneasel', 'Type: Null', 'Ice Scales', 'Moody', 'Baton Pass', 'King\'s Rock'],
+		banlist: ['Corsola-Galar', 'Sneasel', 'Type: Null', 'Arena Trap', 'Ice Scales', 'Moody', 'Baton Pass', 'King\'s Rock'],
 		restricted: ['Chansey', 'Lunala', 'Shedinja', 'Solgaleo', 'Gorilla Tactics', 'Huge Power', 'Pure Power', 'Shadow Tag'],
 		onValidateTeam(team) {
 			const names = new Set<ID>();
@@ -621,8 +641,7 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 			if (crossSpecies.battleOnly || crossIsUnreleased || !crossSpecies.prevo) {
 				return [`${species.name} cannot cross evolve into ${crossSpecies.name} because it isn't an evolution.`];
 			}
-			if (this.ruleTable.isRestrictedSpecies(crossSpecies) ||
-				(this.ruleTable.isRestrictedSpecies(species) && !species.prevo)) {
+			if (this.ruleTable.isRestrictedSpecies(crossSpecies)) {
 				return [`${species.name} cannot cross evolve into ${crossSpecies.name} because it is banned.`];
 			}
 			const crossPrevoSpecies = this.dex.getSpecies(crossSpecies.prevo);
@@ -698,7 +717,7 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		banlist: ['Chlorophyll', 'Unburden', 'Sand Rush', 'Slush Rush', 'Surge Surfer', 'Swift Swim', 'King\'s Rock', 'Razor Fang'],
 		restricted: [
 			'Baneful Bunker', 'Bounce', 'Protect', 'Detect', 'Dig', 'Dive', 'Fly', 'King\'s Shield', 'Nature\'s Madness', 'Night Shade',
-			'Obstruct', 'Phantom Force', 'Seismic Toss', 'Shadow Force', 'Sky Drop', 'Spiky Shield', 'Super Fang',
+			'Obstruct', 'Phantom Force', 'Seismic Toss', 'Shadow Force', 'Sky Drop', 'Spiky Shield', 'Super Fang', 'Trick Room',
 		],
 		onValidateSet(set) {
 			const problems = [];
@@ -904,8 +923,11 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		mod: 'gen8',
 		searchShow: false,
 		ruleset: ['[Gen 8] OU'],
-		banlist: ['Blissey', 'Chansey', 'Shedinja', 'Bolt Beak', 'Fishious Rend', 'Shell Smash', 'Huge Power', 'Imposter', 'Innards Out', 'Pure Power', 'Simple', 'Water Bubble'],
-		restricted: ['Cinderace', 'Toxtricity', 'Torkoal'],
+		banlist: [
+			'Blissey', 'Chansey', 'Shedinja', 'Bolt Beak', 'Fishious Rend', 'Shell Smash',
+			'Huge Power', 'Imposter', 'Innards Out', 'Libero', 'Pure Power', 'Simple', 'Water Bubble',
+		],
+		restricted: ['Torkoal', 'Toxtricity'],
 		getEvoFamily(speciesid) {
 			let species = Dex.getSpecies(speciesid);
 			while (species.prevo) {
@@ -921,7 +943,7 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 					const pokemon = this.dex.getSpecies(speciesid);
 					if (pokemon.isNonstandard || unreleased(pokemon)) continue;
 					if (pokemon.requiredAbility || pokemon.requiredItem || pokemon.requiredMove) continue;
-					if (pokemon.isGigantamax || this.ruleTable.isRestrictedSpecies(pokemon)) continue;
+					if (this.ruleTable.isRestrictedSpecies(pokemon)) continue;
 
 					for (const key of Object.values(pokemon.abilities)) {
 						const abilityId = toID(key);
@@ -942,8 +964,6 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 			if (species.isNonstandard || unreleased(species)) {
 				return [`${species.name} is not obtainable in Generation ${this.dex.gen}.`];
 			}
-			const check = this.checkSpecies(set, species, species, {});
-			if (check) return [check];
 
 			const name = set.name;
 
@@ -2405,6 +2425,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		maxLevel: 9999,
 		battle: {trunc: Math.trunc},
 		defaultLevel: 100,
+		teamLength: {
+			validate: [1, 24],
+			battle: 24,
+		},
 		// no restrictions, for serious (other than team preview)
 		ruleset: ['Team Preview', 'Cancel Mod'],
 	},
@@ -2491,6 +2515,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		battle: {trunc: Math.trunc},
 		defaultLevel: 100,
 		debug: true,
+		teamLength: {
+			validate: [1, 24],
+			battle: 24,
+		},
 		// no restrictions, for serious (other than team preview)
 		ruleset: ['Team Preview', 'Cancel Mod'],
 	},
@@ -2521,6 +2549,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		battle: {trunc: Math.trunc},
 		defaultLevel: 100,
 		debug: true,
+		teamLength: {
+			validate: [1, 24],
+			battle: 24,
+		},
 		// no restrictions, for serious (other than team preview)
 		ruleset: ['Team Preview', 'Cancel Mod'],
 	},
@@ -2655,6 +2687,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		maxLevel: 9999,
 		battle: {trunc: Math.trunc},
 		defaultLevel: 100,
+		teamLength: {
+			validate: [1, 24],
+			battle: 24,
+		},
 		// no restrictions, for serious (other than team preview)
 		ruleset: ['Team Preview', 'Cancel Mod'],
 	},
@@ -2704,6 +2740,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		maxLevel: 9999,
 		battle: {trunc: Math.trunc},
 		defaultLevel: 100,
+		teamLength: {
+			validate: [1, 24],
+			battle: 24,
+		},
 		// no restrictions, for serious (other than team preview)
 		ruleset: ['Team Preview', 'Cancel Mod'],
 	},
@@ -2816,6 +2856,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		maxLevel: 9999,
 		battle: {trunc: Math.trunc},
 		defaultLevel: 100,
+		teamLength: {
+			validate: [1, 24],
+			battle: 24,
+		},
 		// no restrictions
 		ruleset: ['Cancel Mod'],
 	},
@@ -2848,6 +2892,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		maxLevel: 9999,
 		battle: {trunc: Math.trunc},
 		defaultLevel: 100,
+		teamLength: {
+			validate: [1, 24],
+			battle: 24,
+		},
 		// no restrictions
 		ruleset: ['Cancel Mod'],
 	},
@@ -2919,6 +2967,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		maxLevel: 9999,
 		battle: {trunc: Math.trunc},
 		defaultLevel: 100,
+		teamLength: {
+			validate: [1, 24],
+			battle: 24,
+		},
 		ruleset: ['HP Percentage Mod', 'Cancel Mod'],
 	},
 	{
@@ -2928,6 +2980,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		gameType: 'doubles',
 		searchShow: false,
 		debug: true,
+		teamLength: {
+			validate: [1, 24],
+			battle: 24,
+		},
 		ruleset: ['HP Percentage Mod', 'Cancel Mod'],
 	},
 	{
@@ -2957,6 +3013,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		maxLevel: 9999,
 		battle: {trunc: Math.trunc},
 		defaultLevel: 100,
+		teamLength: {
+			validate: [1, 24],
+			battle: 24,
+		},
 		ruleset: ['HP Percentage Mod', 'Cancel Mod'],
 	},
 	{
@@ -3016,6 +3076,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		maxLevel: 9999,
 		battle: {trunc: Math.trunc},
 		defaultLevel: 100,
+		teamLength: {
+			validate: [1, 24],
+			battle: 24,
+		},
 		ruleset: ['HP Percentage Mod', 'Cancel Mod'],
 	},
 ];

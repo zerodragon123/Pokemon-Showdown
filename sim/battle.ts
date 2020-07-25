@@ -147,7 +147,7 @@ export class Battle {
 		// kirliavc stuff:
 		let format = options.format || Dex.getFormat(options.formatid, true);
 		let realFormat='';
-		let mod=format.mod;
+		let mod = format.mod;
 		if (format.id === 'gen7randomformats') {
 			// @ts-ignore
 			realFormat = new PRNG().sample(format.formatsList);	//random select one format
@@ -155,7 +155,7 @@ export class Battle {
 			format.realFormat = realFormat;
 			// @ts-ignore
 			mod = realFormat.substr(0, 4);				// genx
-			format.mod=mod;
+			format.mod = mod;
 		}
 
 		// @ts-ignore
@@ -163,6 +163,9 @@ export class Battle {
 		this.realFormat = realFormat;
 
 		// const format = Dex.getFormat(options.formatid, true);
+		this.log = [];
+		this.add('t:', Math.floor(Date.now() / 1000));
+
 		this.format = format;
 		this.dex = Dex.forFormat(format);
 		this.gen = this.dex.gen;
@@ -195,7 +198,6 @@ export class Battle {
 		this.queue = new BattleQueue(this);
 		this.faintQueue = [];
 
-		this.log = [];
 		this.inputLog = [];
 		this.messageLog = [];
 		this.sentLogPos = 0;
@@ -2722,6 +2724,7 @@ export class Battle {
 
 	go() {
 		this.add('');
+		this.add('t:', Math.floor(Date.now() / 1000));
 		if (this.requestState) this.requestState = '';
 
 		if (!this.midTurn) {

@@ -1,4 +1,4 @@
-export const BattleScripts: ModdedBattleScriptsData = {
+export const Scripts: ModdedBattleScriptsData = {
 	init() {
 		const addNewMoves = (pokemonid: string, moveids: string[]) => {
 			for (const moveid of moveids.map(toID)) {
@@ -35,5 +35,10 @@ export const BattleScripts: ModdedBattleScriptsData = {
 		addNewMoves('garbodor', ['recover', 'flashcannon', 'steelbeam']);
 		addNewMoves('druddigon', ['recover', 'dragondance', 'steelbeam']);
 		addNewMoves('flygon', ['sludgewave', 'powergem']);
+		addNewMoves('marowak', ['headsmash', 'rockpolish']);
+		addNewMoves('exeggutor', ['weatherball', 'moonblast']);
+		addNewMoves('golduck', ['nastyplot']);
+		addNewMoves('emolga', ['partingshot', 'hurricane', 'burningjealousy']);
+		delete this.modData('Learnsets', 'emolga').learnset.encore;
 	},
 };

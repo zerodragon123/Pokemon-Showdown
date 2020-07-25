@@ -36,6 +36,9 @@ const THROTTLE_BUFFER_LIMIT = 6;
 const THROTTLE_MULTILINE_WARN = 3;
 const THROTTLE_MULTILINE_WARN_STAFF = 6;
 
+const NAMECHANGE_THROTTLE = 2 * 60 * 1000; // 2 minutes
+const NAMES_PER_THROTTLE = 3;
+
 const PERMALOCK_CACHE_TIME = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 const DEFAULT_TRAINER_SPRITES = [1, 2, 101, 102, 169, 170, 265, 266];
@@ -360,6 +363,7 @@ export class User extends Chat.MessageContext {
 		blockChallenges: boolean,
 		blockPMs: boolean | GroupSymbol | 'autoconfirmed' | 'trusted' | 'unlocked',
 		ignoreTickets: boolean,
+		hideBattlesFromTrainerCard: boolean,
 	};
 
 	battleSettings: {
@@ -389,6 +393,8 @@ export class User extends Chat.MessageContext {
 	lastMessage: string;
 	lastMessageTime: number;
 	lastReportTime: number;
+	lastNewNameTime = 0;
+	newNames = 0;
 	s1: string;
 	s2: string;
 	s3: string;
@@ -446,6 +452,7 @@ export class User extends Chat.MessageContext {
 			blockChallenges: false,
 			blockPMs: false,
 			ignoreTickets: false,
+			hideBattlesFromTrainerCard: false,
 		};
 		this.battleSettings = {
 			team: '',
@@ -694,6 +701,7 @@ export class User extends Chat.MessageContext {
 
 		const tokenDataSplit = tokenData.split(',');
 		const [signedChallenge, signedUserid, userType, signedDate, signedHostname] = tokenDataSplit;
+
 		if (signedHostname && Config.legalhosts && !Config.legalhosts.includes(signedHostname)) {
 			Monitor.warn(`forged assertion: ${tokenData}`);
 			this.send(`|nametaken|${name}|Your assertion is for the wrong server. This server is ${Config.legalhosts[0]}.`);
@@ -738,6 +746,23 @@ export class User extends Chat.MessageContext {
 		this.s1 = tokenDataSplit[5];
 		this.s2 = tokenDataSplit[6];
 		this.s3 = tokenDataSplit[7];
+
+		if (!this.trusted && userType === '1') { // userType '1' means unregistered
+			const elapsed = Date.now() - this.lastNewNameTime;
+			if (elapsed < NAMECHANGE_THROTTLE) {
+				if (this.newNames >= NAMES_PER_THROTTLE) {
+					this.send(
+						`|nametaken|${name}|You must wait ${Chat.toDurationString(NAMECHANGE_THROTTLE - elapsed)} more
+						seconds before using another unregistered name.`
+					);
+					return false;
+				}
+				this.newNames++;
+			} else {
+				this.lastNewNameTime = Date.now();
+				this.newNames = 1;
+			}
+		}
 
 		this.handleRename(name, userid, newlyRegistered, userType);
 	}
@@ -1128,7 +1153,7 @@ export class User extends Chat.MessageContext {
 					this.markDisconnected();
 				}
 				for (const roomid of connection.inRooms) {
-					this.leaveRoom(Rooms.get(roomid)!, connection, true);
+					this.leaveRoom(Rooms.get(roomid)!, connection);
 				}
 				--this.ips[connection.ip];
 				break;
@@ -1161,7 +1186,7 @@ export class User extends Chat.MessageContext {
 			// console.log('DESTROY: ' + this.id);
 			connection = this.connections[i];
 			for (const roomid of connection.inRooms) {
-				this.leaveRoom(Rooms.get(roomid)!, connection, true);
+				this.leaveRoom(Rooms.get(roomid)!, connection);
 			}
 			connection.destroy();
 		}
@@ -1256,17 +1281,8 @@ export class User extends Chat.MessageContext {
 			room.onConnect(this, connection);
 		}
 	}
-	leaveRoom(
-		room: Room | string,
-		connection: Connection | null = null,
-		force = false
-	) {
+	leaveRoom(room: Room | string, connection: Connection | null = null) {
 		room = Rooms.get(room)!;
-		if (room.roomid === 'global') {
-			// you can't leave the global room except while disconnecting
-			if (!force) return false;
-			this.cancelReady();
-		}
 		if (!this.inRooms.has(room.roomid)) {
 			return false;
 		}
@@ -1311,6 +1327,20 @@ export class User extends Chat.MessageContext {
 	}
 	updateSearch(connection: Connection | null = null) {
 		Ladders.updateSearch(this, connection);
+	}
+	/**
+	 * Moves the user's connections in a given room to another room.
+	 * This function's main use case is for when a room is renamed.
+	 */
+	moveConnections(oldRoomID: RoomID, newRoomID: RoomID) {
+		this.inRooms.delete(oldRoomID);
+		this.inRooms.add(newRoomID);
+		for (const connection of this.connections) {
+			connection.inRooms.delete(oldRoomID);
+			connection.inRooms.add(newRoomID);
+			Sockets.roomRemove(connection.worker, oldRoomID, connection.socketid);
+			Sockets.roomAdd(connection.worker, newRoomID, connection.socketid);
+		}
 	}
 	/**
 	 * The user says message in room.

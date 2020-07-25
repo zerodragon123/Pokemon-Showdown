@@ -596,11 +596,8 @@ export abstract class BasicRoom {
 		this.destroy();
 	}
 	reportJoin(type: 'j' | 'l' | 'n', entry: string, user: User) {
-		let reportJoins = this.reportJoins;
-		if (reportJoins && this.settings.modchat && !user.authAtLeast(this.settings.modchat, this)) {
-			reportJoins = false;
-		}
-		if (reportJoins) {
+		const canTalk = user.authAtLeast(this.settings.modchat ?? 'unlocked', this) && !this.isMuted(user);
+		if (this.reportJoins && canTalk) {
 			this.add(`|${type}|${entry}`).update();
 			return;
 		}
@@ -670,18 +667,27 @@ export abstract class BasicRoom {
 		);
 	}
 
+	getReplayData() {
+		if (!this.roomid.endsWith('pw')) return {id: this.roomid.slice(7)};
+		const end = this.roomid.length - 2;
+		const lastHyphen = this.roomid.lastIndexOf('-', end);
+		return {id: this.roomid.slice(7, lastHyphen), password: this.roomid.slice(lastHyphen, end)};
+	}
+
 	/**
 	 * @param newID Add this param if the roomid is different from `toID(newTitle)`
+	 * @param noAlias Set this param to true to not redirect aliases and the room's old name to its new name.
 	 */
-	async rename(newTitle: string, newID?: RoomID) {
+	async rename(newTitle: string, newID?: RoomID, noAlias?: boolean) {
 		if (!newID) newID = toID(newTitle) as RoomID;
-		if (this.game || this.tour) return;
-
+		if (this.type === 'chat' && this.game) {
+			throw new Chat.ErrorMessage(`Please finish your game (${this.game.title}) before renaming ${this.roomid}.`);
+		}
 		const oldID = this.roomid;
 		this.roomid = newID;
 		this.title = newTitle;
 		Rooms.rooms.delete(oldID);
-		Rooms.rooms.set(newID, this as ChatRoom);
+		Rooms.rooms.set(newID, this as Room);
 
 		if (oldID === 'lobby') {
 			Rooms.lobby = null;
@@ -689,27 +695,31 @@ export abstract class BasicRoom {
 			Rooms.lobby = this as ChatRoom;
 		}
 
-		for (const [alias, roomid] of Rooms.aliases.entries()) {
-			if (roomid === oldID) {
-				Rooms.aliases.set(alias, newID);
+		if (!noAlias) {
+			for (const [alias, roomid] of Rooms.aliases.entries()) {
+				if (roomid === oldID) {
+					Rooms.aliases.set(alias, newID);
+				}
 			}
+
+			// add an alias from the old id
+			Rooms.aliases.set(oldID, newID);
+			if (!this.settings.aliases) this.settings.aliases = [];
+			// resolve an old (fixed) bug in /renameroom
+			if (!this.settings.aliases.includes(oldID)) this.settings.aliases.push(oldID);
+		} else {
+			// clear aliases
+			for (const [alias, roomid] of Rooms.aliases.entries()) {
+				if (roomid === oldID) {
+					Rooms.aliases.delete(alias);
+				}
+			}
+			this.settings.aliases = undefined;
 		}
-		// add an alias from the old id
-		Rooms.aliases.set(oldID, newID);
-		if (!this.settings.aliases) this.settings.aliases = [];
-		// resolve an old (fixed) bug in /renameroom
-		if (!this.settings.aliases.includes(oldID)) this.settings.aliases.push(oldID);
 		this.saveSettings();
 
 		for (const user of Object.values(this.users)) {
-			user.inRooms.delete(oldID);
-			user.inRooms.add(newID);
-			for (const connection of user.connections) {
-				connection.inRooms.delete(oldID);
-				connection.inRooms.add(newID);
-				Sockets.roomRemove(connection.worker, oldID, connection.socketid);
-				Sockets.roomAdd(connection.worker, newID, connection.socketid);
-			}
+			user.moveConnections(oldID, newID);
 			user.send(`>${oldID}\n|noinit|rename|${newID}|${newTitle}`);
 		}
 
@@ -824,7 +834,7 @@ export abstract class BasicRoom {
 
 		// remove references to ourself
 		for (const i in this.users) {
-			this.users[i].leaveRoom(this as Room, null, true);
+			this.users[i].leaveRoom(this as Room, null);
 			delete this.users[i];
 		}
 
@@ -1315,7 +1325,6 @@ export class GlobalRoomState {
 		// @ts-ignore
 		const stack = (err ? Utils.escapeHTML(err.stack).split(`\n`).slice(0, 2).join(`<br />`) : ``);
 		for (const [id, curRoom] of Rooms.rooms) {
-			if (id === 'global') continue;
 			if (err) {
 				if (id === 'staff' || id === 'development' || (!devRoom && id === 'lobby')) {
 					curRoom.addRaw(`<div class="broadcast-red"><b>The server needs to restart because of a crash:</b> ${stack}<br />Please restart the server.</div>`);
@@ -1428,7 +1437,6 @@ export class GlobalRoomState {
 	destroyPersonalRooms(userid: ID) {
 		const roomauth = [];
 		for (const [id, curRoom] of Rooms.rooms) {
-			if (id === 'global' || !curRoom.persist) continue;
 			if (curRoom.settings.isPersonal && curRoom.auth.get(userid) === Users.HOST_SYMBOL) {
 				curRoom.destroy();
 			} else {

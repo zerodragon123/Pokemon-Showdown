@@ -1,4 +1,4 @@
-export const BattleScripts: ModdedBattleScriptsData = {
+export const Scripts: ModdedBattleScriptsData = {
 	gen: 8,
 	init() {
 		const addNewMoves = (pokemonid: string, moveids: string[], tutor = false) => {
@@ -7,9 +7,11 @@ export const BattleScripts: ModdedBattleScriptsData = {
 			}
 		};
 		for (const i in this.data.FormatsData) {
-			if (i.endsWith('gmax')) this.modData('FormatsData', i).tier = "OU";
+			if (i.endsWith('gmax')) {
+				this.modData('FormatsData', i).tier = "OU";
+				this.modData('FormatsData', i).isNonstandard = null;
+			}
 		}
-		this.modData('FormatsData', 'melmetalgmax').isNonstandard = null;
 
 		addNewMoves('venusaur', ['gunkshot', 'toxicspikes']);
 		addNewMoves('charizard', ['lavaplume', 'whirlwind']);

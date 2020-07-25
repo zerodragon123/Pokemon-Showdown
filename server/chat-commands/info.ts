@@ -59,7 +59,6 @@ export const commands: ChatCommands = {
 		let hiddenrooms = ``;
 		let privaterooms = ``;
 		for (const roomid of targetUser.inRooms) {
-			if (roomid === 'global') continue;
 			const targetRoom = Rooms.get(roomid)!;
 
 			const authSymbol = targetRoom.auth.getDirect(targetUser.id).trim();
@@ -587,12 +586,8 @@ export const commands: ChatCommands = {
 						Gen: String(pokemon.gen) || 'CAP',
 						Height: `${pokemon.heightm} m`,
 					};
-					if (pokemon.forme !== "Gmax" || dex.currentMod === 'megamax') {
-						details["Weight"] = `${pokemon.weighthg / 10} kg <em>(${weighthit} BP)</em>`;
-					} else {
-						details["Weight"] = "0 kg <em>(GK/LK fail)</em>";
-					}
-					if (pokemon.isGigantamax) details["G-Max Move"] = pokemon.isGigantamax;
+					details["Weight"] = `${pokemon.weighthg / 10} kg <em>(${weighthit} BP)</em>`;
+					if (pokemon.canGigantamax) details["G-Max Move"] = pokemon.canGigantamax;
 					if (pokemon.color && dex.gen >= 5) details["Dex Colour"] = pokemon.color;
 					if (pokemon.eggGroups && dex.gen >= 2) details["Egg Group(s)"] = pokemon.eggGroups.join(", ");
 					const evos: string[] = [];
@@ -734,7 +729,7 @@ export const commands: ChatCommands = {
 					if (dex.gen >= 8) {
 						if (move.isMax) {
 							details["&#10003; Max Move"] = "";
-							if (typeof move.isMax === "string") details["User"] = `${move.isMax}-Gmax`;
+							if (typeof move.isMax === "string") details["User"] = `${move.isMax}`;
 						} else if (move.maxMove?.basePower) {
 							details["Dynamax Power"] = String(move.maxMove.basePower);
 						}

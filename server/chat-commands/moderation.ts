@@ -83,7 +83,10 @@ export const commands: ChatCommands = {
 			return this.errorReply(`User '${name}' is unregistered, and so can't be promoted.`);
 		}
 
-		const currentSymbol = room.auth.getDirect(userid);
+		let currentSymbol: GroupSymbol | 'whitelist' = room.auth.getDirect(userid);
+		if (room.auth.has(userid) && currentSymbol === Users.Auth.defaultSymbol()) {
+			currentSymbol = 'whitelist';
+		}
 		const currentGroup = Users.Auth.getGroup(currentSymbol);
 		const nextSymbol = target === 'deauth' ? Users.Auth.defaultSymbol() : target as GroupSymbol;
 		const nextGroup = Users.Auth.getGroup(nextSymbol);
@@ -111,7 +114,7 @@ export const commands: ChatCommands = {
 		const currentGroupName = currentGroup.name || "regular user";
 		const nextGroupName = nextGroup.name || "regular user";
 
-		if (room.auth.getDirect(userid) === nextSymbol) {
+		if (currentSymbol === nextSymbol) {
 			return this.errorReply(`User '${name}' is already a ${nextGroupName} in this room.`);
 		}
 		if (!user.can('makeroom')) {
@@ -226,7 +229,7 @@ export const commands: ChatCommands = {
 		if (cmd === 'roomauth1') userLookup = `\n\nTo look up auth for a user, use /userauth ${target}`;
 		let targetRoom = room;
 		if (target) targetRoom = Rooms.search(target)!;
-		if (!targetRoom || targetRoom.roomid === 'global' || !targetRoom.checkModjoin(user)) {
+		if (!targetRoom || !targetRoom.checkModjoin(user)) {
 			return this.errorReply(`The room "${target}" does not exist.`);
 		}
 		const showAll = user.can('mute', null, targetRoom);
@@ -1337,7 +1340,7 @@ export const commands: ChatCommands = {
 		if (!target) return;
 
 		for (const curRoom of Rooms.rooms.values()) {
-			if (curRoom.roomid !== 'global' && curRoom.type !== 'battle') {
+			if (curRoom.type !== 'battle') {
 				curRoom.addRaw(`<div class="broadcast-blue"><b>${target}</b></div>`).update();
 			}
 		}

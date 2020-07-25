@@ -25,7 +25,7 @@ type SparseStatsTable = Partial<StatsTable>;
 type BoostName = StatNameExceptHP | 'accuracy' | 'evasion';
 type BoostsTable = {[boost in BoostName]: number };
 type SparseBoostsTable = Partial<BoostsTable>;
-type Nonstandard = 'Past' | 'Future' | 'Unobtainable' | 'CAP' | 'LGPE' | 'Custom';
+type Nonstandard = 'Past' | 'Future' | 'Unobtainable' | 'CAP' | 'LGPE' | 'Custom' | 'Gigantamax';
 /**
  * Describes the acceptable target(s) of a move.
  * adjacentAlly - Only relevant to Doubles or Triples, the move only targets an ally of the user.
@@ -63,6 +63,7 @@ interface PokemonSet {
 	happiness?: number;
 	pokeball?: string;
 	hpType?: string;
+	gigantamax?: boolean;
 }
 
 /**
@@ -722,6 +723,8 @@ interface EventMethods {
 	onAnyFaintPriority?: number;
 	onAllyBasePowerPriority?: number;
 	onAllyModifyAtkPriority?: number;
+	onAllyModifySpAPriority?: number;
+	onAllyModifySpDPriority?: number;
 	onAttractPriority?: number;
 	onBasePowerPriority?: number;
 	onBeforeMovePriority?: number;
@@ -753,6 +756,7 @@ interface EventMethods {
 	onResidualSubOrder?: number;
 	onSourceBasePowerPriority?: number;
 	onSourceInvulnerabilityPriority?: number;
+	onSourceModifyAccuracyPriority?: number;
 	onSourceModifyAtkPriority?: number;
 	onSourceModifySpAPriority?: number;
 	onSwitchInPriority?: number;
@@ -1126,7 +1130,8 @@ interface SpeciesData {
 	requiredItems?: string[];
 	requiredMove?: string;
 	battleOnly?: string | string[];
-	isGigantamax?: string;
+	canGigantamax?: string;
+	cannotDynamax?: boolean;
 	changesFrom?: string;
 	maleOnlyHidden?: boolean;
 	unreleasedHidden?: boolean | 'Past';
@@ -1139,6 +1144,7 @@ interface SpeciesFormatsData {
 	doublesTier?: string;
 	essentialMove?: string;
 	exclusiveMoves?: readonly string[];
+	gmaxUnreleased?: boolean;
 	isNonstandard?: Nonstandard | null;
 	randomBattleMoves?: readonly string[];
 	randomBattleLevel?: number;
@@ -1494,6 +1500,7 @@ namespace RandomTeamsTypes {
 		shiny: boolean;
 		nature?: string;
 		happiness?: number;
+		gigantamax?: boolean;
 		moveset?: RandomTeamsTypes.RandomSet;
 		other?: {discard: boolean, restrictMoves: {[k: string]: number}};
 	}

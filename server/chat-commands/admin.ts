@@ -219,6 +219,32 @@ export const commands: ChatCommands = {
 		`/pmuhtmlchange [user], [name], [html] - Changes html that was previously PMed to [user] to [html]. Requires * # &`,
 	],
 
+	sendhtmlpage(target, room, user) {
+		if (!room) return this.requiresRoom();
+		if (!this.can('addhtml', null, room)) return false;
+		let [targetID, pageid, content] = Utils.splitFirst(target, ',', 2);
+		if (!target || !pageid || !content) return this.parse(`/help sendhtmlpage`);
+		const targetUser = Users.get(targetID);
+		if (!targetUser) return this.errorReply(`User not found.`);
+		content = this.canHTML(content)!;
+		let conn = targetUser.connections[0];
+		// default to first connection, but check if they have another connection
+		// more recently active - send to that instead
+		for (const curConnection of targetUser.connections) {
+			if (curConnection.lastActiveTime > conn.lastActiveTime) conn = curConnection;
+		}
+		if (!content) return;
+		const context = new Chat.PageContext({
+			user: targetUser,
+			connection: conn,
+			pageid: `view-bot-${user.id}-${toID(pageid)}`,
+		});
+		context.title = `[${user.name}] ${pageid}`;
+		return context.send(content);
+	},
+	sendhtmlpagehelp: [
+		`/sendhtmlpage: [target], [page id], [html] - sends the [target] a HTML room with the HTML [content] and the [pageid]. Requires: s* # &`,
+	],
 	nick() {
 		this.sendReply(`||New to the Pokémon Showdown protocol? Your client needs to get a signed assertion from the login server and send /trn`);
 		this.sendReply(`||https://github.com/smogon/pokemon-showdown/blob/master/PROTOCOL.md#global-messages`);
@@ -392,7 +418,7 @@ export const commands: ChatCommands = {
 		`Hot-patching the game engine allows you to update parts of Showdown without interrupting currently-running battles. Requires: console access`,
 		`Hot-patching has greater memory requirements than restarting`,
 		`You can disable various hot-patches with /nohotpatch. For more information on this, see /help nohotpatch`,
-		`/hotpatch chat - reload chat-commands.js and the chat-plugins`,
+		`/hotpatch chat - reloads the chat-commands and chat-plugins directories`,
 		`/hotpatch validator - spawn new team validator processes`,
 		`/hotpatch formats - reload the .sim-dist/dex.js tree, rebuild and rebroad the formats list, and spawn new simulator and team validator processes`,
 		`/hotpatch dnsbl - reloads IPTools datacenters`,
@@ -404,7 +430,9 @@ export const commands: ChatCommands = {
 	],
 
 	hotpatchlock: 'nohotpatch',
-	nohotpatch(target, room, user) {
+	yeshotpatch: 'nohotpatch',
+	allowhotpatch: 'nohotpatch',
+	nohotpatch(target, room, user, connection, cmd) {
 		if (!this.can('gdeclare')) return;
 		if (!target) return this.parse('/help nohotpatch');
 
@@ -417,7 +445,17 @@ export const commands: ChatCommands = {
 		const lock = Monitor.hotpatchLock;
 		const validDisable = ['chat', 'battles', 'formats', 'validator', 'tournaments', 'punishments', 'all'];
 
-		if (validDisable.includes(hotpatch)) {
+		if (!validDisable.includes(hotpatch)) {
+			return this.errorReply(`Disabling hotpatching "${hotpatch}" is not supported.`);
+		}
+		const enable = ['allowhotpatch', 'yeshotpatch'].includes(cmd);
+
+		if (enable) {
+			if (!lock[hotpatch]) return this.errorReply(`Hot-patching ${hotpatch} is not disabled.`);
+
+			delete lock[hotpatch];
+			this.sendReply(`You have enabled hot-patching ${hotpatch}.`);
+		} else {
 			if (lock[hotpatch]) {
 				return this.errorReply(`Hot-patching ${hotpatch} has already been disabled by ${lock[hotpatch].by} (${lock[hotpatch].reason})`);
 			}
@@ -426,16 +464,15 @@ export const commands: ChatCommands = {
 				reason,
 			};
 			this.sendReply(`You have disabled hot-patching ${hotpatch}.`);
-		} else {
-			return this.errorReply("This hot-patch is not an option to disable.");
 		}
 		Rooms.global.notifyRooms(
 			['development', 'staff', 'upperstaff'] as RoomID[],
-			`|c|${user.getIdentity()}|/log ${user.name} has disabled hot-patching ${hotpatch}. Reason: ${reason}`
+			`|c|${user.getIdentity()}|/log ${user.name} has ${enable ? 'enabled' : 'disabled'} hot-patching ${hotpatch}. Reason: ${reason}`
 		);
 	},
 	nohotpatchhelp: [
 		`/nohotpatch [chat|formats|battles|validator|tournaments|punishments|all] [reason] - Disables hotpatching the specified part of the simulator. Requires: &`,
+		`/allowhotpatch [chat|formats|battles|validator|tournaments|punishments|all] [reason] - Enables hotpatching the specified part of the simulator. Requires: &`,
 	],
 
 	processes(target, room, user) {
@@ -457,7 +494,7 @@ export const commands: ChatCommands = {
 	async savelearnsets(target, room, user, connection) {
 		if (!this.canUseConsole()) return false;
 		this.sendReply("saving...");
-		await FS('data/learnsets.js').write(`'use strict';\n\nexports.BattleLearnsets = {\n` +
+		await FS('data/learnsets.js').write(`'use strict';\n\nexports.Learnsets = {\n` +
 			Object.entries(Dex.data.Learnsets).map(([id, entry]) => (
 				`\t${id}: {learnset: {\n` +
 				Object.entries(Dex.getLearnsetData(id as ID)).sort(
@@ -594,7 +631,7 @@ export const commands: ChatCommands = {
 
 		for (const curRoom of Rooms.rooms.values()) {
 			if (curRoom.type === 'battle') curRoom.rated = 0;
-			if (curRoom.roomid !== 'global') curRoom.addRaw(`<div class="broadcast-red">${innerHTML}</div>`).update();
+			curRoom.addRaw(`<div class="broadcast-red">${innerHTML}</div>`).update();
 		}
 		for (const u of Users.users.values()) {
 			if (u.connected) u.send(`|pm|&|${u.group}${u.name}|/raw <div class="broadcast-red">${innerHTML}</div>`);
@@ -617,7 +654,7 @@ export const commands: ChatCommands = {
 		);
 
 		for (const curRoom of Rooms.rooms.values()) {
-			if (curRoom.roomid !== 'global') curRoom.addRaw(`<div class="broadcast-green">${innerHTML}</div>`).update();
+			curRoom.addRaw(`<div class="broadcast-green">${innerHTML}</div>`).update();
 		}
 		for (const u of Users.users.values()) {
 			if (u.connected) u.send(`|pm|&|${u.group}${u.name}|/raw <div class="broadcast-green">${innerHTML}</div>`);
@@ -691,7 +728,7 @@ export const commands: ChatCommands = {
 			`<div class="broadcast-green"><b>The server restart was canceled.</b></div>`;
 		if (Rooms.global.lockdown === true) {
 			for (const curRoom of Rooms.rooms.values()) {
-				if (curRoom.roomid !== 'global') curRoom.addRaw(message).update();
+				curRoom.addRaw(message).update();
 			}
 			for (const curUser of Users.users.values()) {
 				curUser.send(`|pm|&|${curUser.group}${curUser.name}|/raw ${message}`);
@@ -716,9 +753,7 @@ export const commands: ChatCommands = {
 		}
 		Config.emergency = true;
 		for (const curRoom of Rooms.rooms.values()) {
-			if (curRoom.roomid !== 'global') {
-				curRoom.addRaw(`<div class="broadcast-red">The server has entered emergency mode. Some features might be disabled or limited.</div>`).update();
-			}
+			curRoom.addRaw(`<div class="broadcast-red">The server has entered emergency mode. Some features might be disabled or limited.</div>`).update();
 		}
 
 		this.stafflog(`${user.name} used /emergency.`);
@@ -1240,4 +1275,29 @@ export const commands: ChatCommands = {
 		`Short forms: /ebat h OR s OR pp OR b OR v OR sc OR fc OR w OR t`,
 		`[player] must be a username or number, [pokemon] must be species name or party slot number (not nickname), [move] must be move name.`,
 	],
+};
+
+export const pages: PageTable = {
+	bot(args, user) {
+		const [botid, pageid] = args;
+		const bot = Users.get(botid);
+		if (!bot) {
+			return `<div class="pad"><h2>The bot "${bot}" is not available.</h2></div>`;
+		}
+		let canSend = Users.globalAuth.get(bot) === '*';
+		let room;
+		for (const curRoom of Rooms.global.chatRooms) {
+			if (curRoom.auth.get(bot) === '*') {
+				canSend = true;
+				room = curRoom;
+			}
+		}
+		if (!canSend) {
+			return `<div class="pad"><h2>"${bot}" is not a bot.</h2></div>`;
+		}
+		bot.sendTo(
+			room ? room.roomid : 'lobby',
+			`|pm|${user.name}|${bot.name}||requestpage|${user.name}|${pageid}`
+		);
+	},
 };

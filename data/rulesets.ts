@@ -1,7 +1,7 @@
 // Note: These are the rules that formats use
 // The list of formats is stored in config/formats.js
 
-export const BattleFormats: {[k: string]: FormatsData} = {
+export const Formats: {[k: string]: FormatsData} = {
 
 	// Rulesets
 	///////////////////////////////////////////////////////////////////
@@ -272,6 +272,21 @@ export const BattleFormats: {[k: string]: FormatsData} = {
 			if (!galarDex.includes(species.baseSpecies) && !galarDex.includes(species.name) &&
 				!this.ruleTable.has('+' + species.id)) {
 				return [`${species.baseSpecies} is not in the Galar Pokédex.`];
+			}
+		},
+	},
+	isleofarmorpokedex: {
+		effectType: 'ValidatorRule',
+		name: 'Isle of Armor Pokedex',
+		desc: "Only allows Pok&eacute;mon native to the Isle of Armor in the Galar Region (Sw/Sh DLC1)",
+		onValidateSet(set, format) {
+			const ioaDex = [
+				"Slowpoke", "Slowbro", "Slowking", "Buneary", "Lopunny", "Happiny", "Chansey", "Blissey", "Skwovet", "Greedent", "Igglybuff", "Jigglypuff", "Wigglytuff", "Blipbug", "Dottler", "Fomantis", "Lurantis", "Applin", "Flapple", "Appletun", "Fletchling", "Fletchinder", "Talonflame", "Shinx", "Luxio", "Luxray", "Klefki", "Pawniard", "Bisharp", "Abra", "Kadabra", "Alakazam", "Ralts", "Kirlia", "Gardevoir", "Gallade", "Krabby", "Kingler", "Tentacool", "Tentacruel", "Magikarp", "Gyarados", "Remoraid", "Octillery", "Mantyke", "Mantine", "Wingull", "Pelipper", "Skorupi", "Drapion", "Dunsparce", "Bouffalant", "Lickitung", "Lickilicky", "Chewtle", "Drednaw", "Wooper", "Quagsire", "Goomy", "Sliggoo", "Goodra", "Druddigon", "Shelmet", "Accelgor", "Karrablast", "Escavalier", "Bulbasaur", "Ivysaur", "Venusaur", "Squirtle", "Wartortle", "Blastoise", "Venipede", "Whirlipede", "Scolipede", "Foongus", "Amoonguss", "Comfey", "Tangela", "Tangrowth", "Croagunk", "Toxicroak", "Pichu", "Pikachu", "Raichu", "Zorua", "Zoroark", "Oranguru", "Passimian", "Corphish", "Crawdaunt", "Cramorant", "Goldeen", "Seaking", "Arrokuda", "Barraskewda", "Staryu", "Starmie", "Kubfu", "Urshifu", "Emolga", "Dedenne", "Morpeko", "Magnemite", "Magneton", "Magnezone", "Inkay", "Malamar", "Wishiwashi", "Carvanha", "Sharpedo", "Lillipup", "Herdier", "Stoutland", "Tauros", "Miltank", "Scyther", "Scizor", "Pinsir", "Heracross", "Dwebble", "Crustle", "Wimpod", "Golisopod", "Pincurchin", "Mareanie", "Toxapex", "Clobbopus", "Grapploct", "Shellder", "Cloyster", "Sandygast", "Palossand", "Drifloon", "Drifblim", "Barboach", "Whiscash", "Azurill", "Marill", "Azumarill", "Poliwag", "Poliwhirl", "Poliwrath", "Politoed", "Psyduck", "Golduck", "Whismur", "Loudred", "Exploud", "Woobat", "Swoobat", "Skarmory", "Roggenrola", "Boldore", "Gigalith", "Rockruff", "Lycanroc", "Salandit", "Salazzle", "Scraggy", "Scrafty", "Mienfoo", "Mienshao", "Jangmo-o", "Hakamo-o", "Kommo-o", "Sandshrew", "Sandslash", "Cubone", "Marowak", "Kangaskhan", "Torkoal", "Silicobra", "Sandaconda", "Sandile", "Krokorok", "Krookodile", "Rufflet", "Braviary", "Vullaby", "Mandibuzz", "Rhyhorn", "Rhydon", "Rhyperior", "Larvesta", "Volcarona", "Chinchou", "Lanturn", "Wailmer", "Wailord", "Frillish", "Jellicent", "Skrelp", "Dragalge", "Clauncher", "Clawitzer", "Horsea", "Seadra", "Kingdra", "Petilil", "Lilligant", "Combee", "Vespiquen", "Exeggcute", "Exeggutor", "Ditto", "Porygon", "Porygon2", "Porygon-Z",
+			];
+			const species = this.dex.getSpecies(set.species || set.name);
+			if (!ioaDex.includes(species.baseSpecies) && !ioaDex.includes(species.name) &&
+				!this.ruleTable.has('+' + species.id)) {
+				return [`${species.baseSpecies} is not in the Isle of Armor Pokédex.`];
 			}
 		},
 	},
@@ -636,8 +651,23 @@ export const BattleFormats: {[k: string]: FormatsData} = {
 		desc: "Bans sleep moves below 100% accuracy, in conjunction with Gravity or Gigantamax Orbeetle",
 		banlist: [
 			'Gravity ++ Grass Whistle', 'Gravity ++ Hypnosis', 'Gravity ++ Lovely Kiss', 'Gravity ++ Sing', 'Gravity ++ Sleep Powder',
-			'Orbeetle-Gmax ++ Grass Whistle', 'Orbeetle-Gmax ++ Hypnosis', 'Orbeetle-Gmax ++ Lovely Kiss', 'Orbeetle-Gmax ++ Sing', 'Orbeetle-Gmax ++ Sleep Powder',
 		],
+		onValidateTeam(team) {
+			let hasOrbeetle = false;
+			let hasSleepMove = false;
+			for (const set of team) {
+				const species = this.dex.getSpecies(set.species);
+				if (species.name === "Orbeetle" && set.gigantamax) hasOrbeetle = true;
+				if (!hasOrbeetle && species.name === "Orbeetle-Gmax") hasOrbeetle = true;
+				for (const moveid of set.moves) {
+					const move = this.dex.getMove(moveid);
+					if (move.status && move.status === 'slp' && move.accuracy < 100) hasSleepMove = true;
+				}
+			}
+			if (hasOrbeetle && hasSleepMove) {
+				return [`The combination of Gravity and Gigantamax Orbeetle on the same team is banned.`];
+			}
+		},
 		onBegin() {
 			this.add('rule', 'Gravity Sleep Clause: The combination of sleep-inducing moves with imperfect accuracy and Gravity or Gigantamax Orbeetle are banned');
 		},
@@ -938,9 +968,11 @@ export const BattleFormats: {[k: string]: FormatsData} = {
 		name: 'Dynamax Clause',
 		desc: "Prevents Pok&eacute;mon from dynamaxing",
 		onValidateSet(set) {
-			const species = this.dex.getSpecies(set.species);
-			if (species.isGigantamax) {
-				return [`Gigantamaxing is banned.`, `(Change ${species.name} to its base species, ${species.baseSpecies}.)`];
+			if (set.gigantamax) {
+				return [
+					`Your set for ${set.species} is flagged as Gigantamax, but Gigantamaxing is disallowed`,
+					`(If this was a mistake, disable Gigantamaxing on the set.)`,
+				];
 			}
 		},
 		onBegin() {
