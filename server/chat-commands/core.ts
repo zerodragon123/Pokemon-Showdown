@@ -13,7 +13,6 @@
  * @license MIT
  */
 
-
 /* eslint no-else-return: "error" */
 import {Utils} from '../../lib/utils';
 type UserSettings = import('../users').User['settings'];
@@ -1201,17 +1200,23 @@ export const commands: ChatCommands = {
 	 * Challenging and searching commands
 	 *********************************************************/
 
-	search(target, room, user, connection) {
+	async search(target, room, user, connection) {
 		if (target) {
 			if (Config.laddermodchat) {
-				const userGroup = user.group;
-				if (Config.groupsranking.indexOf(userGroup) < Config.groupsranking.indexOf(Config.laddermodchat)) {
+				if (!Users.globalAuth.atLeast(user, Config.laddermodchat)) {
 					const groupName = Config.groups[Config.laddermodchat].name || Config.laddermodchat;
 					this.popupReply(`On this server, you must be of rank ${groupName} or higher to search for a battle.`);
 					return false;
 				}
 			}
-			return Ladders(target).searchBattle(user, connection);
+			const ladder = Ladders(target);
+			if (!user.registered && Config.forceregisterelo && await ladder.getRating(user.id) >= Config.forceregisterelo) {
+				user.send(
+					Utils.html`|popup||html|Since you have reached ${Config.forceregisterelo} ELO in ${target}, you must register your account to continue playing that format on ladder.<p style="text-align: center"><button name="register" value="${user.id}"><b>Register</b></button></p>`
+				);
+				return false;
+			}
+			return ladder.searchBattle(user, connection);
 		}
 		return Ladders.cancelSearches(user);
 	},
@@ -1241,8 +1246,7 @@ export const commands: ChatCommands = {
 			return this.popupReply(`You must choose a username before you challenge someone.`);
 		}
 		if (Config.pmmodchat) {
-			const userGroup = user.group;
-			if (Config.groupsranking.indexOf(userGroup) < Config.groupsranking.indexOf(Config.pmmodchat as GroupSymbol)) {
+			if (Users.globalAuth.atLeast(user, Config.pmmodchat as GroupSymbol)) {
 				const groupName = Config.groups[Config.pmmodchat].name || Config.pmmodchat;
 				this.popupReply(`Because moderated chat is set, you must be of rank ${groupName} or higher to challenge users.`);
 				return false;
@@ -1324,18 +1328,20 @@ export const commands: ChatCommands = {
 		});
 	},
 
+	hbtc: 'hidebattlesfromtrainercard',
+	sbtc: 'hidebattlesfromtrainercard',
 	showbattlesinusercard: 'hidebattlesfromtrainercard',
 	hidebattlesfromusercard: 'hidebattlesfromtrainercard',
 	showbattlesintrainercard: 'hidebattlesfromtrainercard',
 	hidebattlesfromtrainercard(target, room, user, connection, cmd) {
-		const shouldHide = cmd.includes('hide');
+		const shouldHide = cmd.includes('hide') || cmd === 'hbtc';
 		user.settings.hideBattlesFromTrainerCard = shouldHide;
 		user.update();
 		this.sendReply(`Battles are now ${shouldHide ? "hidden (except to staff)" : "visible"} in your trainer card.`);
 	},
 	hidebattlesfromtrainercardhelp: [
-		`/hidebattlesfromtrainercard - Hides your battles in your trainer card.`,
-		`/showbattlesintrainercard - Displays your battles in your trainer card.`,
+		`/hidebattlesfromtrainercard OR /hbtc - Hides your battles in your trainer card.`,
+		`/showbattlesintrainercard OR /sbtc - Displays your battles in your trainer card.`,
 	],
 
 	/*********************************************************
@@ -1565,9 +1571,6 @@ export const commands: ChatCommands = {
 				};
 			}
 
-			if (!nextNamespace) {
-				return this.errorReply(`The command '/${target}' does not exist.`);
-			}
 			if (typeof nextNamespace === 'function') break;
 			namespace = nextNamespace as import('../chat').AnnotatedChatCommands;
 		}

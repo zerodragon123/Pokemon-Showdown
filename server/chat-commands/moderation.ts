@@ -397,19 +397,29 @@ export const commands: ChatCommands = {
 		const globalWarn = room.roomid === 'staff' || room.roomid.startsWith('help-') || (room.battle && !room.parent);
 
 		target = this.splitTarget(target);
+		let privateReason = '';
+		let publicReason = target;
+		const targetLowercase = target.toLowerCase();
+		if (target && (targetLowercase.includes('spoiler:') || targetLowercase.includes('spoilers:'))) {
+			const privateIndex = targetLowercase.indexOf(targetLowercase.includes('spoilers:') ? 'spoilers:' : 'spoiler:');
+			const bump = (targetLowercase.includes('spoilers:') ? 9 : 8);
+			privateReason = `(PROOF: ${target.substr(privateIndex + bump, target.length).trim()}) `;
+			publicReason = target.substr(0, privateIndex).trim();
+		}
+
 		const targetUser = this.targetUser;
 		if (!targetUser || !targetUser.connected) {
 			if (!targetUser || !globalWarn) return this.errorReply(`User '${this.targetUsername}' not found.`);
 			if (!this.can('warn', null, room)) return false;
 
-			this.addModAction(`${targetUser.name} would be warned by ${user.name} but is offline.${(target ? ` (${target})` : ``)}`);
-			this.globalModlog('WARN OFFLINE', targetUser, ` by ${user.id}${(target ? `: ${target}` : ``)}`);
+			this.addModAction(`${targetUser.name} would be warned by ${user.name} but is offline.${(publicReason ? ` (${publicReason})` : ``)}`);
+			this.globalModlog('WARN OFFLINE', targetUser, ` by ${user.id}${(target ? `: ${publicReason} ${privateReason}` : ``)}`);
 			return;
 		}
 		if (!(targetUser.id in room.users) && !globalWarn) {
 			return this.errorReply(`User ${this.targetUsername} is not in the room ${room.roomid}.`);
 		}
-		if (target.length > MAX_REASON_LENGTH) {
+		if (publicReason.length > MAX_REASON_LENGTH) {
 			return this.errorReply(`The reason is too long. It cannot exceed ${MAX_REASON_LENGTH} characters.`);
 		}
 		if (!this.can('warn', targetUser, room)) return false;
@@ -422,17 +432,18 @@ export const commands: ChatCommands = {
 			return this.errorReply(`You must wait ${remainder} more seconds before you can warn ${targetUser.name} again.`);
 		}
 
-		this.addModAction(`${targetUser.name} was warned by ${user.name}.${(target ? ` (${target})` : ``)}`);
+		this.addModAction(`${targetUser.name} was warned by ${user.name}.${(publicReason ? ` (${publicReason})` : ``)}`);
 		if (globalWarn) {
-			this.globalModlog('WARN', targetUser, ` by ${user.id}${(target ? `: ${target}` : ``)}`);
+			this.globalModlog('WARN', targetUser, ` by ${user.id}${(target ? `: ${publicReason} ${privateReason}` : ``)}`);
 		} else {
-			this.modlog('WARN', targetUser, target, {noalts: 1});
+			this.modlog('WARN', targetUser, target ? `${publicReason} ${privateReason}` : ``, {noalts: 1});
 		}
-		targetUser.send(`|c|~|/warn ${target}`);
+		targetUser.send(`|c|~|/warn ${publicReason}`);
 
 		const userid = targetUser.getLastId();
-		this.add(`|unlink|${userid}`);
-		if (userid !== toID(this.inputUsername)) this.add(`|unlink|${toID(this.inputUsername)}`);
+
+		this.add(`|hidelines|unlink|${userid}`);
+		if (userid !== toID(this.inputUsername)) this.add(`|hidelines|unlink|${toID(this.inputUsername)}`);
 
 		targetUser.lastWarnedAt = now;
 
@@ -441,6 +452,7 @@ export const commands: ChatCommands = {
 	},
 	warnhelp: [
 		`/warn OR /k [username], [reason] - Warns a user showing them the site rules and [reason] in an overlay.`,
+		`/warn OR /k [username], [reason] spoiler: [private reason] - Warns a user, marking [private reason] only in the modlog.`,
 		`Requires: % @ # &`,
 	],
 
@@ -526,8 +538,8 @@ export const commands: ChatCommands = {
 			this.privateModAction(displayMessage);
 		}
 		const userid = targetUser.getLastId();
-		this.add(`|unlink|${userid}`);
-		if (userid !== toID(this.inputUsername)) this.add(`|unlink|${toID(this.inputUsername)}`);
+		this.add(`|hidelines|unlink|${userid}`);
+		if (userid !== toID(this.inputUsername)) this.add(`|hidelines|unlink|${toID(this.inputUsername)}`);
 
 		room.mute(targetUser, muteDuration);
 	},
@@ -780,7 +792,7 @@ export const commands: ChatCommands = {
 	lockhelp: [
 		`/lock OR /l [username], [reason] - Locks the user from talking in all chats. Requires: % @ &`,
 		`/weeklock OR /wl [username], [reason] - Same as /lock, but locks users for a week.`,
-		`/lock OR /l [username], [reason] spoiler: [proof] - Marks proof in modlog only.`,
+		`/lock OR /l [username], [reason] spoiler: [private reason] - Marks [private reason] in modlog only.`,
 	],
 
 	unlock(target, room, user) {
@@ -924,7 +936,7 @@ export const commands: ChatCommands = {
 			displayMessage = `${name}'s ${(acAccount ? `ac account: ${acAccount}, ` : ``)} banned alts: ${affectedAlts.join(", ")} ${(guests ? ` [${guests} guests]` : ``)}`;
 			this.privateModAction(displayMessage);
 			for (const id of affectedAlts) {
-				this.add(`|unlink|${toID(id)}`);
+				this.add(`|hidelines|unlink|${toID(id)}`);
 			}
 		} else if (acAccount) {
 			displayMessage = `${name}'s ac account: ${acAccount}`;
@@ -939,7 +951,7 @@ export const commands: ChatCommands = {
 	},
 	globalbanhelp: [
 		`/globalban OR /gban [username], [reason] - Kick user from all rooms and ban user's IP address with reason. Requires: @ &`,
-		`/globalban OR /gban [username], [reason] spoiler: [proof] - Marks proof in modlog only.`,
+		`/globalban OR /gban [username], [reason] spoiler: [private reason] - Marks [private reason] in modlog only.`,
 	],
 
 	globalunban: 'unglobalban',
@@ -1138,12 +1150,12 @@ export const commands: ChatCommands = {
 		if (currentGroup === nextGroup) {
 			return this.errorReply(`User '${name}' is already a ${groupName}`);
 		}
-		if (!Users.Auth.hasPermission(user, 'promote', currentGroup) && !user.hasSysopAccess()) {
+		if (!Users.Auth.hasPermission(user, 'promote', currentGroup)) {
 			this.errorReply(`/${cmd} - Access denied for promoting from ${currentGroup}`);
 			this.errorReply(`You can only promote to/from: ${Users.Auth.listJurisdiction(user, 'promote')}`);
 			return;
 		}
-		if (!Users.Auth.hasPermission(user, 'promote', nextGroup) && !user.hasSysopAccess()) {
+		if (!Users.Auth.hasPermission(user, 'promote', nextGroup)) {
 			this.errorReply(`/${cmd} - Access denied for promoting to ${groupName}`);
 			this.errorReply(`You can only promote to/from: ${Users.Auth.listJurisdiction(user, 'promote')}`);
 		}
@@ -1512,10 +1524,16 @@ export const commands: ChatCommands = {
 	hidelines: 'hidetext',
 	forcehidelines: 'hidetext',
 	hlines: 'hidetext',
+	cleartext: 'hidetext',
+	clearaltstext: 'hidetext',
+	clearlines: 'hidetext',
+	forcecleartext: 'hidetext',
+	forceclearlines: 'hidetext',
 	hidetext(target, room, user, connection, cmd) {
 		if (!target) return this.parse(`/help hidetext`);
 		if (!room) return this.requiresRoom();
 		const hasLineCount = cmd.includes('lines');
+		const hideRevealButton = cmd.includes('clear');
 		target = this.splitTarget(target);
 		let lineCount = 0;
 		if (/^[0-9]+\s*(,|$)/.test(target)) {
@@ -1551,8 +1569,15 @@ export const commands: ChatCommands = {
 			return this.errorReply(`${name} is a trusted user, are you sure you want to hide their messages? Use /forcehidetext if you're sure.`);
 		}
 
+		// if the user hiding their own text, it would clear the "cleared" message,
+		// so we can't attribute it in that case
+		const sender = user === targetUser ? null : user;
+
 		if (targetUser && showAlts) {
-			room.send(`|c|~|${name}'s alts messages were cleared from ${room.title} by ${user.name}.${(reason ? ` (${reason})` : ``)}`);
+			room.sendByUser(
+				sender,
+				`${name}'s alts messages were cleared from ${room.title} by ${user.name}.${(reason ? ` (${reason})` : ``)}`
+			);
 			this.modlog('HIDEALTSTEXT', targetUser, reason, {noip: 1});
 			room.hideText([
 				userid,
@@ -1561,18 +1586,25 @@ export const commands: ChatCommands = {
 			] as ID[]);
 		} else {
 			if (lineCount > 0) {
-				room.send(`|c|~|${lineCount} of ${name}'s messages were cleared from ${room.title} by ${user.name}.${(reason ? ` (${reason})` : ``)}`);
+				room.sendByUser(
+					sender,
+					`${lineCount} of ${name}'s messages were cleared from ${room.title} by ${user.name}.${(reason ? ` (${reason})` : ``)}`
+				);
 			} else {
-				room.send(`|c|~|${name}'s messages were cleared from ${room.title} by ${user.name}.${(reason ? ` (${reason})` : ``)}`);
+				room.sendByUser(
+					sender,
+					`${name}'s messages were cleared from ${room.title} by ${user.name}.${(reason ? ` (${reason})` : ``)}`
+				);
 			}
 			this.modlog('HIDETEXT', targetUser || userid, reason, {noip: 1, noalts: 1});
-			room.hideText([userid], lineCount);
+			room.hideText([userid], lineCount, hideRevealButton);
 		}
 	},
 	hidetexthelp: [
 		`/hidetext [username], [optional reason] - Removes a user's messages from chat, with an optional reason. Requires: % @ # &`,
 		`/hidealtstext [username], [optional reason] - Removes a user's messages and their alternate accounts' messages from the chat, with an optional reason.  Requires: % @ # &`,
 		`/hidelines [username], [number], [optional reason] - Removes the [number] most recent messages from a user, with an optional reason. Requires: % @ # &`,
+		`Use /cleartext, /clearaltstext, and /clearlines to remove messages without displaying a button to reveal them.`,
 	],
 
 	ab: 'blacklist',
@@ -1753,11 +1785,9 @@ export const commands: ChatCommands = {
 			return this.errorReply(`[${duplicates.join(', ')}] ${Chat.plural(duplicates, "are", "is")} already blacklisted.`);
 		}
 
-		const userRank = Config.groupsranking.indexOf(room.auth.get(user.id));
 		for (const userid of targets) {
 			if (!userid) return this.errorReply(`User '${userid}' is not a valid userid.`);
-			const targetRank = Config.groupsranking.indexOf(room.auth.get(userid));
-			if (targetRank >= userRank) {
+			if (!Users.Auth.hasPermission(user, 'ban', room.auth.get(userid), room)) {
 				return this.errorReply(`/blacklistname - Access denied: ${userid} is of equal or higher authority than you.`);
 			}
 
@@ -1849,7 +1879,7 @@ export const commands: ChatCommands = {
 			}
 		}
 
-		if (user.can('globalban')) {
+		if (user.can('ip')) {
 			const roomIps = Punishments.roomIps.get(room.roomid);
 
 			if (roomIps) {

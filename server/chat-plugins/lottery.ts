@@ -237,13 +237,13 @@ export const commands: ChatCommands = {
 			if (!lottery) {
 				return this.errorReply('This room does not have a lottery running.');
 			}
-			const canSeeIps = user.can('globalban');
+			const canSeeIps = user.can('ip');
 			const participants = Object.entries(lottery.participants).map(([ip, participant]) => {
 				return `- ${participant}${canSeeIps ? ' (IP: ' + ip + ')' : ''}`;
 			});
 			let buf = '';
 			if (user.can('declare', null, room)) {
-				buf += `<details class="readmore"><summary><b>List of participants (${participants.length}):</b></summary><p>${participants.join('\n')}</p></details>`;
+				buf += `<details class="readmore"><summary><strong>List of participants (${participants.length}):</strong></summary>${participants.join('<br>')}</details>`;
 			} else {
 				buf += `${participants.length} participant(s) joined this lottery.`;
 			}

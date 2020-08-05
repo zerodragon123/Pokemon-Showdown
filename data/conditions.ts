@@ -1,4 +1,4 @@
-export const Conditions: {[k: string]: PureEffectData} = {
+export const Conditions: {[k: string]: ConditionData} = {
 	brn: {
 		name: 'brn',
 		effectType: 'Status',
@@ -669,6 +669,7 @@ export const Conditions: {[k: string]: PureEffectData} = {
 		noCopy: true,
 		duration: 3,
 		onStart(pokemon) {
+			pokemon.removeVolatile('minimize');
 			pokemon.removeVolatile('substitute');
 			if (pokemon.volatiles['torment']) {
 				delete pokemon.volatiles['torment'];

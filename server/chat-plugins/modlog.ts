@@ -264,7 +264,11 @@ function prettifyResults(
 			return `${date}<small>[${timestamp}] \u2190 current server time</small>`;
 		}
 		const parenIndex = line.indexOf(')');
-		const thisRoomID = line.slice((bracketIndex as number) + 3, parenIndex);
+		const thisRoomID = line.slice((bracketIndex as number) + 3, parenIndex)
+			.replace(
+				/tournament: ([a-zA-z0-9]+)/,
+				(match, room) => `tournament: «<a href="/${room}" target="_blank">${room}</a>»`
+			);
 		if (addModlogLinks) {
 			const url = Config.modloglink(time, thisRoomID);
 			if (url) timestamp = `<a href="${url}">${timestamp}</a>`;
@@ -331,7 +335,7 @@ async function getModlog(
 	// handle this here so the child process doesn't have to load rooms data
 	if (roomid === 'public') {
 		roomidList = [...Rooms.rooms.values()].filter(
-			room => !(room.settings.isPrivate || room.battle || room.settings.isPersonal)
+			room => !(room.settings.isPrivate || room.settings.isPersonal)
 		).map(room => room.roomid);
 	} else {
 		roomidList = [roomid];

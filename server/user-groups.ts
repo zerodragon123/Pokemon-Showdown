@@ -7,14 +7,14 @@ export const PLAYER_SYMBOL: GroupSymbol = '\u2606';
 export const HOST_SYMBOL: GroupSymbol = '\u2605';
 
 export const ROOM_PERMISSIONS = [
-	'addhtml', 'announce', 'ban', 'bypassafktimer', 'declare', 'editprivacy', 'editroom', 'exportinputlog', 'game', 'gamemanagement', 'gamemoderation', 'joinbattle', 'kick', 'minigame', 'modchat', 'modchatall', 'modlog', 'mute', 'nooverride', 'receiveauthmessages', 'roombot', 'roomdriver', 'roommod', 'roomowner', 'roomvoice', 'show', 'showmedia', 'timer', 'tournaments', 'warn',
+	'addhtml', 'announce', 'ban', 'bypassafktimer', 'declare', 'editprivacy', 'editroom', 'exportinputlog', 'game', 'gamemanagement', 'gamemoderation', 'joinbattle', 'kick', 'minigame', 'modchat', 'modlog', 'mute', 'nooverride', 'receiveauthmessages', 'roombot', 'roomdriver', 'roommod', 'roomowner', 'roomvoice', 'show', 'showmedia', 'timer', 'tournaments', 'warn',
 ] as const;
 
 export const GLOBAL_PERMISSIONS = [
 	// administrative
 	'bypassall', 'console', 'disableladder', 'lockdown', 'potd', 'rawpacket',
 	// other
-	'addhtml', 'alts', 'autotimer', 'globalban', 'bypassblocks', 'bypassafktimer', 'forcepromote', 'forcerename', 'forcewin', 'gdeclare', 'ignorelimits', 'importinputlog', 'ip', 'lock', 'makeroom', 'modlog', 'rangeban', 'promote',
+	'addhtml', 'alts', 'altsself', 'autotimer', 'globalban', 'bypassblocks', 'bypassafktimer', 'forcepromote', 'forcerename', 'forcewin', 'gdeclare', 'ignorelimits', 'importinputlog', 'ip', 'ipself', 'lock', 'makeroom', 'modlog', 'rangeban', 'promote',
 ] as const;
 
 export type RoomPermission = typeof ROOM_PERMISSIONS[number];
@@ -49,19 +49,26 @@ export abstract class Auth extends Map<ID, GroupSymbol | ''> {
 	 *
 	 * Passing a User will read `user.group`, which is relevant for unregistered
 	 * users with temporary global auth.
+	 * @param isVisual: Whether or not to display the user's visual (display) group. Defaults to false
 	 */
-	get(user: ID | User) {
-		if (typeof user !== 'string') return (user as User).group;
-		return super.get(user) || Auth.defaultSymbol();
+	get(user: ID | User, isVisual?: boolean) {
+		if (typeof user !== 'string') return (isVisual ? (user as User).visualGroup : (user as User).group);
+		return (isVisual ? Users.get(user)?.visualGroup : super.get(user)) || Auth.defaultSymbol();
 	}
 	isStaff(userid: ID) {
 		return this.has(userid) && this.get(userid) !== '+';
 	}
-	atLeast(user: User, group: GroupSymbol) {
+	atLeast(user: User, group: GroupSymbol, isPermissionCheck?: boolean) {
 		if (!Config.groups[group]) return false;
 		if (user.locked || user.semilocked) return false;
 		if (this.get(user.id) === ' ' && group !== ' ') return false;
-		return Auth.getGroup(this.get(user.id)).rank >= Auth.getGroup(group).rank;
+		if (Auth.atLeast(this.get(user.id, true), group)) {
+			return true;
+		} else if (Auth.atLeast(this.get(user.id, false), group)) {
+			// Reset a user's visualGroup if they need their true group for a permissions check
+			if (isPermissionCheck) user.resetVisualGroup();
+			return true;
+		}
 	}
 
 	static defaultSymbol() {
@@ -81,8 +88,8 @@ export abstract class Auth extends Map<ID, GroupSymbol | ''> {
 			name: symbol,
 		});
 	}
-	getEffectiveSymbol(user: User): EffectiveGroupSymbol {
-		const group = this.get(user);
+	getEffectiveSymbol(user: User, isVisual?: boolean): EffectiveGroupSymbol {
+		const group = this.get(user, isVisual);
 		if (this.has(user.id) && group === Auth.defaultSymbol()) {
 			return 'whitelist';
 		}
@@ -91,15 +98,18 @@ export abstract class Auth extends Map<ID, GroupSymbol | ''> {
 	static hasPermission(
 		user: User,
 		permission: string,
-		target: User | GroupSymbol | null,
-		room?: Room | BasicRoom | null
+		target: User | EffectiveGroupSymbol | null,
+		room?: Room | BasicRoom | null,
+		cmd?: string,
+		useVisualGroup?: boolean
 	): boolean {
 		if (user.hasSysopAccess()) return true;
 
 		const auth: Auth = room ? room.auth : Users.globalAuth;
 
-		const symbol = auth.getEffectiveSymbol(user);
-		const targetSymbol = (typeof target === 'string' || !target) ? target : auth.get(target);
+		const symbol = auth.getEffectiveSymbol(user, useVisualGroup);
+		let targetSymbol = (typeof target === 'string' || !target) ? target : auth.get(target);
+		if (targetSymbol === 'whitelist') targetSymbol = Auth.defaultSymbol();
 
 		const group = Auth.getGroup(symbol);
 		if (group['root']) return true;
@@ -108,14 +118,45 @@ export abstract class Auth extends Map<ID, GroupSymbol | ''> {
 		if (jurisdiction === true && permission !== 'jurisdiction') {
 			jurisdiction = group['jurisdiction'] || true;
 		}
+		const roomPermissions = room ? room.settings.permissions : null;
+		if (roomPermissions) {
+			if (cmd && roomPermissions[`/${cmd}`]) {
+				if (!auth.atLeast(user, roomPermissions[`/${cmd}`])) return false;
+				jurisdiction = 'su';
+			} else if (roomPermissions[permission]) {
+				if (!auth.atLeast(user, roomPermissions[permission])) return false;
+				jurisdiction = 'su';
+			}
+		}
 
-		return Auth.hasJurisdiction(symbol, jurisdiction, targetSymbol, target === user);
+		return Auth.hasJurisdiction(symbol, jurisdiction, targetSymbol);
+	}
+	static atLeast(symbol: EffectiveGroupSymbol, symbol2: EffectiveGroupSymbol) {
+		return Auth.getGroup(symbol).rank >= Auth.getGroup(symbol2).rank;
+	}
+	static supportedRoomPermissions(room: Room | null = null) {
+		const permissions: string[] = ROOM_PERMISSIONS.slice();
+		for (const cmd in Chat.commands) {
+			const entry = Chat.commands[cmd];
+			if (typeof entry === 'string' || Array.isArray(entry)) continue;
+			if (typeof entry === 'function' && entry.hasRoomPermissions) {
+				permissions.push(`/${cmd}`);
+			}
+			if (typeof entry === 'object') {
+				for (const subCommand in entry) {
+					const subEntry = (entry as Chat.AnnotatedChatCommands)[subCommand];
+					if (typeof subEntry !== 'function') continue;
+					if (subEntry.hasRoomPermissions) permissions.push(`/${cmd} ${subCommand}`);
+				}
+				continue;
+			}
+		}
+		return permissions;
 	}
 	static hasJurisdiction(
 		symbol: EffectiveGroupSymbol,
 		jurisdiction?: string | boolean,
-		targetSymbol?: GroupSymbol | null,
-		targetingSelf?: boolean
+		targetSymbol?: GroupSymbol | null
 	) {
 		if (!targetSymbol) {
 			return !!jurisdiction;
@@ -126,11 +167,10 @@ export abstract class Auth extends Map<ID, GroupSymbol | ''> {
 		if (jurisdiction.includes(targetSymbol)) {
 			return true;
 		}
-		if (jurisdiction.includes('s') && targetingSelf) {
+		if (jurisdiction.includes('a')) {
 			return true;
 		}
-		if (jurisdiction.includes('u') &&
-			Config.groupsranking.indexOf(symbol) > Config.groupsranking.indexOf(targetSymbol)) {
+		if (jurisdiction.includes('u') && Auth.getGroup(symbol).rank > Auth.getGroup(targetSymbol).rank) {
 			return true;
 		}
 		return false;
@@ -143,6 +183,8 @@ export abstract class Auth extends Map<ID, GroupSymbol | ''> {
 		if (symbol.length !== 1) return false;
 		return !/[A-Za-z0-9|,]/.test(symbol);
 	}
+	static ROOM_PERMISSIONS = ROOM_PERMISSIONS;
+	static GLOBAL_PERMISSIONS = GLOBAL_PERMISSIONS;
 }
 
 export class RoomAuth extends Auth {
@@ -151,10 +193,10 @@ export class RoomAuth extends Auth {
 		super();
 		this.room = room;
 	}
-	get(user: ID | User): GroupSymbol {
+	get(user: ID | User, isVisual?: boolean): GroupSymbol {
 		const parentAuth: Auth | null = this.room.parent ? this.room.parent.auth :
 			this.room.settings.isPrivate !== true ? Users.globalAuth : null;
-		const parentGroup = parentAuth ? parentAuth.get(user) : Auth.defaultSymbol();
+		const parentGroup = parentAuth ? parentAuth.get(user, isVisual) : Auth.defaultSymbol();
 		const id = typeof user === 'string' ? user : (user as User).id;
 
 		if (this.has(id)) {
@@ -178,8 +220,8 @@ export class RoomAuth extends Auth {
 
 		return parentGroup;
 	}
-	getEffectiveSymbol(user: User) {
-		const symbol = super.getEffectiveSymbol(user);
+	getEffectiveSymbol(user: User, isVisual?: boolean) {
+		const symbol = super.getEffectiveSymbol(user, isVisual);
 		if (!this.room.persist && symbol === user.group) {
 			const replaceGroup = Auth.getGroup(symbol).globalGroupInPersonalRoom;
 			if (replaceGroup) return replaceGroup;
@@ -205,16 +247,15 @@ export class RoomAuth extends Auth {
 		}
 	}
 	set(id: ID, symbol: GroupSymbol) {
-		const user = Users.get(id);
-		if (user) {
-			this.room.onUpdateIdentity(user);
-		}
 		if (symbol === 'whitelist' as GroupSymbol) {
 			symbol = Auth.defaultSymbol();
 		}
 		super.set(id, symbol);
 		this.room.settings.auth[id] = symbol;
 		this.room.saveSettings();
+
+		const user = Users.get(id);
+		if (user) this.room.onUpdateIdentity(user);
 		return this;
 	}
 	delete(id: ID) {
@@ -255,7 +296,9 @@ export class GlobalAuth extends Auth {
 		if (!username) username = id;
 		const user = Users.get(id);
 		if (user) {
+			const isHidingGroup = user.group !== user.visualGroup;
 			user.group = group;
+			if (!isHidingGroup) user.setVisualGroup(group);
 			user.updateIdentity();
 			username = user.name;
 		}
@@ -270,6 +313,7 @@ export class GlobalAuth extends Auth {
 		const user = Users.get(id);
 		if (user) {
 			user.group = ' ';
+			user.visualGroup = ' ';
 		}
 		this.usernames.delete(id);
 		this.save();

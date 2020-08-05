@@ -18,6 +18,7 @@
 const TIMEOUT_EMPTY_DEALLOCATE = 10 * 60 * 1000;
 const TIMEOUT_INACTIVE_DEALLOCATE = 40 * 60 * 1000;
 const REPORT_USER_STATS_INTERVAL = 10 * 60 * 1000;
+const MAX_CHATROOM_ID_LENGTH = 225;
 
 const CRASH_REPORT_THROTTLE = 60 * 60 * 1000;
 
@@ -104,11 +105,13 @@ export interface RoomSettings {
 	dataCommandTierDisplay?: 'tiers' | 'doubles tiers' | 'numbers';
 	requestShowEnabled?: boolean | null;
 	showEnabled?: GroupSymbol | true;
+	permissions?: {[k: string]: GroupSymbol};
 
 	scavSettings?: AnyObject;
 	scavQueue?: QueuedHunt[];
 
 	// should not ever be saved because they're inapplicable to persistent rooms
+	/** This includes groupchats, battles, and help-ticket rooms. */
 	isPersonal?: boolean;
 	isHelp?: boolean;
 	noLogTimes?: boolean;
@@ -146,8 +149,8 @@ export abstract class BasicRoom {
 	 */
 	battle: RoomBattle | null;
 	/**
-	 * The room's current tournament. Tours are a type of RoomGame, so if the
-	 * current room is hosting a tournament, `this.tour === this.game`.
+	 * The game room's current tournament. If the room is a battle room whose
+	 * battle is part of a tournament, `this.tour === this.parent.game`.
 	 * In all other rooms, `this.tour` is `null`.
 	 */
 	tour: Tournament | null;
@@ -278,6 +281,7 @@ export abstract class BasicRoom {
 		this.tour = null;
 		this.game = null;
 		this.battle = null;
+		this.validateTitle(this.title, this.roomid);
 	}
 
 	toString() {
@@ -339,10 +343,10 @@ export abstract class BasicRoom {
 	attributedUhtmlchange(user: User, name: string, message: string) {
 		this.log.attributedUhtmlchange(user, name, message);
 	}
-	hideText(userids: ID[], lineCount = 0) {
+	hideText(userids: ID[], lineCount = 0, hideRevealButton?: boolean) {
 		const cleared = this.log.clearText(userids, lineCount);
 		for (const userid of cleared) {
-			this.send(`|unlink|hide|${userid}|${lineCount}`);
+			this.send(`|hidelines|${hideRevealButton ? 'delete' : 'hide'}|${userid}|${lineCount}`);
 		}
 		this.update();
 	}
@@ -363,8 +367,8 @@ export abstract class BasicRoom {
 	/**
 	 * Like addByUser, but without logging
 	 */
-	sendByUser(user: User, text: string) {
-		this.send('|c|' + user.getIdentity(this.roomid) + '|/log ' + text);
+	sendByUser(user: User | null, text: string) {
+		this.send('|c|' + (user ? user.getIdentity(this.roomid) : '&') + '|/log ' + text);
 	}
 	/**
 	 * Like addByUser, but sends to mods only.
@@ -373,14 +377,14 @@ export abstract class BasicRoom {
 		this.sendMods('|c|' + user.getIdentity(this.roomid) + '|/log ' + text);
 	}
 	update() {
-		if (!this.log.broadcastBuffer) return;
+		if (!this.log.broadcastBuffer.length) return;
 		if (this.reportJoinsInterval) {
 			clearInterval(this.reportJoinsInterval);
 			this.reportJoinsInterval = null;
 			this.userList = this.getUserList();
 		}
-		this.send(this.log.broadcastBuffer);
-		this.log.broadcastBuffer = '';
+		this.send(this.log.broadcastBuffer.join('\n'));
+		this.log.broadcastBuffer = [];
 		this.log.truncate();
 
 		this.pokeExpireTimer();
@@ -524,7 +528,7 @@ export abstract class BasicRoom {
 
 		user.updateIdentity();
 
-		if (!(this.settings.isPrivate === true || this.settings.isPersonal || this.battle)) {
+		if (!(this.settings.isPrivate === true || this.settings.isPersonal)) {
 			Punishments.monitorRoomPunishments(user);
 		}
 
@@ -585,7 +589,7 @@ export abstract class BasicRoom {
 
 	pokeExpireTimer() {
 		if (this.expireTimer) clearTimeout(this.expireTimer);
-		if (this.settings.isPersonal || this.settings.isHelp) {
+		if (this.settings.isPersonal) {
 			this.expireTimer = setTimeout(() => this.expire(), TIMEOUT_INACTIVE_DEALLOCATE);
 		} else {
 			this.expireTimer = null;
@@ -597,7 +601,7 @@ export abstract class BasicRoom {
 	}
 	reportJoin(type: 'j' | 'l' | 'n', entry: string, user: User) {
 		const canTalk = user.authAtLeast(this.settings.modchat ?? 'unlocked', this) && !this.isMuted(user);
-		if (this.reportJoins && canTalk) {
+		if (this.reportJoins && (canTalk || this.auth.has(user.id))) {
 			this.add(`|${type}|${entry}`).update();
 			return;
 		}
@@ -609,7 +613,7 @@ export abstract class BasicRoom {
 		}
 		entry = `|${ucType}|${entry}`;
 		if (this.batchJoins) {
-			this.log.broadcastBuffer += entry;
+			this.log.broadcastBuffer.push(entry);
 
 			if (!this.reportJoinsInterval) {
 				this.reportJoinsInterval = setTimeout(
@@ -666,6 +670,27 @@ export abstract class BasicRoom {
 			room => !room.settings.isPrivate || includeSecret
 		);
 	}
+	validateTitle(newTitle: string, newID?: string) {
+		if (!newID) newID = toID(newTitle);
+		// `,` is a delimiter used by a lot of /commands
+		// `|` and `[` are delimiters used by the protocol
+		// `-` has special meaning in roomids
+		if (newTitle.includes(',') || newTitle.includes('|')) {
+			throw new Chat.ErrorMessage(`Room title "${newTitle}" can't contain any of: ,|`);
+		}
+		if ((!newID.includes('-') || newID.startsWith('groupchat-')) && newTitle.includes('-')) {
+			throw new Chat.ErrorMessage(`Room title "${newTitle}" can't contain -`);
+		}
+		if (newID.length > MAX_CHATROOM_ID_LENGTH) throw new Chat.ErrorMessage("The given room title is too long.");
+		if (Rooms.search(newTitle)) throw new Chat.ErrorMessage(`The room '${newTitle}' already exists.`);
+	}
+
+	getReplayData() {
+		if (!this.roomid.endsWith('pw')) return {id: this.roomid.slice(7)};
+		const end = this.roomid.length - 2;
+		const lastHyphen = this.roomid.lastIndexOf('-', end);
+		return {id: this.roomid.slice(7, lastHyphen), password: this.roomid.slice(lastHyphen, end)};
+	}
 
 	getReplayData() {
 		if (!this.roomid.endsWith('pw')) return {id: this.roomid.slice(7)};
@@ -680,6 +705,7 @@ export abstract class BasicRoom {
 	 */
 	async rename(newTitle: string, newID?: RoomID, noAlias?: boolean) {
 		if (!newID) newID = toID(newTitle) as RoomID;
+		this.validateTitle(newTitle, newID);
 		if (this.type === 'chat' && this.game) {
 			throw new Chat.ErrorMessage(`Please finish your game (${this.game.title}) before renaming ${this.roomid}.`);
 		}
@@ -1083,7 +1109,7 @@ export class GlobalRoomState {
 			if (!Config.groups[rank] || !rank) continue;
 
 			const tarGroup = Config.groups[rank];
-			const groupType = tarGroup.addhtml || (!tarGroup.mute && !tarGroup.root) ?
+			const groupType = tarGroup.id === 'bot' || (!tarGroup.mute && !tarGroup.root) ?
 				'normal' : (tarGroup.root || tarGroup.declare) ? 'leadership' : 'staff';
 
 			rankList.push({
@@ -1403,15 +1429,23 @@ export class GlobalRoomState {
 			return;
 		}
 		this.lastReportedCrash = time;
-		// @ts-ignore
-		const stackLines = (err ? Utils.escapeHTML(err.stack).split(`\n`) : []);
-		const stack = stackLines.slice(1).join(`<br />`);
+		const stack = err.stack || err.message || err.name || '';
+		const stackLines = (err ? Utils.escapeHTML(stack).split(`\n`) : []);
 
 		let crashMessage = `|html|<div class="broadcast-red"><details class="readmore"><summary><b>${crasher} crashed:</b> ${stackLines[0]}</summary>${stack}</details></div>`;
 		let privateCrashMessage = null;
 
 		const upperStaffRoom = Rooms.get('upperstaff');
-		if (stack.includes("private")) {
+
+		let hasPrivateTerm = stack.includes('private');
+		for (const term of (Config.privatecrashterms || [])) {
+			if (typeof term === 'string' ? stack.includes(term) : term.test(stack)) {
+				hasPrivateTerm = true;
+				break;
+			}
+		}
+
+		if (hasPrivateTerm) {
 			if (upperStaffRoom) {
 				privateCrashMessage = crashMessage;
 				crashMessage = `|html|<div class="broadcast-red"><b>${crasher} crashed in private code</b> <a href="/upperstaff">Read more</a></div>`;
@@ -1427,7 +1461,7 @@ export class GlobalRoomState {
 			Rooms.get('staff')?.add(crashMessage).update();
 		}
 		if (privateCrashMessage) {
-			upperStaffRoom!.add(privateCrashMessage);
+			upperStaffRoom!.add(privateCrashMessage).update();
 		}
 	}
 	/**
@@ -1531,12 +1565,12 @@ export class GameRoom extends BasicRoom {
 		return this.getLog(this.game.playerTable[user.id].num);
 	}
 	update(excludeUser: User | null = null) {
-		if (!this.log.broadcastBuffer) return;
+		if (!this.log.broadcastBuffer.length) return;
 
 		if (this.userCount) {
-			Sockets.channelBroadcast(this.roomid, '>' + this.roomid + '\n\n' + this.log.broadcastBuffer);
+			Sockets.channelBroadcast(this.roomid, `>${this.roomid}\n${this.log.broadcastBuffer.join('\n')}`);
 		}
-		this.log.broadcastBuffer = '';
+		this.log.broadcastBuffer = [];
 
 		this.pokeExpireTimer();
 	}
@@ -1718,6 +1752,7 @@ export const Rooms = {
 		} else {
 			roomTitle = `${p1name} vs. ${p2name}`;
 		}
+		options.isPersonal = true;
 		const room = Rooms.createGameRoom(roomid, roomTitle, options);
 		const battle = new Rooms.RoomBattle(room, formatid, options);
 		room.game = battle;

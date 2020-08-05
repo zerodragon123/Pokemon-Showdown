@@ -127,7 +127,7 @@ export class BasicEffect implements EffectData {
 		this.name = Tools.getString(data.name).trim();
 		this.id = data.realMove ? toID(data.realMove) : toID(this.name); // Hidden Power hack
 		this.fullname = Tools.getString(data.fullname) || this.name;
-		this.effectType = Tools.getString(data.effectType) as EffectType || 'Effect';
+		this.effectType = Tools.getString(data.effectType) as EffectType || 'Condition';
 		this.exists = !!(this.exists && this.id);
 		this.num = data.num || 0;
 		this.gen = data.gen || 0;
@@ -180,6 +180,20 @@ export class RuleTable extends Map<string, string> {
 	isBanned(thing: string) {
 		if (this.has(`+${thing}`)) return false;
 		return this.has(`-${thing}`);
+	}
+
+	isBannedSpecies(species: Species) {
+		if (this.has(`+pokemon:${species.id}`)) return false;
+		if (this.has(`-pokemon:${species.id}`)) return true;
+		if (this.has(`+basepokemon:${toID(species.baseSpecies)}`)) return false;
+		if (this.has(`-basepokemon:${toID(species.baseSpecies)}`)) return true;
+		const tier = species.tier === '(PU)' ? 'ZU' : species.tier === '(NU)' ? 'PU' : species.tier;
+		if (this.has(`+pokemontag:${toID(tier)}`)) return false;
+		if (this.has(`-pokemontag:${toID(tier)}`)) return true;
+		const doublesTier = species.doublesTier === '(DUU)' ? 'DNU' : species.doublesTier;
+		if (this.has(`+pokemontag:${toID(doublesTier)}`)) return false;
+		if (this.has(`-pokemontag:${toID(doublesTier)}`)) return true;
+		return this.has(`-pokemontag:allpokemon`);
 	}
 
 	isRestricted(thing: string) {
@@ -353,13 +367,13 @@ export class Format extends BasicEffect implements Readonly<BasicEffect & Format
 	}
 }
 
-export class PureEffect extends BasicEffect implements Readonly<BasicEffect & PureEffectData> {
-	readonly effectType: 'Effect' | 'Weather' | 'Status';
+export class Condition extends BasicEffect implements Readonly<BasicEffect & ConditionData> {
+	readonly effectType: 'Condition' | 'Weather' | 'Status';
 
 	constructor(data: AnyObject, ...moreData: (AnyObject | null)[]) {
 		super(data, ...moreData);
 		data = this;
-		this.effectType = (['Weather', 'Status'].includes(data.effectType) ? data.effectType : 'Effect');
+		this.effectType = (['Weather', 'Status'].includes(data.effectType) ? data.effectType : 'Condition');
 	}
 }
 
