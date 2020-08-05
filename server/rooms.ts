@@ -692,13 +692,6 @@ export abstract class BasicRoom {
 		return {id: this.roomid.slice(7, lastHyphen), password: this.roomid.slice(lastHyphen, end)};
 	}
 
-	getReplayData() {
-		if (!this.roomid.endsWith('pw')) return {id: this.roomid.slice(7)};
-		const end = this.roomid.length - 2;
-		const lastHyphen = this.roomid.lastIndexOf('-', end);
-		return {id: this.roomid.slice(7, lastHyphen), password: this.roomid.slice(lastHyphen, end)};
-	}
-
 	/**
 	 * @param newID Add this param if the roomid is different from `toID(newTitle)`
 	 * @param noAlias Set this param to true to not redirect aliases and the room's old name to its new name.

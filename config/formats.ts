@@ -372,19 +372,6 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		},
 	},
 	{
-		name: "[Gen 8] Doubles OU (Dynamax Level 0)",
-		threads: [
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3666636/">Doubles OU Metagame Discussion</a>`,
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3658826/">Doubles OU Sample Teams</a>`,
-			`&bullet; <a href="https://www.smogon.com/forums/threads/3658242/">Doubles OU Viability Rankings</a>`,
-		],
-
-		mod: 'gen8',
-		gameType: 'doubles',
-		ruleset: ['Standard Doubles'],
-		banlist: ['DUber', 'Beat Up'],
-	},
-	{
 		name: "[Gen 8] Doubles Ubers",
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3661142/">Doubles Ubers Metagame Discussion</a>`,
@@ -1510,21 +1497,6 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 			const oMegaSpecies = this.dex.getSpecies(pokemon.species.originalMega);
 			if (oMegaSpecies.exists && pokemon.m.originalSpecies !== oMegaSpecies.baseSpecies) {
 				this.add('-start', pokemon, oMegaSpecies.requiredItem || oMegaSpecies.requiredMove, '[silent]');
-			}
-		},
-		onModifySpecies(species) {
-			const newSpecies = this.dex.deepClone(species);
-			if (newSpecies.forme.includes('Gmax')) {
-				newSpecies.isMega = true;
-			}
-			return newSpecies;
-		},
-		onAfterMega(pokemon) {
-			const baseSpecies = this.dex.getSpecies(pokemon.species.baseSpecies);
-			if (baseSpecies.exists && pokemon.species.name !== (pokemon.species.changesFrom || baseSpecies.name)) {
-				if (pokemon.species.types.length !== baseSpecies.types.length || pokemon.species.types[1] !== baseSpecies.types[1]) {
-					this.add('-start', pokemon, 'typechange', pokemon.species.types.join('/'), '[silent]');
-				}
 			}
 		},
 	},
