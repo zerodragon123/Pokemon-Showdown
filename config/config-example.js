@@ -747,7 +747,7 @@ exports.grouplist = [
 		id: "champ",
 		name: "Champion",
 		inherit: '+',
-		alts: 's',
+		altsself: true,
 		show: true,
 		showmedia: true,
 	},
