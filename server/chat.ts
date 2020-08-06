@@ -409,6 +409,8 @@ export class CommandContext extends MessageContext {
 			this.cmdToken = parsedCommand.cmdToken;
 			this.target = parsedCommand.target;
 			this.handler = parsedCommand.handler;
+		} else {
+			this.cmdToken = '';
 		}
 
 		if (this.room && !(this.user.id in this.room.users)) {
