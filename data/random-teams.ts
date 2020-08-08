@@ -3465,9 +3465,15 @@ export class RandomTeams {
 		return team;
 	}
 	randomDurantsTeam() {
-		const scarfed = 'Durant||choicescarf||guillotine,,,|Jolly|,252,,,,252|||||';
-		const leppaed = 'Durant||leppaberry||guillotine,,,|Jolly|,252,,,,252|||||';
-		let rawTeam = leppaed + ']' + leppaed + ']' + leppaed + ']' + scarfed + ']' + scarfed + ']' + scarfed;
+		let rawTeam = '';
+		for (let i = 0; i < 6; i++) {
+			rawTeam += 'Durant||';
+			rawTeam += this.random(2) < 1 ? 'choicescarf' : 'leppaberry';
+			rawTeam += '|0|guillotine';
+			rawTeam += this.random(48) < 1 ? ',flareblitz' : '';
+			rawTeam += '|Jolly|,252,,,,252|||||';
+			rawTeam += i < 5 ? ']' : '';
+		}
 		return Dex.fastUnpackTeam(rawTeam);
 	}
 	randomCAP1v1Team() {
