@@ -261,6 +261,7 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		desc: `Randomized teams of level-balanced Pok&eacute;mon with sets that are generated to be competitively viable.`,
 
 		mod: 'gen8',
+		searchShow: false,
 		team: 'random',
 		challengeShow: false,
 		rated: false,
@@ -280,6 +281,14 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		},
 		ruleset: ['Obtainable', 'Standard'],
 		banlist: ['Uber', 'Power Construct'],
+	},
+	{
+		name: "[Gen 8] Durants",
+		desc: `男人的决斗！`,
+
+		mod: 'gen8',
+		team: 'randomDurants',
+		ruleset: ['Team Preview'],
 	},
 	{
 		name: "[Gen 7] Random Formats",

@@ -3464,6 +3464,12 @@ export class RandomTeams {
 		}
 		return team;
 	}
+	randomDurantsTeam() {
+		const scarfed = 'Durant||choicescarf||guillotine,,,|Jolly|,252,,,,252|||||';
+		const leppaed = 'Durant||leppaberry||guillotine,,,|Jolly|,252,,,,252|||||';
+		let rawTeam = leppaed + ']' + leppaed + ']' + leppaed + ']' + scarfed + ']' + scarfed + ']' + scarfed;
+		return Dex.fastUnpackTeam(rawTeam);
+	}
 	randomCAP1v1Team() {
 		const pokemon = [];
 		const pokemonPool = Object.keys(this.randomCAP1v1Sets);
