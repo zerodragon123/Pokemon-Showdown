@@ -3465,13 +3465,13 @@ export class RandomTeams {
 		return team;
 	}
 	randomDurantsTeam() {
+		// 1/2 -> Choices Scarf, 1/2 -> Leppa Berry; 1/48 -> Watmel Berry + Natural Gift; 1/48 -> Superpower
 		let rawTeam = '';
 		for (let i = 0; i < 6; i++) {
 			rawTeam += 'Durant||';
-			rawTeam += this.random(2) < 1 ? 'choicescarf' : 'leppaberry';
-			rawTeam += '|0|guillotine';
-			rawTeam += this.random(48) < 1 ? ',flareblitz' : '';
-			rawTeam += '|Jolly|,252,,,,252|||||';
+			rawTeam += this.random(48) < 1 ? 'watmelberry|0|naturalgift,' : this.random(2) < 1 ? 'choicescarf|0|' : 'leppaberry|0|';
+			rawTeam += this.random(48) < 1 ? 'superpower,' : '';
+			rawTeam += 'guillotine|Jolly|,252,,,,252|||||';
 			rawTeam += i < 5 ? ']' : '';
 		}
 		return Dex.fastUnpackTeam(rawTeam);
