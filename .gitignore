@@ -2,6 +2,7 @@
 !/config/ipbans.txt
 !/config/formats.ts
 /logs/*
+/test/modlogs
 /node_modules
 /eslint-cache
 /server/chat-plugins/private

@@ -4,8 +4,7 @@
  *
  * @license MIT
  */
-import {Dex} from './dex';
-global.toID = Dex.getId;
+import {Dex, toID} from './dex';
 import * as Data from './dex-data';
 import {Field} from './field';
 import {Pokemon, EffectState, RESTORATIVE_BERRIES} from './pokemon';
@@ -142,7 +141,7 @@ export class Battle {
 
 	trunc: (num: number, bits?: number) => number;
 	clampIntRange: (num: any, min?: number, max?: number) => number;
-
+	toID = toID;
 	constructor(options: BattleOptions) {
 		// kirliavc stuff:
 		const format = options.format || Dex.getFormat(options.formatid, true);

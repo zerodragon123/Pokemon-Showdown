@@ -35,10 +35,10 @@ export const Formats: {[k: string]: FormatsData} = {
 			'Victini', 'Reshiram', 'Zekrom', 'Kyurem', 'Keldeo', 'Meloetta', 'Genesect',
 			'Xerneas', 'Yveltal', 'Zygarde', 'Diancie', 'Hoopa', 'Volcanion',
 			'Cosmog', 'Cosmoem', 'Solgaleo', 'Lunala', 'Necrozma', 'Magearna', 'Marshadow', 'Zeraora',
-			'Meltan', 'Melmetal', 'Zacian', 'Zamazenta', 'Eternatus',
+			'Meltan', 'Melmetal', 'Zacian', 'Zamazenta', 'Eternatus', 'Zarude',
 		],
 		onValidateSet(set, format) {
-			if (this.gen < 7 && toID(set.item) === 'souldew') {
+			if (this.gen < 7 && this.toID(set.item) === 'souldew') {
 				return [`${set.name || set.species} has Soul Dew, which is banned in ${format.name}.`];
 			}
 		},
@@ -58,7 +58,7 @@ export const Formats: {[k: string]: FormatsData} = {
 			'Magearna', 'Marshadow', 'Zeraora',
 		],
 		onValidateSet(set, format) {
-			if (this.gen < 7 && toID(set.item) === 'souldew') {
+			if (this.gen < 7 && this.toID(set.item) === 'souldew') {
 				return [`${set.name || set.species} has Soul Dew, which is banned in ${format.name}.`];
 			}
 		},
@@ -90,7 +90,8 @@ export const Formats: {[k: string]: FormatsData} = {
 				return [`${set.name || set.species} does not exist in the National Dex.`];
 			}
 			if (species.tier === "Unreleased") {
-				if (this.ruleTable.has(`+pokemon:${species.id}`) || this.ruleTable.has(`+basepokemon:${toID(species.baseSpecies)}`)) {
+				const basePokemon = this.toID(species.baseSpecies);
+				if (this.ruleTable.has(`+pokemon:${species.id}`) || this.ruleTable.has(`+basepokemon:${basePokemon}`)) {
 					return;
 				}
 				return [`${set.name || set.species} does not exist in the National Dex.`];
@@ -523,7 +524,7 @@ export const Formats: {[k: string]: FormatsData} = {
 		onValidateTeam(team) {
 			const itemTable: Set<string> = new Set();
 			for (const set of team) {
-				const item = toID(set.item);
+				const item = this.toID(set.item);
 				if (!item) continue;
 				if (itemTable.has(item)) {
 					return [
@@ -561,7 +562,7 @@ export const Formats: {[k: string]: FormatsData} = {
 				turboblaze: 'moldbreaker',
 			};
 			for (const set of team) {
-				let ability: string = toID(set.ability);
+				let ability: string = this.toID(set.ability);
 				if (!ability) continue;
 				if (ability in base) ability = base[ability];
 				if (ability in abilityTable) {
@@ -710,7 +711,7 @@ export const Formats: {[k: string]: FormatsData} = {
 			if (!('move:batonpass' in setHas)) return;
 
 			const item = this.dex.getItem(set.item);
-			const ability = toID(set.ability);
+			const ability = this.toID(set.ability);
 			let speedBoosted: boolean | string = false;
 			let nonSpeedBoosted: boolean | string = false;
 

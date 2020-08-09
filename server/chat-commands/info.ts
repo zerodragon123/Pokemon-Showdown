@@ -315,6 +315,7 @@ export const commands: ChatCommands = {
 		this.sendReplyBox(buf);
 	},
 
+	sbtl: 'sharedbattles',
 	sharedbattles(target, room) {
 		if (!this.can('lock')) return false;
 
@@ -2653,8 +2654,7 @@ export const pages: PageTable = {
 	},
 	punishments(query, user) {
 		this.title = 'Punishments';
-		const room = this.extractRoom();
-		if (!room) return;
+		const room = this.requireRoom();
 
 		let buf = "";
 		if (!user.named) return Rooms.RETRY_AFTER_LOGIN;

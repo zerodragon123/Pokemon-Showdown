@@ -450,7 +450,7 @@ export const commands: ChatCommands = {
 
 function runDexsearch(target: string, cmd: string, canAll: boolean, message: string) {
 	const searches: DexOrGroup[] = [];
-	const allTiers: {[k: string]: string} = Object.assign(Object.create(null), {
+	const allTiers: {[k: string]: TierTypes.Singles | TierTypes.Other} = Object.assign(Object.create(null), {
 		uber: 'Uber', ubers: 'Uber', ou: 'OU',
 		uubl: 'UUBL', uu: 'UU',
 		rubl: 'RUBL', ru: 'RU',
@@ -460,7 +460,7 @@ function runDexsearch(target: string, cmd: string, canAll: boolean, message: str
 		lcuber: 'LC Uber', lcubers: 'LC Uber', lc: 'LC',
 		cap: 'CAP', caplc: 'CAP LC', capnfe: 'CAP NFE',
 	});
-	const allDoublesTiers: {[k: string]: string} = Object.assign(Object.create(null), {
+	const allDoublesTiers: {[k: string]: TierTypes.Singles | TierTypes.Other} = Object.assign(Object.create(null), {
 		doublesubers: 'DUber', doublesuber: 'DUber', duber: 'DUber', dubers: 'DUber',
 		doublesou: 'DOU', dou: 'DOU',
 		doublesbl: 'DBL', dbl: 'DBL',
@@ -847,7 +847,7 @@ function runDexsearch(target: string, cmd: string, canAll: boolean, message: str
 	}
 	if (
 		showAll && searches.length === 0 && !maxGen && !singleTypeSearch &&
-		megaSearch === null && gmaxSearch === null && fullyEvolvedSearch === null
+		megaSearch === null && gmaxSearch === null && fullyEvolvedSearch === null && sort === null
 	) {
 		return {
 			error: "No search parameters other than 'all' were found. Try '/help dexsearch' for more information on this command.",
@@ -921,8 +921,8 @@ function runDexsearch(target: string, cmd: string, canAll: boolean, message: str
 
 			if (alts.tiers && Object.keys(alts.tiers).length) {
 				let tier = dex[mon].tier;
-				if (tier[0] === '(' && tier !== '(PU)' && tier !== '(NU)') tier = tier.slice(1, -1);
-				if (tier === 'New') tier = 'OU';
+				if (tier[0] === '(' && tier !== '(PU)' && tier !== '(NU)') tier = tier.slice(1, -1) as TierTypes.Singles;
+				// if (tier === 'New') tier = 'OU';
 				if (alts.tiers[tier]) continue;
 				if (Object.values(alts.tiers).includes(false) && alts.tiers[tier] !== false) continue;
 				// LC handling, checks for LC Pokemon in higher tiers that need to be handled separately,
@@ -951,7 +951,7 @@ function runDexsearch(target: string, cmd: string, canAll: boolean, message: str
 
 			if (alts.doublesTiers && Object.keys(alts.doublesTiers).length) {
 				let tier = dex[mon].doublesTier;
-				if (tier && tier[0] === '(' && tier !== '(DUU)') tier = tier.slice(1, -1);
+				if (tier && tier[0] === '(' && tier !== '(DUU)') tier = tier.slice(1, -1) as TierTypes.Doubles;
 				if (alts.doublesTiers[tier]) continue;
 				if (Object.values(alts.doublesTiers).includes(false) && alts.doublesTiers[tier] !== false) continue;
 			}
@@ -1505,7 +1505,7 @@ function runMovesearch(target: string, cmd: string, canAll: boolean, message: st
 			searches.push(orGroup);
 		}
 	}
-	if (showAll && !searches.length && !targetMons.length && !maxGen) {
+	if (showAll && !searches.length && !targetMons.length && !maxGen && !sort) {
 		return {
 			error: "No search parameters other than 'all' were found. Try '/help movesearch' for more information on this command.",
 		};
@@ -2460,7 +2460,7 @@ if (!PM.isParentProcess) {
 	global.Dex = require('../../sim/dex').Dex;
 	// tslint:disable-next-line: no-var-requires
 	global.Chat = require('../chat').Chat;
-	global.toID = Dex.getId;
+	global.toID = Dex.toID;
 	Dex.includeData();
 	// tslint:disable-next-line: no-var-requires
 	global.TeamValidator = require('../../sim/team-validator').TeamValidator;

@@ -76,8 +76,8 @@ export interface RoomSettings {
 	aliases?: string[];
 	banwords?: string[];
 	isPrivate?: boolean | 'hidden' | 'voice';
-	modjoin?: string | true | null;
-	modchat?: string | null;
+	modjoin?: AuthLevel | true | null;
+	modchat?: AuthLevel | null;
 	staffRoom?: boolean;
 	logRoom?: boolean;
 	language?: string | false;
@@ -334,7 +334,8 @@ export abstract class BasicRoom {
 		return this;
 	}
 	modlog(message: string) {
-		this.log.modlog(message);
+		const override = this.tour ? `${this.roomid} tournament: ${this.tour.roomid}` : undefined;
+		this.log.modlog(message, override);
 		return this;
 	}
 	uhtmlchange(name: string, message: string) {
@@ -475,25 +476,14 @@ export abstract class BasicRoom {
 		if (!this.settings.modjoin) return true;
 		// users with a room rank can always join
 		if (this.auth.has(user.id)) return true;
-		if (user.isSysop) return true;
-		const userGroup = user.can('makeroom') ? user.group : this.auth.get(user.id);
 
 		const modjoinSetting = this.settings.modjoin !== true ? this.settings.modjoin : this.settings.modchat;
 		if (!modjoinSetting) return true;
-		let modjoinGroup = modjoinSetting;
-
-		if (modjoinGroup === 'trusted') {
-			if (user.trusted) return true;
-			modjoinGroup = Config.groupsranking[1];
+		if (!Users.Auth.isAuthLevel(modjoinSetting)) {
+			Monitor.error(`Invalid modjoin setting in ${this.roomid}: ${modjoinSetting}`);
 		}
-		if (modjoinGroup === 'autoconfirmed') {
-			if (user.autoconfirmed) return true;
-			modjoinGroup = Config.groupsranking[1];
-		}
-		if (!(userGroup in Config.groups)) return false;
-		if (!(modjoinGroup in Config.groups)) throw new Error(`Invalid modjoin setting in ${this.roomid}: ${modjoinGroup}`);
-		if (Config.groups[modjoinGroup].rank <= Config.groups["%"].rank && user.hasWCOPAccess()) return true;
-		return Config.groups[userGroup].rank >= Config.groups[modjoinGroup].rank;
+		// if (Config.groups[modjoinGroup].rank <= Config.groups["%"].rank && user.hasWCOPAccess()) return true;
+		return Users.globalAuth.atLeast(user, modjoinSetting);
 	}
 	mute(user: User, setTime?: number) {
 		const userid = user.id;
@@ -600,7 +590,7 @@ export abstract class BasicRoom {
 		this.destroy();
 	}
 	reportJoin(type: 'j' | 'l' | 'n', entry: string, user: User) {
-		const canTalk = user.authAtLeast(this.settings.modchat ?? 'unlocked', this) && !this.isMuted(user);
+		const canTalk = this.auth.atLeast(user, this.settings.modchat ?? 'unlocked') && !this.isMuted(user);
 		if (this.reportJoins && (canTalk || this.auth.has(user.id))) {
 			this.add(`|${type}|${entry}`).update();
 			return;
@@ -899,10 +889,13 @@ export abstract class BasicRoom {
 		}
 		this.logUserStatsInterval = null;
 
-		void this.log.destroy();
+		void this.log.destroy(true);
 
 		// get rid of some possibly-circular references
 		Rooms.rooms.delete(this.roomid);
+	}
+	tr(strings: string | TemplateStringsArray, ...keys: any[]) {
+		return Chat.tr(this.settings.language || 'english', strings, ...keys);
 	}
 }
 
@@ -919,7 +912,6 @@ export class GlobalRoomState {
 	readonly staffAutojoinList: RoomID[];
 	readonly ladderIpLog: WriteStream;
 	readonly reportUserStatsInterval: NodeJS.Timeout;
-	readonly modlogStream: WriteStream;
 	lockdown: boolean | 'pre' | 'ddos';
 	battleCount: number;
 	lastReportedCrash: number;
@@ -991,7 +983,7 @@ export class GlobalRoomState {
 			this.ladderIpLog = new WriteStream({write() { return undefined; }});
 		}
 		// Create writestream for modlog
-		this.modlogStream = FS('logs/modlog/modlog_global.txt').createAppendStream();
+		Rooms.Modlog.initialize('global');
 
 		this.reportUserStatsInterval = setInterval(
 			() => this.reportUserStats(),
@@ -1016,8 +1008,8 @@ export class GlobalRoomState {
 		this.lastWrittenBattle = this.lastBattle;
 	}
 
-	modlog(message: string) {
-		void this.modlogStream.write('[' + (new Date().toJSON()) + '] ' + message + '\n');
+	modlog(message: string, overrideID?: string) {
+		void Rooms.Modlog.write('global', message, overrideID);
 	}
 
 	writeChatRoomData() {
@@ -1422,10 +1414,11 @@ export class GlobalRoomState {
 			return;
 		}
 		this.lastReportedCrash = time;
-		const stack = err.stack || err.message || err.name || '';
-		const stackLines = (err ? Utils.escapeHTML(stack).split(`\n`) : []);
 
-		let crashMessage = `|html|<div class="broadcast-red"><details class="readmore"><summary><b>${crasher} crashed:</b> ${stackLines[0]}</summary>${stack}</details></div>`;
+		const stack = (err && (err.stack || err.message || err.name)) || '';
+		const stackLines = Utils.escapeHTML(stack).split(`\n`);
+
+		let crashMessage = `|html|<div class="broadcast-red"><details class="readmore"><summary><b>${crasher} crashed:</b> ${stackLines[0]}</summary>${stackLines.slice(1).join('<br />')}</details></div>`;
 		let privateCrashMessage = null;
 
 		const upperStaffRoom = Rooms.get('upperstaff');
@@ -1658,6 +1651,7 @@ function getRoom(roomid?: string | BasicRoom) {
 }
 
 export const Rooms = {
+	Modlog: require('./modlog').modlog,
 	/**
 	 * The main roomid:Room table. Please do not hold a reference to a
 	 * room long-term; just store the roomid and grab it from here (with
@@ -1799,9 +1793,6 @@ export const Rooms = {
 		return room;
 	},
 
-	battleModlogStream: FS('logs/modlog/modlog_battle.txt').createAppendStream(),
-	groupchatModlogStream: FS('logs/modlog/modlog_groupchat.txt').createAppendStream(),
-
 	global: null! as GlobalRoomState,
 	lobby: null as ChatRoom | null,
 
@@ -1822,7 +1813,3 @@ export const Rooms = {
 	RoomBattleTimer,
 	PM: RoomBattlePM,
 };
-
-// initialize
-
-Rooms.global = new GlobalRoomState();
