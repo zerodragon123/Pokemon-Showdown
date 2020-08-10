@@ -50,7 +50,7 @@ const MINUTES = 60 * 1000;
 const IDLE_TIMER = 60 * MINUTES;
 const STAFF_IDLE_TIMER = 30 * MINUTES;
 
-type StreamWorker = import('../lib/process-manager').StreamWorker;
+import type {StreamWorker} from '../lib/process-manager';
 
 /*********************************************************
  * Utility functions
@@ -326,6 +326,13 @@ export class Connection {
 
 type ChatQueueEntry = [string, RoomID, Connection];
 
+export interface UserSettings {
+	blockChallenges: boolean;
+	blockPMs: boolean | AuthLevel;
+	ignoreTickets: boolean;
+	hideBattlesFromTrainerCard: boolean;
+}
+
 // User
 export class User extends Chat.MessageContext {
 	readonly user: User;
@@ -363,12 +370,7 @@ export class User extends Chat.MessageContext {
 	lastMatch: string;
 	forcedPublic: string | null;
 
-	settings: {
-		blockChallenges: boolean,
-		blockPMs: boolean | AuthLevel,
-		ignoreTickets: boolean,
-		hideBattlesFromTrainerCard: boolean,
-	};
+	settings: UserSettings;
 
 	battleSettings: {
 		team: string,
