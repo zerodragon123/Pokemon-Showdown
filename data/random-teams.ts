@@ -3463,7 +3463,7 @@ export class RandomTeams {
 		return team;
 	}
 	randomDurantsTeam() {
-		// 1/2 -> Choices Scarf, 1/2 -> Leppa Berry; 1/48 -> Watmel Berry + Natural Gift; 1/48 -> Superpower
+		// 1/2 -> Choices Scarf, 1/2 -> Leppa Berry; 1/48 -> Watmel Berry + Natural Gift; 1/96 -> Superpower; 1/192 -> Imprison
 		let rawTeam = '';
 		for (let i = 0; i < 6; i++) {
 			rawTeam += 'Durant||';
