@@ -256,7 +256,6 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		desc: `Randomized teams of level-balanced Pok&eacute;mon with sets that are generated to be competitively viable.`,
 
 		mod: 'gen8',
-		searchShow: false,
 		team: 'random',
 		challengeShow: false,
 		rated: false,
