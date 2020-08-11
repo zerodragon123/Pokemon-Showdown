@@ -1,5 +1,6 @@
 /* eslint max-len: ["error", 240] */
 
+import {FS} from '../lib/fs';
 import {Dex, toID} from '../sim/dex';
 import {PRNG, PRNGSeed} from '../sim/prng';
 
@@ -3463,17 +3464,40 @@ export class RandomTeams {
 		return team;
 	}
 	randomDurantsTeam() {
-		// 1/2 -> Choices Scarf, 1/2 -> Leppa Berry; 1/48 -> Watmel Berry + Natural Gift; 1/96 -> Superpower; 1/192 -> Imprison
-		let rawTeam = '';
-		for (let i = 0; i < 6; i++) {
-			rawTeam += 'Durant||';
-			rawTeam += this.random(48) < 1 ? 'watmelberry|0|naturalgift,' : this.random(2) < 1 ? 'choicescarf|0|' : 'leppaberry|0|';
-			rawTeam += this.random(96) < 1 ? 'superpower,' : '';
-			rawTeam += this.random(192) < 1 ? 'imprison,' : '';
-			rawTeam += 'guillotine|Jolly|,252,,,,252|||||';
-			rawTeam += i < 5 ? ']' : '';
+		const pokemon = [];
+		let names = FS('config/durant-names.txt').readSync('utf8').split(',');
+		while (pokemon.length < 6) {
+			const species = this.dex.getSpecies('Durant');
+			const set = {
+				name: this.sample(names),
+				species: species.name,
+				gender: species.gender,
+				item: this.random(2) < 1 ? 'Choice Scarf' : 'Leppa Berry',
+				ability: 'Swarm',
+				shiny: false,
+				evs: {hp: 4, atk: 252, def: 0, spa: 0, spd: 0, spe: 252},
+				nature: 'Jolly',
+				ivs: {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31},
+				moves: ['Guillotine'],
+			};
+			if (this.random(48) < 1) {
+				set.item = 'Watmel Berry';
+				set.moves.push('Natural Gift');
+				set.shiny = true;
+			} else if (this.random(96) < 1) {
+				set.moves.push('Superpower');
+				set.shiny = true;
+			} else if (this.random(144) < 1) {
+				set.item = 'Focus Sash';
+				set.shiny = true;
+			} else if (this.random(192) < 1) {
+				set.item = 'Leppa Berry';
+				set.moves.push('Imprison');
+				set.shiny = true;
+			}
+			pokemon.push(set);
 		}
-		return Dex.fastUnpackTeam(rawTeam);
+		return pokemon;
 	}
 	randomCAP1v1Team() {
 		const pokemon = [];
