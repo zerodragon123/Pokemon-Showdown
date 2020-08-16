@@ -503,7 +503,7 @@ function runDexsearch(target: string, cmd: string, canAll: boolean, message: str
 	let capSearch = null;
 	let nationalSearch = null;
 	let fullyEvolvedSearch = null;
-	let singleTypeSearch = false;
+	let singleTypeSearch = null;
 	let randomOutput = 0;
 	let maxGen = 0;
 	const validParameter = (cat: string, param: string, isNotSearch: boolean, input: string) => {
@@ -607,7 +607,7 @@ function runDexsearch(target: string, cmd: string, canAll: boolean, message: str
 			}
 
 			if (['mono', 'monotype'].includes(toID(target))) {
-				singleTypeSearch = true;
+				singleTypeSearch = !isNotSearch;
 				orGroup.skip = true;
 				continue;
 			}
@@ -846,7 +846,7 @@ function runDexsearch(target: string, cmd: string, canAll: boolean, message: str
 		}
 	}
 	if (
-		showAll && searches.length === 0 && !maxGen && !singleTypeSearch &&
+		showAll && searches.length === 0 && !maxGen && singleTypeSearch === null &&
 		megaSearch === null && gmaxSearch === null && fullyEvolvedSearch === null && sort === null
 	) {
 		return {
@@ -1007,11 +1007,7 @@ function runDexsearch(target: string, cmd: string, canAll: boolean, message: str
 			for (const stat in alts.stats) {
 				let monStat = 0;
 				if (stat === 'bst') {
-					for (const monStats in dex[mon].baseStats) {
-						// Account for merged Special stat in gen 1, don't count it twice
-						if (maxGen === 1 && monStats === 'spd') continue;
-						monStat += dex[mon].baseStats[monStats as StatName];
-					}
+					monStat = dex[mon].bst;
 				} else if (stat === 'weight') {
 					monStat = dex[mon].weighthg / 10;
 				} else if (stat === 'height') {
@@ -1058,7 +1054,7 @@ function runDexsearch(target: string, cmd: string, canAll: boolean, message: str
 	}
 	let results: string[] = [];
 	for (const mon of Object.keys(dex).sort()) {
-		if (singleTypeSearch && dex[mon].types.length !== 1) continue;
+		if (singleTypeSearch !== null && (dex[mon].types.length === 1) !== singleTypeSearch) continue;
 		const isAlola = dex[mon].forme === "Alola" && dex[mon].name !== "Pikachu-Alola";
 		const allowGmax = (gmaxSearch || tierSearch);
 		if (!isAlola && dex[mon].baseSpecies && results.includes(dex[mon].baseSpecies)) continue;
