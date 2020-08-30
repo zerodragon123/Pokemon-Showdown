@@ -52,6 +52,9 @@ export const commands: ChatCommands = {
 		if (Config.groups[targetUser.tempGroup]?.name) {
 			buf += Utils.html`<br />Global ${Config.groups[targetUser.tempGroup].name} (${targetUser.tempGroup})`;
 		}
+		if (targetUser.isSysop) {
+			buf += `<br />(Pok&eacute;mon Showdown System Operator)`;
+		}
 		if (!targetUser.registered) {
 			buf += `<br />(Unregistered)`;
 		}
@@ -91,7 +94,7 @@ export const commands: ChatCommands = {
 		buf += `<br />`;
 
 		if (canViewAlts) {
-			let prevNames = Object.keys(targetUser.prevNames).map(userid => {
+			let prevNames = targetUser.previousIDs.map(userid => {
 				const punishment = Punishments.userids.get(userid);
 				return `${userid}${punishment ? ` (${Punishments.punishmentTypes.get(punishment[0]) || `punished`}${punishment[1] !== targetUser.id ? ` as ${punishment[1]}` : ``})` : ``}`;
 			}).join(", ");
@@ -106,7 +109,7 @@ export const commands: ChatCommands = {
 					`${punishment[1] !== targetAlt.id ? ` as ${punishment[1]}` : ''})` : '';
 				buf += Utils.html`<br />Alt: <span class="username">${targetAlt.name}</span>${punishMsg}`;
 				if (!targetAlt.connected) buf += ` <em style="color:gray">(offline)</em>`;
-				prevNames = Object.keys(targetAlt.prevNames).map(userid => {
+				prevNames = targetAlt.previousIDs.map(userid => {
 					const p = Punishments.userids.get(userid);
 					return `${userid}${p ? ` (${Punishments.punishmentTypes.get(p[0]) || 'punished'}${p[1] !== targetAlt.id ? ` as ${p[1]}` : ``})` : ``}`;
 				}).join(", ");
@@ -158,8 +161,7 @@ export const commands: ChatCommands = {
 			}
 		}
 		if (user === targetUser ? user.can('ipself') : user.can('ip', targetUser)) {
-			let ips = Object.keys(targetUser.ips);
-			ips = ips.map(ip => {
+			const ips = targetUser.ips.map(ip => {
 				const status = [];
 				const punishment = Punishments.ips.get(ip);
 				if (user.can('alts') && punishment) {
@@ -234,7 +236,7 @@ export const commands: ChatCommands = {
 		if (showRecursiveAlts && canViewAlts) {
 			const targetId = toID(target);
 			for (const alt of Users.users.values()) {
-				if (alt !== targetUser && targetId in alt.prevNames) {
+				if (alt !== targetUser && alt.previousIDs.includes(targetId)) {
 					this.parse(`/altsnorecurse ${alt.name}`);
 				}
 			}

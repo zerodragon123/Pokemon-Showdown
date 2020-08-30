@@ -212,6 +212,10 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 			battle: 3,
 		},
 		ruleset: ['Standard GBU'],
+		banlist: [
+			'Cinderace', 'Dragapult', 'Excadrill', 'Gyarados', 'Hippowdon', 'Incineroar', 'Indeedee', 'Magnezone',
+			'Mimikyu', 'Porygon2', 'Rillaboom', 'Togekiss', 'Torkoal', 'Tyranitar', 'Venusaur', 'Whimsicott',
+		],
 		minSourceGen: 8,
 	},
 	{
@@ -414,6 +418,23 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		minSourceGen: 8,
 	},
 	{
+		name: "[Gen 8] Battle Stadium Doubles",
+
+		mod: 'gen8',
+		gameType: 'doubles',
+		forcedLevel: 50,
+		teamLength: {
+			validate: [4, 6],
+			battle: 4,
+		},
+		ruleset: ['Standard GBU', 'VGC Timer'],
+		banlist: [
+			'Cinderace', 'Dragapult', 'Excadrill', 'Gyarados', 'Hippowdon', 'Incineroar', 'Indeedee', 'Magnezone',
+			'Mimikyu', 'Porygon2', 'Rillaboom', 'Togekiss', 'Torkoal', 'Tyranitar', 'Venusaur', 'Whimsicott',
+		],
+		minSourceGen: 8,
+	},
+	{
 		name: "[Gen 8] 2v2 Doubles",
 		desc: `Double battle where you bring four Pok&eacute;mon to Team Preview and choose only two.`,
 		threads: [
@@ -549,14 +570,15 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		ruleset: ['[Gen 8] National Dex'],
 		banlist: [
 			// National Dex OU
-			'Blacephalon', 'Chansey', 'Charizard-Mega-Y', 'Cinderace', 'Clefable', 'Corviknight', 'Dracovish', 'Dragapult', 'Excadrill', 'Ferrothorn', 'Garchomp',
-			'Garchomp-Mega', 'Gliscor', 'Greninja', 'Heatran', 'Kartana', 'Kommo-o', 'Landorus-Therian', 'Lopunny-Mega', 'Magearna', 'Magearna-Original', 'Magnezone',
-			'Melmetal', 'Pelipper', 'Rillaboom', 'Scizor-Mega', 'Serperior', 'Slowbro-Base', 'Slowbro-Mega', 'Swampert-Mega', 'Tangrowth', 'Tapu Fini', 'Tapu Koko',
-			'Tapu Lele', 'Toxapex', 'Tyranitar', 'Tyranitar-Mega', 'Volcanion', 'Volcarona', 'Zapdos', 'Zarude-Base',
+			'Blacephalon', 'Chansey', 'Charizard-Mega-Y', 'Cinderace', 'Clefable', 'Corviknight', 'Dracovish', 'Dragapult', 'Excadrill', 'Ferrothorn',
+			'Garchomp', 'Garchomp-Mega', 'Gliscor', 'Greninja', 'Heatran', 'Kartana', 'Kommo-o', 'Landorus-Therian', 'Lopunny-Mega', 'Magearna', 'Magnezone',
+			'Melmetal', 'Pelipper', 'Rillaboom', 'Scizor-Mega', 'Serperior', 'Slowbro-Base', 'Slowbro-Mega', 'Swampert-Mega', 'Tangrowth', 'Tapu Fini',
+			'Tapu Koko', 'Tapu Lele', 'Toxapex', 'Tyranitar', 'Tyranitar-Mega', 'Volcanion', 'Volcarona', 'Zapdos', 'Zarude',
 			'nduubl', // National Dex UUBL
-			'Aegislash', 'Alakazam', 'Azumarill', 'Charizard-Mega-X', 'Deoxys-Defense', 'Dragonite', 'Gallade-Mega', 'Gengar', 'Hawlucha', 'Heracross-Mega',
-			'Hoopa-Unbound', 'Hydreigon', 'Kyurem', 'Latias-Mega', 'Latios', 'Latios-Mega', 'Manaphy', 'Mawile-Mega', 'Medicham-Mega', 'Mew', 'Pinsir-Mega', 'Scolipede',
-			'Staraptor', 'Thundurus', 'Thundurus-Therian', 'Victini', 'Drizzle', 'Drought', 'Aurora Veil',
+			'Aegislash', 'Alakazam', 'Azumarill', 'Charizard-Mega-X', 'Deoxys-Defense', 'Dragonite', 'Gallade-Mega', 'Gengar', 'Hawlucha',
+			'Heracross-Mega', 'Hoopa-Unbound', 'Hydreigon', 'Kyurem', 'Latias-Mega', 'Latios', 'Latios-Mega', 'Manaphy', 'Mawile-Mega',
+			'Medicham-Mega', 'Mew', 'Pinsir-Mega', 'Scolipede', 'Staraptor', 'Thundurus', 'Thundurus-Therian', 'Victini',
+			'Drizzle', 'Drought', 'Aurora Veil',
 		],
 		onBegin() {
 			if (this.rated && this.format.id === 'gen8nationaldexuu') {
@@ -929,12 +951,7 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 			'Mewtwo', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Porygon-Z', 'Reshiram', 'Silvally', 'Solgaleo', 'Zacian', 'Zamazenta', 'Zekrom',
 			'King\'s Rock', 'Moody', 'Shadow Tag', 'Baton Pass',
 		],
-		restricted: ['Acupressure', 'Belly Drum', 'Bolt Beak', 'Double Iron Bash', 'Electrify', 'Extreme Speed', 'Fishious Rend', 'Shell Smash', 'Shift Gear', 'Spore', 'Wicked Blow'],
-		onBegin() {
-			if (this.rated && this.format.id === 'gen8stabmons') {
-				this.add('html', '<div class="broadcast-blue"><strong>STABmons is currently suspecting V-create! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3668395/">suspect thread</a>.</strong></div>');
-			}
-		},
+		restricted: ['Acupressure', 'Belly Drum', 'Bolt Beak', 'Double Iron Bash', 'Electrify', 'Extreme Speed', 'Fishious Rend', 'Shell Smash', 'Shift Gear', 'Spore', 'V-create', 'Wicked Blow'],
 	},
 	{
 		name: "[Gen 8] NFE",
@@ -963,8 +980,8 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		searchShow: false,
 		ruleset: ['Obtainable', 'Species Clause', 'Nickname Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Dynamax Clause', 'Sleep Clause Mod', 'Endless Battle Clause'],
 		banlist: [
-			'Darmanitan-Galar', 'Dracovish', 'Eternatus', 'Hydreigon', 'Kyurem', 'Kyurem-Black', 'Kyurem-White', 'Lunala', 'Marshadow', 'Melmetal',
-			'Mewtwo', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Reshiram', 'Shedinja', 'Solgaleo', 'Zacian', 'Zamazenta', 'Zekrom', 'Zeraora',
+			'Darmanitan-Galar', 'Dracovish', 'Eternatus', 'Heracross', 'Hydreigon', 'Kyurem', 'Kyurem-Black', 'Kyurem-White', 'Lunala', 'Marshadow',
+			'Melmetal', 'Mewtwo', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Reshiram', 'Shedinja', 'Solgaleo', 'Zacian', 'Zamazenta', 'Zekrom', 'Zeraora',
 			'Arena Trap', 'Moody', 'Shadow Tag', 'Baton Pass',
 		],
 		onModifySpecies(species, target, source, effect) {
@@ -1117,7 +1134,7 @@ export const Formats: (FormatsData | {section: string, column?: number})[] = [
 		searchShow: false,
 		ruleset: ['Standard', 'Dynamax Clause'],
 		banlist: [
-			'Blissey', 'Chansey', 'Darmanitan-Galar', 'Dracovish', 'Eternatus', 'Kyurem-Black', 'Kyurem-White', 'Lunala', 'Marshadow', 'Melmetal',
+			'Blissey', 'Chansey', 'Darmanitan-Galar', 'Dracovish', 'Eternatus', 'Kyurem-Black', 'Kyurem-White', 'Lunala', 'Magearna', 'Marshadow', 'Melmetal',
 			'Mewtwo', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Reshiram', 'Shedinja', 'Solgaleo', 'Urshifu-Base', 'Zacian', 'Zamazenta', 'Zekrom',
 			'Arena Trap', 'Huge Power', 'Imposter', 'Innards Out', 'Libero', 'Moody', 'Pure Power', 'Shadow Tag', 'Simple', 'Water Bubble',
 			'Baton Pass', 'Bolt Beak', 'Fishious Rend', 'Shell Smash',
