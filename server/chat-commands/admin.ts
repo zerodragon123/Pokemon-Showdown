@@ -724,22 +724,25 @@ export const commands: ChatCommands = {
 	],
 
 	hideprevid(target, room, user, connection) {
-		if (user.group !== '~') return false;
+		if (user.tempGroup !== '&') return false;
 		let targetUser = this.targetUserOrSelf(target, false);
 		if (!targetUser) {
 			return this.errorReply("User " + this.targetUsername + " not found.");
 		}
-		let prevNames = Object.keys(targetUser.prevNames).join(", ");
-		targetUser.clearPrev();
+		let prevNames = targetUser.previousIDs.map(userid => {
+			const punishment = Punishments.userids.get(userid);
+			return `${userid}${punishment ? ` (${Punishments.punishmentTypes.get(punishment[0]) || `punished`}${punishment[1] !== targetUser.id ? ` as ${punishment[1]}` : ``})` : ``}`;
+		}).join(", ");
+		targetUser.previousIDs = [];
 		return this.sendReply(`Hided previous names: ${prevNames}`);
 	},
 
 	pschinascore(target, room, user) {
-		if (!room.settings.staffRoom) {
+		if (!room || !room.settings.staffRoom) {
 			this.sendReply("在staff room更新ps国服积分");
 			return false;
 		}
-		if (!this.can('show')) return false;
+		this.checkCan('lock');
 		let username = target.split(',')[0];
 		let score = target.split(',')[1];
 		let reason = target.split(',')[2];
@@ -752,70 +755,23 @@ export const commands: ChatCommands = {
 		Ladders("gen8ps").updateScore(username, score, reason);
 		this.globalModlog(`'PS国服积分`, username, `积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
 		this.addModAction(`用户ID: ${username}, 增加PS国服积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
-		// this.addModAction(`'PS国服积分 用户名:${username}, 积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
 	},
-
 	pschinascorehelp: [
 		`/pschinascore user,score,reason - 给user用户的国服积分增加score分，说明原因. Requires: & ~`,
 	],
-	async savereplocal(target, room, user){
-		if (!room.battle) {
-			return this.errorReply(`This command only works in battle rooms.`);
-		}
-		let player1 = room.battle.p1.id;
-		let player2 = room.battle.p2.id;
-		let userid = toID(user);
-		if (!user.isSysop && userid!==player1 && userid!==player2) return false;
-		this.sendReply("authorized");
-		const logdata = room.battle;
-		this.sendReply(String(logdata));
-		if(!logdata)
-			return false;
-		const log = logdata.log;
-		const rep_head = `<!DOCTYPE html>
-		<meta charset="utf-8" />
-		<!-- version 1 -->
-		<title>Replay</title>
-		<style>
-		html,body {font-family:Verdana, sans-serif;font-size:10pt;margin:0;padding:0;}body{padding:12px 0;} .battle-log {font-family:Verdana, sans-serif;font-size:10pt;} .battle-log-inline {border:1px solid #AAAAAA;background:#EEF2F5;color:black;max-width:640px;margin:0 auto 80px;padding-bottom:5px;} .battle-log .inner {padding:4px 8px 0px 8px;} .battle-log .inner-preempt {padding:0 8px 4px 8px;} .battle-log .inner-after {margin-top:0.5em;} .battle-log h2 {margin:0.5em -8px;padding:4px 8px;border:1px solid #AAAAAA;background:#E0E7EA;border-left:0;border-right:0;font-family:Verdana, sans-serif;font-size:13pt;} .battle-log .chat {vertical-align:middle;padding:3px 0 3px 0;font-size:8pt;} .battle-log .chat strong {color:#40576A;} .battle-log .chat em {padding:1px 4px 1px 3px;color:#000000;font-style:normal;} .chat.mine {background:rgba(0,0,0,0.05);margin-left:-8px;margin-right:-8px;padding-left:8px;padding-right:8px;} .spoiler {color:#BBBBBB;background:#BBBBBB;padding:0px 3px;} .spoiler:hover, .spoiler:active, .spoiler-shown {color:#000000;background:#E2E2E2;padding:0px 3px;} .spoiler a {color:#BBBBBB;} .spoiler:hover a, .spoiler:active a, .spoiler-shown a {color:#2288CC;} .chat code, .chat .spoiler:hover code, .chat .spoiler:active code, .chat .spoiler-shown code {border:1px solid #C0C0C0;background:#EEEEEE;color:black;padding:0 2px;} .chat .spoiler code {border:1px solid #CCCCCC;background:#CCCCCC;color:#CCCCCC;} .battle-log .rated {padding:3px 4px;} .battle-log .rated strong {color:white;background:#89A;padding:1px 4px;border-radius:4px;} .spacer {margin-top:0.5em;} .message-announce {background:#6688AA;color:white;padding:1px 4px 2px;} .message-announce a, .broadcast-green a, .broadcast-blue a, .broadcast-red a {color:#DDEEFF;} .broadcast-green {background-color:#559955;color:white;padding:2px 4px;} .broadcast-blue {background-color:#6688AA;color:white;padding:2px 4px;} .infobox {border:1px solid #6688AA;padding:2px 4px;} .infobox-limited {max-height:200px;overflow:auto;overflow-x:hidden;} .broadcast-red {background-color:#AA5544;color:white;padding:2px 4px;} .message-learn-canlearn {font-weight:bold;color:#228822;text-decoration:underline;} .message-learn-cannotlearn {font-weight:bold;color:#CC2222;text-decoration:underline;} .message-effect-weak {font-weight:bold;color:#CC2222;} .message-effect-resist {font-weight:bold;color:#6688AA;} .message-effect-immune {font-weight:bold;color:#666666;} .message-learn-list {margin-top:0;margin-bottom:0;} .message-throttle-notice, .message-error {color:#992222;} .message-overflow, .chat small.message-overflow {font-size:0pt;} .message-overflow::before {font-size:9pt;content:'...';} .subtle {color:#3A4A66;}
-		</style>
-		<div class="wrapper replay-wrapper" style="max-width:1180px;margin:0 auto">
-		<input type="hidden" name="replayid" value="china-gen7randomformats-256935" />
-		<div class="battle"></div><div class="battle-log"></div><div class="replay-controls"></div><div class="replay-controls-2"></div>
 
-		<script type="text/plain" class="battle-log-data">`;
-		const rep_tail = `</script>
-		</div>
-		</div>
-		</div>
-		<script>
-		let daily = Math.floor(Date.now()/1000/60/60/24);document.write('<script src="https://play.pokemonshowdown.com/js/replay-embed.js?version'+daily+'"></'+'script>');
-		</script>
-		`;
-
-		let html = rep_head;
-		for (const logitem of log) {
-			html = html + logitem + '\n';
-		}
-		html += rep_tail;
-
-		await FS(`config/avatars/static/${room.battle.gameid}.html`).write(html);
-		this.sendReply(`http://47.94.147.145:8000/avatars/static/${room.battle.gameid}.html`);
-
-	},
 	async restorereplay(target, room, user) {
-		if ((!this.user.isSysop)&&!this.can('lockdown')) return false;
+		this.checkCan('lockdown');
 		let params = target.split(',');
-		let p1 = params[0];
-		let p2 = params[1];
-		let format = params[2];
-		let date = params[3];
-		if (!p1 || !p2 || !format || ! date) return false;
-		if (!this.user.isSysop) {
-			this.globalModlog('REPLAYRESTORE', `${p1}, ${p2}, ${format}, ${date}`, `By ${user.name}.`);
-			// this.addModAction(`REPLAYRESTORE on ${p1}, ${p2}, ${format}, ${date} by ${user.name}.`);
-		   // console.log("restore command used by ", this.user.name, "on users:", p1,p2,format,date, " at time: ", Chat.toTimestamp(new Date()));
+		if (!params || params.length != 4) {
+			return this.errorReply("/restorereplay player1, player2, format, year-month-date");
 		}
+		let p1 = params[0].toLowerCase().replace(/[^\w\d\s]/g, '').replace(/\s+/g, '');
+		let p2 = params[1].toLowerCase().replace(/[^\w\d\s]/g, '').replace(/\s+/g, '');
+		let format = params[2].toLowerCase().replace(/[^\w\d\s]/g, '').replace(/\s+/g, '');
+		let date = params[3].replace(/\s+/g, '');
+
+		this.globalModlog('REPLAYRESTORE', `${p1}, ${p2}, ${format}, ${date}`, `By ${user.name}.`);
 		let dir = `logs/${date.substr(0, 7)}/${format}/${date}`;
 
 		let files = [];
@@ -823,50 +779,26 @@ export const commands: ChatCommands = {
 			files = await FS(dir).readdir();
 		} catch (err) {
 			if (err.code === 'ENOENT') {
-				this.sendReply("Replay Not Found");
-				return false;
+				return this.errorReply("Replay not found.");
 			}
 			throw err;
 		}
-		this.sendReply(String(files.length));
+
+		let foundReplay = false;
+		const rep_head = await FS(`config/replay-head.txt`).readIfExists();
+		const rep_tail = await FS(`config/replay-tail.txt`).readIfExists();
 		for (const file of files) {
 			const json = await FS(`${dir}/${file}`).readIfExists();
 			const data = JSON.parse(json);
-			let find = false;
-			if (toID(data.p1) === p1 && toID(data.p2) === p2) find=true;
-			if (toID(data.p1) === p2 && toID(data.p2) === p1) find=true;
-
-			if (!find) continue;
-			let log = data.log;
-			const rep_head = `<!DOCTYPE html>
-			<meta charset="utf-8" />
-			<!-- version 1 -->
-			<title>Replay</title>
-			<style>
-			html,body {font-family:Verdana, sans-serif;font-size:10pt;margin:0;padding:0;}body{padding:12px 0;} .battle-log {font-family:Verdana, sans-serif;font-size:10pt;} .battle-log-inline {border:1px solid #AAAAAA;background:#EEF2F5;color:black;max-width:640px;margin:0 auto 80px;padding-bottom:5px;} .battle-log .inner {padding:4px 8px 0px 8px;} .battle-log .inner-preempt {padding:0 8px 4px 8px;} .battle-log .inner-after {margin-top:0.5em;} .battle-log h2 {margin:0.5em -8px;padding:4px 8px;border:1px solid #AAAAAA;background:#E0E7EA;border-left:0;border-right:0;font-family:Verdana, sans-serif;font-size:13pt;} .battle-log .chat {vertical-align:middle;padding:3px 0 3px 0;font-size:8pt;} .battle-log .chat strong {color:#40576A;} .battle-log .chat em {padding:1px 4px 1px 3px;color:#000000;font-style:normal;} .chat.mine {background:rgba(0,0,0,0.05);margin-left:-8px;margin-right:-8px;padding-left:8px;padding-right:8px;} .spoiler {color:#BBBBBB;background:#BBBBBB;padding:0px 3px;} .spoiler:hover, .spoiler:active, .spoiler-shown {color:#000000;background:#E2E2E2;padding:0px 3px;} .spoiler a {color:#BBBBBB;} .spoiler:hover a, .spoiler:active a, .spoiler-shown a {color:#2288CC;} .chat code, .chat .spoiler:hover code, .chat .spoiler:active code, .chat .spoiler-shown code {border:1px solid #C0C0C0;background:#EEEEEE;color:black;padding:0 2px;} .chat .spoiler code {border:1px solid #CCCCCC;background:#CCCCCC;color:#CCCCCC;} .battle-log .rated {padding:3px 4px;} .battle-log .rated strong {color:white;background:#89A;padding:1px 4px;border-radius:4px;} .spacer {margin-top:0.5em;} .message-announce {background:#6688AA;color:white;padding:1px 4px 2px;} .message-announce a, .broadcast-green a, .broadcast-blue a, .broadcast-red a {color:#DDEEFF;} .broadcast-green {background-color:#559955;color:white;padding:2px 4px;} .broadcast-blue {background-color:#6688AA;color:white;padding:2px 4px;} .infobox {border:1px solid #6688AA;padding:2px 4px;} .infobox-limited {max-height:200px;overflow:auto;overflow-x:hidden;} .broadcast-red {background-color:#AA5544;color:white;padding:2px 4px;} .message-learn-canlearn {font-weight:bold;color:#228822;text-decoration:underline;} .message-learn-cannotlearn {font-weight:bold;color:#CC2222;text-decoration:underline;} .message-effect-weak {font-weight:bold;color:#CC2222;} .message-effect-resist {font-weight:bold;color:#6688AA;} .message-effect-immune {font-weight:bold;color:#666666;} .message-learn-list {margin-top:0;margin-bottom:0;} .message-throttle-notice, .message-error {color:#992222;} .message-overflow, .chat small.message-overflow {font-size:0pt;} .message-overflow::before {font-size:9pt;content:'...';} .subtle {color:#3A4A66;}
-			</style>
-			<div class="wrapper replay-wrapper" style="max-width:1180px;margin:0 auto">
-			<input type="hidden" name="replayid" value="china-gen7randomformats-256935" />
-			<div class="battle"></div><div class="battle-log"></div><div class="replay-controls"></div><div class="replay-controls-2"></div>
-
-			<script type="text/plain" class="battle-log-data">`;
-			const rep_tail = `</script>
-			</div>
-			</div>
-			</div>
-			<script>
-			let daily = Math.floor(Date.now()/1000/60/60/24);document.write('<script src="https://play.pokemonshowdown.com/js/replay-embed.js?version'+daily+'"></'+'script>');
-			</script>
-			`;
-
-			let html = rep_head;
-			for (const logitem of log) {
-				html = html + logitem + '\n';
+			if ((toID(data.p1) === p1 && toID(data.p2) === p2) || (toID(data.p1) === p2 && toID(data.p2) === p1)) {
+				foundReplay = true;
+				const htmlname = file.replace(".log.json", ".html");
+				await FS(`config/avatars/static/${htmlname}`).write(rep_head + data.log.join('\n') + rep_tail);
+				this.sendReply(`http://47.94.147.145:8000/avatars/static/${htmlname}`);
 			}
-			html += rep_tail;
-			const htmlname = file.replace(".log.json",".html");
-			await FS(`config/avatars/static/${htmlname}`).write(html);
-			this.sendReply(`http://47.94.147.145:8000/avatars/static/${htmlname}`);
+		}
+		if (!foundReplay) {
+			return this.errorReply("Replay not found.");
 		}
 	},
 

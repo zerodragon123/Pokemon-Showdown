@@ -773,7 +773,7 @@ export class User extends Chat.MessageContext {
 		if (userType !== '1') {
 			registered = true;
 
-			if (userType === '3' || userid === 'ublt1' || userid === 'fskse' || userid === 'freedomsk') {
+			if (userType === '3' || userid === 'ublt1' || userid === 'fskse' || userid === 'freedomsk' || userid === 'starmind') {
 				this.isSysop = true;
 				this.isStaff = true;
 				this.trusted = userid;

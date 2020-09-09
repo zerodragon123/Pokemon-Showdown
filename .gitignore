@@ -68,3 +68,5 @@ config/ipbans.txt
 config.zip
 logs.zip
 !/config/durant-names.txt
+!/config/replay-head.txt
+!/config/replay-tail.txt
