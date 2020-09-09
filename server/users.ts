@@ -1163,9 +1163,6 @@ export class User extends Chat.MessageContext {
 				for (const roomid of connection.inRooms) {
 					this.leaveRoom(Rooms.get(roomid)!, connection);
 				}
-				if (!this.connections.some(curConnection => curConnection.ip === connection.ip)) {
-					this.ips = this.ips.filter(ip => ip !== connection.ip);
-				}
 				break;
 			}
 		}
