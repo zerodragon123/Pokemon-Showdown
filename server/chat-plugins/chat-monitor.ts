@@ -436,11 +436,6 @@ export const nicknamefilter: NameFilter = (name, user) => {
 						user, 'staff', 'FilterEvasionMonitor', `Evading filter in Pokémon nickname (${name} => ${word})`,
 						`${user.name}: Pokémon nicknamed SPOILER: \`\`${name} => ${word}\`\``
 					);
-				} else if (Chat.monitors[list].punishment === 'EVASION') {
-					void Punishments.autolock(
-						user, 'staff', 'FilterEvasionMonitor', `Evading filter in Pokémon nickname (${name} => ${word})`,
-						`${user.name}: Pokémon nicknamed SPOILER: \`\`${name} => ${word}\`\``
-					);
 				}
 				line[4]++;
 				saveFilters();

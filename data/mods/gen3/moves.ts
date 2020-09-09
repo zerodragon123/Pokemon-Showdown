@@ -635,11 +635,6 @@ export const Moves: {[k: string]: ModdedMoveData} = {
 		accuracy: 100,
 		ignoreAccuracy: true,
 	},
-	yawn: {
-		inherit: true,
-		accuracy: 100,
-		ignoreAccuracy: true,
-	},
 	zapcannon: {
 		inherit: true,
 		basePower: 100,

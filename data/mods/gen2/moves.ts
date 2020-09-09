@@ -838,11 +838,6 @@ export const Moves: {[k: string]: ModdedMoveData} = {
 		accuracy: true,
 		ignoreAccuracy: false,
 	},
-	vitalthrow: {
-		inherit: true,
-		accuracy: true,
-		ignoreAccuracy: false,
-	},
 	whirlwind: {
 		inherit: true,
 		onTryHit() {
