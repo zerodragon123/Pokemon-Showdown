@@ -70,7 +70,7 @@ exports.commands = {
 
 		remove: "delete",
 		delete(target, room, user) {
-			if (!this.can('bypassall')) return this.errorReply("To delete icons, you need to be an admin user.");
+			if (!this.user.can('bypassall')) return this.errorReply("To delete icons, you need to be an admin user.");
 			const targetName = toID(target);
 			if (!icons[targetName]) return this.errorReply(`/icon - ${targetName} does not have an icon.`);
 			delete icons[targetName];
