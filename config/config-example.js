@@ -669,23 +669,7 @@ exports.grouplist = [
 		declare: true,
 		addhtml: true,
 		gamemanagement: true,
-	},
-	{
-		symbol: '*',
-		id: "bot",
-		name: "Bot",
-		inherit: '%',
-		jurisdiction: 'u',
-		globalGroupInPersonalRoom: '*',
-
-		addhtml: true,
-		declare: true,
-		bypassafktimer: true,
-
-		ip: false,
-		globalban: false,
-		lock: false,
-		alts: false,
+		tournaments: true,
 	},
 	{
 		symbol: '\u2605',
@@ -696,9 +680,27 @@ exports.grouplist = [
 		roomonly: true,
 
 		declare: true,
-		modchat: true,
+		modchat: 'a',
 		gamemanagement: true,
+		tournaments: true,
 		joinbattle: true,
+	},
+	{
+		symbol: '*',
+		id: "bot",
+		name: "Bot",
+		inherit: '%',
+		jurisdiction: 'u',
+
+		addhtml: true,
+		tournaments: true,
+		declare: true,
+		bypassafktimer: true,
+
+		ip: false,
+		globalban: false,
+		lock: false,
+		alts: false,
 	},
 	{
 		symbol: '@',
@@ -718,7 +720,6 @@ exports.grouplist = [
 		timer: true,
 		modlog: true,
 		alts: '@u',
-		tournaments: true,
 		game: true,
 	},
 	{
@@ -745,6 +746,7 @@ exports.grouplist = [
 		joinbattle: true,
 		minigame: true,
 		modchat: true,
+		hiderank: true,
 	},
 	{
 		symbol: '\u265A',
@@ -766,7 +768,6 @@ exports.grouplist = [
 		modchat: true,
 		editprivacy: true,
 		gamemanagement: true,
-		tournaments: true,
 		joinbattle: true,
 		nooverride: true,
 	},

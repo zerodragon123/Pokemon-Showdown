@@ -56,6 +56,7 @@ export const Formats: FormatList = [
 		mod: 'gen8',
 		ruleset: ['Standard', 'Dynamax Clause'],
 		banlist: ['Uber', 'Arena Trap', 'Moody', 'Shadow Tag', 'Baton Pass'],
+		// unbanlist: ['Cinderace'],
 		onBegin() {
 			if (this.rated && this.format.id === 'gen8ou') {
 				this.add('html', '<div class="broadcast-blue"><strong>OU is currently suspecting Cinderace! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3670532/">suspect thread</a>.</strong></div>');
@@ -67,6 +68,7 @@ export const Formats: FormatList = [
 
 		mod: 'gen8',
 		ruleset: ['[Gen 8] OU', 'Blitz'],
+		banlist: ['Cinderace'],
 	},
 	{
 		name: "[Gen 8] Ubers",
@@ -91,7 +93,7 @@ export const Formats: FormatList = [
 
 		mod: 'gen8',
 		ruleset: ['[Gen 8] OU'],
-		banlist: ['OU', 'UUBL', 'Drizzle'],
+		banlist: ['OU', 'UUBL', 'Cinderace', 'Drizzle'],
 		onBegin() {
 			if (this.rated && this.format.id === 'gen8uu') {
 				this.add('html', '<div class="broadcast-blue"><strong>UU is currently suspecting Lycanroc-Dusk! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3670407/">suspect thread</a>.</strong></div>');
@@ -185,6 +187,11 @@ export const Formats: FormatList = [
 			'Mimikyu', 'Necrozma', 'Necrozma-Dawn-Wings', 'Necrozma-Dusk-Mane', 'Reshiram', 'Sableye', 'Solgaleo', 'Zacian', 'Zamazenta', 'Zekrom',
 			'Focus Sash', 'Moody', 'Perish Song',
 		],
+		onBegin() {
+			if (this.rated && this.format.id === 'gen81v1') {
+				this.add('html', '<div class="broadcast-blue"><strong>1v1 is currently suspecting Togekiss! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3670621/">suspect thread</a>.</strong></div>');
+			}
+		},
 	},
 	{
 		name: "[Gen 8] Anything Goes",
@@ -217,7 +224,7 @@ export const Formats: FormatList = [
 
 		mod: 'gen8',
 		ruleset: ['[Gen 8] OU', '+CAP'],
-		banlist: ['Clefable', 'Crucibelle-Mega'],
+		banlist: ['Cinderace', 'Clefable', 'Crucibelle-Mega'],
 	},
 	{
 		name: "[Gen 8] Battle Stadium Singles",
@@ -581,11 +588,18 @@ export const Formats: FormatList = [
 			'Heracross-Mega', 'Hoopa-Unbound', 'Hydreigon', 'Kyurem', 'Latias-Mega', 'Latios', 'Latios-Mega', 'Manaphy', 'Mawile-Mega', 'Mew',
 			'Pinsir-Mega', 'Scolipede', 'Staraptor', 'Thundurus', 'Thundurus-Therian', 'Victini', 'Drizzle', 'Drought', 'Aurora Veil',
 		],
-		onBegin() {
-			if (this.rated && this.format.id === 'gen8nationaldexuu') {
-				this.add('html', '<div class="broadcast-blue"><strong>National Dex UU is currently re-suspecting Grimmsnarl! For information on how to participate check out the <a href="https://www.smogon.com/forums/posts/8566347">suspect post</a>.</strong></div>');
-			}
-		},
+	},
+	{
+		name: "[Gen 8] National Dex Monotype",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/posts/8376523/">National Dex Monotype</a>`,
+		],
+
+		mod: 'gen8',
+		searchShow: false,
+		ruleset: ['[Gen 8] National Dex', 'Same Type Clause'],
+		banlist: ['Aegislash', 'Hoopa-Unbound', 'Kartana', 'Magearna', 'Tapu Lele', 'Zygarde-10%', 'Battle Bond', 'Damp Rock', 'Smooth Rock'],
+		unbanlist: ['Alakazam-Mega', 'Darmanitan-Galar', 'Deoxys-Speed', 'Landorus-Base', 'Tornadus-Therian', 'Urshifu-Base', 'Urshifu-Rapid-Strike', 'Arena Trap'],
 	},
 	{
 		name: "[Gen 8] National Dex AG",
@@ -659,6 +673,11 @@ export const Formats: FormatList = [
 				return [`You are limited to one Arceus forme.`, `(You have ${arceus} Arceus formes.)`];
 			}
 		},
+		onBegin() {
+			if (this.rated && this.format.id === 'gen8nationaldexbh') {
+				this.add('html', '<div class="broadcast-blue"><strong>National Dex BH is currently suspecting Bolt Beak and Fishious Rend! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3658587/">suspect thread</a>.</strong></div>');
+			}
+		},
 	},
 
 	// Pet Mods
@@ -676,8 +695,7 @@ export const Formats: FormatList = [
 
 		mod: 'megamax',
 		ruleset: ['[Gen 8] OU'],
-		banlist: ['Corviknight-Gmax', 'Melmetal-Gmax', 'Urshifu-Gmax'],
-		unbanlist: ['Cinderace'],
+		banlist: ['Cinderace', 'Corviknight-Gmax', 'Melmetal-Gmax', 'Urshifu-Gmax'],
 		onChangeSet(set) {
 			if (set.species.endsWith('-Gmax')) set.species = set.species.slice(0, -5);
 		},
@@ -733,6 +751,7 @@ export const Formats: FormatList = [
 		mod: 'optimons',
 		searchShow: false,
 		ruleset: ['[Gen 8] OU'],
+		banlist: ['Cinderace'],
 		unbanlist: ['Electabuzz', 'Electivire', 'Elekid', 'Magby', 'Magmar', 'Magmortar', 'Yanma', 'Yanmega'],
 		onSwitchIn(pokemon) {
 			const baseSpecies = this.dex.mod('gen8').getSpecies(pokemon.species.name);
@@ -1078,6 +1097,11 @@ export const Formats: FormatList = [
 			'Pawniard', 'Pikachu', 'Porygon2', 'Rhydon', 'Rufflet', 'Scyther', 'Sneasel', 'Type: Null',
 			'Arena Trap', 'Shadow Tag', 'Baton Pass',
 		],
+		onBegin() {
+			if (this.rated && this.format.id === 'gen8nfe') {
+				this.add('html', '<div class="broadcast-blue"><strong>NFE is currently suspecting Raboot! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3670673/">suspect thread</a>.</strong></div>');
+			}
+		},
 	},
 	{
 		name: "[Gen 8] Camomons",
@@ -1360,7 +1384,7 @@ export const Formats: FormatList = [
 		mod: 'gen8',
 		searchShow: false,
 		ruleset: ['[Gen 8] OU'],
-		banlist: ['Damp Rock', 'Eviolite', 'Heat Rock'],
+		banlist: ['Cinderace', 'Damp Rock', 'Eviolite', 'Heat Rock'],
 		onModifySpecies(species, target, source, effect) {
 			if (!species.baseStats) return;
 			const boosts: {[tier: string]: number} = {

@@ -1161,7 +1161,7 @@ function createTournament(
 	return tour;
 }
 
-export const commands: ChatCommands = {
+const commands: ChatCommands = {
 	tour: 'tournament',
 	tours: 'tournament',
 	tournaments: 'tournament',
@@ -1187,37 +1187,7 @@ export const commands: ChatCommands = {
 		enable: 'toggle',
 		disable: 'toggle',
 		toggle(target, room, user, connection, cmd) {
-			room = this.requireRoom();
-			target = target.trim();
-			if (this.meansYes(cmd)) {
-				this.checkCan('gamemanagement', null, room);
-				if (target === '@') {
-					if (room.settings.toursEnabled === true) {
-						return this.errorReply("Tournaments are already enabled for @ and above in this room.");
-					}
-					room.settings.toursEnabled = true;
-					room.saveSettings();
-					return this.sendReply("Tournaments are now enabled for @ and up.");
-				} else if (target === '%') {
-					if (room.settings.toursEnabled === target) {
-						return this.errorReply("Tournaments are already enabled for % and above in this room.");
-					}
-					room.settings.toursEnabled = target;
-					room.saveSettings();
-
-					return this.sendReply("Tournaments are now enabled for % and up.");
-				} else {
-					return this.errorReply("Tournament enable setting not recognized.  Valid options include [%|@].");
-				}
-			} else if (this.meansNo(cmd)) {
-				this.checkCan('gamemanagement', null, room);
-				if (!room.settings.toursEnabled) {
-					return this.errorReply("Tournaments are already disabled.");
-				}
-				room.settings.toursEnabled = false;
-				room.saveSettings();
-				return this.sendReply("Tournaments are now disabled.");
-			}
+			throw new Chat.ErrorMessage(`${this.cmdToken}${this.fullCmd} has been deprecated. Instead, use "${this.cmdToken}permissions set tournaments, [rank symbol]".`);
 		},
 		announcements: 'announce',
 		announce(target, room, user, connection, cmd) {
@@ -1254,15 +1224,7 @@ export const commands: ChatCommands = {
 		new: 'create',
 		create(target, room, user, connection, cmd) {
 			room = this.requireRoom();
-			if (room.settings.toursEnabled === true) {
-				this.checkCan('tournaments', null, room);
-			} else if (room.settings.toursEnabled === '%') {
-				this.checkCan('gamemoderation', null, room);
-			} else {
-				if (!user.can('gamemanagement', null, room)) {
-					return this.errorReply(`Tournaments are disabled in this room (${room.roomid}).`);
-				}
-			}
+			this.checkCan('tournaments', null, room);
 			const [format, generator, cap, mod, name] = target.split(',').map(item => item.trim());
 			if (!target || !format || !generator) {
 				return this.sendReply(`Usage: /tour ${cmd} <format>, <type> [, <comma-separated arguments>]`);
@@ -1302,10 +1264,11 @@ export const commands: ChatCommands = {
 		},
 		banuser(target, room, user) {
 			room = this.requireRoom();
-			const [userid, reason] = target.split(',').map(item => item.trim());
+			const [userid, ...reasonsArray] = target.split(',').map(item => item.trim());
 			if (!target) {
 				return this.sendReply(`Usage: /tour banuser <user>, <reason>`);
 			}
+			const reason = reasonsArray.join(',');
 			const targetUser = Users.get(userid);
 			this.checkCan('gamemoderation', targetUser, room);
 
@@ -1447,14 +1410,15 @@ export const commands: ChatCommands = {
 		},
 		settype(target, room, user, connection, cmd) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			if (!target) {
 				return this.sendReply(`Usage: /tour ${cmd} <type> [, <comma-separated arguments>]`);
 			}
-			const [cap, name, modifier] = target.split(',').map(item => item.trim());
+			const [generatorType, cap, modifier] = target.split(',').map(item => item.trim());
 			const playerCap = parseInt(cap);
-			const generator = createTournamentGenerator(name, modifier, this);
+			const generator = createTournamentGenerator(generatorType, modifier, this);
 			if (generator && tournament.setGenerator(generator, this)) {
 				if (playerCap && playerCap >= 2) {
 					tournament.playerCap = playerCap;
@@ -1467,9 +1431,9 @@ export const commands: ChatCommands = {
 					room.send(`|tournament|update|{"playerCap": "${playerCap}"}`);
 				}
 				const capNote = (tournament.playerCap ? ' with a player cap of ' + tournament.playerCap : '');
-				this.privateModAction(`${user.name} set tournament type to ${generator.name + capNote}.`);
+				this.privateModAction(`${user.name} set tournament type to ${generator.name}${capNote}.`);
 				this.modlog('TOUR SETTYPE', null, generator.name + capNote);
-				this.sendReply(`Tournament set to ${generator.name + capNote}.`);
+				this.sendReply(`Tournament set to ${generator.name}${capNote}.`);
 			}
 		},
 		cap: 'setplayercap',
@@ -1477,6 +1441,7 @@ export const commands: ChatCommands = {
 		setcap: 'setplayercap',
 		setplayercap(target, room, user, connection, cmd) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			target = target.trim();
@@ -1522,6 +1487,7 @@ export const commands: ChatCommands = {
 		stop: 'delete',
 		delete(target, room, user) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			tournament.forceEnd();
@@ -1533,6 +1499,7 @@ export const commands: ChatCommands = {
 		rules: 'customrules',
 		customrules(target, room, user, connection, cmd) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			const params = target.split(',').map(item => item.trim());
@@ -1549,7 +1516,7 @@ export const commands: ChatCommands = {
 			}
 			if (tournament.setCustomRules(params)) {
 				room.addRaw(
-					`<div class='infobox infobox-limited'>This tournament includes:<br />${tournament.getCustomRules()}</div>`
+					`<div class="infobox infobox-limited">This tournament includes:<br />${tournament.getCustomRules()}</div>`
 				);
 				this.privateModAction(`${user.name} updated the tournament's custom rules.`);
 				this.modlog('TOUR RULES', null, tournament.customRules.join(', '));
@@ -1560,6 +1527,7 @@ export const commands: ChatCommands = {
 		clearrules: 'clearcustomrules',
 		clearcustomrules(target, room, user) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			if (tournament.isTournamentStarted) {
@@ -1583,6 +1551,7 @@ export const commands: ChatCommands = {
 		customname: 'setname',
 		setname(target, room, user, connection, cmd) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			const name = target.trim();
@@ -1605,6 +1574,7 @@ export const commands: ChatCommands = {
 		resetname: 'clearname',
 		clearname(target, room, user) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			if (tournament.name === tournament.baseFormat) return this.errorReply("The tournament does not have a name.");
@@ -1617,6 +1587,7 @@ export const commands: ChatCommands = {
 		begin: 'start',
 		start(target, room, user) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			if (tournament.startTournament(this)) {
@@ -1626,6 +1597,7 @@ export const commands: ChatCommands = {
 		dq: 'disqualify',
 		disqualify(target, room, user, connection, cmd) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			if (!target) {
@@ -1645,6 +1617,7 @@ export const commands: ChatCommands = {
 		sub: 'replace',
 		replace(target, room, user) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			const [oldUser, newUser] = target.split(',').map(item => Users.get(item.trim()));
@@ -1656,6 +1629,7 @@ export const commands: ChatCommands = {
 		autostart: 'setautostart',
 		setautostart(target, room, user, connection, cmd) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			target = target.trim();
@@ -1695,6 +1669,7 @@ export const commands: ChatCommands = {
 		autodq: 'setautodq',
 		setautodq(target, room, user, connection, cmd) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			target = target.trim();
@@ -1717,6 +1692,7 @@ export const commands: ChatCommands = {
 		},
 		runautodq(target, room, user) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			if (tournament.autoDisqualifyTimeout === Infinity) {
@@ -1730,6 +1706,7 @@ export const commands: ChatCommands = {
 		setscout: 'setscouting',
 		setscouting(target, room, user, connection, cmd) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			target = target.trim();
@@ -1763,6 +1740,7 @@ export const commands: ChatCommands = {
 		modjoin: 'setmodjoin',
 		setmodjoin(target, room, user, connection, cmd) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			target = target.trim();
@@ -1793,6 +1771,7 @@ export const commands: ChatCommands = {
 		},
 		forcepublic(target, room, user, connection, cmd) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			target = target.trim();
@@ -1813,6 +1792,7 @@ export const commands: ChatCommands = {
 		},
 		forcetimer(target, room, user, connection, cmd) {
 			room = this.requireRoom();
+			this.checkCan('tournaments', null, room);
 			const tournament = room.getGame(Tournament);
 			if (!tournament) return this.errorReply(`There is no tournament running.`);
 			target = target.trim();
@@ -1854,8 +1834,6 @@ export const commands: ChatCommands = {
 			`- forcetimer &lt;on|off>: Turn on the timer for tournament battles.<br />` +
 			`- forcepublic &lt;on|off>: Forces tournament battles and their replays to be public.<br />` +
 			`- getusers: Lists the users in the current tournament.<br />` +
-			`- on/enable &lt;%|@>: Enables allowing drivers or mods to start tournaments in the current room.<br />` +
-			`- off/disable: Disables allowing drivers and mods to start tournaments in the current room.<br />` +
 			`- announce/announcements &lt;on|off>: Enables/disables tournament announcements for the current room.<br />` +
 			`- banuser/unbanuser &lt;user>: Bans/unbans a user from joining tournaments in this room. Lasts 2 weeks.<br />` +
 			`- sub/replace &lt;olduser>, &lt;newuser>: Substitutes a new user for an old one<br />` +
@@ -1863,15 +1841,6 @@ export const commands: ChatCommands = {
 		);
 	},
 };
-const roomSettings: SettingsHandler = room => ({
-	label: "Tournaments",
-	permission: 'gamemanagement',
-	options: [
-		['%', room.settings.toursEnabled === '%' || 'tournament enable %'],
-		['@', room.settings.toursEnabled === true || 'tournament enable @'],
-		['#', room.settings.toursEnabled === false || 'tournament disable'],
-	],
-});
 
 export const Tournaments = {
 	TournamentGenerators,
@@ -1879,5 +1848,4 @@ export const Tournaments = {
 	Tournament,
 	createTournament,
 	commands,
-	roomSettings,
 };
