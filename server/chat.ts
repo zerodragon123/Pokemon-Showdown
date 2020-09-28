@@ -971,12 +971,6 @@ export class CommandContext extends MessageContext {
 
 		return true;
 	}
-	checkChat(message: string | null = null, room: Room | null = null, targetUser: User | null = null) {
-		// @ts-ignore
-		const out = this.checkChat2(message, room, targetUser);
-		if (!out) throw new Chat.ErrorMessage('');
-		return out;
-	}
 	/* The sucrase transformation of optional chaining is too expensive to be used in a hot function like this. */
 	/* eslint-disable @typescript-eslint/prefer-optional-chain */
 	checkChat(message: string, room?: Room | null, targetUser?: User | null): string;
