@@ -591,6 +591,12 @@ export const Formats: FormatList = [
 			'Heracross-Mega', 'Hoopa-Unbound', 'Hydreigon', 'Kyurem', 'Latias-Mega', 'Latios', 'Latios-Mega', 'Manaphy', 'Mawile-Mega', 'Mew',
 			'Pinsir-Mega', 'Scolipede', 'Staraptor', 'Thundurus', 'Thundurus-Therian', 'Victini', 'Drizzle', 'Drought', 'Aurora Veil',
 		],
+
+		mod: 'gen8',
+		searchShow: false,
+		ruleset: ['[Gen 8] National Dex', 'Same Type Clause'],
+		banlist: ['Aegislash', 'Hoopa-Unbound', 'Kartana', 'Magearna', 'Tapu Lele', 'Zygarde-10%', 'Battle Bond', 'Damp Rock', 'Smooth Rock'],
+		unbanlist: ['Alakazam-Mega', 'Darmanitan-Galar', 'Deoxys-Speed', 'Landorus-Base', 'Tornadus-Therian', 'Urshifu-Base', 'Urshifu-Rapid-Strike', 'Arena Trap'],
 	},
 	{
 		name: "[Gen 8] National Dex Monotype",

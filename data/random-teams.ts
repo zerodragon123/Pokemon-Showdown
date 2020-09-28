@@ -690,9 +690,6 @@ export class RandomTeams {
 				case 'trickroom':
 					if (counter.damagingMoves.length < 2 || movePool.includes('nastyplot') || isLead) rejected = true;
 					break;
-				case 'trickroom':
-					if (counter.damagingMoves.length < 2 || movePool.includes('nastyplot')) rejected = true;
-					break;
 				case 'zenheadbutt':
 					if (movePool.includes('boltstrike') || movePool.includes('highjumpkick')) rejected = true;
 					break;
