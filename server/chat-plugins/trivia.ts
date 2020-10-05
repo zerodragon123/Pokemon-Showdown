@@ -823,7 +823,11 @@ export class Trivia extends Rooms.RoomGame {
 		const logbuf = this.getStaffEndMessage(winners, winner => winner.id);
 		this.room.sendMods(`(${buf}!)`);
 		this.room.roomlog(buf);
-		this.room.modlog(`TRIVIAGAME: by ${toID(this.game.creator)}: ${logbuf}`);
+		this.room.modlog({
+			action: 'TRIVIAGAME',
+			loggedBy: toID(this.game.creator),
+			note: logbuf,
+		});
 
 		if (!triviaData.history) triviaData.history = [];
 		triviaData.history.push(this.game);
@@ -1494,7 +1498,9 @@ const triviaCommands: ChatCommands = {
 		if (['triforce', 'tri'].includes(mode)) mode = 'triumvirate';
 		const isRandomMode = (mode === 'random');
 		if (isRandomMode) {
-			mode = Utils.shuffle(['first', 'number', 'timer', 'triumvirate'])[0];
+			const recentFirstMode = triviaData.history?.some(game => game.mode === 'First');
+			const modes = recentFirstMode ? Object.keys(MODES).filter(curMode => curMode !== 'first') : Object.keys(MODES);
+			mode = Utils.shuffle(modes)[0];
 		}
 		if (!MODES[mode]) return this.errorReply(this.tr`"${mode}" is an invalid mode.`);
 

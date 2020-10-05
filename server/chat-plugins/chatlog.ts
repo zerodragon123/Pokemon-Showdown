@@ -657,24 +657,21 @@ export const PM = new QueryProcessManager<AnyObject, string | undefined>(module,
 			return LogViewer.error(`Config.chatlogreader is not configured.`);
 		}
 	} catch (e) {
+		if (e.name?.endsWith('ErrorMessage')) {
+			return LogViewer.error(e.message);
+		}
 		Monitor.crashlog(e, 'A chatlog search query', data);
-		return (
-			`<div class="pad"><p class="message-error">` +
-			`Sorry! Your chatlog search crashed. We've been notified and will fix this.` +
-			`</p></div>`
-		);
+		return LogViewer.error(`Sorry! Your chatlog search crashed. We've been notified and will fix this.`);
 	}
 });
 
 if (!PM.isParentProcess) {
 	// This is a child process!
 	global.Config = Config;
-	// @ts-ignore ???
 	global.Monitor = {
-		crashlog(error: Error, source = 'A chatlog search process', details: {} | null = null) {
+		crashlog(error: Error, source = 'A chatlog search process', details: AnyObject | null = null) {
 			const repr = JSON.stringify([error.name, error.message, source, details]);
-			// @ts-ignore
-			process.send(`THROW\n@!!@${repr}\n${error.stack}`);
+			process.send!(`THROW\n@!!@${repr}\n${error.stack}`);
 		},
 	};
 	global.Chat = Chat;
@@ -716,10 +713,10 @@ export const pages: PageTable = {
 			return this.errorReply("WCOP team discussions are super secret.");
 		}
 		if (room) {
-			if (!room.checkModjoin(user) && !user.can('bypassall')) {
-				return this.errorReply("Access denied.");
+			if (!user.can('lock')) {
+				if (!room.persist) return this.errorReply(`Access denied.`);
+				this.checkCan('mute', null, room);
 			}
-			if (!user.can('lock')) this.checkCan('mute', null, room);
 		} else {
 			this.checkCan('lock');
 		}

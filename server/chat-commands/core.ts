@@ -672,7 +672,7 @@ export const commands: ChatCommands = {
 
 			const displayReason = reason ? `: ${reason}` : ``;
 			this.privateModAction(room.tr`${targetUser.name}'s status "${targetUser.userMessage}" was cleared by ${user.name}${displayReason}.`);
-			this.globalModlog('CLEARSTATUS', targetUser, ` from "${targetUser.userMessage}" by ${user.name}${reason ? `: ${reason}` : ``}`);
+			this.globalModlog('CLEARSTATUS', targetUser, ` from "${targetUser.userMessage}"${reason ? `: ${reason}` : ``}`);
 			targetUser.clearStatus();
 			targetUser.popup(`${user.name} has cleared your status message for being inappropriate${reason ? `: ${reason}` : '.'}`);
 			return;
@@ -951,7 +951,8 @@ export const commands: ChatCommands = {
 				teamStrings = [indexedSet];
 			}
 		}
-		let resultString = Dex.stringifyTeam(teamStrings, undefined, hideStats);
+		const nicknames = teamStrings.map(item => item.species !== item.name ? item.name : item.species);
+		let resultString = Dex.stringifyTeam(teamStrings, nicknames, hideStats);
 		if (showAll) {
 			resultString = `<details><summary>${this.tr`View team`}</summary>${resultString}</details>`;
 		}

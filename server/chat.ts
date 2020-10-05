@@ -56,6 +56,14 @@ export interface AnnotatedChatCommands {
 	[k: string]: AnnotatedChatHandler | string | string[] | AnnotatedChatCommands;
 }
 
+export interface ChatPlugin {
+	commands?: AnnotatedChatCommands;
+	pages?: PageTable;
+	destroy?: () => void;
+	roomSettings?: SettingsHandler | SettingsHandler[];
+	[k: string]: any;
+}
+
 export type SettingsHandler = (
 	room: Room,
 	user: User,
@@ -109,6 +117,7 @@ const TRANSLATION_DIRECTORY = 'translations/';
 import {FS} from '../lib/fs';
 import {Utils} from '../lib/utils';
 import {formatText, linkRegex, stripFormatting} from './chat-formatter';
+import {ModlogEntry} from './modlog';
 
 // @ts-ignore no typedef available
 import ProbeModule = require('probe-image-size');
@@ -811,25 +820,23 @@ export class CommandContext extends MessageContext {
 		}
 		this.roomlog(`(${msg})`);
 	}
-	globalModlog(action: string, user: string | User | null, note?: string | null) {
-		let buf = `${action}: `;
+	globalModlog(action: string, user: string | User | null, note?: string | null, ip?: string) {
+		const entry: ModlogEntry = {action, isGlobal: true, loggedBy: this.user.id, note: note?.replace(/\n/gm, ' ')};
 		if (user) {
 			if (typeof user === 'string') {
-				buf += `[${user}]`;
+				entry.userid = toID(user);
 			} else {
+				entry.ip = user.latestIp;
 				const userid = user.getLastId();
-				buf += `[${userid}]`;
-				if (user.autoconfirmed && user.autoconfirmed !== userid) buf += ` ac:[${user.autoconfirmed}]`;
-				const alts = user.getAltUsers(false, true).slice(1).map(alt => alt.getLastId()).join('], [');
-				if (alts.length) buf += ` alts:[${alts}]`;
-				buf += ` [${user.latestIp}]`;
+				entry.userid = userid;
+				if (user.autoconfirmed && user.autoconfirmed !== userid) entry.autoconfirmedID = user.autoconfirmed;
+				const alts = user.getAltUsers(false, true).slice(1).map(alt => alt.getLastId());
+				if (alts.length) entry.alts = alts;
 			}
 		}
-		if (!note) note = ` by ${this.user.id}`;
-		buf += note.replace(/\n/gm, ' ');
-
-		Rooms.global.modlog(buf, this.room?.roomid);
-		if (this.room) this.room.modlog(buf);
+		if (ip) entry.ip = ip;
+		this.room?.modlog(entry);
+		Rooms.global.modlog(entry, this.room?.roomid);
 	}
 	modlog(
 		action: string,
@@ -837,25 +844,22 @@ export class CommandContext extends MessageContext {
 		note: string | null = null,
 		options: Partial<{noalts: any, noip: any}> = {}
 	) {
-		let buf = `${action}: `;
+		const entry: ModlogEntry = {action, loggedBy: this.user.id, note: note?.replace(/\n/gm, ' ')};
 		if (user) {
 			if (typeof user === 'string') {
-				buf += `[${toID(user)}]`;
+				entry.userid = toID(user);
 			} else {
 				const userid = user.getLastId();
-				buf += `[${userid}]`;
+				entry.userid = userid;
 				if (!options.noalts) {
-					if (user.autoconfirmed && user.autoconfirmed !== userid) buf += ` ac:[${user.autoconfirmed}]`;
-					const alts = user.getAltUsers(false, true).slice(1).map(alt => alt.getLastId()).join('], [');
-					if (alts.length) buf += ` alts:[${alts}]`;
+					if (user.autoconfirmed && user.autoconfirmed !== userid) entry.autoconfirmedID = user.autoconfirmed;
+					const alts = user.getAltUsers(false, true).slice(1).map(alt => alt.getLastId());
+					if (alts.length) entry.alts = alts;
 				}
-				if (!options.noip) buf += ` [${user.latestIp}]`;
+				if (!options.noip) entry.ip = user.latestIp;
 			}
 		}
-		buf += ` by ${this.user.id}`;
-		if (note) buf += `: ${note.replace(/\n/gm, ' ')}`;
-
-		(this.room || Rooms.global).modlog(buf);
+		(this.room || Rooms.global).modlog(entry);
 	}
 	roomlog(data: string) {
 		if (this.room) this.room.roomlog(data);
@@ -873,9 +877,8 @@ export class CommandContext extends MessageContext {
 	update() {
 		if (this.room) this.room.update();
 	}
-	filter(message: string, targetUser: User | null = null) {
-		if (!this.room) return null;
-		return Chat.filter(this, message, this.user, this.room, this.connection, targetUser);
+	filter(message: string) {
+		return Chat.filter(message, this);
 	}
 	statusfilter(status: string) {
 		return Chat.statusfilter(status, this.user);
@@ -1127,7 +1130,7 @@ export class CommandContext extends MessageContext {
 		}
 
 		if (Chat.filters.length) {
-			return Chat.filter(this, message, user, room, connection, targetUser);
+			return this.filter(message);
 		}
 
 		return message;
@@ -1365,28 +1368,31 @@ export const Chat = new class {
 	pages!: PageTable;
 	readonly destroyHandlers: (() => void)[] = [];
 	/** The key is the name of the plugin. */
-	readonly plugins: {[k: string]: AnyObject} = {};
+	readonly plugins: {[k: string]: ChatPlugin} = {};
+	/** Will be empty except during hotpatch */
+	oldPlugins: {[k: string]: ChatPlugin} = {};
 	roomSettings: SettingsHandler[] = [];
 
 	/*********************************************************
 	 * Load chat filters
 	 *********************************************************/
 	readonly filters: ChatFilter[] = [];
-	filter(
-		context: CommandContext,
-		message: string,
-		user: User,
-		room: Room | null,
-		connection: Connection,
-		targetUser: User | null = null
-	) {
+	filter(message: string, context: CommandContext) {
 		// Chat filters can choose to:
 		// 1. return false OR null - to not send a user's message
 		// 2. return an altered string - to alter a user's message
 		// 3. return undefined to send the original message through
 		const originalMessage = message;
 		for (const curFilter of Chat.filters) {
-			const output = curFilter.call(context, message, user, room, connection, targetUser, originalMessage);
+			const output = curFilter.call(
+				context,
+				message,
+				context.user,
+				context.room,
+				context.connection,
+				context.pmTarget,
+				originalMessage
+			);
 			if (output === false) return null;
 			if (!output && output !== undefined) return output;
 			if (output !== undefined) message = output;
@@ -1507,7 +1513,6 @@ export const Chat = new class {
 				interface TRStrings {
 					[k: string]: string;
 				}
-				// eslint-disable-next-line @typescript-eslint/no-var-requires
 				const content: {name: string, strings: TRStrings} = require(`../${TRANSLATION_DIRECTORY}${fname}`);
 				const id = fname.slice(0, -5);
 
@@ -1692,8 +1697,9 @@ export const Chat = new class {
 		if (plugin.statusfilter) Chat.statusfilters.push(plugin.statusfilter);
 		Chat.plugins[name] = plugin;
 	}
-	loadPlugins() {
+	loadPlugins(oldPlugins?: {[k: string]: ChatPlugin}) {
 		if (Chat.commands) return;
+		if (oldPlugins) Chat.oldPlugins = oldPlugins;
 
 		void FS('package.json').readIfExists().then(data => {
 			if (data) Chat.packageData = JSON.parse(data);
@@ -1744,19 +1750,7 @@ export const Chat = new class {
 		for (const file of files) {
 			this.loadPlugin(`chat-plugins/${file}`);
 		}
-
-		let customfiles = FS('server/server-plugins/').readdirSync();
-
-		for (const customfile of customfiles) {
-			if (customfile.substr(-3) !== '.js') continue;
-			const serverplugin = require(`../server/server-plugins/${customfile}`);
-
-			Object.assign(Chat.commands, serverplugin.commands);
-
-			if (serverplugin.chatfilter) Chat.filters.push(serverplugin.chatfilter);
-			if (serverplugin.namefilter) Chat.namefilters.push(serverplugin.namefilter);
-			if (serverplugin.hostfilter) Chat.hostfilters.push(serverplugin.hostfilter);
-		}
+		Chat.oldPlugins = {};
 	}
 	destroy() {
 		for (const handler of Chat.destroyHandlers) {

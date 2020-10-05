@@ -37,6 +37,7 @@ import {RoomGame, RoomGamePlayer} from './room-game';
 import {Roomlogs} from './roomlogs';
 import * as crypto from 'crypto';
 import {RoomAuth} from './user-groups';
+import {modlog, ModlogEntry} from './modlog';
 
 /*********************************************************
  * the Room object.
@@ -341,9 +342,9 @@ export abstract class BasicRoom {
 		this.log.roomlog(message);
 		return this;
 	}
-	modlog(message: string) {
+	modlog(entry: ModlogEntry) {
 		const override = this.tour ? `${this.roomid} tournament: ${this.tour.roomid}` : undefined;
-		this.log.modlog(message, override);
+		this.log.modlog(entry, override);
 		return this;
 	}
 	uhtmlchange(name: string, message: string) {
@@ -1040,8 +1041,8 @@ export class GlobalRoomState {
 		this.lastWrittenBattle = this.lastBattle;
 	}
 
-	modlog(message: string, overrideID?: string) {
-		void Rooms.Modlog.write('global', message, overrideID);
+	modlog(entry: ModlogEntry, overrideID?: string) {
+		void Rooms.Modlog.write('global', entry, overrideID);
 	}
 
 	writeChatRoomData() {
@@ -1502,7 +1503,7 @@ export class ChatRoom extends BasicRoom {
 	battle: null;
 	active: false;
 	type: 'chat';
-	parent: ChatRoom | null;;
+	parent: ChatRoom | null;
 	constructor() {
 		super('');
 		this.battle = null;
@@ -1674,7 +1675,7 @@ function getRoom(roomid?: string | BasicRoom) {
 }
 
 export const Rooms = {
-	Modlog: require('./modlog').modlog,
+	Modlog: modlog,
 	/**
 	 * The main roomid:Room table. Please do not hold a reference to a
 	 * room long-term; just store the roomid and grab it from here (with
