@@ -23,6 +23,8 @@
         "./server/**/*.ts",
         "./server/server-plugins/icon.js",
         "./sim/**/*",
-        "./tools/set-import/*.ts"
+        "./tools/set-import/*.ts",
+        "./tools/modlog/*.ts",
+        "./translations/**/*.ts",
     ]
 }

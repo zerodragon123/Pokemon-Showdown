@@ -86,7 +86,7 @@ export class HelpTicket extends Rooms.RoomGame {
 	constructor(room: ChatRoom, ticket: TicketState) {
 		super(room);
 		this.room = room;
-		this.room.settings.language = Users.get(ticket.creator)?.language || 'english';
+		this.room.settings.language = Users.get(ticket.creator)?.language || 'english' as ID;
 		this.title = `Help Ticket - ${ticket.type}`;
 		this.gameid = "helpticket" as ID;
 		this.allowRenames = true;
@@ -221,17 +221,6 @@ export class HelpTicket extends Rooms.RoomGame {
 		);
 	}
 
-	getButton() {
-		const notifying = this.ticket.claimed ? `` : `notifying`;
-		const creator = (
-			this.ticket.claimed ? Utils.html`${this.ticket.creator}` : Utils.html`<strong>${this.ticket.creator}</strong>`
-		);
-		const ticketUser = Users.get(this.ticket.userid);
-		return (
-			`<a class="button ${notifying}" href="/help-${this.ticket.userid}"` +
-			` ${this.getPreview()}>${creator}${ticketUser?.language ? ` <small>(${ticketUser.language})</small>` : ``}: ${this.ticket.type}</a> `
-		);
-	}
 	getPreview() {
 		if (!this.ticket.active) return `title="The ticket creator has not spoken yet."`;
 		const hoverText = [];
@@ -494,6 +483,7 @@ export function notifyStaff() {
 	} else {
 		buf = `|tempnotifyoff|helptickets`;
 	}
+
 	if (hasUnclaimed) {
 		// only notify for people highlighting
 		buf = `${buf}|${hasAssistRequest ? 'Public Room Staff need help' : 'There are unclaimed Help tickets'}`;
@@ -1163,19 +1153,18 @@ export const commands: ChatCommands = {
 					void (reportRoom as GameRoom).uploadReplay(user, connection, 'forpunishment');
 				}
 			} else if (reportTargetType === 'user') {
-				reportTargetInfo = `Reported user: <strong class="username">${reportTarget}</strong>`;
-				if (ticket.type === 'Battle Harassment') {
-					const commonBattles = getCommonBattles(
-						toID(reportTarget), Users.get(reportTarget),
-						ticket.userid, Users.get(ticket.userid)
-					);
+				reportTargetInfo = `Reported user: <strong class="username">${reportTarget}</strong><p></p>`;
 
-					if (!commonBattles.length) {
-						reportTargetInfo += `There are no common battles between '${reportTarget}' and '${ticket.creator}'.`;
-					} else {
-						reportTargetInfo += `Showing ${commonBattles.length} common battle(s) between '${reportTarget}' and '${ticket.creator}': `;
-						reportTargetInfo += commonBattles.map(roomid => Utils.html`<a href=/${roomid}>${roomid.replace(/^battle-/, '')}`);
-					}
+				const commonBattles = getCommonBattles(
+					toID(reportTarget), Users.get(reportTarget),
+					ticket.userid, Users.get(ticket.userid)
+				);
+
+				if (!commonBattles.length) {
+					reportTargetInfo += `There are no common battles between '${reportTarget}' and '${ticket.creator}'.`;
+				} else {
+					reportTargetInfo += `Showing ${commonBattles.length} common battle(s) between '${reportTarget}' and '${ticket.creator}': `;
+					reportTargetInfo += commonBattles.map(roomid => Utils.html`<a href=/${roomid}>${roomid.replace(/^battle-/, '')}`);
 				}
 			}
 			let helpRoom = Rooms.get(`help-${user.id}`) as ChatRoom | null;

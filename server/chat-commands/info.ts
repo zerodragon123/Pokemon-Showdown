@@ -11,6 +11,7 @@
 import * as net from 'net';
 import {YoutubeInterface} from '../chat-plugins/youtube';
 import {Utils} from '../../lib/utils';
+import {Net} from '../../lib/net';
 
 export function getCommonBattles(userID1: ID, user1: User | null, userID2: ID, user2: User | null) {
 	const battles = [];
@@ -44,9 +45,6 @@ export const commands: ChatCommands = {
 			return this.errorReply("User " + this.targetUsername + " not found.");
 		}
 		if (showAll && !user.trusted && targetUser !== user) {
-			return this.errorReply(`/${cmd} - Access denied.`);
-		}
-		if (targetUser.hasSysopAccess() && !user.hasSysopAccess()) {
 			return this.errorReply(`/${cmd} - Access denied.`);
 		}
 
@@ -102,10 +100,7 @@ export const commands: ChatCommands = {
 		const canViewAlts = (user === targetUser ? user.can('altsself') : user.can('alts', targetUser));
 		const canViewPunishments = canViewAlts ||
 			(room && room.settings.isPrivate !== true && user.can('mute', targetUser, room) && targetUser.id in room.users);
-		const canViewSecretRooms = user === targetUser || (canViewAlts && targetUser.locked) || user.hasSysopAccess() || user.can('makeroom');
-		if (canViewAlts && user !== targetUser && !user.hasSysopAccess()) {
-			console.log("ip command used by ", user.name, "on user:", targetUser.name, Chat.toTimestamp(new Date()));
-		}
+		const canViewSecretRooms = user === targetUser || (canViewAlts && targetUser.locked) || user.can('makeroom');
 		buf += `<br />`;
 
 		if (canViewAlts) {
@@ -201,7 +196,7 @@ export const commands: ChatCommands = {
 		} else if (user === targetUser) {
 			buf += `<br /> IP: <a href="https://whatismyipaddress.com/ip/${connection.ip}" target="_blank">${connection.ip}</a>`;
 		}
-		if (canViewSecretRooms && hiddenrooms) {
+		if (canViewAlts && hiddenrooms) {
 			buf += `<br />Hidden rooms: ${hiddenrooms}`;
 		}
 		if (canViewSecretRooms && privaterooms) {
@@ -1513,6 +1508,7 @@ export const commands: ChatCommands = {
 
 	groups(target, room, user) {
 		if (!this.runBroadcast()) return;
+		target = toID(target);
 		const showRoom = (target !== 'global');
 		const showGlobal = (target !== 'room' && target !== 'rooms');
 
@@ -1976,7 +1972,7 @@ export const commands: ChatCommands = {
 			this.sendReplyBox(
 				`${room ? this.tr("Please follow the rules:") + '<br />' : ``}` +
 				`${room?.settings.rulesLink ? Utils.html`- <a href="${room.settings.rulesLink}">${this.tr `${room.title} room rules`}</a><br />` : ``}` +
-				`- <a href="https://www.git.io/fj7NO">${this.tr("Global Rules")}</a>`
+				`- <a href="https://${Config.routes.root}${this.tr('/rules')}">${this.tr("Global Rules")}</a>`
 			);
 			return;
 		}
@@ -2024,6 +2020,7 @@ export const commands: ChatCommands = {
 		}
 		if (showAll || target === 'autoconfirmed' || target === 'ac') {
 			buffer.push(this.tr`A user is autoconfirmed when they have won at least one rated battle and have been registered for one week or longer. In order to prevent spamming and trolling, most chatrooms only allow autoconfirmed users to chat. If you are not autoconfirmed, you can politely PM a staff member (staff have %, @, or # in front of their username) in the room you would like to chat and ask them to disable modchat. However, staff are not obligated to disable modchat.`);
+			if (!this.broadcasting) this.parse(`/regtime`);
 		}
 		if (showAll || target === 'ladder' || target === 'ladderhelp' || target === 'decay') {
 			buffer.push(`<a href="https://${Config.routes.root}/${this.tr`pages/ladderhelp`}">${this.tr`How the ladder works`}</a>`);
@@ -2551,84 +2548,6 @@ export const commands: ChatCommands = {
 	},
 	denyshowhelp: [`/denyshow [user] - Denies the media display request of [user]. Requires: % @ # &`],
 
-	randquote(target, room, user) {
-		room = this.requireRoom();
-		if (!room.settings.quotes?.length) return this.errorReply(`This room has no quotes.`);
-		this.runBroadcast();
-		const {quote, date, userid} = room.settings.quotes[Math.floor(Math.random() * room.settings.quotes.length)];
-		const time = Chat.toTimestamp(new Date(date), {human: true});
-		const attribution = toID(target) === 'showauthor' ? `<br /><hr /><small>Added by ${userid} on ${time}</small>` : '';
-		return this.sendReplyBox(`${Chat.formatText(quote).replace(/\n/g, '<br />')}${attribution}`);
-	},
-	randquotehelp: [`/randquote [showauthor] - Show a random quote from the room. Add 'showauthor' to see who added it and when.`],
-
-	addquote: 'quote',
-	quote(target, room, user) {
-		room = this.requireRoom();
-		if (!room.persist) {
-			return this.errorReply("This command is unavailable in temporary rooms.");
-		}
-		target = target.trim();
-		this.checkCan('mute', null, room);
-		if (!target) {
-			return this.parse(`/help quote`);
-		}
-		if (!room.settings.quotes) room.settings.quotes = [];
-		if (this.filter(target) !== target) {
-			return this.errorReply(`Invalid quote.`);
-		}
-		if (room.settings.quotes.filter(item => item.quote === target).length) {
-			return this.errorReply(`"${target}" is already quoted in this room.`);
-		}
-		if (target.length > 8192) {
-			return this.errorReply(`Your quote cannot exceed 8192 characters.`);
-		}
-		if (room.settings.quotes.length >= 100) {
-			return this.errorReply(`This room already has 100 quotes, which is the maximum.`);
-		}
-		room.settings.quotes.push({userid: user.id, quote: target, date: Date.now()});
-		room.saveSettings();
-		const collapsedQuote = target.replace(/\n/g, ' ');
-		this.privateModAction(`${user.name} added a new quote: "${collapsedQuote}".`);
-		return this.modlog(`ADDQUOTE`, null, collapsedQuote);
-	},
-	quotehelp: [`/quote [quote] - Adds [quote] to the room's quotes. Requires: % @ # &`],
-
-	removequote(target, room, user) {
-		target = target.trim();
-		const [idx, roomid] = Utils.splitFirst(target, ',');
-		const targetRoom = roomid ? Rooms.search(roomid) : room;
-		if (!targetRoom) return this.errorReply(`Invalid room.`);
-		if (!targetRoom.persist) {
-			return this.errorReply("This command is unavailable in temporary rooms.");
-		}
-		this.room = targetRoom;
-		this.checkCan('mute', null, targetRoom);
-		if (!targetRoom.settings.quotes?.length) return this.errorReply(`This room has no quotes.`);
-		const index = parseInt(idx);
-		if (isNaN(index)) {
-			return this.errorReply(`Invalid index.`);
-		}
-		if (!targetRoom.settings.quotes[index - 1]) {
-			return this.errorReply(`Quote not found.`);
-		}
-		const [removed] = targetRoom.settings.quotes.splice(index - 1, 1);
-		const collapsedQuote = removed.quote.replace(/\n/g, ' ');
-		this.privateModAction(`${user.name} removed quote indexed at ${index}: "${collapsedQuote}" (originally added by ${removed.userid}).`);
-		this.modlog(`REMOVEQUOTE`, null, collapsedQuote);
-		targetRoom.saveSettings();
-		if (roomid) this.parse(`/join view-quotes-${targetRoom.roomid}`);
-	},
-	removequotehelp: [`/removequote [index] - Removes the quote from the room's quotes. Requires: % @ # &`],
-
-	viewquotes: 'quotes',
-	quotes(target, room) {
-		const targetRoom = target ? Rooms.search(target) : room;
-		if (!targetRoom) return this.errorReply(`Invalid room.`);
-		return this.parse(`/join view-quotes-${targetRoom.roomid}`);
-	},
-	quoteshelp: [`/quotes [room] - Shows all quotes for [room]. Defaults the room the command is used in.`],
-
 	approvallog(target, room, user) {
 		room = this.requireRoom();
 		return this.parse(`/sl approved showing media from, ${room.roomid}`);
@@ -2677,6 +2596,32 @@ export const commands: ChatCommands = {
 		this.sendReplyBox(buf);
 	},
 	showhelp: [`/show [url] - shows an image or video url in chat. Requires: whitelist % @ # &`],
+
+	regdate: 'registertime',
+	regtime: 'registertime',
+	async registertime(target, room, user, connection) {
+		this.runBroadcast();
+		if (Monitor.countNetRequests(connection.ip)) {
+			return this.errorReply(`You are using this command to quickly. Wait a bit and try again.`);
+		}
+		if (!user.autoconfirmed) return this.errorReply(`Only autoconfirmed users can use this command.`);
+		target = toID(target);
+		if (!target) target = user.id;
+		let rawResult;
+		try {
+			rawResult = await Net(`https://${Config.routes.root}/users/${target}.json`).get();
+		} catch (e) {
+			if (e.message.includes('Not found')) throw new Chat.ErrorMessage(`User '${target}' is unregistered.`);
+			throw new Chat.ErrorMessage(e.message);
+		}
+		// not in a try-catch block because if this doesn't work, this is a problem that should be known
+		const result = JSON.parse(rawResult);
+		const date = new Date(result.registertime * 1000);
+		const regDate = Chat.toTimestamp(date, {human: true});
+		const regTimeAgo = Chat.toDurationString(Date.now() - date.getTime(), {precision: 1});
+		this.sendReplyBox(Utils.html`The user '${target}' registered ${regTimeAgo} ago, at ${regDate}.`);
+	},
+	registertimehelp: [`/registertime OR /regtime [user] - Find out when [user] registered.`],
 
 	pi(target, room, user) {
 		if (!this.runBroadcast()) return false;
@@ -2807,31 +2752,12 @@ export const pages: PageTable = {
 		}
 		return buf;
 	},
-	quotes(args, user) {
-		const room = this.requireRoom();
-		if (!room.settings.quotes?.length) {
-			return `${buffer}<h2>This room has no quotes.</h2></div>`;
-		}
-
-		buffer += `<h2>Quotes for ${room.title} (${room.settings.quotes.length}):</h2>`;
-		for (const [i, quoteObj] of room.settings.quotes.entries()) {
-			const index = i + 1;
-			buffer += `<div class="infobox">${index}: ${Chat.formatText(quote).replace(/\n/g, '<br />')}`;
-			buffer += `<br /><hr /><small>Added by ${userid} on ${Chat.toTimestamp(new Date(date), {human: true})}</small>`;
-			if (user.can('mute', null, room)) {
-				buffer += `<br /><hr /><button class="button" name="send" value="/removequote ${index},${room.roomid}">Remove</button>`;
-			}
-			buffer += `</div>`;
-		}
-		buffer += `</div>`;
-		return buffer;
-	},
 };
 
 process.nextTick(() => {
 	Dex.includeData();
 	Chat.multiLinePattern.register(
 		'/htmlbox', '/quote', '/addquote', '!htmlbox', '/addhtmlbox', '/addrankhtmlbox', '/adduhtml',
-		'/changeuhtml', '/addrankuhtmlbox', '/changerankuhtmlbox'
+		'/changeuhtml', '/addrankuhtmlbox', '/changerankuhtmlbox', '/addrankuhtml',
 	);
 });
