@@ -984,6 +984,9 @@ export class RandomTeams {
 				case 'helpinghand':
 					if (hasMove['acupressure']) rejected = true;
 					break;
+				case 'helpinghand':
+					if (hasMove['acupressure']) rejected = true;
+					break;
 				case 'wideguard':
 					if (hasMove['protect']) rejected = true;
 					break;
