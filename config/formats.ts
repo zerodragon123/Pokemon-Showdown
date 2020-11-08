@@ -312,8 +312,7 @@ export const Formats: FormatList = [
 		mod: 'gen8',
 		searchShow: false,
 		ruleset: ['[Gen 8] OU'],
-		banlist: ['Blaziken', 'Landorus', 'Pheromosa', 'Kyurem-Black', 'Melmetal', 'Zygarde', 'Spectrier'],
-		unbanlist: ['Landorus-Therian']
+		banlist: ['Blaziken', 'Pheromosa', 'Kyurem-Black', 'Melmetal', 'Zygarde', 'Spectrier'],
 	},
 	{
 		name: "[Gen 8] Durants",
