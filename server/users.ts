@@ -713,6 +713,74 @@ export class User extends Chat.MessageContext {
 				this.popup(`You can't change your name right now because you're in ${room.game.title}, which doesn't allow renaming.`);
 				return false;
 			}
+			return '1';
+		}
+
+		if (!token || token.startsWith(';')) {
+			this.send(`|nametaken|${name}|Your authentication token was invalid.`);
+			return null;
+		}
+
+		if (!name) name = '';
+		if (!/[a-zA-Z]/.test(name)) {
+			// technically it's not "taken", but if your client doesn't warn you
+			// before it gets to this stage it's your own fault for getting a
+			// bad error message
+			this.send(`|nametaken||Your name must contain at least one letter.`);
+			return false;
+		}
+
+		if (userid.length > 18) {
+			this.send(`|nametaken||Your name must be 18 characters or shorter.`);
+			return false;
+		}
+		name = Chat.namefilter(name, this);
+		if (userid !== toID(name)) {
+			if (name) {
+				name = userid;
+			} else {
+				userid = '';
+			}
+		}
+		if (this.registered) newlyRegistered = false;
+
+		if (!userid) {
+			this.send(`|nametaken||Your name contains a banned word.`);
+			return false;
+		} else {
+			if (userid === this.id && !newlyRegistered) {
+				return this.forceRename(name, this.registered);
+			}
+		}
+
+		const userType = await this.validateToken(token, name, userid, connection);
+		if (userType === null) return;
+		if (userType === '1') newlyRegistered = false;
+
+		return userType;
+	}
+	/**
+	 * Do a rename, passing and validating a login token.
+	 *
+	 * @param name The name you want
+	 * @param token Signed assertion returned from login server
+	 * @param newlyRegistered Make sure this account will identify as registered
+	 * @param connection The connection asking for the rename
+	 */
+	async rename(name: string, token: string, newlyRegistered: boolean, connection: Connection) {
+		let userid = toID(name);
+		if (userid !== this.id) {
+			for (const roomid of this.games) {
+				const room = Rooms.get(roomid);
+				if (!room || !room.game || room.game.ended) {
+					this.games.delete(roomid);
+					console.log(`desynced roomgame ${roomid} renaming ${this.id} -> ${userid}`);
+					continue;
+				}
+				if (room.game.allowRenames || !this.named) continue;
+				this.popup(`You can't change your name right now because you're in ${room.game.title}, which doesn't allow renaming.`);
+				return false;
+			}
 		}
 
 		if (!name) name = '';
