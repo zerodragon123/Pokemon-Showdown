@@ -1308,7 +1308,7 @@ export class RandomTeams {
 			item = (ability === 'Grassy Surge') ? 'Grassy Seed' : '';
 		} else if (hasMove['auroraveil'] || hasMove['lightscreen'] && hasMove['reflect']) {
 			item = 'Light Clay';
-		} else if (hasMove['rest'] && !hasMove['sleeptalk'] && ability !== 'Shed Skin') {
+		} else if (hasMove['rest'] && !hasMove['sleeptalk'] && ability !== 'Pressure' && ability !== 'Shed Skin') {
 			item = 'Chesto Berry';
 		} else if (hasMove['hypnosis'] && ability === 'Beast Boost') {
 			item = 'Blunder Policy';

@@ -151,6 +151,9 @@ export class RandomGen2Teams extends RandomGen3Teams {
 				case 'irontail':
 					if (hasType['Ground'] && movePool.includes('earthquake')) rejected = true;
 					break;
+				case 'thief':
+					if (hasMove['rest'] || hasMove['substitute']) rejected = true;
+					break;
 
 				// Status and illegal move rejections
 				case 'confuseray': case 'roar': case 'whirlwind':
