@@ -550,6 +550,8 @@ export abstract class BasicRoom {
 		if (!Users.Auth.isAuthLevel(modjoinSetting)) {
 			Monitor.error(`Invalid modjoin setting in ${this.roomid}: ${modjoinSetting}`);
 		}
+		
+		// if (Config.groups[modjoinGroup].rank <= Config.groups["%"].rank && user.hasWCOPAccess()) return true;
 		return Users.globalAuth.atLeast(user, modjoinSetting);
 	}
 	mute(user: User, setTime?: number) {
@@ -1804,28 +1806,31 @@ export class GameRoom extends BasicRoom {
 		let rating = 0;
 		if (battle.ended && this.rated) rating = this.rated;
 		const {id, password} = this.getReplayData();
-		const [success] = await LoginServer.request('prepreplay', {
-			id: id,
-			loghash: datahash,
-			p1: battle.p1.name,
-			p2: battle.p2.name,
-			format: format.id,
-			rating,
-			hidden: options === 'forpunishment' || (this as any).unlistReplay ?
-				'2' : this.settings.isPrivate || this.hideReplay ? '1' : '',
-			inputlog: battle.inputLog?.join('\n') || null,
-		});
-		if (success) battle.replaySaved = true;
-		if (success?.errorip) {
-			connection.popup(`This server's request IP ${success.errorip} is not a registered server.`);
-			return;
+		for (let i = 0; i < 3; i++) {
+			const [success] = await LoginServer.request('prepreplay', {
+				id: id,
+				loghash: datahash,
+				p1: battle.p1.name,
+				p2: battle.p2.name,
+				format: format.id,
+				rating,
+				hidden: options === 'forpunishment' || (this as any).unlistReplay ?
+					'2' : this.settings.isPrivate || this.hideReplay ? '1' : '',
+				inputlog: battle.inputLog?.join('\n') || null,
+			});
+			if (!success) continue;
+			if (success) battle.replaySaved = true;
+			if (success?.errorip) {
+				connection.popup(`This server's request IP ${success.errorip} is not a registered server.`);
+				return;
+			}
+			connection.send('|queryresponse|savereplay|' + JSON.stringify({
+				log: data,
+				id: id,
+				password: password,
+				silent: options === 'forpunishment' || options === 'silent',
+			}));
 		}
-		connection.send('|queryresponse|savereplay|' + JSON.stringify({
-			log: data,
-			id: id,
-			password: password,
-			silent: options === 'forpunishment' || options === 'silent',
-		}));
 	}
 
 	getReplayData() {
