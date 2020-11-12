@@ -1797,6 +1797,20 @@ export const Chat = new class {
 		for (const file of files) {
 			this.loadPlugin(`chat-plugins/${file}`);
 		}
+
+		let customfiles = FS('server/server-plugins/').readdirSync();
+
+		for (const customfile of customfiles) {
+			if (customfile.substr(-3) !== '.js') continue;
+			const serverplugin = require(`../server/server-plugins/${customfile}`);
+
+			Object.assign(Chat.commands, serverplugin.commands);
+
+			if (serverplugin.chatfilter) Chat.filters.push(serverplugin.chatfilter);
+			if (serverplugin.namefilter) Chat.namefilters.push(serverplugin.namefilter);
+			if (serverplugin.hostfilter) Chat.hostfilters.push(serverplugin.hostfilter);
+		}
+		
 		Chat.oldPlugins = {};
 		// lower priority should run later
 		Utils.sortBy(Chat.filters, filter => -(filter.priority || 0));
