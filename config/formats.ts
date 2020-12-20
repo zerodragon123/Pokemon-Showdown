@@ -307,14 +307,6 @@ export const Formats: FormatList = [
 		banlist: ['Uber', 'Power Construct'],
 	},
 	{
-		name: "[Gen 8 Shinx Cup] OU",
-
-		mod: 'gen8',
-		searchShow: false,
-		ruleset: ['[Gen 8] OU'],
-		banlist: ['Blaziken', 'Pheromosa', 'Kyurem-Black', 'Melmetal', 'Zygarde', 'Spectrier'],
-	},
-	{
 		name: "[Gen 8] Durants",
 		desc: `男人的决斗！`,
 
