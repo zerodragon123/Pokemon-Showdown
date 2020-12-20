@@ -819,53 +819,6 @@ export const commands: ChatCommands = {
 		`Note that rooms can set their own language, which will override this setting.`,
 	],
 
-	showrank: 'hiderank',
-	hiderank(target, room, user, connection, cmd) {
-		const userGroup = Users.Auth.getGroup(Users.globalAuth.get(user.id));
-		if (!userGroup['hiderank']) return this.errorReply(`/hiderank - Access denied.`);
-
-		const isShow = cmd === 'showrank';
-		const group = (isShow ? Users.globalAuth.get(user.id) : (target.trim() || Users.Auth.defaultSymbol()) as GroupSymbol);
-		if (user.tempGroup === group) {
-			return this.errorReply(this.tr`You already have the temporary symbol '${group}'.`);
-		}
-		if (!Users.Auth.isValidSymbol(group) || !(group in Config.groups)) {
-			return this.errorReply(this.tr`You must specify a valid group symbol.`);
-		}
-		if (!isShow && Config.groups[group].rank > Config.groups[user.tempGroup].rank) {
-			return this.errorReply(this.tr`You may only set a temporary symbol below your current rank.`);
-		}
-		user.tempGroup = group;
-		user.updateIdentity();
-		this.sendReply(`|c|~|${this.tr`Your temporary group symbol is now`} \`\`${user.tempGroup}\`\`.`);
-	},
-	showrankhelp: 'hiderankhelp',
-	hiderankhelp: [
-		`/hiderank [rank] - Displays your global rank as the given [rank].`,
-		`/showrank - Displays your true global rank instead of the rank you're hidden as.`,
-	],
-
-	language(target, room, user) {
-		if (!target) {
-			const language = Chat.languages.get(user.language || 'english' as ID);
-			return this.sendReply(this.tr`Currently, you're viewing Pokémon Showdown in ${language}.`);
-		}
-		const languageID = toID(target);
-		if (!Chat.languages.has(languageID)) {
-			const languages = [...Chat.languages.values()].join(', ');
-			return this.errorReply(this.tr`Valid languages are: ${languages}`);
-		}
-		user.language = languageID;
-		user.update();
-		const language = Chat.languages.get(languageID);
-		return this.sendReply(this.tr`Pokémon Showdown will now be displayed in ${language} (except in language rooms).`);
-	},
-	languagehelp: [
-		`/language - View your current language setting.`,
-		`/language [language] - Changes the language Pokémon Showdown will be displayed to you in.`,
-		`Note that rooms can set their own language, which will override this setting.`,
-	],
-
 	updatesettings(target, room, user) {
 		const settings: Partial<UserSettings> = {};
 		try {

@@ -2155,8 +2155,13 @@ export const MovesText: {[k: string]: MoveText} = {
 		},
 		gen6: {
 			desc: "Causes the target's Ability to be rendered ineffective as long as it remains active. If the target uses Baton Pass, the replacement will remain under this effect. If the target's Ability is Multitype or Stance Change, this move fails, and receiving the effect through Baton Pass ends the effect immediately.",
+		},
 
 		start: "  [POKEMON]'s Ability was suppressed!",
+	},
+	geargrind: {
+		name: "Gear Grind",
+		desc: "Hits twice. If the first hit breaks the target's substitute, it will take damage for the second hit.",
 		shortDesc: "Hits 2 times in one turn.",
 	},
 	gearup: {
