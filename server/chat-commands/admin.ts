@@ -134,6 +134,28 @@ async function rebuild(context: CommandContext) {
 }
 
 
+function bash(command: string, context: CommandContext, cwd?: string): Promise<[number, string, string]> {
+	context.stafflog(`$ ${command}`);
+	return new Promise(resolve => {
+		child_process.exec(command, {
+			cwd: cwd || `${__dirname}/../..`,
+		}, (error, stdout, stderr) => {
+			let log = `[o] ${stdout}[e] ${stderr}`;
+			if (error) log = `[c] ${error.code}\n${log}`;
+			context.stafflog(log);
+			resolve([error?.code || 0, stdout, stderr]);
+		});
+	});
+}
+
+async function rebuild(context: CommandContext) {
+	const [, , stderr] = await bash('node ./build', context);
+	if (stderr) {
+		throw new Chat.ErrorMessage(`Crash while rebuilding: ${stderr}`);
+	}
+}
+
+
 export const commands: ChatCommands = {
 
 	/*********************************************************
