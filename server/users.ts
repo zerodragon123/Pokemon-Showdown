@@ -59,27 +59,6 @@ const CONNECTION_EXPIRY_TIME = 24 * 60 * MINUTES;
 // Low-level functions for manipulating Users.users and Users.prevUsers
 // Keeping them all here makes it easy to ensure they stay consistent
 
-Date.prototype.Format = function (fmt) { //author: meizz
-	let o = {
-		"M+": this.getMonth() + 1, //月份
-		"d+": this.getDate(), //日
-		"h+": this.getHours(), //小时
-		"m+": this.getMinutes(), //分
-		"s+": this.getSeconds(), //秒
-		"q+": Math.floor((this.getMonth() + 3) / 3), //季度
-		"S": this.getMilliseconds(), //毫秒
-	};
-	if (/(y+)/.test(fmt)) {
-		fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-	}
-	for (let k in o) {
-		if (new RegExp("(" + k + ")").test(fmt)) {
-			fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-		}
-	}
-	return fmt;
-};
-
 function move(user: User, newUserid: ID) {
 	if (user.id === newUserid) return true;
 	if (!user) return false;
@@ -582,13 +561,6 @@ export class User extends Chat.MessageContext {
 		return false;
 	}
 	/**
-	 * Special permission check for wcop players
-	 */
-	hasWCOPAccess() {
-		const wcopRoom = Rooms.get('wcop');
-		return !!wcopRoom?.auth?.[this.id];
-	}
-	/**
 	 * Permission check for using the dev console
 	 *
 	 * The `console` permission is incredibly powerful because it allows the
@@ -688,74 +660,6 @@ export class User extends Chat.MessageContext {
 		this.s1 = tokenDataSplit[5];
 		this.s2 = tokenDataSplit[6];
 		this.s3 = tokenDataSplit[7];
-
-		return userType;
-	}
-	/**
-	 * Do a rename, passing and validating a login token.
-	 *
-	 * @param name The name you want
-	 * @param token Signed assertion returned from login server
-	 * @param newlyRegistered Make sure this account will identify as registered
-	 * @param connection The connection asking for the rename
-	 */
-	async rename(name: string, token: string, newlyRegistered: boolean, connection: Connection) {
-		let userid = toID(name);
-		if (userid !== this.id) {
-			for (const roomid of this.games) {
-				const room = Rooms.get(roomid);
-				if (!room || !room.game || room.game.ended) {
-					this.games.delete(roomid);
-					console.log(`desynced roomgame ${roomid} renaming ${this.id} -> ${userid}`);
-					continue;
-				}
-				if (room.game.allowRenames || !this.named) continue;
-				this.popup(`You can't change your name right now because you're in ${room.game.title}, which doesn't allow renaming.`);
-				return false;
-			}
-			return '1';
-		}
-
-		if (!token || token.startsWith(';')) {
-			this.send(`|nametaken|${name}|Your authentication token was invalid.`);
-			return null;
-		}
-
-		if (!name) name = '';
-		if (!/[a-zA-Z]/.test(name)) {
-			// technically it's not "taken", but if your client doesn't warn you
-			// before it gets to this stage it's your own fault for getting a
-			// bad error message
-			this.send(`|nametaken||Your name must contain at least one letter.`);
-			return false;
-		}
-
-		if (userid.length > 18) {
-			this.send(`|nametaken||Your name must be 18 characters or shorter.`);
-			return false;
-		}
-		name = Chat.namefilter(name, this);
-		if (userid !== toID(name)) {
-			if (name) {
-				name = userid;
-			} else {
-				userid = '';
-			}
-		}
-		if (this.registered) newlyRegistered = false;
-
-		if (!userid) {
-			this.send(`|nametaken||Your name contains a banned word.`);
-			return false;
-		} else {
-			if (userid === this.id && !newlyRegistered) {
-				return this.forceRename(name, this.registered);
-			}
-		}
-
-		const userType = await this.validateToken(token, name, userid, connection);
-		if (userType === null) return;
-		if (userType === '1') newlyRegistered = false;
 
 		return userType;
 	}
