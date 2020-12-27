@@ -95,7 +95,7 @@ export class LadderStore {
 			return;
 		}
 		const stream = FS(`config/ladders/${this.formatid}.tsv`).createWriteStream();
-		void stream.write('Elo\tUsername\tW\tL\tT\tLast update\r\n');
+		//void stream.write('Elo\tUsername\tW\tL\tT\tLast update\r\n');
 		for (const row of ladder) {
 			void stream.write(row.slice(1).join('\t') + '\r\n');
 		}
@@ -109,7 +109,7 @@ export class LadderStore {
 	 * If createIfNeeded is true, the user will be created and added to
 	 * the ladder array if it doesn't already exist.
 	 */
-	indexOfUser(username: string, createIfNeeded = false) {
+	indexOfUser(username: string, createIfNeeded = false, initscore = 1000) {
 		if (!this.ladder) throw new Error(`Must be called with ladder loaded`);
 		const userid = toID(username);
 		for (const [i, user] of this.ladder.entries()) {
@@ -117,7 +117,7 @@ export class LadderStore {
 		}
 		if (createIfNeeded) {
 			const index = this.ladder.length;
-			this.ladder.push([userid, 1000, username, 0, 0, 0, '']);
+			this.ladder.push([userid, initscore, username, 0, 0, 0, '']);
 			return index;
 		}
 		return -1;
@@ -132,7 +132,7 @@ export class LadderStore {
 		const formatid = this.formatid;
 		const name = Dex.getFormat(formatid).name;
 		const ladder = await this.getLadder();
-		let buf = `<h3>${name} Top 100</h3>`;
+		let buf = `<h3>${name} Top 200</h3>`;
 		buf += `<table>`;
 		buf += `<tr><th>` + ['', 'Username', '<abbr title="Elo rating">Elo</abbr>', 'W', 'L', 'T'].join(`</th><th>`) + `</th></tr>`;
 		for (const [i, row] of ladder.entries()) {
@@ -140,6 +140,8 @@ export class LadderStore {
 			buf += `<tr><td>` + [
 				i + 1, row[2], `<strong>${Math.round(row[1])}</strong>`, row[3], row[4], row[5],
 			].join(`</td><td>`) + `</td></tr>`;
+            if(i>=200)
+                break;
 		}
 		return [formatid, buf];
 	}
@@ -281,7 +283,44 @@ export class LadderStore {
 
 		return [p1score, p1newElo, p2newElo];
 	}
+	indexOfUser_noID(username: string, createIfNeeded = false, initscore = 1000) {
+		if (!this.ladder) throw new Error(`Must be called with ladder loaded`);
 
+		for (const [i, user] of this.ladder.entries()) {
+			if (user[2] === username) return i;
+		}
+		if (createIfNeeded) {
+			const index = this.ladder.length;
+			this.ladder.push([username, initscore, username, 0, 0, 0, '']);
+			return index;
+		}
+		return -1;
+	}
+	async updateScore(username : string, score : string, reason : string) {
+		const ladder = await this.getLadder();
+		let p1newElo;
+		let p1index = this.indexOfUser_noID(username, true, 0);
+		p1newElo = ladder[p1index][1] + parseInt(score);
+		ladder[p1index][1] = p1newElo;
+
+
+		// console.log('L: ' + ladder.map(r => ''+Math.round(r[1])+' '+r[2]).join('\n'));
+
+		// move p1 to its new location
+		let newIndex = p1index;
+		while (newIndex > 0 && ladder[newIndex - 1][1] <= p1newElo) newIndex--;
+		while (newIndex === p1index || (ladder[newIndex] && ladder[newIndex][1] > p1newElo)) newIndex++;
+		// console.log('ni='+newIndex+', p1i='+p1index);
+		if (newIndex !== p1index && newIndex !== p1index + 1) {
+			let row = ladder.splice(p1index, 1)[0];
+			// adjust for removed row
+			if (newIndex > p1index) newIndex--;
+
+			ladder.splice(newIndex, 0, row);
+			// adjust for inserted row
+		}
+		this.save();
+	}
 	/**
 	 * Returns a promise for a <tr> with all ratings for the current format.
 	 */

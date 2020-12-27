@@ -241,6 +241,28 @@ export const commands: ChatCommands = {
 		`/randompokemon uses the same parameters as /dexsearch (see '/help ds').`,
 		`Adding a number as a parameter returns that many random Pok\u00e9mon, e.g., '/randpoke 6' returns 6 random Pok\u00e9mon.`,
 	],
+	
+	bp33(target, room, user, connection, cmd, message){
+		this.checkBroadcast();
+		if (target.replace(/gen[1-8]/i, "") == "") {
+			let toParse = message[0] + "randpoke 11";
+			if (target.length > 0) {
+				let gen = parseInt(target[3]);
+				if (gen < 8) {
+					for (let i = 8; i > gen; i--) {
+						toParse += ", !gen" + i;
+					}
+					toParse += ", natdex";
+				}
+			}
+			return this.parse(toParse);
+		} else {
+			return this.parse("/bp33help");
+		}
+	},
+	bp33help: [
+		`/bp33 gen[1-8] - 指定一个世代随机生成bp33精灵池`,
+	],
 
 	ms: 'movesearch',
 	ms1: 'movesearch',

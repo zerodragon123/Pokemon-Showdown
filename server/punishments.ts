@@ -1427,7 +1427,7 @@ export const Punishments = new class {
 			if (punishUserid === '#hostfilter' || punishUserid === '#ipban') {
 				user.send(`|popup||html|Your IP (${user.latestIp}) is currently locked due to being a proxy. We automatically lock these connections since they are used to spam, hack, or otherwise attack our server. Disable any proxies you are using to connect to PS.\n\n<a href="view-help-request--appeal"><button class="button">Help me with a lock from a proxy</button></a>`);
 			} else if (user.latestHostType === 'proxy' && user.locked !== user.id) {
-				user.send(`|popup||html|You are locked${bannedUnder} on the IP (${user.latestIp}), which is a proxy. We automatically lock these connections since they are used to spam, hack, or otherwise attack our server. Disable any proxies you are using to connect to PS.\n\n<a href="view-help-request--appeal"><button class="button">Help me with a lock from a proxy</button></a>`);
+				user.send(`|popup||html|你被${bannedUnder}封禁，IP为(${user.latestIp})，因为该IP曾被用于刷屏、攻击服务器等行为。如果你的IP被误封，请加入PS国服讨论群[群号:451507969]，并联系管理员解封。注意：请不要使用任何代理登录PS。\n\n<a href="view-help-request--appeal"><button class="button">Help me with a lock from a proxy</button></a>`);
 			} else if (!user.notified.lock) {
 				user.send(`|popup||html|You are locked${bannedUnder}. ${user.permalocked ? `This lock is permanent.` : `Your lock will expire in a few days.`}${reason}${appeal}`);
 			}

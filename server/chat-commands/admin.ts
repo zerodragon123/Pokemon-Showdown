@@ -1,3 +1,5 @@
+
+
 /**
  * Administration commands
  * Pokemon Showdown - http://pokemonshowdown.com/
@@ -867,6 +869,85 @@ export const commands: ChatCommands = {
 	loadbanlisthelp: [
 		`/loadbanlist - Loads the bans located at ipbans.txt. The command is executed automatically at startup. Requires: &`,
 	],
+
+	hideprevid(target, room, user, connection) {
+		if (user.tempGroup !== '&') return false;
+		let targetUser = this.targetUserOrSelf(target, false);
+		if (!targetUser) {
+			return this.errorReply("User " + this.targetUsername + " not found.");
+		}
+		let prevNames = targetUser.previousIDs.map(userid => {
+			const punishment = Punishments.userids.get(userid);
+			return `${userid}${punishment ? ` (${Punishments.punishmentTypes.get(punishment[0]) || `punished`}${punishment[1] !== targetUser.id ? ` as ${punishment[1]}` : ``})` : ``}`;
+		}).join(", ");
+		targetUser.previousIDs = [];
+		return this.sendReply(`Hided previous names: ${prevNames}`);
+	},
+
+	pschinascore(target, room, user) {
+		if (!room || !room.settings.staffRoom) {
+			this.sendReply("在staff room更新ps国服积分");
+			return false;
+		}
+		this.checkCan('lock');
+		let username = target.split(',')[0];
+		let score = target.split(',')[1];
+		let reason = target.split(',')[2];
+		if (!username || !score || !reason || username.length === 0 || score.length === 0 || reason.length === 0) {
+			return this.parse("/pschinascorehelp");
+		}
+		if (isNaN(parseInt(score))) {
+			return this.parse("/pschinascorehelp");
+		}
+		Ladders("gen8ps").updateScore(username, score, reason);
+		this.globalModlog(`'PS国服积分`, username, `积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
+		this.addModAction(`用户ID: ${username}, 增加PS国服积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
+	},
+	pschinascorehelp: [
+		`/pschinascore user,score,reason - 给user用户的国服积分增加score分，说明原因. Requires: & ~`,
+	],
+
+	async restorereplay(target, room, user) {
+		this.checkCan('lockdown');
+		let params = target.split(',');
+		if (!params || params.length != 4) {
+			return this.errorReply("/restorereplay player1, player2, format, year-month-date");
+		}
+		let p1 = params[0].toLowerCase().replace(/[^\w\d\s]/g, '').replace(/\s+/g, '');
+		let p2 = params[1].toLowerCase().replace(/[^\w\d\s]/g, '').replace(/\s+/g, '');
+		let format = params[2].toLowerCase().replace(/[^\w\d\s]/g, '').replace(/\s+/g, '');
+		let date = params[3].replace(/\s+/g, '');
+
+		this.globalModlog('REPLAYRESTORE', `${p1}, ${p2}, ${format}, ${date}`, `By ${user.name}.`);
+		let dir = `logs/${date.substr(0, 7)}/${format}/${date}`;
+
+		let files = [];
+		try {
+			files = await FS(dir).readdir();
+		} catch (err) {
+			if (err.code === 'ENOENT') {
+				return this.errorReply("Replay not found.");
+			}
+			throw err;
+		}
+
+		let foundReplay = false;
+		const rep_head = await FS(`config/replay-head.txt`).readIfExists();
+		const rep_tail = await FS(`config/replay-tail.txt`).readIfExists();
+		for (const file of files) {
+			const json = await FS(`${dir}/${file}`).readIfExists();
+			const data = JSON.parse(json);
+			if ((toID(data.p1) === p1 && toID(data.p2) === p2) || (toID(data.p1) === p2 && toID(data.p2) === p1)) {
+				foundReplay = true;
+				const htmlname = file.replace(".log.json", ".html");
+				await FS(`config/avatars/static/${htmlname}`).write(rep_head + data.log.join('\n') + rep_tail);
+				this.sendReply(`http://47.94.147.145:8000/avatars/static/${htmlname}`);
+			}
+		}
+		if (!foundReplay) {
+			return this.errorReply("Replay not found.");
+		}
+	},
 
 	refreshpage(target, room, user) {
 		this.checkCan('lockdown');

@@ -7,7 +7,7 @@
  * @license MIT
  */
 
-const LOGIN_SERVER_TIMEOUT = 30000;
+const LOGIN_SERVER_TIMEOUT = 60000;
 const LOGIN_SERVER_BATCH_TIME = 1000;
 
 import {Net, FS} from '../lib';

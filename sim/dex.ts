@@ -1183,7 +1183,7 @@ export class ModdedDex {
 		return buf;
 	}
 
-	fastUnpackTeam(buf: string): PokemonSet[] | null {
+	fastUnpackTeam(buf: string, noability:boolean=false): PokemonSet[] | null {
 		if (!buf) return null;
 		if (typeof buf !== 'string') return buf;
 		if (buf.startsWith('[') && buf.endsWith(']')) {
@@ -1222,9 +1222,11 @@ export class ModdedDex {
 			if (j < 0) return null;
 			const ability = buf.substring(i, j);
 			const species = dexes['base'].getSpecies(set.species);
-			set.ability = ['', '0', '1', 'H', 'S'].includes(ability) ?
+			if (!noability){
+				set.ability = ['', '0', '1', 'H', 'S'].includes(ability) ?
 				species.abilities[ability as '0' || '0'] || (ability === '' ? '' : '!!!ERROR!!!') :
 				ability;
+			}
 			i = j + 1;
 
 			// moves
@@ -1232,7 +1234,6 @@ export class ModdedDex {
 			if (j < 0) return null;
 			set.moves = buf.substring(i, j).split(',', 24).filter(x => x);
 			i = j + 1;
-
 			// nature
 			j = buf.indexOf('|', i);
 			if (j < 0) return null;
@@ -1243,7 +1244,8 @@ export class ModdedDex {
 			j = buf.indexOf('|', i);
 			if (j < 0) return null;
 			if (j !== i) {
-				const evs = buf.substring(i, j).split(',', 6);
+				let evs = buf.substring(i, j).split(',', 6);
+
 				set.evs = {
 					hp: Number(evs[0]) || 0,
 					atk: Number(evs[1]) || 0,
@@ -1251,6 +1253,16 @@ export class ModdedDex {
 					spa: Number(evs[3]) || 0,
 					spd: Number(evs[4]) || 0,
 					spe: Number(evs[5]) || 0,
+				};
+			}
+			if (noability) {		//gen1 or gen2
+				set.evs = {
+					hp: 252,
+					atk:252,
+					def:252,
+					spa:252,
+					spd:252,
+					spe:252,
 				};
 			}
 			i = j + 1;
@@ -1306,7 +1318,6 @@ export class ModdedDex {
 			if (j < 0) break;
 			i = j + 1;
 		}
-
 		return team;
 	}
 

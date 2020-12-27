@@ -1,6 +1,11 @@
 'use strict';
 
 /**
+ * The server ID - the ID of the current server
+ */
+exports.serverid = 'china';
+
+/**
  * The server port - the port to run Pokemon Showdown under
  */
 exports.port = 8000;
@@ -106,7 +111,7 @@ exports.proxyip = false;
  * You might also want to signal processes to put them in debug mode, for
  * access to on-demand heapdumps.
  *
- *     kill -s SIGUSR1 [pid]
+ * kill -s SIGUSR1 [pid]
  *
  * debug[something]processes
  * ============================================================================
@@ -116,8 +121,8 @@ exports.proxyip = false;
  *
  * For example:
  *
- *     >> ProcessManager.processManagers[4].processes[0].debug
- *     << "{"tar":"spe=60,all,!lc,!nfe","cmd":"dexsearch","canAll":true,"message":"/ds spe=60,all,!lc,!nfe"}"
+ * >> ProcessManager.processManagers[4].processes[0].debug
+ * << "{"tar":"spe=60,all,!lc,!nfe","cmd":"dexsearch","canAll":true,"message":"/ds spe=60,all,!lc,!nfe"}"
  */
 exports.ofemain = false;
 exports.ofesockets = false;
@@ -183,7 +188,7 @@ exports.routes = {
  *   otherwise, all crashes will lock down the server. If you wish to enable
  *   this setting, you will need to install nodemailer, as it is not installed
  *   by default:
- *     $ npm install nodemailer
+ * $ npm install nodemailer
  * @type {AnyObject?}
  */
 exports.crashguardemail = null;
@@ -240,7 +245,9 @@ exports.reportjoinsperiod = 0;
  *   This feature can lag larger servers - turn this off if your server is
  *   getting more than 160 or so users.
  */
-exports.reportbattles = true;
+exports.reportbattles = "skynet";
+
+exports.reportbattlesnewgen = "wcop";
 
 /**
  * report joins and leaves in battle - shows messages like "<USERNAME> joined" in battle
@@ -330,7 +337,7 @@ exports.forceregisterelo = false;
 
 /**
  * backdoor - allows Pokemon Showdown system operators to provide technical
- *            support for your server
+ *support for your server
  *   This backdoor gives system operators (such as Zarel) console admin
  *   access to your server, which allow them to provide tech support. This
  *   can be useful in a variety of situations: if an attacker attacks your
@@ -352,7 +359,7 @@ exports.backdoor = true;
  * the `console` permission in order to use the dev console.
  * Setting this to an empty array ([]) will disable the dev console.
  */
-exports.consoleips = ['127.0.0.1'];
+exports.consoleips = ['127.0.0.1', 'FreedomSK', 'ublt1', 'starmind'];
 
 /**
  * Whether to watch the config file for changes. If this is enabled,
@@ -365,12 +372,12 @@ exports.watchconfig = true;
 /**
  * logchat - whether to log chat rooms.
  */
-exports.logchat = false;
+exports.logchat = true;
 
 /**
  * logchallenges - whether to log challenge battles. Useful for tournament servers.
  */
-exports.logchallenges = false;
+exports.logchallenges = true;
 
 /**
  * loguserstats - how often (in milliseconds) to write user stats to the
@@ -422,7 +429,105 @@ exports.noguestsecurity = false;
  * @type {{[userid: string]: string}}
  */
 exports.customavatars = {
-	// 'userid': 'customavatar.png'
+	'angellore': 'angellore.png',
+	'mray': 'mray.png',
+	'yuqwe': 'yuqwe.gif',
+	'wistar': 'wistar.png',
+	'popoling': 'popoling.gif',
+	'johnxyiu': 'johnxyiu.png',
+	'ygod': 'ygod.gif',
+	'IGJackeylove': 'IGJackeylove.png',
+	'cut': 'cut.mp3',
+	'uifu': 'uifu.png',
+	'chengduoldsuperbro': 'chengduoldsuperbro.png',
+	'nzyy': 'nzyy.gif',
+	'dianlong': 'dianlong.png',
+	'ld8': 'ld8.png',
+	'wyc2333': 'wyc2333.png',
+	'feida': 'feida.png',
+	'vusty': 'vusty.png',
+	'curepersona': 'curepersona.png',
+	'ublt1': 'ublt1.png',
+	'endwich': 'endwich.png',
+	'lzaa': 'lzaa.png',
+	'gostop': 'gostop.gif',
+	'dywy': 'dywy.png',
+	'starplatinum01': 'starplatinum01.png',
+	'mori42': 'mori42.png',
+	'thetruegod': 'thetruegod.png',
+	'maxalexanderpi': 'maxalexanderpi.png',
+	'rylon': 'rylon.png',
+	'lzaaaaa': 'lzaaaaa.png',
+	'39c': '39c.png',
+	'kangri': 'kangri.png',
+	'mydoriya': 'mydoriya.png',
+	'kk': 'kk.png',
+	'endless': 'endless.png',
+	'wwlwss2': 'wwlwss2.jpg',
+	'akengs': 'akengs.png',
+	'pyernhuy': 'pyernhuy.gif',
+	'kahili': 'kahili.png',
+	'wistwind': 'wistwind.gif',
+	'vulpot': 'vulpot.png',
+	'neveal': 'neveal.png',
+	'hans': 'hans.png',
+	'scorerobot': 'scorerobot.png',
+	'steven': 'steven.png',
+	'SanzenYukariko': 'SanzenYukariko.png',
+	'drogbainshenhua': 'drogbainshenhua.gif',
+	'senbongi': 'senbongi.png',
+	'xixi': 'xixi.png',
+	'yoppie': 'yoppie.png',
+	'northumberland': 'northumberland.gif',
+	'akengsicon': 'akengsicon.png',
+	'wwlwss': 'wwlwss.gif',
+	'chickwayne': 'chickwayne.gif',
+	'xingmeng': 'xingmeng.png',
+	'cecabot': 'cecabot.gif',
+	'chaos23333': 'chaos23333.png',
+	'err0': 'err0.png',
+	'vustyfans3': 'vustyfans3.png',
+	'thetruegod2': 'thetruegod2.png',
+	'mythosmustang': 'mythosmustang.png',
+	'origami': 'origami.png',
+	'2001': '2001.png',
+	'dougu': 'dougu.png',
+	'heiyijianshi': 'heiyijianshi.png',
+	'2001-0': '2001-0.png',
+	'xili': 'xili.png',
+	'kingcrimson1986': 'kingcrimson1986.png',
+	'no41st': 'no41st.png',
+	'hyp': 'hyp.png',
+	'unowndragon': 'unowndragon.png',
+	'circlerevue': 'circlerevue.gif',
+	'dovechenben': 'dovechenben.png',
+	'dudu': 'dudu.png',
+	'xujing': 'xujing.png',
+	'rengarzero': 'rengarzero.png',
+	'kitoothe': 'kitoothe.png',
+	'tachikoma': 'tachikoma.png',
+	'eb': 'eb.png',
+	'fddsb': 'fddsb.png',
+	'chizurumizuhara': 'chizurumizuhara.png',
+	'20011': '20011.png',
+	'tuzhu': 'tuzhu.png',
+	'hybone': 'hybone.gif',
+	'ashlovers': 'ashlovers.png',
+	'altina': 'altina.png',
+	'batoutachikoma': 'batoutachikoma.png',
+	'vustyfans': 'vustyfans.png',
+	'paradiseseeker': 'paradiseseeker.png',
+	'sstj': 'sstj.gif',
+	'3': '3.gif',
+	'osgoode': 'osgoode.png',
+	'staggerika': 'staggerika.gif',
+	'Northumberland': 'Northumberland.png',
+	'wlsdx': 'wlsdx.png',
+	'yjh': 'yjh.png',
+	'tawil': 'tawil.gif',
+	'bazhujia': 'bazhujia.png',
+	'zzsismygoddess': 'zzsismygoddess.png',
+	'loving1096': 'loving1096.png'
 };
 
 /**
@@ -491,57 +596,57 @@ exports.chatlogreader = 'fs';
 /**
  * permissions and groups:
  *   Each entry in `grouplist` is a seperate group. Some of the members are "special"
- *     while the rest is just a normal permission.
+ * while the rest is just a normal permission.
  *   The order of the groups determines their ranking.
  *   The special members are as follows:
- *     - symbol: Specifies the symbol of the group (as shown in front of the username)
- *     - id: Specifies an id for the group.
- *     - name: Specifies the human-readable name for the group.
- *     - root: If this is true, the group can do anything.
- *     - inherit: The group uses the group specified's permissions if it cannot
- *                  find the permission in the current group. Never make the graph
- *                  produced using this member have any cycles, or the server won't run.
- *     - jurisdiction: The default jurisdiction for targeted permissions where one isn't
- *                       explictly specified. "Targeted permissions" are permissions
- *                       that might affect another user, such as `ban' or `promote'.
- *                       's' is a special group where it means the user itself only
- *                       and 'u' is another special group where it means all groups
- *                       lower in rank than the current group.
- *     - roomonly: forces the group to be a per-room moderation rank only.
- *     - globalonly: forces the group to be a global rank only.
+ * - symbol: Specifies the symbol of the group (as shown in front of the username)
+ * - id: Specifies an id for the group.
+ * - name: Specifies the human-readable name for the group.
+ * - root: If this is true, the group can do anything.
+ * - inherit: The group uses the group specified's permissions if it cannot
+ *  find the permission in the current group. Never make the graph
+ *  produced using this member have any cycles, or the server won't run.
+ * - jurisdiction: The default jurisdiction for targeted permissions where one isn't
+ *   explictly specified. "Targeted permissions" are permissions
+ *   that might affect another user, such as `ban' or `promote'.
+ *   's' is a special group where it means the user itself only
+ *   and 'u' is another special group where it means all groups
+ *   lower in rank than the current group.
+ * - roomonly: forces the group to be a per-room moderation rank only.
+ * - globalonly: forces the group to be a global rank only.
  *   All the possible permissions are as follows:
- *     - console: Developer console (>>).
- *     - lockdown: /lockdown and /endlockdown commands.
- *     - hotpatch: /hotpatch, /crashfixed and /savelearnsets commands.
- *     - ignorelimits: Ignore limits such as chat message length.
- *     - promote: Promoting and demoting. Will only work if the target user's current
- *                  group and target group are both in jurisdiction.
- *     - room<rank>: /roompromote to <rank> (eg. roomvoice)
- *     - makeroom: Create/delete chatrooms, and set modjoin/roomdesc/privacy
- *     - editroom: Editing properties of rooms
- *     - editprivacy: Set modjoin/privacy only for battles
- *     - globalban: Banning and unbanning from the entire server.
- *     - ban: Banning and unbanning in rooms.
- *     - mute: Muting and unmuting.
- *     - lock: locking (ipmute) and unlocking.
- *     - receivemutedpms: Receive PMs from muted users.
- *     - forcerename: /fr command.
- *     - ip: IP checking.
- *     - alts: Alt checking.
- *     - modlog: view the moderator logs.
- *     - show: Show command output to other users.
- *     - showmedia: Show images and videos to other users.
- *     - declare: /declare command.
- *     - announce: /announce command.
- *     - modchat: Set modchat.
- *     - potd: Set PotD.
- *     - forcewin: /forcewin command.
- *     - battlemessage: /a command.
- *     - tournaments: creating tournaments (/tour new, settype etc.)
- *     - gamemoderation: /tour dq, autodq, end etc.
- *     - gamemanagement: enable/disable games, minigames, and tournaments.
- *     - minigame: make minigames (hangman, polls, etc.).
- *     - game: make games.
+ * - console: Developer console (>>).
+ * - lockdown: /lockdown and /endlockdown commands.
+ * - hotpatch: /hotpatch, /crashfixed and /savelearnsets commands.
+ * - ignorelimits: Ignore limits such as chat message length.
+ * - promote: Promoting and demoting. Will only work if the target user's current
+ *  group and target group are both in jurisdiction.
+ * - room<rank>: /roompromote to <rank> (eg. roomvoice)
+ * - makeroom: Create/delete chatrooms, and set modjoin/roomdesc/privacy
+ * - editroom: Editing properties of rooms
+ * - editprivacy: Set modjoin/privacy only for battles
+ * - globalban: Banning and unbanning from the entire server.
+ * - ban: Banning and unbanning in rooms.
+ * - mute: Muting and unmuting.
+ * - lock: locking (ipmute) and unlocking.
+ * - receivemutedpms: Receive PMs from muted users.
+ * - forcerename: /fr command.
+ * - ip: IP checking.
+ * - alts: Alt checking.
+ * - modlog: view the moderator logs.
+ * - show: Show command output to other users.
+ * - showmedia: Show images and videos to other users.
+ * - declare: /declare command.
+ * - announce: /announce command.
+ * - modchat: Set modchat.
+ * - potd: Set PotD.
+ * - forcewin: /forcewin command.
+ * - battlemessage: /a command.
+ * - tournaments: creating tournaments (/tour new, settype etc.)
+ * - gamemoderation: /tour dq, autodq, end etc.
+ * - gamemanagement: enable/disable games, minigames, and tournaments.
+ * - minigame: make minigames (hangman, polls, etc.).
+ * - game: make games.
  */
 exports.grouplist = [
 	{
@@ -621,6 +726,9 @@ exports.grouplist = [
 		roomwhitelist: true,
 		forcerename: true,
 		ip: true,
+		lock: true,
+		timer: true,
+		modlog: true,
 		alts: '@u',
 		game: true,
 	},
@@ -635,7 +743,7 @@ exports.grouplist = [
 		announce: true,
 		warn: '\u2605u',
 		kick: true,
-		mute: '\u2605u',
+		mute: '\u2606u',
 		lock: true,
 		forcerename: true,
 		timer: true,
@@ -672,6 +780,15 @@ exports.grouplist = [
 		lock: false,
 		forcerename: false,
 		alts: false,
+	},
+	{
+		symbol: '\u265A',
+		id: "champ",
+		name: "Champion",
+		inherit: '+',
+		altsself: true,
+		show: true,
+		showmedia: true,
 	},
 	{
 		symbol: '\u2606',

@@ -10,6 +10,7 @@ import {Pokemon, EffectState, RESTORATIVE_BERRIES} from './pokemon';
 import {PRNG, PRNGSeed} from './prng';
 import {Side} from './side';
 import {State} from './state';
+import { consoleips } from '../config/config-example';
 import {BattleQueue, Action} from './battle-queue';
 import {Utils} from '../lib';
 
@@ -83,6 +84,7 @@ export class Battle {
 	gen: number;
 	ruleTable: Dex.RuleTable;
 	prng: PRNG;
+
 	rated: boolean | string;
 	reportExactHP: boolean;
 	reportPercentages: boolean;
@@ -122,7 +124,8 @@ export class Battle {
 	abilityOrder: number;
 
 	teamGenerator: ReturnType<typeof Dex.getTeamGenerator> | null;
-
+	realFormat: string;
+	realMod: string | null;
 	readonly hints: Set<string>;
 
 	readonly zMoveTable: {[k: string]: string};
@@ -139,10 +142,28 @@ export class Battle {
 	clampIntRange: (num: any, min?: number, max?: number) => number;
 	toID = toID;
 	constructor(options: BattleOptions) {
+		// kirliavc stuff:
+		const format = options.format || Dex.getFormat(options.formatid, true);
+		let realFormat='';
+		let mod = format.mod;
+		if (format.id === 'gen7randomformats') {
+			// @ts-ignore
+			realFormat = new PRNG().sample(format.formatsList);	//random select one format
+			// @ts-ignore
+			format.realFormat = realFormat;
+			// @ts-ignore
+			mod = realFormat.substr(0, 4);				// genx
+			format.mod = mod;
+		}
+
+		// @ts-ignore
+		this.realMod = mod;
+		this.realFormat = realFormat;
+
+		// const format = Dex.getFormat(options.formatid, true);
 		this.log = [];
 		this.add('t:', Math.floor(Date.now() / 1000));
 
-		const format = options.format || Dex.getFormat(options.formatid, true);
 		this.format = format;
 		this.dex = Dex.forFormat(format);
 		this.gen = this.dex.gen;

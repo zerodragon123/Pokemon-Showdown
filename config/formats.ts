@@ -62,6 +62,7 @@ export const Formats: FormatList = [
 
 		mod: 'gen8',
 		ruleset: ['[Gen 8] OU', 'Blitz'],
+		banlist: ['Cinderace'],
 	},
 	{
 		name: "[Gen 8] Ubers",
@@ -98,6 +99,11 @@ export const Formats: FormatList = [
 		mod: 'gen8',
 		ruleset: ['[Gen 8] UU'],
 		banlist: ['UU', 'RUBL'],
+		onBegin() {
+			if (this.rated && this.format.id === 'gen8ru') {
+				this.add('html', '<div class="broadcast-blue"><strong>RU is currently suspecting Sigilyph! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3671022/">suspect thread</a>.</strong></div>');
+			}
+		},
 	},
 	{
 		name: "[Gen 8] NU",
@@ -177,6 +183,11 @@ export const Formats: FormatList = [
 			'Rayquaza', 'Reshiram', 'Sableye', 'Solgaleo', 'Victini', 'Xerneas', 'Yveltal', 'Zacian', 'Zacian-Crowned', 'Zamazenta', 'Zamazenta-Crowned', 'Zekrom',
 			'Moody', 'Focus Sash', 'Perish Song',
 		],
+		onBegin() {
+			if (this.rated && this.format.id === 'gen81v1') {
+				this.add('html', '<div class="broadcast-blue"><strong>1v1 is currently suspecting Togekiss! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3670621/">suspect thread</a>.</strong></div>');
+			}
+		},
 	},
 	{
 		name: "[Gen 8] Anything Goes",
@@ -265,6 +276,102 @@ export const Formats: FormatList = [
 		ruleset: ['Team Preview', 'Cancel Mod'],
 	},
 
+	// PS China Specials
+	///////////////////////////////////////////////////////////////////
+	{
+		section: "PSChina Special",
+	},
+	{
+		name: "[Gen 8] PS国服积分",
+		desc: `Randomized teams of level-balanced Pok&eacute;mon with sets that are generated to be competitively viable.`,
+
+		mod: 'gen8',
+		team: 'random',
+		challengeShow: false,
+		rated: false,
+		ruleset: ['PotD', 'Obtainable', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		onBegin() {
+			this.add('html', `<div class="broadcast-red"><strong>本分级仅用于国服论坛积分显示，天梯对战不计分。具体积分规则见<a href="http://chinapsim.org./topic/63/">国服积分说明帖</a>.</strong></div>`);
+		},
+	},
+	{
+		name: "[Gen 7] Battle Tree 3v3",
+
+		mod: 'gen7',
+		searchShow: false,
+		teamLength: {
+			validate: [1, 3],
+			battle: 3,
+		},
+		ruleset: ['Obtainable', 'Standard'],
+		banlist: ['Uber', 'Power Construct'],
+	},
+	{
+		name: "[Gen 8] Durants",
+		desc: `男人的决斗！`,
+
+		mod: 'gen8',
+		team: 'randomDurants',
+		ruleset: ['Team Preview'],
+	},
+	{
+		name: "[Gen 7] Random Formats",
+		desc: `Randomized competitive lower tiers teams of mutiple generations.`,
+
+		// mod: new PRNG().sample(['gen7','gen3']),
+		team: 'randomFormats',
+		ruleset: ['Obtainable', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod', 'RF-TeamPreview'],
+		mod: 'gen7',
+		// @ts-ignore
+		formatsList: [
+			'gen1ou', 'gen1ubers', 'gen1uu',
+			'gen2ou', 'gen2ubers', 'gen2uu', 'gen2nu', 'gen2lc',
+			'gen3ou', 'gen3ubers', 'gen3uu', 'gen3nu', 'gen3pu', 'gen3lc',
+			'gen4ou', 'gen4ubers', 'gen4uu', 'gen4nu', 'gen4pu', 'gen4lc',
+			'gen5ou', 'gen5ubers', 'gen5uu', 'gen5ru', 'gen5nu', 'gen5pu', 'gen5lc',
+			'gen6ou', 'gen6ubers', 'gen6uu', 'gen6ru', 'gen6nu', 'gen6pu', 'gen6lc',
+			// 'gen7ou', 'gen7ubers', 'gen7uu', 'gen7ru', 'gen7nu', 'gen7pu', 'gen7lc',
+			// 'gen8ou', 'gen8ubers', 'gen8uu', 'gen8ru', 'gen8nu', 'gen8pu', 'gen8lc',
+		],
+		realFormat: '',
+		onBegin() {
+			this.add('html', `<div class="broadcast-green"><strong>CURRENT FORMAT: ` + this.realFormat + ` </strong></div>`);
+		},
+	},
+	{
+		name: "[Gen 7] Ubers Special",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3637068/">Ubers Metagame Discussion</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3623296/">Ubers Viability Rankings</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3639330/">Ubers Sample Teams</a>`,
+		],
+
+		mod: 'gen7',
+		searchShow: false,
+		ruleset: ['Obtainable', 'Standard', 'Mega Rayquaza Clause'],
+		banlist: ['Baton Pass', 'Gothorita', 'Gothitelle'],
+		onValidateSet(set) {
+			if (set.species === 'Necrozma-Dusk-Mane' && set.moves.includes('swordsdance')) {
+				return [`携带剑舞的奈克洛兹玛-黄昏之鬃在该分级下不可用。`];
+			}
+			if (set.item === 'Red Orb' && (set.moves.includes('swordsdance') || set.moves.includes('rockpolish'))) {
+				return [`携带剑舞和岩切的原始固拉多在该分级下不可用。`];
+			}
+		},
+	},
+	{
+		name: "[Gen 7] Pure Hackmons",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/om-mashup-megathread.3635904/#post-7802586">HM Sample Teams</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/om-mashup-megathread.3635904/page-4#post-7866923">HM Viability Rankings</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/om-mashup-megathread.3635904/page-4#post-7871849">HM Sample Sets</a>`,
+		],
+
+		mod: 'gen7',
+		searchShow: false,
+		ruleset: ['Obtainable', 'Endless Battle Clause', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod'],
+	},
+
 	// Sw/Sh Doubles
 	///////////////////////////////////////////////////////////////////
 
@@ -349,6 +456,61 @@ export const Formats: FormatList = [
 		minSourceGen: 8,
 	},
 	{
+		name: "[Gen 8] Battle Stadium Doubles",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3670056/">Series 6 Viability Rankings</a>`,
+		],
+
+		mod: 'gen8',
+		gameType: 'doubles',
+		forcedLevel: 50,
+		teamLength: {
+			validate: [4, 6],
+			battle: 4,
+		},
+		ruleset: ['Standard GBU', 'VGC Timer'],
+		banlist: [
+			'Cinderace', 'Dragapult', 'Excadrill', 'Gyarados', 'Hippowdon', 'Incineroar', 'Indeedee', 'Magnezone',
+			'Mimikyu', 'Porygon2', 'Rillaboom', 'Togekiss', 'Torkoal', 'Tyranitar', 'Venusaur', 'Whimsicott',
+		],
+		minSourceGen: 8,
+	},
+	{
+		name: "[Gen 8] Battle of Legends",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3671265/">Battle of Legends</a>`,
+		],
+
+		mod: 'gen8',
+		gameType: 'doubles',
+		forcedLevel: 50,
+		teamLength: {
+			validate: [4, 6],
+			battle: 4,
+		},
+		ruleset: ['Obtainable', 'Team Preview', 'Species Clause', 'Nickname Clause', 'Item Clause', 'Cancel Mod', 'VGC Timer'],
+		minSourceGen: 8,
+		onValidateTeam(team) {
+			const RESTRICTED_LEGENDS = [
+				'Mewtwo', 'Mew',
+				'Celebi',
+				'Jirachi',
+				'Reshiram', 'Zekrom', 'Kyurem', 'Keldeo',
+				'Cosmog', 'Cosmoem', 'Solgaleo', 'Lunala', 'Necrozma', 'Magearna', 'Marshadow', 'Zeraora',
+				'Meltan', 'Melmetal',
+				'Zacian', 'Zamazenta', 'Eternatus', 'Zarude',
+			];
+			let restrictedCount = 0;
+			for (const set of team) {
+				const species = this.dex.getSpecies(set.species);
+				if (RESTRICTED_LEGENDS.includes(species.baseSpecies)) restrictedCount++;
+			}
+			if (restrictedCount > 1) {
+				return [`You are limited to one restricted legend.`, `(You have ${restrictedCount} restricted legends.)`];
+			}
+		},
+	},
+	{
 		name: "[Gen 8] 2v2 Doubles",
 		desc: `Double battle where you bring four Pok&eacute;mon to Team Preview and choose only two.`,
 		threads: [
@@ -429,6 +591,20 @@ export const Formats: FormatList = [
 		// no restrictions, for serious (other than team preview)
 		ruleset: ['Team Preview', 'Cancel Mod'],
 	},
+	{
+		name: "[Gen 8] Doubles Custom 64",
+
+		mod: 'gen8',
+		gameType: 'doubles',
+		searchShow: false,
+		forcedLevel: 50,
+		teamLength: {
+			validate: [4, 6],
+			battle: 4,
+		},
+		timer: {starting: 7 * 60, addPerTurn: 0, maxPerTurn: 55, maxFirstTurn: 90, grace: 90, timeoutAutoChoose: true, dcTimerBank: false},
+		ruleset: ['Obtainable', 'Minimal GBU'],
+	},
 
 	// National Dex
 	///////////////////////////////////////////////////////////////////
@@ -455,6 +631,11 @@ export const Formats: FormatList = [
 			'Zacian', 'Zacian-Crowned', 'Zamazenta', 'Zamazenta-Crowned', 'Zekrom', 'Zygarde-Base', 'Zygarde-Complete',
 			'Arena Trap', 'Moody', 'Power Construct', 'Shadow Tag', 'Baton Pass',
 		],
+		onBegin() {
+			if (this.rated && this.format.id === 'gen8nationaldex') {
+				this.add('html', '<div class="broadcast-blue"><strong>National Dex is currently suspecting Dracovish! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3670967/">suspect thread</a>.</strong></div>');
+			}
+		},
 	},
 	{
 		name: "[Gen 8] National Dex UU",
@@ -926,6 +1107,11 @@ export const Formats: FormatList = [
 			'Moody', 'Neutralizing Gas', 'Parental Bond', 'Power Construct', 'Protean', 'Pure Power', 'Shadow Tag', 'Simple', 'Stakeout', 'Speed Boost', 'Water Bubble', 'Wonder Guard',
 			'Baton Pass',
 		],
+		onBegin() {
+			if (this.rated && this.format.id === 'gen8almostanyability') {
+				this.add('html', '<div class="broadcast-blue"><strong>Almost Any Ability is currently suspecting Magearna! For information on how to participate check out the <a href="https://www.smogon.com/forums/threads/3669035/">suspect thread</a>.</strong></div>');
+			}
+		},
 	},
 	{
 		name: "[Gen 8] STABmons",

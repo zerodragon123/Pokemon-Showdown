@@ -22,6 +22,7 @@
         "./dev-tools/*.ts",
         "./lib/*.ts",
         "./server/**/*.ts",
+        "./server/server-plugins/icon.js",
         "./sim/**/*",
         "./tools/set-import/*.ts",
         "./tools/modlog/*.ts",

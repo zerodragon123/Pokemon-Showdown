@@ -55,7 +55,7 @@ describe('Trivia', function () {
 
 	it('should add new players', function () {
 		this.game.addTriviaPlayer(this.user);
-		assert.equal(this.game.playerCount, 1);
+		assert.strictEqual(this.game.playerCount, 1);
 	});
 
 	it('should not add a player if they have already joined', function () {
@@ -70,7 +70,7 @@ describe('Trivia', function () {
 		const user2 = makeTriviaUser('Not Morfent', '127.0.0.1');
 		assert.throws(() => this.game.addTriviaPlayer(user2));
 
-		assert.equal(this.game.playerCount, 1);
+		assert.strictEqual(this.game.playerCount, 1);
 		destroyUser(user2);
 	});
 
@@ -84,7 +84,7 @@ describe('Trivia', function () {
 		const user2 = makeTriviaUser(name, '127.0.0.3');
 		assert.throws(() => this.game.addTriviaPlayer(user2));
 
-		assert.equal(this.game.playerCount, 1);
+		assert.strictEqual(this.game.playerCount, 1);
 		destroyUser(user2);
 	});
 
@@ -97,7 +97,7 @@ describe('Trivia', function () {
 	it('should kick players from the game', function () {
 		this.game.addTriviaPlayer(this.tarUser);
 		this.game.kick(this.tarUser, this.user);
-		assert.equal(this.game.playerCount, 0);
+		assert.strictEqual(this.game.playerCount, 0);
 	});
 
 	it('should not kick players already kicked from the game', function () {
@@ -191,9 +191,9 @@ describe('Trivia', function () {
 
 		it('should mark a player absent on leave and pause the game', function () {
 			this.user.leaveRoom(this.room);
-			assert.equal(this.player.isAbsent, true);
-			assert.equal(this.game.phase, 'limbo');
-			assert.equal(this.game.phaseTimeout, null);
+			assert.strictEqual(this.player.isAbsent, true);
+			assert.strictEqual(this.game.phase, 'limbo');
+			assert.strictEqual(this.game.phaseTimeout, null);
 		});
 
 		it('should unpause the game once enough players have returned', function () {
@@ -237,17 +237,17 @@ describe('Trivia', function () {
 
 		it('should calculate player points correctly', function () {
 			const points = this.game.calculatePoints();
-			assert.equal(points, 5);
+			assert.strictEqual(points, 5);
 		});
 
 		it('should allow users to answer questions correctly', function () {
 			this.game.answerQuestion('answer', this.user);
-			assert.equal(this.player.correctAnswers, 1);
+			assert.strictEqual(this.player.correctAnswers, 1);
 		});
 
 		it('should mark players who answer incorrectly', function () {
 			this.game.answerQuestion('not the right answer', this.user);
-			assert.equal(this.player.correctAnswers, 0);
+			assert.strictEqual(this.player.correctAnswers, 0);
 		});
 
 		it('should only reward a player points once per question', function () {
@@ -259,7 +259,7 @@ describe('Trivia', function () {
 		it('should clear player answers if none answer correctly', function () {
 			this.game.answerQuestion('not the right answer', this.user);
 			this.game.tallyAnswers();
-			assert.equal(this.player.answer, '');
+			assert.strictEqual(this.player.answer, '');
 		});
 
 		it('should not give NaN points to correct responders', function () {
@@ -305,21 +305,21 @@ describe('Trivia', function () {
 			for (let i = 6; i--;) {
 				diff += totalDiff / 5;
 				const points = this.game.calculatePoints(diff, totalDiff);
-				assert.equal(points, i);
+				assert.strictEqual(points, i);
 			}
 		});
 
 		it('should set players as having answered correctly or incorrectly', function () {
 			this.game.answerQuestion('not the right answer', this.user);
-			assert.equal(this.player.isCorrect, false);
+			assert.strictEqual(this.player.isCorrect, false);
 			this.game.answerQuestion('answer', this.user);
-			assert.equal(this.player.isCorrect, true);
+			assert.strictEqual(this.player.isCorrect, true);
 		});
 
 		it('should give points for correct answers', function () {
 			this.game.answerQuestion('answer', this.user);
 			this.game.tallyAnswers();
-			assert.equal(this.player.correctAnswers, 1);
+			assert.strictEqual(this.player.correctAnswers, 1);
 		});
 
 		it('should choose the quicker answerer on tie', function (done) {
@@ -377,7 +377,7 @@ describe('Trivia', function () {
 		it('should calculate points correctly', function () {
 			this.game.playerCount = 5;
 			for (let i = 1; i <= 5; i++) {
-				assert.equal(this.game.calculatePoints(i), 6 - i);
+				assert.strictEqual(this.game.calculatePoints(i), 6 - i);
 			}
 		});
 
@@ -387,13 +387,13 @@ describe('Trivia', function () {
 		it('should not give points for answering incorrectly', function () {
 			this.game.answerQuestion('not the right answer', this.user);
 			this.game.tallyAnswers();
-			assert.equal(this.player.correctAnswers, 0);
+			assert.strictEqual(this.player.correctAnswers, 0);
 		});
 
 		it('should give points for answering correctly', function () {
 			this.game.answerQuestion('answer', this.user);
 			this.game.tallyAnswers();
-			assert.equal(this.player.correctAnswers, 1);
+			assert.strictEqual(this.player.correctAnswers, 1);
 		});
 
 		it('should not give NaN points to correct responders', function () {
@@ -432,6 +432,38 @@ describe('Trivia', function () {
 
 			assert.deepEqual(trivia.triviaData.leaderboard.annika, [4, 4, 4]);
 			assert.equal(trivia.triviaData.leaderboard.heartofetheria, undefined);
+		});
+	});
+
+	context('alt merging', () => {
+		it('should only allow merging approved alts', () => {
+			trivia.triviaData.leaderboard = {
+				annika: [0, 0, 0],
+				heartofetheria: [0, 0, 0],
+				somerandomreg: [0, 0, 0],
+			};
+
+			assert.throws(() => trivia.mergeAlts('annika', 'heartofetheria'));
+
+			trivia.requestAltMerge('annika', 'somerandomreg');
+			trivia.requestAltMerge('heartofetheria', 'somerandomreg');
+			assert.throws(() => trivia.mergeAlts('annika', 'heartofetheria'));
+
+			trivia.requestAltMerge('annika', 'heartofetheria');
+			assert.doesNotThrow(() => trivia.mergeAlts('annika', 'heartofetheria'));
+		});
+
+		it('should correctly merge alts', () => {
+			trivia.triviaData.leaderboard = {
+				annika: [3, 2, 1],
+				heartofetheria: [1, 2, 3],
+			};
+
+			trivia.requestAltMerge('heartofetheria', 'annika');
+			trivia.mergeAlts('heartofetheria', 'annika');
+
+			assert.deepStrictEqual(trivia.triviaData.leaderboard.annika, [4, 4, 4]);
+			assert.strictEqual(trivia.triviaData.leaderboard.heartofetheria, undefined);
 		});
 	});
 });
