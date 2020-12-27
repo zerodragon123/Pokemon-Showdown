@@ -585,7 +585,7 @@ describe('Modlog conversion script', () => {
 			assert.deepEqual(
 				converter.rawifyLog({
 					action: 'OLD MODLOG', roomID: 'development', isGlobal: false, loggedBy: 'unknown',
-					note: `hello hi test`, time: 1598212249944,
+					note: `hello hi test`, time: 1598212249944, alts: [],
 				}),
 				`[2020-08-23T19:50:49.944Z] (development) OLD MODLOG: by unknown: hello hi test\n`,
 			);
@@ -593,63 +593,7 @@ describe('Modlog conversion script', () => {
 
 		it('should handle hangman', () => {
 			assert.deepEqual(
-				converter.rawifyLog({action: 'HANGMAN', roomID: 'lobby', isGlobal: false, loggedBy: 'archastl', time: 1600557924908}),
-				`[2020-09-19T23:25:24.908Z] (lobby) HANGMAN: by archastl\n`
-			);
-		});
-	});
-
-		it('should correctly handle modlog entries with an IP but no userid', () => {
-			assert.deepEqual(
-				converter.parseModlog(`[2020-09-30T20:02:12.456Z] (lobby) SHAREDIP: [127.0.0.1] by annika: j`),
-				{
-					action: 'SHAREDIP', roomID: 'lobby', isGlobal: false, loggedBy: 'annika',
-					note: `j`, time: 1601496132456, ip: "127.0.0.1",
-				}
-			);
-			assert.deepEqual(
-				converter.parseModlog(`[2020-09-30T20:02:12.456Z] (lobby) UNSHAREDIP: [127.0.0.1] by annika`),
-				{
-					action: 'UNSHAREDIP', roomID: 'lobby', isGlobal: false, loggedBy: 'annika',
-					time: 1601496132456, ip: "127.0.0.1",
-				}
-			);
-		});
-	});
-
-	describe('ModlogEntry to text converter', () => {
-		it('should handle all fields of the ModlogEntry object', () => {
-			const entry = {
-				action: 'UNITTEST',
-				roomID: 'development',
-				userid: 'annika',
-				autoconfirmedID: 'heartofetheria',
-				alts: ['googlegoddess', 'princessentrapta'],
-				ip: '127.0.0.1',
-				isGlobal: false,
-				loggedBy: 'yourmom',
-				note: 'Hey Adora~',
-				time: 1598212249944,
-			};
-			assert.equal(
-				converter.rawifyLog(entry),
-				`[2020-08-23T19:50:49.944Z] (development) UNITTEST: [annika] ac: [heartofetheria] alts: [googlegoddess], [princessentrapta] [127.0.0.1] by yourmom: Hey Adora~\n`
-			);
-		});
-
-		it('should handle OLD MODLOG', () => {
-			assert.deepEqual(
-				converter.rawifyLog({
-					action: 'OLD MODLOG', roomID: 'development', isGlobal: false, loggedBy: 'unknown',
-					note: `hello hi test`, time: 1598212249944,
-				}),
-				`[2020-08-23T19:50:49.944Z] (development) OLD MODLOG: by unknown: hello hi test\n`,
-			);
-		});
-
-		it('should handle hangman', () => {
-			assert.deepEqual(
-				converter.rawifyLog({action: 'HANGMAN', roomID: 'lobby', isGlobal: false, loggedBy: 'archastl', time: 1600557924908}),
+				converter.rawifyLog({action: 'HANGMAN', roomID: 'lobby', isGlobal: false, loggedBy: 'archastl', time: 1600557924908, alts: []}),
 				`[2020-09-19T23:25:24.908Z] (lobby) HANGMAN: by archastl\n`
 			);
 		});
