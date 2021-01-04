@@ -655,58 +655,6 @@ describe('Modlog conversion script', () => {
 		});
 	});
 
-			const readStream = _fs.FS.call(void 0, `${this.inputDir}/${file}`).createReadStream();
-			for await (const line of readStream.byLine()) {
-				const entry = parseModlog(line, lastLine, roomid === 'global');
-				lastLine = line;
-				if (!entry) continue;
-				const rawLog = rawifyLog(entry);
-				if (roomid !== 'global') entries.push(rawLog);
-				if (entry.isGlobal) {
-					globalEntries.push(rawLog);
-				}
-			);
-		});
-	});
-
-	describe('ModlogEntry to text converter', () => {
-		it('should handle all fields of the ModlogEntry object', () => {
-			const entry = {
-				action: 'UNITTEST',
-				roomID: 'development',
-				userid: 'annika',
-				autoconfirmedID: 'heartofetheria',
-				alts: ['googlegoddess', 'princessentrapta'],
-				ip: '127.0.0.1',
-				isGlobal: false,
-				loggedBy: 'yourmom',
-				note: 'Hey Adora~',
-				time: 1598212249944,
-			};
-			assert.equal(
-				converter.rawifyLog(entry),
-				`[2020-08-23T19:50:49.944Z] (development) UNITTEST: [annika] ac: [heartofetheria] alts: [googlegoddess], [princessentrapta] [127.0.0.1] by yourmom: Hey Adora~\n`
-			);
-		});
-
-		it('should handle OLD MODLOG', () => {
-			assert.deepEqual(
-				converter.rawifyLog({
-					action: 'OLD MODLOG', roomID: 'development', isGlobal: false, loggedBy: 'unknown',
-					note: `hello hi test`, time: 1598212249944,
-				}),
-				`[2020-08-23T19:50:49.944Z] (development) OLD MODLOG: by unknown: hello hi test\n`,
-			);
-		});
-
-		it('should handle hangman', () => {
-			assert.deepEqual(
-				converter.rawifyLog({action: 'HANGMAN', roomID: 'lobby', isGlobal: false, loggedBy: 'archastl', time: 1600557924908}),
-				`[2020-09-19T23:25:24.908Z] (lobby) HANGMAN: by archastl\n`
-			);
-		});
-	});
-
 	describe('reversability', () => {
 		it('should be reversible', () => {
 			const tests = [
