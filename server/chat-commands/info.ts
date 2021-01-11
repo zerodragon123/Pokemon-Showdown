@@ -93,7 +93,7 @@ export const commands: ChatCommands = {
 		// 	return this.errorReply(`/${cmd} - Access denied.`);
 		// }
 		// CDL temp patch
-		if (targetUser !== user && user.id !== "wwlwss" && user.id !== "starmind") {
+		if (showAll && targetUser !== user && user.id !== "wwlwss" && user.id !== "starmind") {
 			return this.errorReply(`During CDL, only WwlWss and starmind can check other user's IP addresses.`);
 		}
 
