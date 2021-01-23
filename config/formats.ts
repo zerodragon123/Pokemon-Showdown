@@ -315,6 +315,17 @@ export const Formats: FormatList = [
 		ruleset: ['Team Preview'],
 	},
 	{
+		name: "[Gen 8] Metronome",
+		desc: `真男人的决斗！`,
+
+		mod: 'gen8',
+		team: 'randomMetronome',
+		teamLength: {
+			battle: 1,
+		},
+		ruleset: ['Team Preview'],
+	},
+	{
 		name: "[Gen 7] Random Formats",
 		desc: `Randomized competitive lower tiers teams of mutiple generations.`,
 
@@ -434,13 +445,7 @@ export const Formats: FormatList = [
 			validate: [4, 6],
 			battle: 4,
 		},
-		// ruleset: ['Standard GBU', 'VGC Timer'],
-		// CDL 2021 patch: increase 20 seconds per turn for VGC
-		ruleset: ['Standard GBU'],
-		timer: {
-			starting: 7 * 80, addPerTurn: 0, maxPerTurn: 75, maxFirstTurn: 110,
-			grace: 110, timeoutAutoChoose: true, dcTimerBank: false,
-		},
+		ruleset: ['Standard GBU', 'VGC Timer'],
 		minSourceGen: 8,
 	},
 	{
@@ -499,22 +504,20 @@ export const Formats: FormatList = [
 		onValidateTeam(team) {
 			const RESTRICTED_LEGENDS = [
 				'Mewtwo', 'Mew',
-				'Lugia', 'Ho-Oh', 'Celebi',
-				'Kyogre', 'Groudon', 'Rayquaza', 'Jirachi',
-				'Palkia', 'Dialga', 'Giratina',
+				'Celebi',
+				'Jirachi',
 				'Reshiram', 'Zekrom', 'Kyurem', 'Keldeo',
-				'Xerneas', 'Yveltal', 'Zygarde',
 				'Cosmog', 'Cosmoem', 'Solgaleo', 'Lunala', 'Necrozma', 'Magearna', 'Marshadow', 'Zeraora',
 				'Meltan', 'Melmetal',
-				'Zacian', 'Zamazenta', 'Eternatus', 'Zarude', 'Calyrex',
+				'Zacian', 'Zamazenta', 'Eternatus', 'Zarude',
 			];
 			let restrictedCount = 0;
 			for (const set of team) {
 				const species = this.dex.getSpecies(set.species);
 				if (RESTRICTED_LEGENDS.includes(species.baseSpecies)) restrictedCount++;
 			}
-			if (restrictedCount > 2) {
-				return [`You are limited to two restricted legend.`, `(You have ${restrictedCount} restricted legends.)`];
+			if (restrictedCount > 1) {
+				return [`You are limited to one restricted legend.`, `(You have ${restrictedCount} restricted legends.)`];
 			}
 		},
 	},

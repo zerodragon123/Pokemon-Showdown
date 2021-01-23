@@ -495,9 +495,14 @@ export const Formats: {[k: string]: FormatData} = {
 		effectType: 'Rule',
 		name: 'VGC Timer',
 		desc: "VGC's timer: 90 second Team Preview, 7 minutes Your Time, 1 minute per turn",
+		// timer: {
+		// 	starting: 7 * 60, addPerTurn: 0, maxPerTurn: 55, maxFirstTurn: 90,
+		// 	grace: 90, timeoutAutoChoose: true, dcTimerBank: false,
+		// },
+		// CDL 2021 patch: increase 20 seconds per turn for VGC
 		timer: {
-			starting: 7 * 60, addPerTurn: 0, maxPerTurn: 55, maxFirstTurn: 90,
-			grace: 90, timeoutAutoChoose: true, dcTimerBank: false,
+			starting: 7 * 80, addPerTurn: 0, maxPerTurn: 75, maxFirstTurn: 110,
+			grace: 110, timeoutAutoChoose: true, dcTimerBank: false,
 		},
 	},
 	speciesclause: {

@@ -3524,6 +3524,13 @@ export class RandomTeams {
 		}
 		return pokemon;
 	}
+	randomMetronomeTeam() {
+		let team = this.randomCCTeam();
+		for (let pokemon of team) {
+			pokemon.moves = ['Metronome'];
+		}
+		return team;
+	}
 	randomCAP1v1Sets: AnyObject = require('./cap-1v1-sets.json');
 
 	randomCAP1v1Team() {
