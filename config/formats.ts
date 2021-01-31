@@ -445,7 +445,7 @@ export const Formats: FormatList = [
 			validate: [4, 6],
 			battle: 4,
 		},
-		ruleset: ['Standard GBU', 'VGC Timer'],
+		ruleset: ['Single Restricted GBU', 'VGC Timer'],
 		minSourceGen: 8,
 	},
 	{
