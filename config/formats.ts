@@ -350,6 +350,21 @@ export const Formats: FormatList = [
 		},
 	},
 	{
+		name: "[Gen 8] National Dex BH",
+
+		mod: 'gen8',
+		ruleset: [
+			'[Gen 8] National Dex AG', '!Obtainable', 'Forme Clause', '2 Ability Clause', 'OHKO Clause', 'Evasion Moves Clause',
+			'CFZ Clause', 'Dynamax Clause', 'Sleep Clause Mod'
+	    ],
+		banlist: [
+			'Nonexistent', 'Groudon-Primal', 'Rayquaza-Mega', 'Zacian-Crowned', 'Shedinja', 'Arena Trap', 'Contrary', 'Gorilla Tactics',
+			'Huge Power', 'Illusion', 'Innards Out', 'Intrepid Sword', 'Libero', 'Magnet Pull', 'Moody', 'Neutralizing Gas', 'Parental Bond',
+			'Protean', 'Pure Power', 'Shadow Tag', 'Stakeout', 'Water Bubble', 'Wonder Guard', 'Gengarite', 'Chatter', 'Octolock',
+			'Double Iron Bash', 'Bolt Beak', 'Belly Drum', 'Electrify', 'Comatose + Sleep Talk'
+		],
+	},
+	{
 		name: "[Gen 7] Ubers Special",
 		threads: [
 			`&bullet; <a href="https://www.smogon.com/forums/threads/3637068/">Ubers Metagame Discussion</a>`,
