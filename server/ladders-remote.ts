@@ -70,6 +70,8 @@ export class LadderStore {
 		const formatid = this.formatid;
 		const p1 = Users.getExact(p1name);
 		const p2 = Users.getExact(p2name);
+		const p1id = toID(p1name);
+		const p2id = toID(p2name);
 
 		const ladderUpdatePromise = LoginServer.request('ladderupdate', {
 			p1: p1name,
@@ -79,7 +81,7 @@ export class LadderStore {
 		});
 
 		// calculate new Elo scores and display to room while loginserver updates the ladder
-		const [p1OldElo, p2OldElo] = (await Promise.all([this.getRating(p1!.id), this.getRating(p2!.id)])).map(Math.round);
+		const [p1OldElo, p2OldElo] = (await Promise.all([this.getRating(p1id), this.getRating(p2id)])).map(Math.round);
 		const p1NewElo = Math.round(this.calculateElo(p1OldElo, p1score, p2OldElo));
 		const p2NewElo = Math.round(this.calculateElo(p2OldElo, 1 - p1score, p1OldElo));
 
@@ -99,14 +101,18 @@ export class LadderStore {
 		if (p2) p2.mmrCache[formatid] = +p2NewElo;
 
 		room.update();
-
-
 		const [data, error] = await ladderUpdatePromise;
 		let problem = false;
 
 		if (error) {
+			if (error.message === 'stream interrupt') {
+				room.add(`||Ladder updated, but score could not be retrieved.`);
+			} else {
+				room.add(`||Ladder (probably) updated, but score could not be retrieved (${error.message}).`);
+			}
 			problem = true;
 		} else if (!room.battle) {
+			Monitor.warn(`room expired before ladder update was received`);
 			problem = true;
 		} else if (!data) {
 			room.add(`|error|Unexpected response ${data} from ladder server.`);
@@ -126,7 +132,37 @@ export class LadderStore {
 			return [p1score, null, null];
 		}
 
-		return [p1score, data!.p1rating, data!.p2rating];
+		let p1rating;
+		let p2rating;
+		try {
+			p1rating = data!.p1rating;
+			p2rating = data!.p2rating;
+
+			let oldelo = Math.round(p1rating.oldelo);
+			let elo = Math.round(p1rating.elo);
+			let act = (p1score > 0.9 ? `winning` : (p1score < 0.1 ? `losing` : `tying`));
+			let reasons = `${elo - oldelo} for ${act}`;
+			if (!reasons.startsWith('-')) reasons = '+' + reasons;
+			room.addRaw(Utils.html`${p1name}'s rating: ${oldelo} &rarr; <strong>${elo}</strong><br />(${reasons})`);
+			let minElo = elo;
+
+			oldelo = Math.round(p2rating.oldelo);
+			elo = Math.round(p2rating.elo);
+			act = (p1score > 0.9 || p1score < 0 ? `losing` : (p1score < 0.1 ? `winning` : `tying`));
+			reasons = `${elo - oldelo} for ${act}`;
+			if (!reasons.startsWith('-')) reasons = '+' + reasons;
+			room.addRaw(Utils.html`${p2name}'s rating: ${oldelo} &rarr; <strong>${elo}</strong><br />(${reasons})`);
+			if (elo < minElo) minElo = elo;
+			room.rated = minElo;
+
+			if (p1) p1.mmrCache[formatid] = +p1rating.elo;
+			if (p2) p2.mmrCache[formatid] = +p2rating.elo;
+			room.update();
+		} catch (e) {
+			room.addRaw(`There was an error calculating rating changes.`);
+			room.update();
+		}
+		return [p1score, p1rating, p2rating];
 	}
 
 	/**
@@ -137,12 +173,9 @@ export class LadderStore {
 	static async visualizeAll(username: string) {
 		return [`<tr><td><strong>Please use the official client at play.pokemonshowdown.com</strong></td></tr>`];
 	}
-
 	/**
-	 * Calculates Elo for quick display, matching the formula on loginserver
+	 * Calculates Elo based on a match result
 	 */
-	// see lib/ntbb-ladder.lib.php in the pokemon-showdown-client repo for the login server implementation
-	// *intentionally* different from calculation in ladders-local, due to the high activity on the main server
 	private calculateElo(previousUserElo: number, score: number, foeElo: number): number {
 		// The K factor determines how much your Elo changes when you win or
 		// lose games. Larger K means more change.
@@ -151,15 +184,15 @@ export class LadderStore {
 		let K = 50;
 
 		// dynamic K-scaling (optional)
-		if (previousUserElo < 1100) {
+		if (previousUserElo < 1200) {
 			if (score < 0.5) {
-				K = 20 + (previousUserElo - 1000) * 30 / 100;
+				K = 10 + (previousUserElo - 1000) * 40 / 200;
 			} else if (score > 0.5) {
-				K = 80 - (previousUserElo - 1000) * 30 / 100;
+				K = 90 - (previousUserElo - 1000) * 40 / 200;
 			}
-		} else if (previousUserElo > 1300) {
+		} else if (previousUserElo > 1350 && previousUserElo <= 1600) {
 			K = 40;
-		} else if (previousUserElo > 1600) {
+		} else {
 			K = 32;
 		}
 

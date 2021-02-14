@@ -1338,6 +1338,7 @@ export class Battle {
 		}
 		this.runEvent('BeforeSwitchIn', pokemon);
 		this.add(isDrag ? 'drag' : 'switch', pokemon, pokemon.getDetails);
+		pokemon.abilityOrder = this.abilityOrder++;
 		if (isDrag && this.gen === 2) pokemon.draggedIn = this.turn;
 		if (sourceEffect) this.log[this.log.length - 1] += `|[from]${sourceEffect.fullname}`;
 		pokemon.previouslySwitchedIn++;
@@ -1363,7 +1364,6 @@ export class Battle {
 		pokemon.isStarted = true;
 		if (!pokemon.fainted) {
 			this.singleEvent('Start', pokemon.getAbility(), pokemon.abilityData, pokemon);
-			pokemon.abilityOrder = this.abilityOrder++;
 			this.singleEvent('Start', pokemon.getItem(), pokemon.itemData, pokemon);
 		}
 		if (this.gen === 4) {

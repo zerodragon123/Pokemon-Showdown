@@ -501,7 +501,7 @@ export const Formats: {[k: string]: FormatData} = {
 		// },
 		// CDL 2021 patch: increase 20 seconds per turn for VGC
 		timer: {
-			starting: 7 * 80, addPerTurn: 0, maxPerTurn: 75, maxFirstTurn: 110,
+			starting: 7 * 60, addPerTurn: 20, maxPerTurn: 75, maxFirstTurn: 110,
 			grace: 110, timeoutAutoChoose: true, dcTimerBank: false,
 		},
 	},
