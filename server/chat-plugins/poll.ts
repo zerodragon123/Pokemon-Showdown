@@ -83,7 +83,7 @@ export class Poll extends Rooms.MinorActivity {
 	deselect(user: User, option: number) {
 		const userid = user.id;
 		const pendingVote = this.pendingVotes[userid];
-		if (!pendingVote || !pendingVote.includes(option)) {
+		if (!pendingVote?.includes(option)) {
 			throw new Chat.ErrorMessage(this.room.tr`That option is not selected.`);
 		}
 		pendingVote.splice(pendingVote.indexOf(option), 1);
@@ -532,7 +532,7 @@ export const commands: ChatCommands = {
 			} else {
 				if (!this.runBroadcast()) return;
 				if (poll.timeout) {
-					return this.sendReply(this.tr`The poll timer is on and will end in ${Chat.toDurationString(poll.timeoutMins)}.`);
+					return this.sendReply(this.tr`The poll timer is on and will end in ${Chat.toDurationString(poll.timeoutMins * MINUTES)}.`);
 				} else {
 					return this.sendReply(this.tr`The poll timer is off.`);
 				}

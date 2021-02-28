@@ -310,7 +310,7 @@ export const commands: ChatCommands = {
 		if (cmd === 'roomauth1') userLookup = `\n\nTo look up auth for a user, use /userauth ${target}`;
 		let targetRoom = room;
 		if (target) targetRoom = Rooms.search(target)!;
-		if (!targetRoom || !targetRoom.checkModjoin(user)) {
+		if (!targetRoom?.checkModjoin(user)) {
 			return this.errorReply(`The room "${target}" does not exist.`);
 		}
 		const showAll = user.can('mute', null, targetRoom);
@@ -492,7 +492,7 @@ export const commands: ChatCommands = {
 
 		const targetUser = this.targetUser;
 		const saveReplay = globalWarn && room.battle;
-		if (!targetUser || !targetUser.connected) {
+		if (!targetUser?.connected) {
 			if (!targetUser || !globalWarn) return this.errorReply(`User '${this.targetUsername}' not found.`);
 			this.checkCan('warn', null, room);
 
@@ -563,7 +563,7 @@ export const commands: ChatCommands = {
 			return;
 		}
 
-		if (!targetUser || !targetUser.connected) {
+		if (!targetUser?.connected) {
 			return this.errorReply(`User ${this.targetUsername} not found.`);
 		}
 		if (targetRoom.roomid === "global") return this.errorReply(`Users cannot be redirected to the global room.`);
@@ -851,7 +851,9 @@ export const commands: ChatCommands = {
 		const durationMsg = week ? ' for a week' : (month ? ' for a month' : '');
 		this.addGlobalModAction(`${name} was locked from talking${durationMsg} by ${user.name}.` + (publicReason ? ` (${publicReason})` : ""));
 
-		room?.hideText([userid, toID(this.inputUsername)]);
+		if (room && !room.settings.isHelp) {
+			room.hideText([userid, toID(this.inputUsername)]);
+		}
 		const acAccount = (targetUser && targetUser.autoconfirmed !== userid && targetUser.autoconfirmed);
 		let displayMessage = '';
 		if (affected.length > 1) {

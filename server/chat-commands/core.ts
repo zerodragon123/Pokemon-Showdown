@@ -354,7 +354,7 @@ export const commands: ChatCommands = {
 
 		for (const id in room.users) {
 			const curUser = Users.get(room.users[id]);
-			if (!curUser || !curUser.named) continue;
+			if (!curUser?.named) continue;
 			userList.push(Utils.escapeHTML(curUser.getIdentity(room.roomid)));
 		}
 
@@ -490,7 +490,7 @@ export const commands: ChatCommands = {
 		if (!targetId || !message) {
 			return this.parse(`/help msgroom`);
 		}
-		const targetRoom = Rooms.search(toID(targetId));
+		const targetRoom = Rooms.search(targetId.trim());
 		if (!targetRoom) return this.errorReply(`Room not found.`);
 		if (message.trim().startsWith('/msgroom ')) {
 			return this.errorReply(`Please do not nest /msgroom inside itself.`);
@@ -1154,7 +1154,7 @@ export const commands: ChatCommands = {
 
 	uploadreplay: 'savereplay',
 	async savereplay(target, room, user, connection) {
-		if (!room || !room.battle) {
+		if (!room?.battle) {
 			return this.errorReply(this.tr`You can only save replays for battles.`);
 		}
 
@@ -1163,7 +1163,7 @@ export const commands: ChatCommands = {
 	},
 
 	hidereplay(target, room, user, connection) {
-		if (!room || !room.battle) return this.errorReply(`Must be used in a battle.`);
+		if (!room?.battle) return this.errorReply(`Must be used in a battle.`);
 		this.checkCan('joinbattle', null, room);
 		if (room.tour?.forcePublic) {
 			return this.errorReply(this.tr`This battle can't have hidden replays, because the tournament is set to be forced public.`);
@@ -1268,7 +1268,7 @@ export const commands: ChatCommands = {
 		}
 		target = this.splitTarget(target);
 		const targetUser = this.targetUser;
-		if (!targetUser || !targetUser.connected) {
+		if (!targetUser?.connected) {
 			const targetUsername = this.targetUsername;
 			return this.errorReply(this.tr`User ${targetUsername} not found.`);
 		}
@@ -1290,7 +1290,7 @@ export const commands: ChatCommands = {
 	timer(target, room, user) {
 		target = toID(target);
 		room = this.requireRoom();
-		if (!room.game || !room.game.timer) {
+		if (!room.game?.timer) {
 			return this.errorReply(this.tr`You can only set the timer from inside a battle room.`);
 		}
 		const timer = room.game.timer as any;
@@ -1401,7 +1401,7 @@ export const commands: ChatCommands = {
 	challenge(target, room, user, connection) {
 		target = this.splitTarget(target);
 		const targetUser = this.targetUser;
-		if (!targetUser || !targetUser.connected) {
+		if (!targetUser?.connected) {
 			const targetUsername = this.targetUsername;
 			return this.popupReply(this.tr`The user '${targetUsername}' was not found.`);
 		}

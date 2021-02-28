@@ -98,7 +98,7 @@ export class YoutubeInterface {
 			query: {part: 'snippet,statistics', id, key: Config.youtubeKey},
 		});
 		const res = JSON.parse(raw);
-		if (!res || !res.items || res.items.length < 1) {
+		if (!res?.items || res.items.length < 1) {
 			throw new Chat.ErrorMessage(`Channel not found.`);
 		}
 		const data = res.items[0];
@@ -174,7 +174,7 @@ export class YoutubeInterface {
 			throw new Chat.ErrorMessage(`Failed to retrieve video data: ${e.message}.`);
 		}
 		const res = JSON.parse(raw);
-		if (!res || !res.items || res.items.length < 1) return null;
+		if (!res?.items || res.items.length < 1) return null;
 		const video = res.items[0];
 		const data: VideoData = {
 			title: video.snippet.title,
@@ -226,7 +226,7 @@ export class YoutubeInterface {
 		if (id.includes('?')) id = id.split('?')[0];
 		return id;
 	}
-	async generateVideoDisplay(link: string, fullInfo = true) {
+	async generateVideoDisplay(link: string, fullInfo = false) {
 		if (!Config.youtubeKey) {
 			throw new Chat.ErrorMessage(`This server does not support YouTube commands. If you're the owner, you can enable them by setting up Config.youtubekey.`);
 		}
@@ -565,7 +565,7 @@ export const commands: ChatCommands = {
 		async video(target, room, user) {
 			room = this.requireRoom('youtube' as RoomID);
 			this.checkCan('mute', null, room);
-			const buffer = await YouTube.generateVideoDisplay(target);
+			const buffer = await YouTube.generateVideoDisplay(target, true);
 			this.runBroadcast();
 			this.sendReplyBox(buffer);
 		},
