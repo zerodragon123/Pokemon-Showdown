@@ -1,5 +1,3 @@
-
-
 /**
  * Administration commands
  * Pokemon Showdown - http://pokemonshowdown.com/
@@ -36,240 +34,86 @@ function bash(command: string, context: CommandContext, cwd?: string): Promise<[
 	});
 }
 
-async function rebuild(context: CommandContext) {
-	const [, , stderr] = await bash('node ./build', context);
-	if (stderr) {
-		throw new Chat.ErrorMessage(`Crash while rebuilding: ${stderr}`);
-	}
-}
-
-
-function getDisabledCommands(table: ChatCommands = Chat.commands): string[] {
-	const disabled = [];
-	for (const k in table) {
-		const handler = table[k];
-		if (Array.isArray(handler) || typeof handler === 'string') continue;
-		if (typeof handler === 'object') {
-			disabled.push(...getDisabledCommands(handler));
+function keysIncludingNonEnumerable(obj: object) {
+	const methods = new Set<string>();
+	let current = obj;
+	do {
+		const curProps = Object.getOwnPropertyNames(current);
+		for (const prop of curProps) {
+			methods.add(prop);
 		}
-		if (typeof handler === 'function' && (handler as Chat.AnnotatedChatHandler).disabled) {
-			disabled.push(k);
+	} while ((current = Object.getPrototypeOf(current)));
+	return [...methods];
+}
+
+function keysToCopy(obj: object) {
+	return keysIncludingNonEnumerable(obj).filter(
+		// `__` matches sucrase init methods
+		// prop is excluded because it can hit things like hasOwnProperty that are potentially annoying (?) with
+		// the kind of prototype patching we want to do here - same for constructor and valueOf
+		prop => !(prop.includes('__') || prop.toLowerCase().includes('prop') || ['valueOf', 'constructor'].includes(prop))
+	);
+}
+
+/**
+ * @returns {boolean} Whether or not the rebase failed
+ */
+async function updateserver(context: CommandContext, codePath: string) {
+	const exec = (command: string) => bash(command, context, codePath);
+
+	context.sendReply(`Fetching newest version of code in the repository ${codePath}...`);
+
+	let [code, stdout, stderr] = await exec(`git fetch`);
+	if (code) throw new Error(`updateserver: Crash while fetching - make sure this is a Git repository`);
+	if (!stdout && !stderr) {
+		context.sendReply(`There were no updates.`);
+		Monitor.updateServerLock = false;
+		return true;
+	}
+
+	[code, stdout, stderr] = await exec(`git rev-parse HEAD`);
+	if (code || stderr) throw new Error(`updateserver: Crash while grabbing hash`);
+	const oldHash = String(stdout).trim();
+
+	[code, stdout, stderr] = await exec(`git stash save "PS /updateserver autostash"`);
+	let stashedChanges = true;
+	if (code) throw new Error(`updateserver: Crash while stashing`);
+	if ((stdout + stderr).includes("No local changes")) {
+		stashedChanges = false;
+	} else if (stderr) {
+		throw new Error(`updateserver: Crash while stashing`);
+	} else {
+		context.sendReply(`Saving changes...`);
+	}
+
+	// errors can occur while rebasing or popping the stash; make sure to recover
+	try {
+		context.sendReply(`Rebasing...`);
+		[code] = await exec(`git rebase --no-autostash FETCH_HEAD`);
+		if (code) {
+			// conflict while rebasing
+			await exec(`git rebase --abort`);
+			throw new Error(`restore`);
 		}
-	}
-	return disabled;
-}
 
-function bash(command: string, context: CommandContext, cwd?: string): Promise<[number, string, string]> {
-	context.stafflog(`$ ${command}`);
-	return new Promise(resolve => {
-		child_process.exec(command, {
-			cwd: cwd || `${__dirname}/../..`,
-		}, (error, stdout, stderr) => {
-			let log = `[o] ${stdout}[e] ${stderr}`;
-			if (error) log = `[c] ${error.code}\n${log}`;
-			context.stafflog(log);
-			resolve([error?.code || 0, stdout, stderr]);
-		});
-	});
-}
-
-async function rebuild(context: CommandContext) {
-	const [, , stderr] = await bash('node ./build', context);
-	if (stderr) {
-		throw new Chat.ErrorMessage(`Crash while rebuilding: ${stderr}`);
-	}
-}
-
-
-function bash(command: string, context: CommandContext, cwd?: string): Promise<[number, string, string]> {
-	context.stafflog(`$ ${command}`);
-	return new Promise(resolve => {
-		child_process.exec(command, {
-			cwd: cwd || `${__dirname}/../..`,
-		}, (error, stdout, stderr) => {
-			let log = `[o] ${stdout}[e] ${stderr}`;
-			if (error) log = `[c] ${error.code}\n${log}`;
-			context.stafflog(log);
-			resolve([error?.code || 0, stdout, stderr]);
-		});
-	});
-}
-
-async function rebuild(context: CommandContext) {
-	const [, , stderr] = await bash('node ./build', context);
-	if (stderr) {
-		throw new Chat.ErrorMessage(`Crash while rebuilding: ${stderr}`);
-	}
-}
-
-
-function getDisabledCommands(table: ChatCommands = Chat.commands): string[] {
-	const disabled = [];
-	for (const k in table) {
-		const handler = table[k];
-		if (Array.isArray(handler) || typeof handler === 'string') continue;
-		if (typeof handler === 'object') {
-			disabled.push(...getDisabledCommands(handler));
+		if (stashedChanges) {
+			context.sendReply(`Restoring saved changes...`);
+			[code] = await exec(`git stash pop`);
+			if (code) {
+				// conflict while popping stash
+				await exec(`git reset HEAD .`);
+				await exec(`git checkout .`);
+				throw new Error(`restore`);
+			}
 		}
-		if (typeof handler === 'function' && (handler as Chat.AnnotatedChatHandler).disabled) {
-			disabled.push(k);
-		}
+
+		return true;
+	} catch (e) {
+		// failed while rebasing or popping the stash
+		await exec(`git reset --hard ${oldHash}`);
+		if (stashedChanges) await exec(`git stash pop`);
+		return false;
 	}
-	return disabled;
-}
-
-function bash(command: string, context: CommandContext, cwd?: string): Promise<[number, string, string]> {
-	context.stafflog(`$ ${command}`);
-	return new Promise(resolve => {
-		child_process.exec(command, {
-			cwd: cwd || `${__dirname}/../..`,
-		}, (error, stdout, stderr) => {
-			let log = `[o] ${stdout}[e] ${stderr}`;
-			if (error) log = `[c] ${error.code}\n${log}`;
-			context.stafflog(log);
-			resolve([error?.code || 0, stdout, stderr]);
-		});
-	});
-}
-
-async function rebuild(context: CommandContext) {
-	const [, , stderr] = await bash('node ./build', context);
-	if (stderr) {
-		throw new Chat.ErrorMessage(`Crash while rebuilding: ${stderr}`);
-	}
-}
-
-
-function bash(command: string, context: CommandContext, cwd?: string): Promise<[number, string, string]> {
-	context.stafflog(`$ ${command}`);
-	return new Promise(resolve => {
-		child_process.exec(command, {
-			cwd: cwd || `${__dirname}/../..`,
-		}, (error, stdout, stderr) => {
-			let log = `[o] ${stdout}[e] ${stderr}`;
-			if (error) log = `[c] ${error.code}\n${log}`;
-			context.stafflog(log);
-			resolve([error?.code || 0, stdout, stderr]);
-		});
-	});
-}
-
-async function rebuild(context: CommandContext) {
-	const [, , stderr] = await bash('node ./build', context);
-	if (stderr) {
-		throw new Chat.ErrorMessage(`Crash while rebuilding: ${stderr}`);
-	}
-}
-
-
-function getDisabledCommands(table: ChatCommands = Chat.commands): string[] {
-	const disabled = [];
-	for (const k in table) {
-		const handler = table[k];
-		if (Array.isArray(handler) || typeof handler === 'string') continue;
-		if (typeof handler === 'object') {
-			disabled.push(...getDisabledCommands(handler));
-		}
-		if (typeof handler === 'function' && (handler as Chat.AnnotatedChatHandler).disabled) {
-			disabled.push(k);
-		}
-	}
-	return disabled;
-}
-
-function bash(command: string, context: CommandContext, cwd?: string): Promise<[number, string, string]> {
-	context.stafflog(`$ ${command}`);
-	return new Promise(resolve => {
-		child_process.exec(command, {
-			cwd: cwd || `${__dirname}/../..`,
-		}, (error, stdout, stderr) => {
-			let log = `[o] ${stdout}[e] ${stderr}`;
-			if (error) log = `[c] ${error.code}\n${log}`;
-			context.stafflog(log);
-			resolve([error?.code || 0, stdout, stderr]);
-		});
-	});
-}
-
-async function rebuild(context: CommandContext) {
-	const [, , stderr] = await bash('node ./build', context);
-	if (stderr) {
-		throw new Chat.ErrorMessage(`Crash while rebuilding: ${stderr}`);
-	}
-}
-
-
-function bash(command: string, context: CommandContext, cwd?: string): Promise<[number, string, string]> {
-	context.stafflog(`$ ${command}`);
-	return new Promise(resolve => {
-		child_process.exec(command, {
-			cwd: cwd || `${__dirname}/../..`,
-		}, (error, stdout, stderr) => {
-			let log = `[o] ${stdout}[e] ${stderr}`;
-			if (error) log = `[c] ${error.code}\n${log}`;
-			context.stafflog(log);
-			resolve([error?.code || 0, stdout, stderr]);
-		});
-	});
-}
-
-async function rebuild(context: CommandContext) {
-	const [, , stderr] = await bash('node ./build', context);
-	if (stderr) {
-		throw new Chat.ErrorMessage(`Crash while rebuilding: ${stderr}`);
-	}
-}
-
-
-function getDisabledCommands(table: ChatCommands = Chat.commands): string[] {
-	const disabled = [];
-	for (const k in table) {
-		const handler = table[k];
-		if (Array.isArray(handler) || typeof handler === 'string') continue;
-		if (typeof handler === 'object') {
-			disabled.push(...getDisabledCommands(handler));
-		}
-		if (typeof handler === 'function' && (handler as Chat.AnnotatedChatHandler).disabled) {
-			disabled.push(k);
-		}
-	}
-	return disabled;
-}
-
-function bash(command: string, context: CommandContext, cwd?: string): Promise<[number, string, string]> {
-	context.stafflog(`$ ${command}`);
-	return new Promise(resolve => {
-		child_process.exec(command, {
-			cwd: cwd || `${__dirname}/../..`,
-		}, (error, stdout, stderr) => {
-			let log = `[o] ${stdout}[e] ${stderr}`;
-			if (error) log = `[c] ${error.code}\n${log}`;
-			context.stafflog(log);
-			resolve([error?.code || 0, stdout, stderr]);
-		});
-	});
-}
-
-async function rebuild(context: CommandContext) {
-	const [, , stderr] = await bash('node ./build', context);
-	if (stderr) {
-		throw new Chat.ErrorMessage(`Crash while rebuilding: ${stderr}`);
-	}
-}
-
-
-function bash(command: string, context: CommandContext, cwd?: string): Promise<[number, string, string]> {
-	context.stafflog(`$ ${command}`);
-	return new Promise(resolve => {
-		child_process.exec(command, {
-			cwd: cwd || `${__dirname}/../..`,
-		}, (error, stdout, stderr) => {
-			let log = `[o] ${stdout}[e] ${stderr}`;
-			if (error) log = `[c] ${error.code}\n${log}`;
-			context.stafflog(log);
-			resolve([error?.code || 0, stdout, stderr]);
-		});
-	});
 }
 
 async function rebuild(context: CommandContext) {
@@ -583,7 +427,10 @@ export const commands: ChatCommands = {
 		await rebuild(this);
 
 		const lock = Monitor.hotpatchLock;
-		const hotpatches = ['chat', 'formats', 'loginserver', 'punishments', 'dnsbl', 'modlog'];
+		const hotpatches = [
+			'chat', 'formats', 'loginserver', 'punishments', 'dnsbl', 'modlog',
+			'processmanager', 'roomsp', 'usersp',
+		];
 
 		try {
 			Utils.clearRequireCache({exclude: ['/.lib-dist/process-manager']});
@@ -599,12 +446,13 @@ export const commands: ChatCommands = {
 					await this.parse(`/hotpatch ${hotpatch}`);
 				}
 			} else if (target === 'chat' || target === 'commands') {
-				if (lock['chat']) {
-					return this.errorReply(`Hot-patching chat has been disabled by ${lock['chat'].by} (${lock['chat'].reason})`);
-				}
 				if (lock['tournaments']) {
 					return this.errorReply(`Hot-patching tournaments has been disabled by ${lock['tournaments'].by} (${lock['tournaments'].reason})`);
 				}
+				if (lock['chat']) {
+					return this.errorReply(`Hot-patching chat has been disabled by ${lock['chat'].by} (${lock['chat'].reason})`);
+				}
+
 				this.sendReply("Hotpatching chat commands...");
 
 				const disabledCommands = Chat.allCommands().filter(c => c.disabled).map(c => `/${c.fullCmd}`);
@@ -633,11 +481,100 @@ export const commands: ChatCommands = {
 				this.sendReply("Reloading chat plugins...");
 				Chat.loadPlugins(oldPlugins);
 				this.sendReply("DONE");
+			} else if (target === 'processmanager') {
+				if (lock['processmanager']) {
+					return this.errorReply(
+						`Hot-patching formats has been disabled by ${lock['processmanager'].by} ` +
+						`(${lock['processmanager'].reason})`
+					);
+				}
+				this.sendReply('Hotpatching processmanager prototypes...');
+
+				// keep references
+				const cache = {...require.cache};
+				Utils.clearRequireCache();
+				const newPM = require('../../lib/process-manager');
+				require.cache = cache;
+
+				const protos = [
+					[ProcessManager.QueryProcessManager, newPM.QueryProcessManager],
+					[ProcessManager.StreamProcessManager, newPM.StreamProcessManager],
+					[ProcessManager.ProcessManager, newPM.ProcessManager],
+					[ProcessManager.RawProcessManager, newPM.RawProcessManager],
+					[ProcessManager.QueryProcessWrapper, newPM.QueryProcessWrapper],
+					[ProcessManager.StreamProcessWrapper, newPM.StreamProcessWrapper],
+					[ProcessManager.RawProcessManager, newPM.RawProcessWrapper],
+				].map(part => part.map(constructor => constructor.prototype));
+
+				for (const [oldProto, newProto] of protos) {
+					const newKeys = keysToCopy(newProto);
+					const oldKeys = keysToCopy(oldProto);
+					for (const key of oldKeys) {
+						if (!newProto[key]) {
+							delete oldProto[key];
+						}
+					}
+					for (const key of newKeys) {
+						oldProto[key] = newProto[key];
+					}
+				}
+				this.sendReply('DONE');
+			} else if (target === 'usersp' || target === 'roomsp') {
+				if (lock[target]) {
+					return this.errorReply(`Hot-patching ${target} has been disabled by ${lock[target].by} (${lock[target].reason})`);
+				}
+				let newProto: any, oldProto: any, message: string;
+				switch (target) {
+				case 'usersp':
+					newProto = require('../users').User.prototype;
+					oldProto = Users.User.prototype;
+					message = 'user prototypes';
+					break;
+				case 'roomsp':
+					newProto = require('../rooms').BasicRoom.prototype;
+					oldProto = Rooms.BasicRoom.prototype;
+					message = 'rooms prototypes';
+					break;
+				}
+
+				this.sendReply(`Hotpatching ${message}...`);
+				const newKeys = keysToCopy(newProto);
+				const oldKeys = keysToCopy(oldProto);
+
+				const counts = {
+					added: 0,
+					updated: 0,
+					deleted: 0,
+				};
+
+				for (const key of oldKeys) {
+					if (!newProto[key]) {
+						counts.deleted++;
+						delete oldProto[key];
+					}
+				}
+				for (const key of newKeys) {
+					if (!oldProto[key]) {
+						counts.added++;
+					} else if (
+						// compare source code
+						typeof oldProto[key] !== 'function' || oldProto[key].toString() !== newProto[key].toString()
+					) {
+						counts.updated++;
+					}
+
+					oldProto[key] = newProto[key];
+				}
+				this.sendReply(`DONE`);
+				this.sendReply(
+					`Updated ${Chat.count(counts.updated, 'methods')}` +
+					(counts.added ? `, added ${Chat.count(counts.added, 'new methods')} to ${message}` : '') +
+					(counts.deleted ? `, and removed ${Chat.count(counts.deleted, 'methods')}.` : '.')
+				);
 			} else if (target === 'tournaments') {
 				if (lock['tournaments']) {
 					return this.errorReply(`Hot-patching tournaments has been disabled by ${lock['tournaments'].by} (${lock['tournaments'].reason})`);
 				}
-
 				this.sendReply("Hotpatching tournaments...");
 
 				global.Tournaments = require('../tournaments').Tournaments;
@@ -764,7 +701,10 @@ export const commands: ChatCommands = {
 		if (!reason || !target.includes(separator)) return this.parse('/help nohotpatch');
 
 		const lock = Monitor.hotpatchLock;
-		const validDisable = ['chat', 'battles', 'formats', 'validator', 'tournaments', 'punishments', 'modlog', 'all'];
+		const validDisable = [
+			'roomsp', 'usersp', 'chat', 'battles', 'formats', 'validator',
+			'tournaments', 'punishments', 'modlog', 'all', 'processmanager',
+		];
 
 		if (!validDisable.includes(hotpatch)) {
 			return this.errorReply(`Disabling hotpatching "${hotpatch}" is not supported.`);
@@ -825,7 +765,7 @@ export const commands: ChatCommands = {
 		for (const manager of ProcessManager.processManagers) {
 			for (const [i, process] of manager.processes.entries()) {
 				const pid = process.getProcess().pid;
-				buf += `<strong>${pid}</strong> - ${manager.basename} ${i} (load ${process.load}`;
+				buf += `<strong>${pid}</strong> - ${manager.basename} ${i} (load ${process.getLoad()}`;
 				const info = processes.get(`${pid}`)!;
 				if (info.cpu) buf += `, CPU: ${info.cpu}`;
 				if (info.time) buf += `, time: ${info.time}`;
@@ -834,7 +774,7 @@ export const commands: ChatCommands = {
 			}
 			for (const [i, process] of manager.releasingProcesses.entries()) {
 				const pid = process.getProcess().pid;
-				buf += `<strong>${pid}</strong> - PENDING RELEASE ${manager.basename} ${i} (load ${process.load}`;
+				buf += `<strong>${pid}</strong> - PENDING RELEASE ${manager.basename} ${i} (load ${process.getLoad()}`;
 				const info = processes.get(`${pid}`)!;
 				if (info.cpu) buf += `, CPU: ${info.cpu}`;
 				if (info.time) buf += `, time: ${info.time}`;
@@ -1110,85 +1050,6 @@ export const commands: ChatCommands = {
 		`/loadbanlist - Loads the bans located at ipbans.txt. The command is executed automatically at startup. Requires: &`,
 	],
 
-	hideprevid(target, room, user, connection) {
-		if (user.tempGroup !== '&') return false;
-		let targetUser = this.targetUserOrSelf(target, false);
-		if (!targetUser) {
-			return this.errorReply("User " + this.targetUsername + " not found.");
-		}
-		let prevNames = targetUser.previousIDs.map(userid => {
-			const punishment = Punishments.userids.get(userid);
-			return `${userid}${punishment ? ` (${Punishments.punishmentTypes.get(punishment[0]) || `punished`}${punishment[1] !== targetUser.id ? ` as ${punishment[1]}` : ``})` : ``}`;
-		}).join(", ");
-		targetUser.previousIDs = [];
-		return this.sendReply(`Hided previous names: ${prevNames}`);
-	},
-
-	pschinascore(target, room, user) {
-		if (!room || !room.settings.staffRoom) {
-			this.sendReply("在staff room更新ps国服积分");
-			return false;
-		}
-		this.checkCan('lock');
-		let username = target.split(',')[0];
-		let score = target.split(',')[1];
-		let reason = target.split(',')[2];
-		if (!username || !score || !reason || username.length === 0 || score.length === 0 || reason.length === 0) {
-			return this.parse("/pschinascorehelp");
-		}
-		if (isNaN(parseInt(score))) {
-			return this.parse("/pschinascorehelp");
-		}
-		Ladders("gen8ps").updateScore(username, score, reason);
-		this.globalModlog(`'PS国服积分`, username, `积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
-		this.addModAction(`用户ID: ${username}, 增加PS国服积分:${score}, 原因:${reason}, 操作人:${user.name}.`);
-	},
-	pschinascorehelp: [
-		`/pschinascore user,score,reason - 给user用户的国服积分增加score分，说明原因. Requires: & ~`,
-	],
-
-	async restorereplay(target, room, user) {
-		this.checkCan('lockdown');
-		let params = target.split(',');
-		if (!params || params.length != 4) {
-			return this.errorReply("/restorereplay player1, player2, format, year-month-date");
-		}
-		let p1 = params[0].toLowerCase().replace(/[^\w\d\s]/g, '').replace(/\s+/g, '');
-		let p2 = params[1].toLowerCase().replace(/[^\w\d\s]/g, '').replace(/\s+/g, '');
-		let format = params[2].toLowerCase().replace(/[^\w\d\s]/g, '').replace(/\s+/g, '');
-		let date = params[3].replace(/\s+/g, '');
-
-		this.globalModlog('REPLAYRESTORE', `${p1}, ${p2}, ${format}, ${date}`, `By ${user.name}.`);
-		let dir = `logs/${date.substr(0, 7)}/${format}/${date}`;
-
-		let files = [];
-		try {
-			files = await FS(dir).readdir();
-		} catch (err) {
-			if (err.code === 'ENOENT') {
-				return this.errorReply("Replay not found.");
-			}
-			throw err;
-		}
-
-		let foundReplay = false;
-		const rep_head = await FS(`config/replay-head.txt`).readIfExists();
-		const rep_tail = await FS(`config/replay-tail.txt`).readIfExists();
-		for (const file of files) {
-			const json = await FS(`${dir}/${file}`).readIfExists();
-			const data = JSON.parse(json);
-			if ((toID(data.p1) === p1 && toID(data.p2) === p2) || (toID(data.p1) === p2 && toID(data.p2) === p1)) {
-				foundReplay = true;
-				const htmlname = file.replace(".log.json", ".html");
-				await FS(`config/avatars/static/${htmlname}`).write(rep_head + data.log.join('\n') + rep_tail);
-				this.sendReply(`http://47.94.147.145:8000/avatars/static/${htmlname}`);
-			}
-		}
-		if (!foundReplay) {
-			return this.errorReply("Replay not found.");
-		}
-	},
-
 	refreshpage(target, room, user) {
 		this.checkCan('lockdown');
 		Rooms.global.sendAll('|refresh|');
@@ -1205,22 +1066,6 @@ export const commands: ChatCommands = {
 		target = toID(target);
 		Monitor.updateServerLock = true;
 
-		const exec = (command: string) => bash(command, this, isPrivate ? Config.privatecodepath : undefined);
-
-		this.addGlobalModAction(`${user.name} used /updateserver${isPrivate ? ` private` : ``}`);
-		this.sendReply(`Fetching newest version...`);
-
-		let [code, stdout, stderr] = await exec(`git fetch`);
-		if (code) throw new Error(`updateserver: Crash while fetching - make sure this is a Git repository`);
-		if (!isPrivate && !stdout && !stderr) {
-			this.sendReply(`There were no updates.`);
-			Monitor.updateServerLock = false;
-			return;
-		}
-
-		[code, stdout, stderr] = await exec(`git rev-parse HEAD`);
-		if (code || stderr) throw new Error(`updateserver: Crash while grabbing hash`);
-		const oldHash = String(stdout).trim();
 
 		let success = true;
 		if (target === 'private') {
