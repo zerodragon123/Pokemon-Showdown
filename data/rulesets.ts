@@ -1,4 +1,8 @@
 // Note: These are the rules that formats use
+
+import { Species } from "../sim/dex-species";
+import { TIERS } from "../tools/set-import/importer";
+
 // The list of formats is stored in config/formats.js
 export const Formats: {[k: string]: FormatData} = {
 
@@ -1107,6 +1111,32 @@ export const Formats: {[k: string]: FormatData} = {
 				pokemon.canDynamax = false;
 			}
 			this.add('rule', 'Dynamax Clause: You cannot dynamax');
+		},
+	},
+	runamaxclause: {
+		effectType: 'Rule',
+		name: 'Runamax Clause',
+		desc: 
+			"1. 在Gen8 OU规则的基础上，允许RU及以下分级的精灵极巨化; " +
+			"2. 以下精灵和极巨化不共存: 波克基斯, 巨牙鲨, 多边兽Z, 龙卷云; " +
+			"3. 以下特性和极巨化不共存: 变身者, 优游自如, 叶绿素, 太阳之力; " +
+			"4. 不允许超极巨化。",
+		onValidateSet(set) {
+			if (set.gigantamax) {
+				return [
+					`您的${set.species}是超极巨化个体，但Runamax分级不允许超极巨化。`
+				];
+			}
+		},
+		onBegin() {
+			for (const pokemon of this.getAllPokemon()) {
+				if (["RUBL", "UU", "UUBL", "OU"].indexOf(pokemon.species.tier) >= 0 || 
+					["Togekiss", "Sharpedo", "Porygon-Z", "Tornadus"].indexOf(pokemon.species.baseSpecies) >= 0 ||
+					["imposter", "swiftswim", "chlorophyll", "solarpower"].indexOf(this.toID(pokemon.ability)) >= 0) {
+					pokemon.canDynamax = false;
+				}
+			}
+			this.add('rule', 'Runamax Clause: http://47.94.147.145/topic/1146/runamax-cup-%E6%8A%A5%E5%90%8D%E5%B8%96');
 		},
 	},
 	arceusevlimit: {

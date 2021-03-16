@@ -310,6 +310,19 @@ export const Formats: FormatList = [
 		},
 	},
 	{
+		name: "[Gen 8] Runamax",
+		desc: 
+			"1. 在Gen8 OU规则的基础上，允许RU及以下分级的精灵极巨化; " +
+			"2. 以下精灵和极巨化不共存: 波克基斯, 巨牙鲨, 多边兽Z, 龙卷云; " +
+			"3. 以下特性和极巨化不共存: 变身者, 优游自如, 叶绿素, 太阳之力; " +
+			"4. 不允许超极巨化。"
+		,
+		
+		mod: 'gen8',
+		ruleset: ['Standard', 'Runamax Clause'],
+		banlist: ['Uber', 'AG', 'Arena Trap', 'Moody', 'Power Construct', 'Shadow Tag', 'Baton Pass'],
+	},
+	{
 		name: "[Gen 8] Durants",
 		desc: `男人的决斗！`,
 
