@@ -89,12 +89,8 @@ export const commands: ChatCommands = {
 			if (showAll) return this.parse('/offlinewhois ' + target);
 			return this.errorReply("User " + this.targetUsername + " not found.");
 		}
-		// if (showAll && !user.trusted && targetUser !== user) {
-		// 	return this.errorReply(`/${cmd} - Access denied.`);
-		// }
-		// CDL temp patch
-		if (showAll && targetUser !== user && user.id !== "wwlwss" && user.id !== "starmind") {
-			return this.errorReply(`During CDL, only WwlWss and starmind can check other user's IP addresses.`);
+		if (showAll && !user.trusted && targetUser !== user) {
+			return this.errorReply(`/${cmd} - Access denied.`);
 		}
 
 		let buf = Utils.html`<strong class="username"><small style="display:none">${targetUser.tempGroup}</small>${targetUser.name}</strong> `;
