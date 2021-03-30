@@ -357,6 +357,18 @@ export const Formats: FormatList = [
 		],
 	},
 	{
+		name: "[Gen 8] VGC without Restriction",
+		mod: 'gen8',
+		gameType: 'doubles',
+		forcedLevel: 50,
+		teamLength: {
+			validate: [4, 6],
+			battle: 4,
+		},
+		ruleset: ['Obtainable', 'Species Clause', 'Nickname Clause', 'Item Clause', 'Team Preview', 'Cancel Mod', 'VGC Timer'],
+		minSourceGen: 8,
+	},
+	{
 		name: "[Gen 7] Random Formats",
 		desc: `Randomized competitive lower tiers teams of mutiple generations.`,
 
