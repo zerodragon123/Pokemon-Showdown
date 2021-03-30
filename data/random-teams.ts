@@ -251,7 +251,8 @@ export class RandomTeams {
 	unrejectableMovesInSingles(move: Move) {
 		// These moves cannot be rejected in favor of a forced move in singles
 		return (move.category !== 'Status' || !move.flags.heal) && ![
-			'facade', 'lightscreen', 'reflect', 'sleeptalk', 'spore', 'substitute', 'switcheroo', 'teleport', 'toxic', 'trick',
+			'facade', 'leechseed', 'lightscreen', 'reflect', 'sleeptalk', 'spore', 'substitute', 'switcheroo',
+			'teleport', 'toxic', 'trick',
 		].includes(move.id);
 	}
 
@@ -785,7 +786,8 @@ export class RandomTeams {
 			return {cull: !counter.Status || hasRestTalk};
 		case 'rest':
 			const bulkySetup = !hasMove['sleeptalk'] && ['bulkup', 'calmmind', 'coil', 'curse'].some(m => movePool.includes(m));
-			return {cull: movePool.includes('sleeptalk') || bulkySetup};
+			// Registeel would otherwise get Curse sets without Rest, which are very bad generally
+			return {cull: species.id !== 'registeel' && (movePool.includes('sleeptalk') || bulkySetup)};
 		case 'sleeptalk':
 			if (!hasMove['rest']) return {cull: true};
 			if (movePool.length > 1 && !hasAbility['Contrary']) {
@@ -864,7 +866,7 @@ export class RandomTeams {
 		case 'partingshot':
 			return {cull: counter.speedsetup || hasMove['bulkup'] || hasMove['uturn']};
 		case 'protect':
-			if ((counter.setupType && !hasMove['wish'] && !isDoubles) || hasRestTalk) return {cull: true};
+			if (!isDoubles && ((counter.setupType && !hasMove['wish']) || hasMove['rest'])) return {cull: true};
 			if (
 				!isDoubles &&
 				counter.Status < 2 &&
@@ -2012,9 +2014,12 @@ export class RandomTeams {
 			case 'Darmanitan':
 				if (species.gen === 8 && this.randomChance(1, 2)) continue;
 				break;
+			case 'Necrozma': case 'Calyrex':
+				if (this.randomChance(2, 3)) continue;
+				break;
 			case 'Magearna': case 'Toxtricity': case 'Zacian': case 'Zamazenta': case 'Zarude':
 			case 'Appletun': case 'Blastoise': case 'Butterfree': case 'Copperajah': case 'Grimmsnarl':
-			case 'Inteleon': case 'Rillaboom': case 'Snorlax': case 'Urshifu':
+			case 'Inteleon': case 'Rillaboom': case 'Snorlax': case 'Urshifu': case 'Giratina':
 				if (this.gen >= 8 && this.randomChance(1, 2)) continue;
 				break;
 			}
@@ -2153,65 +2158,22 @@ export class RandomTeams {
 			if (teamData.megaCount > 0 && item.megaStone) continue; // reject 2+ mega stones
 			if (teamData.zCount && teamData.zCount > 0 && item.zMove) continue; // reject 2+ Z stones
 			if (itemsMax[item.id] && teamData.has[item.id] >= itemsMax[item.id]) continue;
-
-			let ability = this.dex.getAbility(curSet.ability);
-			// @ts-ignore
-			if (weatherAbilitiesRequire[ability.id] && teamData.weather !== weatherAbilitiesRequire[ability.id]) continue;
-			if (teamData.weather && weatherAbilities.includes(ability.id)) continue; // reject 2+ weather setters
-
-			let reject = false;
-			let hasRequiredMove = false;
-			let curSetVariants = [];
-			for (const move of curSet.moves) {
-				let variantIndex = this.random(move.length);
-				let moveId = toID(move[variantIndex]);
-				if (movesMax[moveId] && teamData.has[moveId] >= movesMax[moveId]) {
-					reject = true;
-					break;
-				}
-				// @ts-ignore
-				if (requiredMoves[moveId] && !teamData.has[requiredMoves[moveId]]) {
-					hasRequiredMove = true;
-				}
-				curSetVariants.push(variantIndex);
-			}
-			if (reject) continue;
-			effectivePool.push({set: curSet, moveVariants: curSetVariants});
-			if (hasRequiredMove) priorityPool.push({set: curSet, moveVariants: curSetVariants});
+			const setData: AnyObject = this.sample(this.randomCAP1v1Sets[species.name]);
+			const set = {
+				name: species.baseSpecies,
+				species: species.name,
+				gender: species.gender,
+				item: (this.sampleIfArray(setData.item)) || '',
+				ability: (this.sampleIfArray(setData.ability)),
+				shiny: this.randomChance(1, 1024),
+				evs: {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0, ...setData.evs},
+				nature: setData.nature,
+				ivs: {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31, ...setData.ivs || {}},
+				moves: setData.moves.map((move: any) => this.sampleIfArray(move)),
+			};
+			pokemon.push(set);
 		}
-		if (priorityPool.length) effectivePool = priorityPool;
-
-		if (!effectivePool.length) {
-			if (!teamData.forceResult) return false;
-			for (const curSet of setList) {
-				effectivePool.push({set: curSet});
-			}
-		}
-
-		let setData = this.sample(effectivePool);
-		let moves = [];
-		for (const [i, moveSlot] of setData.set.moves.entries()) {
-			moves.push(setData.moveVariants ? moveSlot[setData.moveVariants[i]] : this.sample(moveSlot));
-		}
-
-		let item = Array.isArray(setData.set.item) ? this.sample(setData.set.item) : setData.set.item;
-		let ability = Array.isArray(setData.set.ability) ? this.sample(setData.set.ability) : setData.set.ability;
-		let nature = Array.isArray(setData.set.nature) ? this.sample(setData.set.nature) : setData.set.nature;
-
-		return {
-			name: setData.set.name || template.baseSpecies,
-			species: setData.set.species,
-			gender: setData.set.gender || template.gender || (this.randomChance(1, 2) ? 'M' : 'F'),
-			item: item || '',
-			ability: ability || template.abilities['0'],
-			shiny: typeof setData.set.shiny === 'undefined' ? this.randomChance(1, 1024) : setData.set.shiny,
-			level: setData.set.level ? setData.set.level : tier === "LC" ? 5 : 100,
-			happiness: typeof setData.set.happiness === 'undefined' ? 255 : setData.set.happiness,
-			evs: Object.assign({hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0}, setData.set.evs),
-			ivs: Object.assign({hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31}, setData.set.ivs),
-			nature: nature || 'Serious',
-			moves: moves,
-		};
+		return pokemon;
 	}
 
 	/**
