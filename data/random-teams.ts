@@ -72,13 +72,6 @@ export class RandomTeams {
 	 */
 	moveEnforcementCheckers: {[k: string]: MoveEnforcementChecker};
 
-	/**
-	 * Checkers for move enforcement based on a Pokémon's types or other factors
-	 *
-	 * returns true to reject one of its other moves to try to roll the forced move, false otherwise.
-	 */
-	moveEnforcementCheckers: {[k: string]: MoveEnforcementChecker};
-
 	constructor(format: Format | string, prng: PRNG | PRNGSeed | null) {
 		format = Dex.getFormat(format);
 		this.dex = Dex.forFormat(format);
