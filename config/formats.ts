@@ -2496,6 +2496,18 @@ export const Formats: FormatList = [
 		ruleset: ['Obtainable', 'Team Preview', 'HP Percentage Mod', 'Cancel Mod', 'Endless Battle Clause'],
 	},
 	{
+		name: "[Gen 7] PU",
+		threads: [
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3611496/">USM PU Sample Teams</a>`,
+			`&bullet; <a href="https://www.smogon.com/forums/threads/3614892/">USM PU Viability Rankings</a>`,
+		],
+
+		mod: 'gen7',
+		searchShow: false,
+		ruleset: ['[Gen 7] NU'],
+		banlist: ['NU', 'PUBL'],
+	},
+	{
 		name: "[Gen 7] ZU",
 		desc: `The unofficial usage-based tier below PU.`,
 		threads: [
