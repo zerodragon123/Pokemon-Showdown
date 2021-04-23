@@ -1453,14 +1453,14 @@ export class GlobalRoomState {
 				reportToWCOP = false;
 			}
 		}
-		if (reportToWCOP) {
-			WCOPRoom
-				.add(`|b|${room.roomid}|${players.map(p => p.getIdentity()).join('|')}`)
-				.update();
-		}
 		if (aboutWCOP) {
 			room.setPrivate('hidden');
 			room.settings.modjoin = null;
+		}
+		if (reportToWCOP) {
+			WCOPRoom
+				.add(`|html|<a href='${room.roomid}'>${room.game.title} started: ${room.title}<a>`)
+				.update();
 		}
 	}
 
