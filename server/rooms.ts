@@ -138,6 +138,7 @@ import type {PollData} from './chat-plugins/poll';
 import type {AutoResponder} from './chat-plugins/responder';
 import type {RoomEvent, RoomEventAlias, RoomEventCategory} from './chat-plugins/room-events';
 import type {Tournament, TournamentRoomSettings} from './tournaments/index';
+import { consoleips } from '../config/config-example';
 
 export abstract class BasicRoom {
 	/** to rename use room.rename */
@@ -1445,7 +1446,8 @@ export class GlobalRoomState {
 		let aboutWCOP = false;
 		const WCOPRoom = Rooms.get('wcop');
 		for (const player of players) {
-			if (!!WCOPRoom?.auth?.get(player.id)) {
+			const playerAuthInWCOP = WCOPRoom?.auth?.get(player.id);
+			if (playerAuthInWCOP !== " ") {
 				aboutWCOP = true;
 			} else {
 				reportToWCOP = false;
