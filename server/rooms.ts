@@ -1440,6 +1440,26 @@ export class GlobalRoomState {
 			const ladderIpLogString = players.map(p => `${p.id}: ${p.latestIp}\n`).join('');
 			void this.ladderIpLog.write(ladderIpLogString);
 		}
+		
+		let reportToWCOP = true;
+		let aboutWCOP = false;
+		const WCOPRoom = Rooms.get('wcop');
+		for (const player of players) {
+			if (!!WCOPRoom?.auth?.get(player.id)) {
+				aboutWCOP = true;
+			} else {
+				reportToWCOP = false;
+			}
+		}
+		if (reportToWCOP) {
+			WCOPRoom
+				.add(`|b|${room.roomid}|${players.map(p => p.getIdentity()).join('|')}`)
+				.update();
+		}
+		if (aboutWCOP) {
+			room.setPrivate('hidden');
+			room.settings.modjoin = null;
+		}
 	}
 
 	deregisterChatRoom(id: string) {
