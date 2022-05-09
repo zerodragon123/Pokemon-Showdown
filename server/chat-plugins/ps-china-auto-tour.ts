@@ -20,7 +20,8 @@ type TourTiming = {
 type TourSettings = {
 	format: string,
 	rules: TourRules,
-	timing: TourTiming
+	timing: TourTiming,
+	desc?: string,
 };
 
 type TourStatus = {
@@ -227,6 +228,9 @@ class TourQueue {
 				}
 			}
 			broadcastContext.sendReply(TourQueue.formatInfo(format));
+			if (tourStatus.settings.desc) {
+				broadcastContext.sendReply(tourStatus.settings.desc);
+			}
 		} else {
 			broadcastContext.errorReply('Failed to create a tournament.');
 		}
@@ -361,6 +365,7 @@ export const commands: Chat.ChatCommands = {
 				const roomid = room!.roomid;
 				const canEdit = Users.Auth.hasPermission(user, 'roommod', null, room);
 				let buf = '|uhtml|auto-tour-config|';
+				let notSaved = !!tmpTourConfig[user.id];
 				const roomTourConfig = tmpTourConfig[user.id] || tourConfig[roomid] || [];
 				if (roomTourConfig.length) {
 					buf += '<table style="border-spacing: 5px;">';
@@ -388,14 +393,17 @@ export const commands: Chat.ChatCommands = {
 						let row = [formatName, timing, buttons];
 						buf += '<tr>' + row.map(s => `<td style="text-align: center">${s}</td>`).join('') + '</tr>';
 					});
+					if (canEdit) {
+						let row = [button(`/autotour config edit ${roomTourConfig.length}`, 'Add'), '', ''];
+						buf += '<tr>' + row.map(s => `<td style="text-align: center">${s}</td>`).join('') + '</tr>';
+					}
 					buf += '</table>';
 				} else {
 					buf += '<p>There is no auto tour configured in this room.</p>';
 				}
-				if (canEdit) {
+				if (notSaved) {
 					buf += '<p>';
-					buf += button(`/autotour config edit ${roomTourConfig.length}`, 'Add');
-					buf += button(`/autotour config save`, 'Confirm');
+					buf += button(`/autotour config save`, 'Confirm & Save');
 					buf += button(`/autotour config cancel`, 'Cancel');
 					buf += '</p>';
 				}
@@ -444,6 +452,10 @@ export const commands: Chat.ChatCommands = {
 					} else {
 						lines.push('Inactive players will not be automatically disqualified.');
 					}
+					if (roomTourConfig[index].desc) {
+						lines.push(`<b>Description:</b>`);
+						lines.push(roomTourConfig[index].desc);
+					}
 					lines.push(button('/autotour config', 'Back'));
 					return this.sendReply(`|uhtml|auto-tour-config|${lines.join('<br/>')}`);
 				}
@@ -462,6 +474,7 @@ export const commands: Chat.ChatCommands = {
 					delete tmpTourConfig[user.id];
 				}
 				this.sendReply('|uhtml|auto-tour-config|');
+				this.parse('/autotour config');
 				this.sendReply('Auto tour config updated.');
 			},
 			cancel(target, room, user) {
@@ -469,6 +482,7 @@ export const commands: Chat.ChatCommands = {
 				this.checkCan('roommod', null, room!);
 				delete tmpTourConfig[user.id];
 				this.sendReply('|uhtml|auto-tour-config|');
+				this.parse('/autotour config');
 			},
 			edit(target, room, user) {
 				this.requireRoom();
@@ -485,6 +499,9 @@ export const commands: Chat.ChatCommands = {
 						case 'delete':
 							tmpTourConfig[user.id].splice(index, 1);
 							return this.parse('/autotour config');
+						case 'desc':
+							tourSettings.desc = target.split('desc')[1].slice(1);
+							return this.parse(`/autotour config edit ${index}`);
 						case 'format':
 							const format = Dex.formats.get(args);
 							if (format.exists) {
@@ -570,6 +587,11 @@ export const commands: Chat.ChatCommands = {
 							buf += `<b>Timing: Minutes</b><br/>`;
 							buf += `<form data-submitsend="${cmdPrefix},minutes,{autotour-minutes}">`;
 							buf += `<input name="autotour-minutes" placeholder="${tourSettings.timing.minutes}" style="width: 200px"/>`;
+							buf += `<button class="button" type="submit">OK</button>`;
+							buf += `</form>`;
+							buf += `<b>Description (Optional):</b> ${tourSettings.desc}<br/>`;
+							buf += `<form data-submitsend="${cmdPrefix},desc,{autotour-desc}">`;
+							buf += `<input name="autotour-desc" placeholder="${Utils.escapeHTML(tourSettings.desc || 'undefined')}" style="width: 200px"/>`;
 							buf += `<button class="button" type="submit">OK</button>`;
 							buf += `</form>`;
 							buf += button(`/autotour config`, 'Confirm & Back');
