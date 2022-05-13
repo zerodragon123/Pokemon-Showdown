@@ -1,5 +1,6 @@
 import { FS } from "../../lib";
 import { NetRequest } from "../../lib/net";
+import { escapeHTML } from "../../lib/utils";
 import { PetUtils } from "./ps-china-pet-mode";
 
 const TEAM_DATABASE_DIR = 'config/ps-china/team-db/gen8ou';
@@ -151,6 +152,9 @@ function showTeam(team: string[]): string {
 }
 
 export const commands: Chat.ChatCommands = {
+	tdbs(target, room, user) {
+		this.parse(`/teamdb search ${target}`);
+	},
 	teamdb: {
 		async update(target, room, user) {
 			this.requireRoom();
@@ -188,7 +192,7 @@ export const commands: Chat.ChatCommands = {
 			const similarTeams = findSimilarTeams(getTeamCode(args));
 			for (let i = 2; i >= 0; i--) {
 				buf += `<details title="Click to view teams">`;
-				buf += `<summary>${i + 4} hits: ${similarTeams[i].length} teams</summary>`;
+				buf += `<summary>${i + 4} hits: ${similarTeams[i].length} team${similarTeams[i][1] ? 's' : ''}</summary>`;
 				if (similarTeams[i].length > 0) {
 					similarTeams[i].forEach(teamIndex => {
 						const teamInfo = teamDB[teamIndex];
@@ -196,15 +200,19 @@ export const commands: Chat.ChatCommands = {
 						buf += `<summary>${showTeam(codeToTeam(teamInfo['teamCode']))}</summary>`;
 						let replayTable: string[][] = [];
 						teamInfo['players'].forEach(playerInfo => {
-							playerInfo['replays'].forEach(replayUrl => {
+							let scoutUrl = 'https://fulllifegames.com/Tools/ReplayScouter/?';
+							scoutUrl += `name=${playerInfo['playerId']}&tier=&opponent=&`;
+							scoutUrl += `replays=${playerInfo['replays'].map(s => escapeHTML(s.replace('.json', ''))).join('%0D%0A')}`;
+							const playerBar =`<a href="${scoutUrl}">${playerInfo['playerId']}</a>`;
+							playerInfo['replays'].forEach((replayUrl, i) => {
 								const readableUrl = replayUrl.replace('.json', '');
 								replayTable.push([
-									playerInfo['playerId'],
+									i === 0 ? playerBar : '',
 									`<a href="${readableUrl}">${readableUrl}</a>`
 								]);
 							});
 						});
-						buf += PetUtils.table([], ['Players', 'Replays'], replayTable);
+						buf += PetUtils.table([], ['Player', 'Replay'], replayTable);
 						buf += `</details>`;
 					});
 				} else {
