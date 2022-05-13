@@ -43,15 +43,38 @@ function getTeamCode(team: string[]): number[] {
 	return teamCode;
 }
 
+function findSimilarTeams(targetTeamCode: number[]): number[][] {
+	const similarTeams: number[][] = [[], [], []];
+	for (let i = 0; i < teamDB.length; i++) {
+		const teamCode = teamDB[i]['teamCode'];
+		let simVal = 0;
+		for (let j = 0; j < teamCodeLength; j++) {
+			let x = teamCode[j] & targetTeamCode[j];
+			while (x > 0) {
+				simVal += x % 2;
+				x = x >> 1;
+			}
+		}
+		if (simVal >= 4) {
+			similarTeams[simVal - 4].push(i);
+		}
+	}
+	return similarTeams;
+}
+
 function findTeamIndex(targetTeamCode: number[]): number {
 	for (let i = 0; i < teamDB.length; i++) {
 		const teamCode = teamDB[i]['teamCode'];
+		let sameCode = true;
 		for (let j = 0; j < teamCodeLength; j++) {
 			if (teamCode[j] ^ targetTeamCode[j]) {
-				continue;
+				sameCode = false;
+				break;
 			}
 		}
-		return i;
+		if (sameCode) {
+			return i;
+		}
 	}
 	return -1;
 }
@@ -60,11 +83,11 @@ async function updateTeamDB(replayUrl: string): Promise<boolean> {
 	try {
 		const replayStr = await new NetRequest(replayUrl).get();
 		for (let side of ['p1', 'p2']) {
-			let s = replayStr.split(`|player|${side}|`).slice(1);
-			const playerId = toID(s.slice(0, s.indexOf('|')));
+			let s = replayStr.split(`|player|${side}|`).slice(1)[0];
+			const playerId = toID(eval(`'${s.slice(0, s.indexOf('|'))}'`));
 			const team = []
 			for (let s of replayStr.split(`|poke|${side}|`).slice(1)) {
-				let speciesId = toID(s.slice(0, s.indexOf('|')).split(',')[0]);
+				let speciesId = toID(eval(`'${s.slice(0, s.indexOf('|')).split(',')[0]}'`));
 				team.push(speciesId);
 			}
 			const teamCode = getTeamCode(team);
@@ -80,8 +103,11 @@ async function updateTeamDB(replayUrl: string): Promise<boolean> {
 			} else {
 				let newPlayer = true;
 				for (let playerIndex = 0; playerIndex < teamDB[teamIndex]['players'].length; playerIndex++) {
-					teamDB[teamIndex]['players'][playerIndex]['replays'].push(replayUrl);
-					newPlayer = false;
+					if (teamDB[teamIndex]['players'][playerIndex]['playerId'] === playerId) {
+						teamDB[teamIndex]['players'][playerIndex]['replays'].push(replayUrl);
+						newPlayer = false;
+						break;
+					}
 				}
 				if (newPlayer) {
 					teamDB[teamIndex]['players'].push({
@@ -99,11 +125,29 @@ async function updateTeamDB(replayUrl: string): Promise<boolean> {
 
 async function saveTeamDB(): Promise<boolean> {
 	try {
-		FS(TEAM_DATABASE_FILE).writeSync(PetUtils.formatJSON(teamDB));
+		FS(TEAM_DATABASE_FILE).writeSync(JSON.stringify(teamDB, null, '\t'));
 	} catch (err) {
 		return false;
 	}
 	return true;
+}
+
+function codeToTeam(teamCode: number[]): string[] {
+	const team = [];
+	const pokes = Object.keys(pokeIndex);
+	for (let i = 0; i < teamCodeLength; i++) {
+		let x = teamCode[i];
+		for (let j = 0; x > 0; x >>= 1, j++) {
+			if (x % 2) {
+				team.push(pokes[i * 31 + j]);
+			}
+		}
+	}
+	return team;
+}
+
+function showTeam(team: string[]): string {
+	return team.map(speciesId => `<psicon pokemon="${speciesId}"/>`).join('');
 }
 
 export const commands: Chat.ChatCommands = {
@@ -111,24 +155,64 @@ export const commands: Chat.ChatCommands = {
 		async update(target, room, user) {
 			this.requireRoom();
 			this.checkCan('lockdown');
+			if (room!.roomid !== 'wcop') return this.errorReply('Access denied.');
 			if (!FS(REPLAY_URLS_FILE).existsSync()) {
 				this.errorReply('Replay URL file not found.');
 			} else {
-				const replayUrls = FS(REPLAY_URLS_FILE).readIfExistsSync().split('\n');
+				const replayUrls = FS(REPLAY_URLS_FILE).readIfExistsSync().replace(/\r/g, '').split('\n');
 				for (let i = 0; i < replayUrls.length; i++) {
-					user.sendTo(room!.roomid, `|uhtml|teamdb-load|Loading ${i} / ${replayUrls.length}`);
+					user.sendTo(room!.roomid, `|uhtml|teamdb-update|Loading ${i} / ${replayUrls.length}`);
 					const success = await updateTeamDB(replayUrls[i]);
 					if (!success) this.errorReply(`Failed to load replay: ${replayUrls[i]}`);
+					if (i % 100 === 0) await saveTeamDB(); // TODO: remove this line
 				}
 				const success = await saveTeamDB();
 				if (success) {
 					FS(REPLAY_URLS_FILE).unlinkIfExistsSync();
-					user.sendTo(room!.roomid, `|uhtmlchange|teamdb-load|`);
+					user.sendTo(room!.roomid, `|uhtmlchange|teamdb-update|`);
 					this.sendReply(`Finished. Replay URL file deleted.`);
 				} else {
 					this.errorReply(`Failed to save team database.`);
 				}
 			}
+		},
+		async search(target, room, user) {
+			this.requireRoom();
+			if (room!.roomid !== 'wcop') return this.errorReply('Access denied.');
+			target = target.replace(/,/g, '/');
+			const args = target.split('/').map(toID);
+			if (args.length !== 6 || args.some(x => !Dex.species.get(x).exists)) {
+				return this.errorReply('Please input 6 legal species.');
+			}
+			let buf = `<p>Teams similar to ${showTeam(args)}</p>`;
+			const similarTeams = findSimilarTeams(getTeamCode(args));
+			for (let i = 2; i >= 0; i--) {
+				buf += `<details title="Click to view teams">`;
+				buf += `<summary>${i + 4} hits: ${similarTeams[i].length} teams</summary>`;
+				if (similarTeams[i].length > 0) {
+					similarTeams[i].forEach(teamIndex => {
+						const teamInfo = teamDB[teamIndex];
+						buf += `<details title="Click to view replays" style="left: 20px; position: relative">`;
+						buf += `<summary>${showTeam(codeToTeam(teamInfo['teamCode']))}</summary>`;
+						let replayTable: string[][] = [];
+						teamInfo['players'].forEach(playerInfo => {
+							playerInfo['replays'].forEach(replayUrl => {
+								const readableUrl = replayUrl.replace('.json', '');
+								replayTable.push([
+									playerInfo['playerId'],
+									`<a href="${readableUrl}">${readableUrl}</a>`
+								]);
+							});
+						});
+						buf += PetUtils.table([], ['Players', 'Replays'], replayTable);
+						buf += `</details>`;
+					});
+				} else {
+					buf += `<p>Not found.</p>`;
+				}
+				buf += `</details>`;
+			}
+			user.sendTo(room!.roomid, `|uhtml|teamdb-search|${buf}`);
 		}
 	}
 }
