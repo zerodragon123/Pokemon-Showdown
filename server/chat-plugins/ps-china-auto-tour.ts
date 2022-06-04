@@ -113,17 +113,15 @@ class ScoreTourUtils {
 		}
 		return result;
 	}
-	static addTourScore(tourname: string, tourLog: AnyObject) {
+	static async addTourScore(tourname: string, tourLog: AnyObject) {
 		try {
-			Object.keys(tourLog).forEach((userId, i) => {
+			for (let userId of Object.keys(tourLog)) {
 				const wins = tourLog[userId].length;
 				let score = SCORE_BONUS[wins] || 0;
 				if (score > 0) {
-					setTimeout(() => {
-						AdminUtils.addScoreToMain(userId, score, `{}在 ${tourname} 淘汰赛中连胜 ${wins} 轮`);
-					}, 100 * i);
+					await AdminUtils.addScoreToMain(userId, score, `{}在 ${tourname} 淘汰赛中连胜 ${wins} 轮`);
 				}
-			})
+			}
 		} catch (err) {
 			Rooms.get('staff')?.add(`|c|&|/log ${tourname} 淘汰赛自动加分失败`).update();
 		}
