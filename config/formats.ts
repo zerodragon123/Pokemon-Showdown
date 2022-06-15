@@ -3983,7 +3983,7 @@ export const Formats: FormatList = [
 	},
 	{
 		name: "[Gen 8] PS 国服积分",
-		desc: `用于国服论坛积分显示，天梯对战不计分。`,
+		desc: `用于国服论坛积分显示, 天梯对战不计分。`,
 
 		mod: 'gen8',
 		team: 'random',
@@ -3991,8 +3991,18 @@ export const Formats: FormatList = [
 		rated: false,
 		ruleset: ['PotD', 'Obtainable', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
 		onBegin() {
-			this.add('html', `<div class="broadcast-red"><strong>本分级仅用于国服论坛积分显示，天梯对战不计分。具体积分规则见<a href="http://chinapsim.org./topic/63/">国服积分说明帖</a>.</strong></div>`);
+			this.add('html', `<div class="broadcast-red"><strong>本分级仅用于国服论坛积分显示, 天梯对战不计分。具体积分规则见<a href="http://chinapsim.org./topic/63/">国服积分说明帖</a>.</strong></div>`);
 		},
+	},
+	{
+		name: "[Gen 8] Rouge Mod",
+		desc: `出发, 去往未知洞穴里探险`,
+
+		challengeShow: false,
+		// tournamentShow: false,
+
+		mod: 'rouge',
+		ruleset: ['Dynamax Clause'],
 	},
 	{
 		name: "[Gen 8] Pet Mode 宠物模式",
@@ -4012,7 +4022,7 @@ export const Formats: FormatList = [
 	},
 	{
 		name: "[Gen 8] National Dex (Gym Aura Mod 道馆场地模式)",
-		desc: `双方共携带≥4个对应属性的精灵开启对应属性的道馆场地，不可以使用突击背心`,
+		desc: `双方共携带≥4个对应属性的精灵开启对应属性的道馆场地, 不可以使用突击背心`,
 
 		mod: 'pet',
 		ruleset: ['PS China Gym Aura Mode'],
@@ -4059,27 +4069,93 @@ export const Formats: FormatList = [
 		},
 	},
 	{
-		name: "[Gen 8] OU (4P 2v2)",
-		desc: `4-Player 2v2 OU`,
+		name: "[Gen 8] Shinx OU 2v2",
+		desc: `4-Player 2v2 OU for Shinx`,
 		mod: 'gen8',
 		tournamentShow: false,
 		rated: false,
 		gameType: 'multi',
-		ruleset: ['OU'],
+		ruleset: ['Obtainable', 'Team Preview', 'Gravity Sleep Clause', 'Species Clause', 'Nickname Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Dynamax Clause'],
+		banlist: ['Jirachi', 'Kartana', 'Melmetal', 'swagger', 'Uber', 'AG', 'Arena Trap', 'Moody', 'Power Construct', 'Sand Veil', 'Shadow Tag', 'Snow Cloak',
+			'Bright Powder', 'King\'s Rock', 'Lax Incense', 'Baton Pass',],
+		onModifyMove(move, pokemon, target) {
+			if (move.id === 'defog') {
+				move.onHit = (target, source, move) => {
+					let success = false;
+					if (!target.volatiles['substitute'] || move.infiltrates) success = !!this.boost({ evasion: -1 });
+					const removeTarget = [
+						'reflect', 'lightscreen', 'auroraveil', 'safeguard', 'mist', 'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'gmaxsteelsurge',
+					];
+					const removeAll = [
+						'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'gmaxsteelsurge',
+					];
+					for (const targetCondition of removeTarget) {
+						if (target.side.removeSideCondition(targetCondition)) {
+							if (!removeAll.includes(targetCondition)) continue;
+							this.add('-sideend', target.side, this.dex.conditions.get(targetCondition).name, '[from] move: Defog', '[of] ' + source);
+							success = true;
+						}
+					}
+					for (const side of this.sides.filter(x => x != target.side)) {
+						for (const sideCondition of removeAll) {
+							if (side.removeSideCondition(sideCondition)) {
+								this.add('-sideend', source.side, this.dex.conditions.get(sideCondition).name, '[from] move: Defog', '[of] ' + source);
+								success = true;
+							}
+						}
+					}
+					this.field.clearTerrain();
+					return success;
+				}
+			}
+		},
+
 	},
 	{
-		name: "[Gen 7] OU (4P 2v2)",
-		desc: `4-Player 2v2 Gen7 OU`,
+		name: "[Gen 7] Shinx OU 2v2",
+		desc: `4-Player 2v2 Gen 7 OU for Shinx`,
 		mod: 'gen7',
 		tournamentShow: false,
 		rated: false,
 		gameType: 'multi',
-		ruleset: ['[Gen 7] OU'],
+		ruleset: ['Obtainable', 'Team Preview', 'Gravity Sleep Clause','Species Clause', 'Nickname Clause', 'OHKO Clause', 'Moody Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod'],
+		banlist: ['Jirachi', 'Magearna', 'Snorlax', 'swagger', 'Uber', 'Arena Trap', 'Power Construct', 'Shadow Tag', 'Baton Pass'],
+		onModifyMove(move, pokemon, target) {
+			if (move.id === 'defog') {
+				move.onHit = (target, source, move) => {
+					let success = false;
+					if (!target.volatiles['substitute'] || move.infiltrates) success = !!this.boost({ evasion: -1 });
+					const removeTarget = [
+						'reflect', 'lightscreen', 'auroraveil', 'safeguard', 'mist', 'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'gmaxsteelsurge',
+					];
+					const removeAll = [
+						'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'gmaxsteelsurge',
+					];
+					for (const targetCondition of removeTarget) {
+						if (target.side.removeSideCondition(targetCondition)) {
+							if (!removeAll.includes(targetCondition)) continue;
+							this.add('-sideend', target.side, this.dex.conditions.get(targetCondition).name, '[from] move: Defog', '[of] ' + source);
+							success = true;
+						}
+					}
+					for (const side of this.sides.filter(x => x != target.side)) {
+						for (const sideCondition of removeAll) {
+							if (side.removeSideCondition(sideCondition)) {
+								this.add('-sideend', source.side, this.dex.conditions.get(sideCondition).name, '[from] move: Defog', '[of] ' + source);
+								success = true;
+							}
+						}
+					}
+					return success;
+				}
+			}
+		},
+
 	},
 	{
 		name: "[Gen 8] Runamax",
 		desc: 
-			"1. 在Gen8 OU规则的基础上，允许RU及以下分级的精灵极巨化; " +
+			"1. 在Gen8 OU规则的基础上, 允许RU及以下分级的精灵极巨化; " +
 			"2. 以下精灵和极巨化不共存: 波克基斯, 巨牙鲨, 多边兽Z, 龙卷云; " +
 			"3. 以下特性和极巨化不共存: 变身者, 优游自如, 叶绿素, 太阳之力; " +
 			"4. 不允许超极巨化。"
@@ -4091,7 +4167,7 @@ export const Formats: FormatList = [
 		onValidateSet(set) {
 			if (set.gigantamax) {
 				return [
-					`您的${set.species}是超极巨化个体，但Runamax分级不允许超极巨化。`
+					`您的${set.species}是超极巨化个体, 但Runamax分级不允许超极巨化。`
 				];
 			}
 		},

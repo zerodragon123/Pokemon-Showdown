@@ -1646,6 +1646,12 @@ export class GlobalRoomState {
 		// 	// WCOPRoom?.add(`|b|${room.roomid}|${players[0].getIdentity()}|${players[1].getIdentity()}`).update();
 		// 	FS('logs/wcoproom.txt').appendSync(`${new Date().toString()}, ${room.game.title}, ${room.title}\n`);
 		// }
+
+		if (!toID(room.format).includes('petmode') && !toID(room.format).includes('rougemod')) {
+			const reportButtons = ['Sky Pillar', 'Shinx']
+			.map(roomTitle => `<button class="button" name="send" value="/reportto ${toID(roomTitle)}">${roomTitle}</button>`);
+			room.add(`|html|<b>将对战链接公开到:</b> ${reportButtons.join('')}`).update();
+		}
 	}
 
 	deregisterChatRoom(id: string) {

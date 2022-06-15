@@ -883,7 +883,7 @@ export class RoomBattle extends RoomGames.RoomGame<RoomBattlePlayer> {
 			const [score, p1rating, p2rating] = await Ladders(this.ladder).updateRating(p1name, p2name, p1score, this.room);
 			void this.logBattle(score, p1rating, p2rating);
 			Chat.runHandlers('onBattleRanked', this, winnerid, [p1rating, p2rating], [p1id, p2id]);
-		} else if (Config.logchallenges && toID(this.format).indexOf('petmode') < 0) {
+		} else if (Config.logchallenges && !toID(this.format).includes('petmode') && !toID(this.format).includes('rougemod')) {
 			if (winnerid === p1id) {
 				p1score = 1;
 			} else if (winnerid === p2id) {
