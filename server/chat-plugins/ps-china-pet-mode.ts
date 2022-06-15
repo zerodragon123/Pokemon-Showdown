@@ -4,9 +4,7 @@
 	p2. Steel Terrain, Acid Rain, Mercy Aura, Ball Aura 特效
 	p2. 精灵球
 	p2. 降低重新读取频率
-	p2. pet box: Chat.ChatCommands -> Chat.PageTable
 	p1. 联盟
-	p1. 爬虫: 赛事报名列表
 	p0. 修modlog
 	p0. 论坛Awards
 */
@@ -47,7 +45,7 @@ type lotteryConfig = {
 
 const prng = new PRNG();
 
-const BOTID = 'pschinabot';
+export const BOTID = 'pschinabot';
 const USERPATH = 'config/pet-mode/user-properties';
 const GIFTPATH = 'config/pet-mode/user-gifts';
 const DEPOSITPATH = 'config/pet-mode/deposit';
@@ -198,9 +196,10 @@ export class PetUtils {
 
 	static table(
 		rowNames: (string | number)[], colNames: (string | number)[], content: (string | number)[][],
-		tableWidth: string = '100%', thAlign: 'center' | 'left' | 'right' = 'center', tdAlign: 'center' | 'left' | 'right' = 'center'
+		tableWidth: string = '100%', thAlign: 'center' | 'left' | 'right' = 'center', tdAlign: 'center' | 'left' | 'right' = 'center',
+		zebra: boolean = false
 	): string {
-		const tr = (s: string) => `<tr>${s}</tr>`;
+		const tr = (s: string, i: number) => `<tr ${zebra && !(i % 2) ? 'style="background: lightgray"' : ''}>${s}</tr>`;
 		const thStyle = `${thAlign === 'center' ? '' : `text-align: ${thAlign}; `}padding: 0`;
 		const th = (s: string | number) => `<th style="${thStyle}">${s}</th>`;
 		const tdStyle = `${tdAlign === 'left' ? '' : `text-align: ${tdAlign}; `}padding: 0`;
@@ -211,7 +210,8 @@ export class PetUtils {
 			colNames.unshift('');
 		}
 		if (colNames.length === tableBody[0].length) tableBody.unshift(colNames.map(th));
-		return `<table style="border-spacing: 0px; width: ${tableWidth}">${tableBody.map(row => tr(row.join(''))).join('')}</table>`;
+		const tableBodyStr = tableBody.map((row, rowIndex) => tr(row.join(''), rowIndex)).join('');
+		return `<table style="border-spacing: 0px; width: ${tableWidth}">${tableBodyStr}</table>`;
 	}
 
 	static popup(user: User | null, msg: string) {
