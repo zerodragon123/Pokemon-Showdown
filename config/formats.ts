@@ -3885,22 +3885,87 @@ export const Formats: FormatList = [
 		},
 	},
 	{
-		name: "[Gen 8] OU (4P 2v2)",
-		desc: `4-Player 2v2 OU`,
+		name: "[Gen 8] Shinx OU 2v2",
+		desc: `4-Player 2v2 OU for Shinx`,
 		mod: 'gen8',
 		tournamentShow: false,
 		rated: false,
 		gameType: 'multi',
 		ruleset: ['OU'],
+		banlist: ['Jirachi', 'Kartana', 'Melmetal', 'swagger'],
+		onModifyMove(move, pokemon, target) {
+			if (move.id === 'defog') {
+				move.onHit = (target, source, move) => {
+					let success = false;
+					if (!target.volatiles['substitute'] || move.infiltrates) success = !!this.boost({ evasion: -1 });
+					const removeTarget = [
+						'reflect', 'lightscreen', 'auroraveil', 'safeguard', 'mist', 'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'gmaxsteelsurge',
+					];
+					const removeAll = [
+						'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'gmaxsteelsurge',
+					];
+					for (const targetCondition of removeTarget) {
+						if (target.side.removeSideCondition(targetCondition)) {
+							if (!removeAll.includes(targetCondition)) continue;
+							this.add('-sideend', target.side, this.dex.conditions.get(targetCondition).name, '[from] move: Defog', '[of] ' + source);
+							success = true;
+						}
+					}
+					for (const side of this.sides.filter(x => x != target.side)) {
+						for (const sideCondition of removeAll) {
+							if (side.removeSideCondition(sideCondition)) {
+								this.add('-sideend', source.side, this.dex.conditions.get(sideCondition).name, '[from] move: Defog', '[of] ' + source);
+								success = true;
+							}
+						}
+					}
+					this.field.clearTerrain();
+					return success;
+				}
+			}
+		},
+
 	},
 	{
-		name: "[Gen 7] OU (4P 2v2)",
-		desc: `4-Player 2v2 Gen7 OU`,
+		name: "[Gen 7] Shinx OU 2v2",
+		desc: `4-Player 2v2 Gen 7 OU for Shinx`,
 		mod: 'gen7',
 		tournamentShow: false,
 		rated: false,
 		gameType: 'multi',
 		ruleset: ['[Gen 7] OU'],
+		banlist: ['Jirachi', 'Magearna', 'Snorlax', 'swagger'],
+		onModifyMove(move, pokemon, target) {
+			if (move.id === 'defog') {
+				move.onHit = (target, source, move) => {
+					let success = false;
+					if (!target.volatiles['substitute'] || move.infiltrates) success = !!this.boost({ evasion: -1 });
+					const removeTarget = [
+						'reflect', 'lightscreen', 'auroraveil', 'safeguard', 'mist', 'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'gmaxsteelsurge',
+					];
+					const removeAll = [
+						'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'gmaxsteelsurge',
+					];
+					for (const targetCondition of removeTarget) {
+						if (target.side.removeSideCondition(targetCondition)) {
+							if (!removeAll.includes(targetCondition)) continue;
+							this.add('-sideend', target.side, this.dex.conditions.get(targetCondition).name, '[from] move: Defog', '[of] ' + source);
+							success = true;
+						}
+					}
+					for (const side of this.sides.filter(x => x != target.side)) {
+						for (const sideCondition of removeAll) {
+							if (side.removeSideCondition(sideCondition)) {
+								this.add('-sideend', source.side, this.dex.conditions.get(sideCondition).name, '[from] move: Defog', '[of] ' + source);
+								success = true;
+							}
+						}
+					}
+					return success;
+				}
+			}
+		},
+
 	},
 	{
 		name: "[Gen 8] Runamax",

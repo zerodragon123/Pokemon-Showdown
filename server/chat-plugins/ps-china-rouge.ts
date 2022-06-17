@@ -94,8 +94,8 @@ export const commands: Chat.ChatCommands = {
 			this.parse('/rouge clear');
 
 			let rougeProps = RougeUtils.loadRougeProps(user.id);
-
-			if (!target && !(rougeProps && rougeProps.length > 1)) {
+			let isRebegin = !(rougeProps && rougeProps.length > 1) || rougeProps[1] !== rougeProps[2]
+			if (!target && isRebegin) {
 				return user.sendTo(room.roomid, `|uhtml|rouge|<b>请选择开局精灵:</b><br/>${Rouge.initButtons}`);
 			}
 
@@ -105,7 +105,7 @@ export const commands: Chat.ChatCommands = {
 			}
 
 			let userTeam: string, botTeam: string;
-			if (rougeProps && rougeProps.length > 2 && rougeProps[1] === rougeProps[2]) {
+			if (rougeProps && rougeProps.length > 2 && !isRebegin) {
 				let wave = (4 + Number(rougeProps[1]) * 6) / 10;
 				if (wave !== 13 && wave !== 19) {
 					botTeam = unpack(sample(Enemies[Math.floor(wave)], Math.min(Math.floor((1 + wave) * 0.6), 6), Rouge.prng), Rouge.prng);
@@ -147,7 +147,7 @@ export const commands: Chat.ChatCommands = {
 				}
 				RougeUtils.setInitial(user.id, role);
 				botTeam = unpack(Rouge.prng.sample(Enemies[0]), Rouge.prng);
-				RougeUtils.updateUserTeam(user.id, userTeam);
+				RougeUtils.updateUserTeam(user.id, userTeam, true);
 			}
 			Rouge.createBattle(user, bot, userTeam, botTeam, 'gen8rougemod @@@pschinarougemode', undefined);
 		},

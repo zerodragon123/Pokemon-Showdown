@@ -19,7 +19,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 		},
 		onEnd(pokemon) {
 			this.add('-end', pokemon, 'elite');
-			pokemon.hp = Math.ceil(pokemon.hp * pokemon.baseMaxhp / pokemon.maxhp);
+			pokemon.hp = Math.ceil(pokemon.hp * pokemon.baseMaxhp / pokemon.maxhp)
 			pokemon.maxhp = pokemon.baseMaxhp;
 			this.add('-heal', pokemon, pokemon.getHealth, '[silent]');
 		},
