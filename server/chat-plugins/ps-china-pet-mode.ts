@@ -176,13 +176,22 @@ export class PetUtils {
 		return `background: transparent url(${POKESHEET}?v5) no-repeat scroll -${left}px -${top}px; height: 32px; width: 40px;`;
 	}
 
-	static button(message: string, desc: string, style: string = '', highlight: boolean = false) {
+	static button(command: string, desc: string, style: string = '', highlight: boolean = false) {
 		const HLStyle = highlight ? 'border: inset; padding: 1.5px' : '';
-		return `<button style="${style} ${HLStyle}" class="button" name="send" value="${message}">${desc}</button>`
+		return `<button style="${style} ${HLStyle}" class="button" name="send" value="${command}">${desc}</button>`;
 	}
 
-	static boolButtons(yesMessage: string, noMessage: string) {
-		return this.button(yesMessage, '确认') + this.button(noMessage, '取消');
+	static boolButtons(confirmCommand: string, cancelCommand: string) {
+		return this.button(confirmCommand, '确认') + this.button(cancelCommand, '取消');
+	}
+
+	static disabledButton(desc: string, style: string = '') {
+		const DAStyle = 'font-weight: bold; color: #575757; background: #d3d3d3';
+		return `<button class="button disabled" style="${style} ${DAStyle}">${desc}</button>`;
+	}
+
+	static conditionalButton(condition: boolean, command: string, desc: string, style: string = '') {
+		return condition ? this.disabledButton(desc, style) : this.button(command, desc, style);
 	}
 
 	static parseStatPosition(target: string): statPosition | undefined {
@@ -939,6 +948,11 @@ class PetUser {
 
 	destroy() {
 		FS(this.path).unlinkIfExistsSync();
+	}
+
+	getTeam(): PokemonSet[] | null {
+		if (!this.property) return null;
+		return Teams.unpack(this.property['bag'].filter(Pet.validPet).join(']'));
 	}
 
 	editProperty(propertyString: string): boolean {
@@ -1728,7 +1742,7 @@ export const commands: Chat.ChatCommands = {
 			export(target, room, user) {
 				const petUser = getUser(user.id);
 				if (!petUser.property) return PetUtils.popup(user, "您还未领取最初的伙伴!");
-				let userTeam = Teams.unpack(petUser.property['bag'].filter(Pet.validPet).join(']'));
+				let userTeam = petUser.getTeam();
 				if (!userTeam) return PetUtils.popup(user, "您的背包有格式错误!");
 				userTeam = userTeam.map(Pet.correctAbility);
 				this.popupReply(Teams.export(userTeam));
