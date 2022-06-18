@@ -1,14 +1,13 @@
 import { FS } from '../../lib';
 import { PRNG } from '../../sim';
-import { PetUtils, getUser as getPetUser } from './ps-china-pet-mode';
-import { SERVER_URL, iconURLs } from './ps-china-icon';
-
-// 区分队伍: border: 3px ridge rgba(255, 0, 0, 0.5);
+import { SERVER_URL, PetUtils, getUser as getPetUser } from './ps-china-pet-mode';
+import { iconURLs } from './ps-china-icon';
 
 const TURN_CYCLE = 1200;
 const HALF_CYCLE = 800;
 const START_DELAY = 5000;
 const DESTROY_DELAY = 60000;
+const MAX_TURNS = 1000;
 const MAP_ROWS = 11;
 const MAP_COLS = 10;
 const LATTICE_WIDTH = 38;
@@ -62,6 +61,7 @@ class AutoChess {
 	private startCountDown: number;
 	private finished: boolean;
 	private winner: number;
+	private turns: number;
 	private info: string[];
 	private buf: string;
 
@@ -116,6 +116,7 @@ class AutoChess {
 		this.startCountDown = 5;
 		this.finished = false;
 		this.winner = -1;
+		this.turns = 0;
 
 		Rooms.get(roomId)?.add(`|html|` +
 			`<b>[Pet自走棋] <username class="username">${this.playerNames[0]}</username> 与 ` +
@@ -135,7 +136,6 @@ class AutoChess {
 	}
 	removeSpectator(userId: string) {
 		this.spectatorIds.delete(userId);
-		Users.get(userId)?.sendTo(this.roomId as RoomID, `|uhtmlchange|auto-chess-game|`);
 		delete userInGames[userId];
 	}
 	async start() {
@@ -220,7 +220,7 @@ class AutoChess {
 			];
 			this.buf += `<img src="${LATTICE_IMG_FOLDER_URL}/Battle.png" style="${styles.join('; ')}"/>`;
 		});
-		this.buf += PetUtils.button('/autochess quit', '退出', 'position: absolute; right: 0px; bottom: 0px');
+		this.buf += PetUtils.button(`/autochess quit ${this.gameId}`, '退出', 'position: absolute; right: 0px; bottom: 0px');
 		this.buf += `</div>`;
 		// console.log(this.buf.length)
 
@@ -509,12 +509,16 @@ class AutoChess {
 	}
 	async nextTurn() {
 		const start = Date.now();
-		if (this.status[0].every(x => !x.hp)) {
-			this.finished = true;
-			this.winner = 1;
-		} else if (this.status[1].every(x => !x.hp)) {
+		this.turns++;
+		if (this.status[1].every(x => !x.hp)) {
 			this.finished = true;
 			this.winner = 0;
+		} else if (this.status[0].every(x => !x.hp)) {
+			this.finished = true;
+			this.winner = 1;
+		} else if (this.turns >= MAX_TURNS) {
+			this.finished = true;
+			this.winner = 2;
 		}
 		this.move();
 		this.display();
@@ -805,12 +809,10 @@ export const commands: Chat.ChatCommands = {
 		'exit': 'quit',
 		'leave': 'quit',
 		quit(target, room, user) {
-			if (userInGames[user.id]) {
+			if (userInGames[user.id] === target) {
 				autoChessGames[userInGames[user.id]].removeSpectator(user.id);
-				PetUtils.popup(user, '您已退出自走棋游戏。');
-			} else {
-				PetUtils.popup(user, '您当前并未参加或观看自走棋游戏。');
 			}
+			this.sendReply(`|uhtmlchange|auto-chess-game|`);
 		},
 		'config': 'map',
 		async map(target, room, user) {
@@ -859,7 +861,7 @@ export const commands: Chat.ChatCommands = {
 				if (num < 0 && (targetLatticeNum < 0 || targetPieceNum > 0)) return '';
 				const desc = pieceNum ? PIECE_TYPES[pieceNum] : '';
 				const buttonNum = (num >= 0 && targetPieceNum > 0) ? targetNum - targetLatticeNum + latticeNum : targetNum;
-				const command = num === buttonNum ? '' : `/autochess map ${buttonNum},${rowIndex},${colIndex}`;
+				const command = `/autochess map ${buttonNum},${rowIndex},${colIndex}`;
 				return PetUtils.button(command, desc, style);
 			});
 			buf += PetUtils.boolButtons('/autochess map confirm', '/autochess map cancel');

@@ -3,9 +3,10 @@
 * Credits: Lord Haji, panpawn.*
 *******************************/
 import {FS} from '../../lib';
+import {SERVER_URL} from './ps-china-pet-mode';
+
 let https = require("https");
 
-export const SERVER_URL = 'http://localhost:8000'; //'http://39.96.50.192:8000';
 const ICONS_FOLDER = 'icons-2022';
 
 const speciesIdByNumber: {[num: number]: string[]} = {};

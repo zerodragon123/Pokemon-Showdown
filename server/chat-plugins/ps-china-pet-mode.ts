@@ -57,8 +57,9 @@ const POKESPRITESSHINY = 'https://play.pokemonshowdown.com/sprites/ani-shiny';
 const ITEMSHEET = 'https://play.pokemonshowdown.com/sprites/itemicons-sheet.png';
 const TYPEICONS = 'https://play.pokemonshowdown.com/sprites/types';
 const CATICONS = 'https://play.pokemonshowdown.com/sprites/categories';
-const ITEMFOLDER = 'http://39.96.50.192:8000/avatars/items';
-const EGGSPRITE = 'http://39.96.50.192:8000/avatars/static/egg.png';
+export const SERVER_URL = 'http://39.96.50.192:8000';
+const ITEMFOLDER = `${SERVER_URL}/avatars/items`;
+const EGGSPRITE = `${SERVER_URL}/avatars/static/egg.png`;
 
 const HYPERCONFIG = JSON.parse(FS('config/pet-mode/hyper-config.json').readIfExistsSync() || '{}');
 const LAWNCD = HYPERCONFIG['LAWNCD'] || 2000;
