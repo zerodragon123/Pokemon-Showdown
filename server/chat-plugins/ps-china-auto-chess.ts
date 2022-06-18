@@ -59,6 +59,7 @@ class AutoChess {
 	private map: AutoChessMapConfig;
 	private territory: number[][];
 	private moveStyle: 'greedy' | 'random';
+	private startCountDown: number;
 	private finished: boolean;
 	private winner: number;
 	private info: string[];
@@ -90,7 +91,7 @@ class AutoChess {
 							side: playerIndex,
 							index: pokeIndex,
 							pos: {x: colIndex, y: rowIndex},
-							direction: playerIndex > 0,
+							direction: playerIndex === 0,
 							set: playerTeams[playerIndex][pokeIndex]
 						};
 						this.territory[rowIndex][colIndex] = playerIndex;
@@ -112,6 +113,7 @@ class AutoChess {
 
 		this.buf = '';
 		this.info = [];
+		this.startCountDown = 5;
 		this.finished = false;
 		this.winner = -1;
 		this.start();
@@ -125,10 +127,17 @@ class AutoChess {
 	}
 	removeSpectator(userId: string) {
 		this.spectatorIds.delete(userId);
+		Users.get(userId)?.sendTo(this.roomId as RoomID, `|uhtmlchange|auto-chess-game|`);
 		delete userInGames[userId];
 	}
 	async start() {
-		this.nextTurn();
+		if (this.startCountDown) {
+			this.display();
+			setTimeout(() => { this.start(); }, START_DELAY / 5);
+			this.startCountDown--;
+		} else {
+			this.nextTurn();
+		}
 	}
 	static calcPosition(pos: piecePosition): number[] {
 		const top = Math.round(LATTICE_HEIGHT * 0.75 * pos.y) + 4;
@@ -136,15 +145,17 @@ class AutoChess {
 		return [top, left];
 	}
 	display() {
+		const title = this.winner >= 0 ? `W${this.winner + 1}` : `T${this.startCountDown}`;
+
 		this.buf = `|uhtml|auto-chess-game|`;
 
 		// Title Zone
-		this.buf += `<div style="width: ${MAP_WIDTH}px; background: url(${LATTICE_IMG_FOLDER_URL}/VS.png) center no-repeat">`;
+		this.buf += `<div style="width: ${MAP_WIDTH}px; background: url(${LATTICE_IMG_FOLDER_URL}/${title}.png) center no-repeat">`;
 		this.buf += `<div style="height: 80px">`;
 		this.buf += `<img src="${this.playerIconUrls[0]}" style="transform: scaleX(-1)"/>`;
 		this.buf += `<div style="width: ${this.status[0].length * 40}px; display: inline-block; vertical-align: top">`;
 		this.buf += this.status[0].map(poke => `<psicon pokemon="${toID(poke.set.species)}" style="transform: scaleX(-1)">`).join('');
-		this.buf += this.status[0].map(poke => `<img src="${LATTICE_IMG_FOLDER_URL}/HP${Math.round(poke.hp)}.png">`).join('');
+		this.buf += this.status[0].map(poke => `<img src="${LATTICE_IMG_FOLDER_URL}/HP${Math.ceil(poke.hp)}.png">`).join('');
 		this.buf += `</div>`;
 		this.buf += `</div>`;
 		this.buf += `<div>`;
@@ -156,7 +167,7 @@ class AutoChess {
 		this.buf += `<div style="width: ${MAP_WIDTH - 80 - this.status[1].length * 40}px; display: inline-block"></div>`;
 		this.buf += `<div style="width: ${this.status[1].length * 40}px; display: inline-block">`;
 		this.buf += this.status[1].map(poke => `<psicon pokemon="${toID(poke.set.species)}">`).join('');
-		this.buf += this.status[1].map(poke => `<img src="${LATTICE_IMG_FOLDER_URL}/HP${Math.round(poke.hp)}.png">`).join('');
+		this.buf += this.status[1].map(poke => `<img src="${LATTICE_IMG_FOLDER_URL}/HP${Math.ceil(poke.hp)}.png">`).join('');
 		this.buf += `</div>`;
 		this.buf += `<img src="${this.playerIconUrls[1]}"/>`;
 		this.buf += `</div>`;
@@ -164,7 +175,7 @@ class AutoChess {
 
 		// Battle Zone
 		this.buf += `<div style="height: ${MAP_HEIGHT}px; position: relative">`;
-		this.buf += `<img src="${this.map.showImg()}" style="position: absolute; top: 0px; left: 0px"/>`;
+		this.buf += `<img src="${this.map.showImg()}" style="position: absolute"/>`;
 		const displayPos: number[][][] = [];
 		this.status.forEach((playerStatus, playerIndex) => {
 			displayPos[playerIndex] = [];
@@ -202,6 +213,7 @@ class AutoChess {
 			this.buf += `<img src="${LATTICE_IMG_FOLDER_URL}/Battle.png" style="${styles.join('; ')}"/>`;
 		});
 		this.buf += `</div>`;
+		this.buf += PetUtils.button('/autochess quit', '退出');
 		// console.log(this.buf.length)
 
 		Array.from(this.spectatorIds).forEach(userId => {
@@ -495,12 +507,11 @@ class AutoChess {
 		} else if (this.status[1].every(x => !x.hp)) {
 			this.finished = true;
 			this.winner = 0;
-		} else {
-			this.move();
-			this.display();
-			this.prepMove();
-			this.detectBattles();
 		}
+		this.move();
+		this.display();
+		this.prepMove();
+		this.detectBattles();
 		if (this.finished) {
 			Array.from(this.spectatorIds).forEach(userId => delete userInGames[userId]);
 			setTimeout(() => { this.destroy(); }, DESTROY_DELAY);
