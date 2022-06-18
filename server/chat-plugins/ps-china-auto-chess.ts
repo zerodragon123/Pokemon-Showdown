@@ -705,8 +705,12 @@ export const commands: Chat.ChatCommands = {
 		'': 'help',
 		help(target, room, user) {
 			if (!room) return this.parse('/msgroom skypillar, /autochess help');
-			let buf = '<p><b>欢迎体验 PS China 宝可梦自走棋!</b></p>'
-			buf += '请输入您想要挑战的用户: ';
+			let buf = '<p><b>欢迎体验 PS China 宝可梦自走棋!</b>';
+			if (user.can('roommod', null, room)) {
+				buf += ' ' + PetUtils.button('/autochess map', '编辑地图');
+			}
+			buf += `</p>`;
+			buf += `请输入您想要挑战的用户: `;
 			buf += `<form data-submitsend="/msgroom ${room.roomid}, /autochess challenge create {autochess-foe}">`;
 			buf += `<input name="autochess-foe" style="width: 100px"/> `;
 			buf += `<button class="button" type="submit">发送挑战!</button>`;
@@ -812,7 +816,7 @@ export const commands: Chat.ChatCommands = {
 		async map(target, room, user) {
 			if (!room) return PetUtils.popup(user, '请在聊天室里编辑自走棋地图。');
 			if (room.type !== 'chat') return PetUtils.popup(user, '请在聊天室里编辑自走棋地图。');
-			this.checkCan('roomvoice', null, room!);
+			this.checkCan('roommod', null, room!);
 			const tmpConfig = tmpConfigs[user.id] || mapConfigs[room.roomid] || new AutoChessMapConfig(room.roomid);
 			tmpConfigs[user.id] = tmpConfig;
 			switch (toID(target)) {
