@@ -32,11 +32,11 @@ export class RougeUtils {
 		return this.getUser(userid)?.rouge?.split("&");
 	}
 
-	static updateUserTeam(userid: ID, userTeam: string) {
+	static updateUserTeam(userid: ID, userTeam: string, reset: boolean=false) {
 		let userProperty = this.getUser(userid) || {};
 		if (userTeam) {
 			let rougePropsStr = userProperty['rouge'];
-			if (!rougePropsStr)
+			if (!rougePropsStr || reset)
 				userProperty['rouge'] = userTeam.concat('&0&1&&pokemonroom');
 			else {
 				let rougeProps = rougePropsStr.split("&");
