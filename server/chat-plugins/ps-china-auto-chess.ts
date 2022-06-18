@@ -116,6 +116,13 @@ class AutoChess {
 		this.startCountDown = 5;
 		this.finished = false;
 		this.winner = -1;
+
+		Rooms.get(roomId)?.add(`|html|` +
+			`<b>[Pet自走棋] <username class="username">${this.playerNames[0]}</username> 与 ` +
+			`<username class="username">${this.playerNames[1]}</username> 的对战开始了!</b> ` +
+			`${PetUtils.button(`/autochess watch ${gameId}`, '观看')}`
+		).update();
+
 		this.start();
 	}
 	hasPlayer(userId: string): boolean {
@@ -123,6 +130,7 @@ class AutoChess {
 	}
 	addSpectator(userId: string) {
 		this.spectatorIds.add(userId);
+		Users.get(userId)?.sendTo(this.roomId as RoomID, this.buf);
 		userInGames[userId] = this.gameId;
 	}
 	removeSpectator(userId: string) {
@@ -174,7 +182,7 @@ class AutoChess {
 		this.buf += `</div>`;
 
 		// Battle Zone
-		this.buf += `<div style="height: ${MAP_HEIGHT}px; position: relative">`;
+		this.buf += `<div style="width: ${MAP_WIDTH}px; height: ${MAP_HEIGHT}px; position: relative">`;
 		this.buf += `<img src="${this.map.showImg()}" style="position: absolute"/>`;
 		const displayPos: number[][][] = [];
 		this.status.forEach((playerStatus, playerIndex) => {
@@ -212,8 +220,8 @@ class AutoChess {
 			];
 			this.buf += `<img src="${LATTICE_IMG_FOLDER_URL}/Battle.png" style="${styles.join('; ')}"/>`;
 		});
+		this.buf += PetUtils.button('/autochess quit', '退出', 'position: absolute; right: 0px; bottom: 0px');
 		this.buf += `</div>`;
-		this.buf += PetUtils.button('/autochess quit', '退出');
 		// console.log(this.buf.length)
 
 		Array.from(this.spectatorIds).forEach(userId => {
@@ -513,7 +521,6 @@ class AutoChess {
 		this.prepMove();
 		this.detectBattles();
 		if (this.finished) {
-			Array.from(this.spectatorIds).forEach(userId => delete userInGames[userId]);
 			setTimeout(() => { this.destroy(); }, DESTROY_DELAY);
 		} else {
 			setTimeout(() => { this.display(); }, HALF_CYCLE);
@@ -526,6 +533,7 @@ class AutoChess {
 		}
 	}
 	destroy() {
+		Array.from(this.spectatorIds).forEach(userId => this.removeSpectator(userId));
 		delete autoChessGames[this.gameId];
 	}
 }
@@ -533,15 +541,19 @@ class AutoChess {
 const autoChessGames: {[gameid: string]: AutoChess} = {};
 const userInGames: {[userid: string]: string} = {};
 
-function checkIfUserIsAvailable(user: User, asPlayer: boolean = true): boolean {
+function checkIfUserIsAvailable(user: User, reportTo: User, asPlayer: boolean = true): boolean {
 	if (userInGames[user.id]) {
 		const isPlayer = autoChessGames[userInGames[user.id]].hasPlayer(user.id);
 		const roomId = userInGames[user.id].split('-')[0];
 		const roomTitle = Rooms.get(roomId)!.title;
 		let buf = '';
-		buf += `您正在 <a href="/${roomId}">${roomTitle}</a> 房间${isPlayer ? '参与' : '观看'}一场自走棋游戏。<br/>`;
-		buf += `请退出或等待游戏结束后再${asPlayer ? '开始' : '观看'}新的自走棋游戏。`;
-		PetUtils.popup(user, buf);
+		if (user.id === reportTo.id) {
+			buf += `您正在 <a href="/${roomId}">${roomTitle}</a> 房间${isPlayer ? '参与' : '观看'}一场自走棋游戏。<br/>`;
+			buf += `请退出或等待游戏结束后再${asPlayer ? '开始' : '观看'}新的自走棋游戏。`;
+		} else {
+			buf += `用户 ${user.name} 正在${isPlayer ? '参与' : '观看'}一场自走棋游戏。<br/>`;
+		}
+		PetUtils.popup(reportTo, buf);
 		return false;
 	}
 	return true;
@@ -703,7 +715,6 @@ export const commands: Chat.ChatCommands = {
 		},
 		challenge: {
 			create(target, room, user) {
-				if (!checkIfUserIsAvailable(user)) return;
 				this.sendReply(`|uhtmlchange|auto-chess|`);
 				if (!room) return PetUtils.popup(user, '请在聊天室里发送自走棋挑战');
 				if (room.type !== 'chat') return PetUtils.popup(user, '请在聊天室里发送自走棋挑战');
@@ -712,8 +723,11 @@ export const commands: Chat.ChatCommands = {
 				}
 				const foe = Users.get(target);
 				if (!foe) return PetUtils.popup(user, `未找到用户 ${target}`);
+				if (foe.id === user.id) return PetUtils.popup(user, `您不能向自己发出自走棋挑战!`);
 				if (!getPetUser(user.id).property) return PetUtils.popup(user, '您的宠物存档为空!');
 				if (!getPetUser(foe.id).property) return PetUtils.popup(user, `用户 ${foe.name} 的宠物存档为空!`);
+				if (!checkIfUserIsAvailable(user, user)) return;
+				if (!checkIfUserIsAvailable(foe, user)) return;
 				autoChessChallenges[user.id] = {roomid: room.roomid, foeid: foe.id};
 				const style = [
 					'background: #fcd2b3',
@@ -743,14 +757,13 @@ export const commands: Chat.ChatCommands = {
 				}
 			},
 			accept(target, room, user) {
-				if (!checkIfUserIsAvailable(user)) return;
 				target = toID(target);
 				if (autoChessChallenges[target] && autoChessChallenges[target].foeid === user.id) {
 					user.send(`|pm|${target}|${user.id}|/uhtml auto-chess-chat`);
 					const foe = Users.get(target);
 					if (!foe) return PetUtils.popup(user, `未找到用户 ${target}`);
 					foe.send(`|pm|${user.id}|${target}|/uhtml auto-chess-chat`);
-					const petUser = getPetUser(user.id)
+					const petUser = getPetUser(user.id);
 					if (!petUser.property) return PetUtils.popup(user, '您的宠物存档为空!');
 					const userTeam = petUser.getTeam();
 					if (!userTeam) return PetUtils.popup(user, '您的宠物存档格式错误!');
@@ -758,12 +771,15 @@ export const commands: Chat.ChatCommands = {
 					if (!petFoe.property) return PetUtils.popup(user, `用户 ${foe.name} 的宠物存档为空!`);
 					const foeTeam = petFoe.getTeam();
 					if (!foeTeam) return PetUtils.popup(user, `用户 ${foe.name} 的宠物存档格式错误!`);
+					if (!checkIfUserIsAvailable(user, user)) return;
+					if (!checkIfUserIsAvailable(foe, user)) return;
 					const roomId = autoChessChallenges[target].roomid;
 					const gameId = `${roomId}-${user.id}-${foe.id}-${Date.now()}`;
 					const playerIds = [foe.id, user.id];
 					const playerTeams = [foeTeam, userTeam];
 					autoChessGames[gameId] = new AutoChess(roomId, gameId, playerIds, playerTeams);
 					delete autoChessChallenges[target];
+					this.parse(`/j ${roomId}`);
 				}
 			},
 			reject(target, room, user) {
@@ -778,7 +794,7 @@ export const commands: Chat.ChatCommands = {
 		'spec': 'watch',
 		watch(target, room, user) {
 			if (!autoChessGames[target]) return PetUtils.popup(user, '您要加入的自走棋游戏不存在或已结束。');
-			if (!checkIfUserIsAvailable(user, false)) return;
+			if (!checkIfUserIsAvailable(user, user, false)) return;
 			autoChessGames[target].addSpectator(user.id);
 			this.parse(`/j ${target.split('-')[0]}`);
 		},

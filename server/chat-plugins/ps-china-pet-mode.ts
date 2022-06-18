@@ -2865,6 +2865,7 @@ export const commands: Chat.ChatCommands = {
 					PetUtils.button('/pet box', '盒子'),
 					PetUtils.button('/pet shop', '商店'),
 					`<a href="/gym"><button class="button">道馆</button></a>`,
+					PetUtils.button('/autochess', '自走棋'),
 				]);
 				if (PetBattle.legends[room.roomid]) {
 					buttons[0].push(PetUtils.button('/pet lawn search !', `挑战房间里的 ${
