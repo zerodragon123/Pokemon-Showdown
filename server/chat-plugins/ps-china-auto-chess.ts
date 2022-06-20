@@ -59,7 +59,6 @@ class AutoChess {
 	private territory: number[][];
 	private moveStyle: 'greedy' | 'random';
 	private startCountDown: number;
-	private finished: boolean;
 	private winner: number;
 	private turns: number;
 	private info: string[];
@@ -114,7 +113,6 @@ class AutoChess {
 		this.buf = '';
 		this.info = [];
 		this.startCountDown = 5;
-		this.finished = false;
 		this.winner = -1;
 		this.turns = 0;
 
@@ -183,7 +181,7 @@ class AutoChess {
 
 		// Battle Zone
 		this.buf += `<div style="width: ${MAP_WIDTH}px; height: ${MAP_HEIGHT}px; position: relative">`;
-		this.buf += `<img src="${this.map.showImg()}" style="position: absolute"/>`;
+		this.buf += this.map.showImg();
 		const displayPos: number[][][] = [];
 		this.status.forEach((playerStatus, playerIndex) => {
 			displayPos[playerIndex] = [];
@@ -296,7 +294,7 @@ class AutoChess {
 					const directions = this.getPossibleDirections(poke.pos.x, poke.pos.y);
 					possibleDirections[playerIndex][pokeIndex] = directions;
 					if (directions.length) {
-						directions.forEach(direction => weights[playerIndex][pokeIndex][direction.toString()] = 1);
+						directions.forEach(direction => weights[playerIndex][pokeIndex][direction.toString()] = 1 / directions.length);
 					} else {
 						weights[playerIndex][pokeIndex]['0,0'] = 1;
 					}
@@ -372,10 +370,15 @@ class AutoChess {
 		}));
 	}
 	calcDamage(sourceTypes: TypeInfo[], targetTypes: TypeInfo[], sourceLattice: number = 0, targetLattice: number = 0): number {
-		let damage = 1;
-		sourceTypes.forEach(sourceType => targetTypes.forEach(targetType => {
-			damage *= [1, 2, 0.5, 0][targetType.damageTaken[sourceType.name]];
-		}));
+		let damage = 0;
+		sourceTypes.forEach(sourceType => {
+			let partDamage = 1;
+			targetTypes.forEach(targetType => {
+				partDamage *= [1, 2, 0.5, 0][targetType.damageTaken[sourceType.name]];
+			});
+			damage += partDamage;
+		});
+		damage /= sourceTypes.length;
 		switch (sourceLattice) {
 		case 1: // Sunny Day
 			sourceTypes.forEach(sourceType => {
@@ -510,21 +513,14 @@ class AutoChess {
 	async nextTurn() {
 		const start = Date.now();
 		this.turns++;
-		if (this.status[1].every(x => !x.hp)) {
-			this.finished = true;
-			this.winner = 0;
-		} else if (this.status[0].every(x => !x.hp)) {
-			this.finished = true;
-			this.winner = 1;
-		} else if (this.turns >= MAX_TURNS) {
-			this.finished = true;
-			this.winner = 2;
-		}
+		const p1clear = this.status[0].every(x => !x.hp);
+		const p2clear = this.status[1].every(x => !x.hp);
+		this.winner = p1clear ? (p2clear ? 2 : 1) : (p2clear ? 0 : -1);
 		this.move();
 		this.display();
 		this.prepMove();
 		this.detectBattles();
-		if (this.finished) {
+		if (this.winner >= 0) {
 			setTimeout(() => { this.destroy(); }, DESTROY_DELAY);
 		} else {
 			setTimeout(() => { this.display(); }, HALF_CYCLE);
@@ -564,7 +560,7 @@ function checkIfUserIsAvailable(user: User, reportTo: User, asPlayer: boolean = 
 } 
 
 class AutoChessMapConfig {
-	private roomId: string;
+	public roomId: string;
 	public mapId: string;
 	private configPath: string;
 	public lattices: number[][];
@@ -591,7 +587,7 @@ class AutoChessMapConfig {
 		try {
 			const sharp = require('sharp');
 			this.mapId = this.calcMapId();
-			const mapImgPath = `${LATTICE_IMG_FOLDER_LOCAL}/${this.roomId}-${this.mapId}.png`;
+			const mapImgPath = `${LATTICE_IMG_FOLDER_LOCAL}/${this.mapId}.png`;
 			if (FS(mapImgPath).existsSync()) return true;
 			const latticeImgs: number[][] = [];
 			for (let latticeType of LATTICE_TYPES) {
@@ -640,7 +636,7 @@ class AutoChessMapConfig {
 	}
 
 	calcMapId() {
-		return Math.abs(PetUtils.hash(this.lattices.map(row => row.join('')).join(''))).toString(36).toUpperCase();
+		return '.' + Math.abs(PetUtils.hash(this.lattices.map(row => row.join('')).join(''))).toString(36).toUpperCase();
 	}
 
 	valid() {
@@ -669,16 +665,17 @@ class AutoChessMapConfig {
 		}
 	}
 
-	showConfig(tag: (num: number, rowIndex: number, colIndex: number, style: string) => string) {
-		const latticeConfigStr = this.lattices.map((row, rowIndex) => row.map((num, colIndex) => {
+	showConfig(tag: (num: number, rowIndex: number, colIndex: number, style: string) => string, background: boolean = false) {
+		let latticeConfigStr = background ? this.showImg() : '';
+		latticeConfigStr += this.lattices.map((row, rowIndex) => row.map((num, colIndex) => {
 			const styles = [
-				'position: absolute',
+				`position: absolute`,
 				`width: ${LATTICE_WIDTH}px`,
 				`height: ${LATTICE_HEIGHT}px`,
 				`top: ${Math.round(LATTICE_HEIGHT * 0.75 * rowIndex)}px`,
 				`left: ${Math.round(LATTICE_WIDTH * (colIndex + 0.5 * (rowIndex % 2)))}px`,
-				'border: none',
-				'box-shadow: none'
+				`border: none`,
+				`box-shadow: none`
 			];
 			if (num < 0) styles.push('opacity: 0');
 			const latticeId = toID(LATTICE_TYPES[num % LATTICE_TYPES.length]);
@@ -689,11 +686,7 @@ class AutoChessMapConfig {
 	}
 
 	showImg() {
-		if (FS(this.configPath).existsSync()) {
-			return `${LATTICE_IMG_FOLDER_URL}/${this.roomId}-${this.mapId}.png`;
-		} else {
-			return `${LATTICE_IMG_FOLDER_URL}/default-${this.mapId}.png`;
-		}
+		return `<img src="${LATTICE_IMG_FOLDER_URL}/${this.mapId}.png" style="position: absolute"/>`;
 	}
 }
 
@@ -709,12 +702,13 @@ export const commands: Chat.ChatCommands = {
 		'': 'help',
 		help(target, room, user) {
 			if (!room) return this.parse('/msgroom skypillar, /autochess help');
-			let buf = '<p><b>欢迎体验 PS China 宝可梦自走棋!</b>';
+			let buf = '<b>欢迎体验 PS China 宝可梦自走棋!</b><br/>';
+			buf += PetUtils.button('/autochess map', '查看地图');
 			if (user.can('roommod', null, room)) {
-				buf += ' ' + PetUtils.button('/autochess map', '编辑地图');
+				buf += ' ' + PetUtils.button('/autochess map edit', '编辑地图');
 			}
-			buf += `</p>`;
-			buf += `请输入您想要挑战的用户: `;
+			buf += '<br/>';
+			buf += `请输入您想要挑战的用户:`;
 			buf += `<form data-submitsend="/msgroom ${room.roomid}, /autochess challenge create {autochess-foe}">`;
 			buf += `<input name="autochess-foe" style="width: 100px"/> `;
 			buf += `<button class="button" type="submit">发送挑战!</button>`;
@@ -815,57 +809,81 @@ export const commands: Chat.ChatCommands = {
 			this.sendReply(`|uhtmlchange|auto-chess-game|`);
 		},
 		'config': 'map',
-		async map(target, room, user) {
-			if (!room) return PetUtils.popup(user, '请在聊天室里编辑自走棋地图。');
-			if (room.type !== 'chat') return PetUtils.popup(user, '请在聊天室里编辑自走棋地图。');
-			this.checkCan('roommod', null, room!);
-			const tmpConfig = tmpConfigs[user.id] || mapConfigs[room.roomid] || new AutoChessMapConfig(room.roomid);
-			tmpConfigs[user.id] = tmpConfig;
-			switch (toID(target)) {
-				case 'save':
-				case 'confirm':
-					PetUtils.popup(user, '地图设置保存中...');
-					if (await tmpConfig.save()) {
-						mapConfigs[room.roomid] = tmpConfig;
-						delete tmpConfigs[user.id];
-						PetUtils.popup(user, '地图设置保存成功!');
-					} else {
-						PetUtils.popup(user, '地图设置不合法!');
-						break;
-					}
-				case 'back':
-				case 'cancel':
-					return this.sendReply('|uhtmlchange|auto-chess-map|');
+		map: {
+			'': 'show',
+			show(target, room, user) {
+				if (!room) return PetUtils.popup(user, '请在聊天室里查看自走棋地图。');
+				if (room.type !== 'chat') return PetUtils.popup(user, '请在聊天室里查看自走棋地图。');
+				if (!mapConfigs[room.roomid]) {
+					mapConfigs[room.roomid] = new AutoChessMapConfig(room.roomid);
+				}
+				let buf = '|uhtml|auto-chess-map|';
+				buf += mapConfigs[room.roomid].showConfig((num, rowIndex, colIndex, style) => {
+					const latticeNum = num % LATTICE_TYPES.length;
+					const pieceNum = (num - latticeNum) / LATTICE_TYPES.length;
+					return pieceNum ? PetUtils.button('', PIECE_TYPES[pieceNum], style) : '';
+				}, true);
+				buf += PetUtils.button('/autochess map cancel', '返回');
+				this.sendReply(buf);
+			},
+			edit(target, room, user) {
+				if (!room) return PetUtils.popup(user, '请在聊天室里编辑自走棋地图。');
+				if (room.type !== 'chat') return PetUtils.popup(user, '请在聊天室里编辑自走棋地图。');
+				this.checkCan('roommod', null, room!);
+				if (tmpConfigs[user.id]?.roomId !== room.roomid) {
+					delete tmpConfigs[user.id];
+				}
+				const tmpConfig = tmpConfigs[user.id] || mapConfigs[room.roomid] || new AutoChessMapConfig(room.roomid);
+				tmpConfigs[user.id] = tmpConfig;
+				let [targetNum, targetRow, targetCol] = target.split(',').map(x => parseInt(x));
+				if (isNaN(targetNum)) targetNum = -1;
+				const targetLatticeNum = targetNum % LATTICE_TYPES.length;
+				let targetPieceNum = (targetNum - targetLatticeNum) / LATTICE_TYPES.length;
+				if (tmpConfig.setLattice(targetLatticeNum, targetPieceNum, targetRow, targetCol) && targetPieceNum > 0) {
+					targetPieceNum = targetPieceNum % (PIECE_TYPES.length - 1) + 1;
+					targetNum = targetPieceNum * LATTICE_TYPES.length + targetLatticeNum;
+				}
+				let buf = '|uhtml|auto-chess-map|';
+				buf += '<p><b>Field</b></p>';
+				buf += PetUtils.conditionalButton(targetNum < 0, '/autochess map edit -1', 'Null');
+				buf += LATTICE_TYPES.map((l, i) => {
+					return PetUtils.conditionalButton(targetNum === i, `/autochess map edit ${i}`, l);
+				}).join('');
+				buf += '<p><b>Pokemon</b></p>';
+				buf += PIECE_TYPES.map((p, i) => {
+					return PetUtils.conditionalButton(targetPieceNum === i, `/autochess map edit ${i * LATTICE_TYPES.length}`, p);
+				}).slice(1).join('');
+				buf += tmpConfig.showConfig((num, rowIndex, colIndex, style) => {
+					const latticeNum = num % LATTICE_TYPES.length;
+					const pieceNum = (num - latticeNum) / LATTICE_TYPES.length;
+					if (num < 0 && (targetLatticeNum < 0 || targetPieceNum > 0)) return '';
+					const desc = pieceNum ? PIECE_TYPES[pieceNum] : '';
+					const buttonNum = (num >= 0 && targetPieceNum > 0) ? targetNum - targetLatticeNum + latticeNum : targetNum;
+					const command = `/autochess map edit ${buttonNum},${rowIndex},${colIndex}`;
+					return PetUtils.button(command, desc, style);
+				});
+				buf += PetUtils.boolButtons('/autochess map save', '/autochess map cancel');
+				this.sendReply(buf);
+			},
+			'confirm': 'save',
+			async save(target, room, user) {
+				const tmpConfig = tmpConfigs[user.id];
+				if (!tmpConfig || tmpConfig.roomId !== room?.roomid) {
+					return PetUtils.popup(user, '未检测到您编辑的地图设置');
+				}
+				PetUtils.popup(user, '地图设置保存中...');
+				if (await tmpConfig.save()) {
+					PetUtils.popup(user, '地图设置保存成功!');
+					this.parse('/autochess map cancel');
+				} else {
+					PetUtils.popup(user, '地图设置不合法!');
+				}
+			},
+			'back': 'cancel',
+			cancel(target, room, user) {
+				delete tmpConfigs[user.id];
+				this.sendReply('|uhtmlchange|auto-chess-map|');
 			}
-			let [targetNum, targetRow, targetCol] = target.split(',').map(x => parseInt(x));
-			if (isNaN(targetNum)) targetNum = -1;
-			const targetLatticeNum = targetNum % LATTICE_TYPES.length;
-			let targetPieceNum = (targetNum - targetLatticeNum) / LATTICE_TYPES.length;
-			if (tmpConfig.setLattice(targetLatticeNum, targetPieceNum, targetRow, targetCol) && targetPieceNum > 0) {
-				targetPieceNum = targetPieceNum % (PIECE_TYPES.length - 1) + 1;
-				targetNum = targetPieceNum * LATTICE_TYPES.length + targetLatticeNum;
-			}
-			let buf = '|uhtml|auto-chess-map|';
-			buf += '<p><b>Field</b></p>';
-			buf += PetUtils.conditionalButton(targetNum < 0, '/autochess map -1', 'Null');
-			buf += LATTICE_TYPES.map((l, i) => {
-				return PetUtils.conditionalButton(targetNum === i, `/autochess map ${i}`, l);
-			}).join('');
-			buf += '<p><b>Pokemon</b></p>';
-			buf += PIECE_TYPES.map((p, i) => {
-				return PetUtils.conditionalButton(targetPieceNum === i, `/autochess map ${i * LATTICE_TYPES.length}`, p);
-			}).slice(1).join('');
-			buf += tmpConfig.showConfig((num, rowIndex, colIndex, style) => {
-				const latticeNum = num % LATTICE_TYPES.length;
-				const pieceNum = (num - latticeNum) / LATTICE_TYPES.length;
-				if (num < 0 && (targetLatticeNum < 0 || targetPieceNum > 0)) return '';
-				const desc = pieceNum ? PIECE_TYPES[pieceNum] : '';
-				const buttonNum = (num >= 0 && targetPieceNum > 0) ? targetNum - targetLatticeNum + latticeNum : targetNum;
-				const command = `/autochess map ${buttonNum},${rowIndex},${colIndex}`;
-				return PetUtils.button(command, desc, style);
-			});
-			buf += PetUtils.boolButtons('/autochess map confirm', '/autochess map cancel');
-			this.sendReply(buf);
 		}
 	}
 }

@@ -1,12 +1,22 @@
 /*
 	Pokemon Showdown China Pet Mode Version 1.2
 	Author: Starmind
-	p2. Steel Terrain, Acid Rain, Mercy Aura, Ball Aura 特效
-	p2. 精灵球
-	p2. 降低重新读取频率
-	p1. 联盟
-	p0. 修modlog
-	p0. 论坛Awards
+
+	P2
+		1. translations/chinese
+		2. Pet特效 ( Steel Terrain, Acid Rain, Mercy Aura, Ball Aura )
+		3. 精灵球
+	P1
+		1. ps-china-forums.ts
+		2. 修ModLog
+		3. 专属BGM
+		4. TeamDB for Everyone
+		5. Pet联盟
+		6. 更新GitHub Projects
+	P0
+		1. CDL ( 撤队长GMod权限, 撤队伍头像, 使用率统计 )
+		2. 发奥林匹克宠物
+		3. 论坛Awards
 */
 
 import * as OS from "os";
@@ -46,6 +56,7 @@ type lotteryConfig = {
 const prng = new PRNG();
 
 export const BOTID = 'pschinabot';
+export const SERVER_URL = 'http://39.96.50.192:8000';
 const USERPATH = 'config/pet-mode/user-properties';
 const GIFTPATH = 'config/pet-mode/user-gifts';
 const DEPOSITPATH = 'config/pet-mode/deposit';
@@ -57,7 +68,6 @@ const POKESPRITESSHINY = 'https://play.pokemonshowdown.com/sprites/ani-shiny';
 const ITEMSHEET = 'https://play.pokemonshowdown.com/sprites/itemicons-sheet.png';
 const TYPEICONS = 'https://play.pokemonshowdown.com/sprites/types';
 const CATICONS = 'https://play.pokemonshowdown.com/sprites/categories';
-export const SERVER_URL = 'http://39.96.50.192:8000';
 const ITEMFOLDER = `${SERVER_URL}/avatars/items`;
 const EGGSPRITE = `${SERVER_URL}/avatars/static/egg.png`;
 
