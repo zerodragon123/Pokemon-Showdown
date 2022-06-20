@@ -13,7 +13,7 @@ type TourRules = {
 
 type TourTiming = {
 	minutes: number,
-	hours?: number,
+	hours: number,
 	day?: number,
 };
 
@@ -209,7 +209,7 @@ class TourQueue {
 		if (tour) {
 			if (tourStatus.settings.rules.bonus) {
 				tour.onTournamentEnd = ScoreTourUtils.getScoreTourClass().prototype.onTournamentEnd;
-				let msg = `<b>${room}房间 ${format.name} 淘汰赛`;
+				let msg = `<b>${room.title} 房间 ${format.name} 淘汰赛`;
 				if (tourStatus.settings.rules.autostart) {
 					msg += `将于${tourStatus.settings.rules.autostart}分钟后开始!</b>`;
 				} else {
@@ -327,18 +327,6 @@ applyTourConfig();
 
 let tmpTourConfig: {[userid: string]: TourSettings[]} = {};
 
-function button(command: string, desc: string) {
-	return `<button class="button" name="send" value="${command}">${desc}</button>`;
-}
-
-function disabledButton(desc: string) {
-	return `<button class="button disabled" style="font-weight:bold;color:#575757;background:#d3d3d3">${desc}</button>`;
-}
-
-function conditionalButton(condition: boolean, command: string, desc: string) {
-	return condition ? disabledButton(desc) : button(command, desc);
-}
-
 export const commands: Chat.ChatCommands = {
 	autotour: {
 		'': 'check',
@@ -347,7 +335,7 @@ export const commands: Chat.ChatCommands = {
 			const roomid = room!.roomid;
 			if (tourQueues[roomid]) {
 				this.sendReply(tourQueues[roomid].check());
-				this.sendReply(`|uhtml|auto-tour-config|${button('/autotour config', 'View all configured tours')}`);
+				this.sendReply(`|uhtml|auto-tour-config|${PetUtils.button('/autotour config', 'View all configured tours')}`);
 			} else {
 				if (Users.Auth.hasPermission(user, 'roommod', null, room)) {
 					this.parse(`/autotour config`);
@@ -383,16 +371,16 @@ export const commands: Chat.ChatCommands = {
 							timing += 'XX';
 						}
 						timing += ':' + ('0' + tourSettings.timing.minutes).slice(-2);
-						let buttons = button(`/autotour config rules ${index}`, 'Rules');
+						let buttons = PetUtils.button(`/autotour config rules ${index}`, 'Rules');
 						if (canEdit) {
-							buttons += button(`/autotour config edit ${index}`, 'Edit');
-							buttons += button(`/autotour config edit ${index},delete`, 'Delete');
+							buttons += PetUtils.button(`/autotour config edit ${index}`, 'Edit');
+							buttons += PetUtils.button(`/autotour config edit ${index},delete`, 'Delete');
 						}
 						let row = [formatName, timing, buttons];
 						buf += '<tr>' + row.map(s => `<td style="text-align: center">${s}</td>`).join('') + '</tr>';
 					});
 					if (canEdit) {
-						let row = [button(`/autotour config edit ${roomTourConfig.length}`, 'Add'), '', ''];
+						let row = [PetUtils.button(`/autotour config edit ${roomTourConfig.length}`, 'Add'), '', ''];
 						buf += '<tr>' + row.map(s => `<td style="text-align: center">${s}</td>`).join('') + '</tr>';
 					}
 					buf += '</table>';
@@ -401,8 +389,9 @@ export const commands: Chat.ChatCommands = {
 				}
 				if (notSaved) {
 					buf += '<p>';
-					buf += button(`/autotour config save`, 'Confirm & Save');
-					buf += button(`/autotour config cancel`, 'Cancel');
+					buf += PetUtils.button(`/autotour config edit ${roomTourConfig.length}`, 'Add');
+					buf += PetUtils.button(`/autotour config save`, 'Confirm');
+					buf += PetUtils.button(`/autotour config cancel`, 'Cancel');
 					buf += '</p>';
 				}
 				this.sendReply(buf);
@@ -454,7 +443,7 @@ export const commands: Chat.ChatCommands = {
 						lines.push(`<b>Description:</b>`);
 						lines.push(roomTourConfig[index].desc);
 					}
-					lines.push(button('/autotour config', 'Back'));
+					lines.push(PetUtils.button('/autotour config', 'Back'));
 					return this.sendReply(`|uhtml|auto-tour-config|${lines.join('<br/>')}`);
 				}
 			},
@@ -493,6 +482,8 @@ export const commands: Chat.ChatCommands = {
 				const num = parseInt(args);
 				if (index >= 0 && index < tmpTourConfig[user.id].length) {
 					const tourSettings = tmpTourConfig[user.id][index];
+					const rules = tourSettings.rules;
+					const timing = tourSettings.timing;
 					switch (command) {
 						case 'delete':
 							tmpTourConfig[user.id].splice(index, 1);
@@ -509,90 +500,109 @@ export const commands: Chat.ChatCommands = {
 						case 'bonus':
 						case 'forcetimer':
 						case 'allowscouting':
-							if (tourSettings.rules[command] === undefined) {
-								tourSettings.rules[command] = command === 'allowscouting';
+							if (rules[command] === undefined) {
+								rules[command] = command === 'allowscouting';
 							}
-							tourSettings.rules[command] = !tourSettings.rules[command];
+							rules[command] = !rules[command];
 							return this.parse(`/autotour config edit ${index}`);
 						case 'playercap':
 						case 'autostart':
 						case 'autodq':
 							if (Number.isInteger(num) && num >= (command === 'playercap' ? 2 : 0)) {
-								tourSettings.rules[command] = num;
+								rules[command] = num;
 							} else {
-								delete tourSettings.rules[command];
+								delete rules[command];
 							}
 							return this.parse(`/autotour config edit ${index}`);
-						case 'minutes':
-						case 'hours':
+						case 'time':
+							const hours = Math.floor(num / 100) % 24;
+							const minutes = Math.floor(num) % 100;
+							if (hours >= 0 && minutes >= 0 && minutes < 60) {
+								timing['hours'] = hours;
+								timing['minutes'] = minutes;
+							}
+							return this.parse(`/autotour config edit ${index}`);
 						case 'day':
-							const cycle = { 'minutes': 60, 'hours': 24, 'day': 7 }[command];
-							if (Number.isInteger(num) && num >= 0) {
-								tourSettings.timing[command] = num % cycle;
-							} else if (command !== 'minutes') {
-								delete tourSettings.timing[command];
+							if (Number.isInteger(num) && num >= 0 && num < 7) {
+								timing[command] = num;
+							} else {
+								delete timing[command];
 							}
 							return this.parse(`/autotour config edit ${index}`);
 						default:
 							let buf = '|uhtml|auto-tour-config|';
 							const cmdPrefix = `/msgroom ${room!.roomid}, /autotour config edit ${index}`;
-							const allowScouting = tourSettings.rules.allowscouting === undefined || tourSettings.rules.allowscouting;
-							const forceTimer = !!tourSettings.rules.forcetimer;
-							const bonus = !!tourSettings.rules.bonus;
+							const allowScouting = rules.allowscouting === undefined || rules.allowscouting;
+							const forceTimer = !!rules.forcetimer;
+							const bonus = !!rules.bonus;
 							buf += `<b>Format</b><br/>`;
 							buf += `<form data-submitsend="${cmdPrefix},format,{autotour-format}">`;
-							buf += `<input name="autotour-format" placeholder="${tourSettings.format}" style="width: 200px"/>`;
+							buf += `<input name="autotour-format" placeholder="${tourSettings.format}" style="width: 300px"/>`;
 							buf += `<button class="button" type="submit">OK</button>`;
-							buf += `</form>`;
+							buf += `</form><br/>`;
 							buf += `<b>Bonus</b><br/>`;
-							buf += conditionalButton(bonus, `${cmdPrefix},bonus`, 'On');
-							buf += conditionalButton(!bonus, `${cmdPrefix},bonus`, 'Off');
-							buf += '<br/>';
-							buf += `<b>Player Capacity</b><br/>`;
-							buf += `<form data-submitsend="${cmdPrefix},playercap,{autotour-playercap}">`;
-							buf += `<input name="autotour-playercap" placeholder="${tourSettings.rules.playercap}" style="width: 200px"/>`;
-							buf += `<button class="button" type="submit">OK</button>`;
-							buf += `</form>`;
-							buf += `<b>Allow Scouting</b><br/>`;
-							buf += conditionalButton(allowScouting, `${cmdPrefix},allowscouting`, 'On');
-							buf += conditionalButton(!allowScouting, `${cmdPrefix},allowscouting`, 'Off');
-							buf += '<br/>';
-							buf += `<b>Force Timer</b><br/>`;
-							buf += conditionalButton(forceTimer, `${cmdPrefix},forcetimer`, 'On');
-							buf += conditionalButton(!forceTimer, `${cmdPrefix},forcetimer`, 'Off');
-							buf += '<br/>';
-							buf += `<b>Auto-start (in Minutes)</b><br/>`;
-							buf += `<form data-submitsend="${cmdPrefix},autostart,{autotour-autostart}">`;
-							buf += `<input name="autotour-autostart" placeholder="${tourSettings.rules.autostart}" style="width: 200px"/>`;
-							buf += `<button class="button" type="submit">OK</button>`;
-							buf += `</form>`;
-							buf += `<b>Auto-disqualify (in Minutes)</b><br/>`;
-							buf += `<form data-submitsend="${cmdPrefix},autodq,{autotour-autodq}">`;
-							buf += `<input name="autotour-autodq" placeholder="${tourSettings.rules.autodq}" style="width: 200px"/>`;
-							buf += `<button class="button" type="submit">OK</button>`;
-							buf += `</form>`;
-							buf += `<b>Timing: Day</b><br/>`;
-							buf += conditionalButton(tourSettings.timing.day === undefined, `${cmdPrefix},day,undefined`, 'Everyday');
-							buf += DAYS.map((day, i) => {
-								return conditionalButton(tourSettings.timing.day === i, `${cmdPrefix},day,${i}`, day);
-							}).join('');
-							buf += '<br/>'
-							buf += `<b>Timing: Hours</b><br/>`;
-							buf += `<form data-submitsend="${cmdPrefix},hours,{autotour-hours}">`;
-							buf += `<input name="autotour-hours" placeholder="${tourSettings.timing.hours}" style="width: 200px"/>`;
-							buf += `<button class="button" type="submit">OK</button>`;
-							buf += `</form>`;
-							buf += `<b>Timing: Minutes</b><br/>`;
-							buf += `<form data-submitsend="${cmdPrefix},minutes,{autotour-minutes}">`;
-							buf += `<input name="autotour-minutes" placeholder="${tourSettings.timing.minutes}" style="width: 200px"/>`;
-							buf += `<button class="button" type="submit">OK</button>`;
-							buf += `</form>`;
+							buf += PetUtils.conditionalButton(bonus, `${cmdPrefix},bonus`, 'On');
+							buf += PetUtils.conditionalButton(!bonus, `${cmdPrefix},bonus`, 'Off');
+							buf += `<br/><br/>`;
+							buf += `<details open><summary><b>Rules</b></summary>`;
+							buf += PetUtils.table(
+								['Player Capacity', 'Allow Scouting', 'Force Timer', 'Auto-start', 'Auto-disqualify'],
+								[],
+								[
+									`<form data-submitsend="${cmdPrefix},playercap,{autotour-playercap}">` +
+									`<input name="autotour-playercap" placeholder="${rules.playercap}" style="width: 60px"/>` +
+									`<button class="button" type="submit">OK</button>` +
+									`</form>`,
+									PetUtils.conditionalButton(allowScouting, `${cmdPrefix},allowscouting`, 'On') +
+									PetUtils.conditionalButton(!allowScouting, `${cmdPrefix},allowscouting`, 'Off'),
+									PetUtils.conditionalButton(forceTimer, `${cmdPrefix},forcetimer`, 'On') +
+									PetUtils.conditionalButton(!forceTimer, `${cmdPrefix},forcetimer`, 'Off'),
+									`<form data-submitsend="${cmdPrefix},autostart,{autotour-autostart}">` +
+									`<input name="autotour-autostart" placeholder="${rules.autostart}" style="width: 60px"/>` +
+									`<button class="button" type="submit">OK</button>` +
+									`</form>`,
+									`<form data-submitsend="${cmdPrefix},autodq,{autotour-autodq}">` +
+									`<input name="autotour-autodq" placeholder="${rules.autodq}" style="width: 60px"/>` +
+									`<button class="button" type="submit">OK</button>` +
+									`</form>`
+								].map(s => [s]),
+								'350px',
+								'left',
+								'right'
+							);
+							buf += `</details><br/>`;
+							buf += `<details open><summary><b>Timing</b></summary>`;
+							buf += PetUtils.table(
+								['Day', 'Time'],
+								[],
+								[
+									PetUtils.conditionalButton(
+										timing.day === undefined,
+										`${cmdPrefix},day,undefined`,
+										'Everyday',
+									) + DAYS.map((day, i) => PetUtils.conditionalButton(
+										timing.day === i,
+										`${cmdPrefix},day,${i}`,
+										day,
+									)).join(''),
+									`<form data-submitsend="${cmdPrefix},time,{autotour-hours}{autotour-minutes}">` +
+									`<input name="autotour-hours" placeholder="${timing.hours}" style="width: 60px"/>` +
+									`&ensp;:&ensp;` +
+									`<input name="autotour-minutes" placeholder="${timing.minutes}" style="width: 60px"/>` +
+									`<button class="button" type="submit">OK</button>` +
+									`</form>`
+								].map(s => [s]),
+								'350px',
+								'left',
+								'right'
+							)
+							buf += `</details><br/>`;
 							buf += `<b>Description (Optional):</b> ${tourSettings.desc}<br/>`;
 							buf += `<form data-submitsend="${cmdPrefix},desc,{autotour-desc}">`;
-							buf += `<input name="autotour-desc" placeholder="${Utils.escapeHTML(tourSettings.desc || 'undefined')}" style="width: 200px"/>`;
+							buf += `<input name="autotour-desc" placeholder="${Utils.escapeHTML(tourSettings.desc || 'undefined')}" style="width: 300px"/>`;
 							buf += `<button class="button" type="submit">OK</button>`;
-							buf += `</form>`;
-							buf += button(`/autotour config`, 'Confirm & Back');
+							buf += `</form><br/>`;
+							buf += PetUtils.button(`/autotour config`, 'Confirm & Back');
 							this.sendReply(buf);
 					}
 				} else if (index === tmpTourConfig[user.id].length) {

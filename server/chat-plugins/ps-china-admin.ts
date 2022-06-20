@@ -1,5 +1,5 @@
 import { FS } from '../../lib';
-import { PetUtils, getUser } from './ps-china-pet-mode';
+import { SERVER_URL, PetUtils, getUser as getPetUser } from './ps-china-pet-mode';
 
 const REPLAYHEADPATH = 'config/ps-china/replay/replay-head.txt';
 const REPLAYTAILPATH = 'config/ps-china/replay/replay-tail.txt';
@@ -65,7 +65,7 @@ export class AdminUtils {
 	}
 	static addEggToMain(userid: string): string {
 		return (this.getAlts(userid) || [userid]).find(id => {
-			const petUser = getUser(id);
+			const petUser = getPetUser(id);
 			if (petUser.addRandomEgg('3v')) {
 				petUser.save();
 				return true;
@@ -252,7 +252,7 @@ export const commands: Chat.ChatCommands = {
 				foundReplay = true;
 				const htmlname = file.replace(".log.json", ".html");
 				FS(`config/avatars/static/${htmlname}`).safeWriteSync(rep_head + data.log.join('\n') + rep_tail);
-				this.sendReply(`http://39.96.50.192:8000/avatars/static/${htmlname}`);
+				this.sendReply(`${SERVER_URL}/avatars/static/${htmlname}`);
 			}
 		}
 		if (!foundReplay) {

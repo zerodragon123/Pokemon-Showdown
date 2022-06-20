@@ -48,7 +48,13 @@ import {FS, Utils, ProcessManager} from '../lib';
 import {
 	Auth, GlobalAuth, SECTIONLEADER_SYMBOL, PLAYER_SYMBOL, HOST_SYMBOL, RoomPermission, GlobalPermission,
 } from './user-groups';
-import { dropUser as dropPetModeUser} from './chat-plugins/ps-china-pet-mode';
+import { dropUser as dropPetModeUser } from './chat-plugins/ps-china-pet-mode';
+
+const loginMsgs: {[msgBox: string]: string} = {
+	'PS China Guide': FS(`config/ps-china/intro/ps-china-guide.html`).readIfExistsSync().replace(/\n/g, '').replace(/\t/g, ''),
+	'PS China BGM': FS(`config/ps-china/intro/ps-china-bgm.html`).readIfExistsSync().replace(/\n/g, '').replace(/\t/g, ''),
+	'PS China Intro': FS(`config/ps-china/intro/ps-china-intro.html`).readIfExistsSync().replace(/\n/g, '').replace(/\t/g, '')
+}
 
 const MINUTES = 60 * 1000;
 const IDLE_TIMER = 60 * MINUTES;
@@ -700,12 +706,11 @@ export class User extends Chat.MessageContext {
 		let zfill = (x: number) => { return ("0" + x).slice(-2); };
 		FS(`logs/iplog/${date.getFullYear()}-${zfill(date.getMonth() + 1)}-${zfill((date.getDate()))}.txt`)
 			.append(`${userid},${zfill(date.getHours())}:${zfill(date.getMinutes())},${connection.ip}\n`);
-		if (this.id.startsWith('guest')) ['PS China Guide', 'PS China Intro'].forEach(x => {
-			this.send(`|pm|${x}|${this.tempGroup}${this.name}|/raw ${
-				FS(`config/ps-china/intro/${x.toLocaleLowerCase().split(' ').join('-')}.html`).readIfExistsSync()
-			}`);
-		});
-		else dropPetModeUser(this.id);
+		if (this.id.startsWith('guest')) {
+			Object.entries(loginMsgs).forEach(([k, v]) => this.send(`|pm|${k}|${this.tempGroup}${this.name}|/raw ${v}`));
+		} else {
+			dropPetModeUser(this.id);
+		}
 
 		if (!name) name = '';
 		if (!/[a-zA-Z]/.test(name)) {

@@ -212,7 +212,7 @@ export const commands: Chat.ChatCommands = {
 								]);
 							});
 						});
-						buf += PetUtils.table([], ['Player', 'Replay'], replayTable);
+						buf += PetUtils.table([], ['Player', 'Replay'], replayTable, '100%', 'left', 'left', true);
 						buf += `</details>`;
 					});
 				} else {

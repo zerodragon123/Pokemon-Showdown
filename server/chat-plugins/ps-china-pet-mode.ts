@@ -1,14 +1,22 @@
 /*
 	Pokemon Showdown China Pet Mode Version 1.2
 	Author: Starmind
-	p2. Steel Terrain, Acid Rain, Mercy Aura, Ball Aura 特效
-	p2. 精灵球
-	p2. 降低重新读取频率
-	p2. pet box: Chat.ChatCommands -> Chat.PageTable
-	p1. 联盟
-	p1. 爬虫: 赛事报名列表
-	p0. 修modlog
-	p0. 论坛Awards
+
+	P2
+		1. translations/chinese
+		2. Pet特效 ( Steel Terrain, Acid Rain, Mercy Aura, Ball Aura )
+		3. 精灵球
+	P1
+		1. ps-china-forums.ts
+		2. 修ModLog
+		3. 专属BGM
+		4. TeamDB for Everyone
+		5. Pet联盟
+		6. 更新GitHub Projects
+	P0
+		1. CDL ( 撤队长GMod权限, 撤队伍头像, 使用率统计 )
+		2. 发奥林匹克宠物
+		3. 论坛Awards
 */
 
 import * as OS from "os";
@@ -47,7 +55,8 @@ type lotteryConfig = {
 
 const prng = new PRNG();
 
-const BOTID = 'pschinabot';
+export const BOTID = 'pschinabot';
+export const SERVER_URL = 'http://39.96.50.192:8000';
 const USERPATH = 'config/pet-mode/user-properties';
 const GIFTPATH = 'config/pet-mode/user-gifts';
 const DEPOSITPATH = 'config/pet-mode/deposit';
@@ -59,8 +68,8 @@ const POKESPRITESSHINY = 'https://play.pokemonshowdown.com/sprites/ani-shiny';
 const ITEMSHEET = 'https://play.pokemonshowdown.com/sprites/itemicons-sheet.png';
 const TYPEICONS = 'https://play.pokemonshowdown.com/sprites/types';
 const CATICONS = 'https://play.pokemonshowdown.com/sprites/categories';
-const ITEMFOLDER = 'http://39.96.50.192:8000/avatars/items';
-const EGGSPRITE = 'http://39.96.50.192:8000/avatars/static/egg.png';
+const ITEMFOLDER = `${SERVER_URL}/avatars/items`;
+const EGGSPRITE = `${SERVER_URL}/avatars/static/egg.png`;
 
 const HYPERCONFIG = JSON.parse(FS('config/pet-mode/hyper-config.json').readIfExistsSync() || '{}');
 const LAWNCD = HYPERCONFIG['LAWNCD'] || 2000;
@@ -178,13 +187,22 @@ export class PetUtils {
 		return `background: transparent url(${POKESHEET}?v5) no-repeat scroll -${left}px -${top}px; height: 32px; width: 40px;`;
 	}
 
-	static button(message: string, desc: string, style: string = '', highlight: boolean = false) {
+	static button(command: string, desc: string, style: string = '', highlight: boolean = false) {
 		const HLStyle = highlight ? 'border: inset; padding: 1.5px' : '';
-		return `<button style="${style} ${HLStyle}" class="button" name="send" value="${message}">${desc}</button>`
+		return `<button style="${style} ${HLStyle}" class="button" name="send" value="${command}">${desc}</button>`;
 	}
 
-	static boolButtons(yesMessage: string, noMessage: string) {
-		return this.button(yesMessage, '确认') + this.button(noMessage, '取消');
+	static boolButtons(confirmCommand: string, cancelCommand: string) {
+		return this.button(confirmCommand, '确认') + this.button(cancelCommand, '取消');
+	}
+
+	static disabledButton(desc: string, style: string = '') {
+		const DAStyle = 'font-weight: bold; color: #575757; background: #d3d3d3';
+		return `<button class="button disabled" style="${style} ${DAStyle}">${desc}</button>`;
+	}
+
+	static conditionalButton(condition: boolean, command: string, desc: string, style: string = '') {
+		return condition ? this.disabledButton(desc, style) : this.button(command, desc, style);
 	}
 
 	static parseStatPosition(target: string): statPosition | undefined {
@@ -198,9 +216,10 @@ export class PetUtils {
 
 	static table(
 		rowNames: (string | number)[], colNames: (string | number)[], content: (string | number)[][],
-		tableWidth: string = '100%', thAlign: 'center' | 'left' | 'right' = 'center', tdAlign: 'center' | 'left' | 'right' = 'center'
+		tableWidth: string = '100%', thAlign: 'center' | 'left' | 'right' = 'center', tdAlign: 'center' | 'left' | 'right' = 'center',
+		zebra: boolean = false
 	): string {
-		const tr = (s: string) => `<tr>${s}</tr>`;
+		const tr = (s: string, i: number) => `<tr ${zebra && !(i % 2) ? 'style="background: lightgray"' : ''}>${s}</tr>`;
 		const thStyle = `${thAlign === 'center' ? '' : `text-align: ${thAlign}; `}padding: 0`;
 		const th = (s: string | number) => `<th style="${thStyle}">${s}</th>`;
 		const tdStyle = `${tdAlign === 'left' ? '' : `text-align: ${tdAlign}; `}padding: 0`;
@@ -211,7 +230,8 @@ export class PetUtils {
 			colNames.unshift('');
 		}
 		if (colNames.length === tableBody[0].length) tableBody.unshift(colNames.map(th));
-		return `<table style="border-spacing: 0px; width: ${tableWidth}">${tableBody.map(row => tr(row.join(''))).join('')}</table>`;
+		const tableBodyStr = tableBody.map((row, rowIndex) => tr(row.join(''), rowIndex)).join('');
+		return `<table style="border-spacing: 0px; width: ${tableWidth}">${tableBodyStr}</table>`;
 	}
 
 	static popup(user: User | null, msg: string) {
@@ -939,6 +959,11 @@ class PetUser {
 
 	destroy() {
 		FS(this.path).unlinkIfExistsSync();
+	}
+
+	getTeam(): PokemonSet[] | null {
+		if (!this.property) return null;
+		return Teams.unpack(this.property['bag'].filter(Pet.validPet).join(']'));
 	}
 
 	editProperty(propertyString: string): boolean {
@@ -1728,7 +1753,7 @@ export const commands: Chat.ChatCommands = {
 			export(target, room, user) {
 				const petUser = getUser(user.id);
 				if (!petUser.property) return PetUtils.popup(user, "您还未领取最初的伙伴!");
-				let userTeam = Teams.unpack(petUser.property['bag'].filter(Pet.validPet).join(']'));
+				let userTeam = petUser.getTeam();
 				if (!userTeam) return PetUtils.popup(user, "您的背包有格式错误!");
 				userTeam = userTeam.map(Pet.correctAbility);
 				this.popupReply(Teams.export(userTeam));
@@ -2851,6 +2876,7 @@ export const commands: Chat.ChatCommands = {
 					PetUtils.button('/pet box', '盒子'),
 					PetUtils.button('/pet shop', '商店'),
 					`<a href="/gym"><button class="button">道馆</button></a>`,
+					PetUtils.button('/autochess', '自走棋'),
 				]);
 				if (PetBattle.legends[room.roomid]) {
 					buttons[0].push(PetUtils.button('/pet lawn search !', `挑战房间里的 ${
