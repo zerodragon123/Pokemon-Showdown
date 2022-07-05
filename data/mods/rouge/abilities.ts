@@ -363,6 +363,222 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		rating: 3,
 		num: 62,
 	},
+	umbraking: {
+		onModifyPriority(priority, pokemon, target, move) {
+			if (move?.category === 'Status') {
+				move.pranksterBoosted = true;
+				return priority + 1;
+			}
+		},
+		onCriticalHit: false,
+		onSourceModifyDamage(damage, source, target, move) {
+			if (target.hp >= target.maxhp) {
+				this.debug('Shadow Shield weaken');
+				return this.chainModify(0.5);
+			}
+		},
+		onModifyAccuracyPriority: 10,
+		onModifyAccuracy(accuracy, target, source, move) {
+			if (move.category === 'Status' && typeof accuracy === 'number') {
+				this.debug('Wonder Skin - setting accuracy to 50');
+				return 50;
+			}
+		},
+		onAfterEachBoost(boost, target, source, effect) {
+			if (!source || target.isAlly(source)) {
+				if (effect.id === 'stickyweb') {
+					this.hint("Court Change Sticky Web counts as lowering your own Speed, and Defiant only affects stats lowered by foes.", true, source.side);
+				}
+				return;
+			}
+			let statsLowered = false;
+			let i: BoostID;
+			for (i in boost) {
+				if (boost[i]! < 0) {
+					statsLowered = true;
+				}
+			}
+			if (statsLowered) {
+				this.add('-ability', target, 'Defiant');
+				this.boost({ atk: 2, spa: 2 }, target, target, null, true);
+			}
+		},
+		isBreakable: true,
+		name: "Umbraking",
+		rating: 3,
+		num: 5,
+	},
+	staticdamage: {
+		onDamage(damage, pokemon, source, effect) {
+			if (effect.effectType === 'Move') {
+				let dmg = Math.floor(pokemon.baseMaxhp / 6);
+				return dmg;
+			}
+		},
+		name: "Static Damage",
+		rating: 3,
+		num: 62,
+	},
+	shuoer: {
+		
+		onModifyPriority(priority, pokemon, target, move) {
+			return priority + 0.5;
+		},
+		onEmergencyExit(target) {
+			if (!this.canSwitch(target.side) || target.forceSwitchFlag || target.switchFlag) return;
+			for (const side of this.sides) {
+				for (const active of side.active) {
+					active.switchFlag = false;
+				}
+			}
+			target.switchFlag = true;
+			this.add('-activate', target, 'ability: Emergency Exit');
+		},
+		name: "Shuoer",
+		rating: 3,
+		num: 62,
+	},
+	spheal: {
+		onModifyAtkPriority: 5,
+		onModifyAtk(atk, pokemon) {
+			
+			return this.chainModify(2);
+			
+		},
+		onModifySpAPriority: 5,
+		onModifySpA(spa, pokemon) {
+
+			return this.chainModify(2);
+
+		},
+		onModifyDefPriority: 6,
+		onModifyDef(def, pokemon) {
+			return this.chainModify(2.5);
+		},
+		onModifySpDPriority: 6,
+		onModifySpD(spd, pokemon) {
+			return this.chainModify(2.5);
+		},
+		onSourceModifyAtkPriority: 6,
+		onSourceModifyAtk(atk, attacker, defender, move) {
+			if (move.type === 'Ice' || move.type === 'Fire') {
+				this.debug('Thick Fat weaken');
+				return this.chainModify(0.5);
+			}
+		},
+		onSourceModifySpAPriority: 5,
+		onSourceModifySpA(atk, attacker, defender, move) {
+			if (move.type === 'Ice' || move.type === 'Fire') {
+				this.debug('Thick Fat weaken');
+				return this.chainModify(0.5);
+			}
+		},
+		onWeather(target, source, effect) {
+			if (effect.id === 'hail') {
+				this.heal(target.baseMaxhp / 8);
+			}
+		},
+		onImmunity(type, pokemon) {
+			if (type === 'hail') return false;
+		},
+		onStart(source) {
+			this.field.setWeather('hail');
+			source.addVolatile('Defense Curl');
+		},
+		name: "Spheal",
+		rating: 3,
+		num: 62,
+	},
+	powerpill: {
+		onChargeMove(pokemon, target, move) {
+				this.debug('power herb - remove charge turn for ' + move.id);
+				this.attrLastMove('[still]');
+				this.addMove('-anim', pokemon, move.name, target);
+				return false; // skip charge turn
+			
+		},
+		name: "Power Pill",
+		rating: 3,
+		num: 62,
+	},
+	victini: {
+		onAfterMove(source, target, move) {
+			if (move.id === 'fusionbolt') {
+				this.actions.useMoveInner('fusionflare', source, target);
+			}
+			if (move.id === 'fusionflare') {
+				this.actions.useMoveInner('fusionbolt', source, target);
+			}
+		},
+		name: "Victini",
+		rating: 3,
+		num: 62,
+	},
+	sylveon: {
+		onModifyTypePriority: -1,
+		onModifyType(move, pokemon) {
+			const noModifyType = [
+				'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'technoblast', 'terrainpulse', 'weatherball',
+			];
+			if (move.type === 'Normal' && !noModifyType.includes(move.id) && !(move.isZ && move.category !== 'Status')) {
+				move.type = 'Fairy';
+				move.pixilateBoosted = true;
+			}
+		},
+		onModifyDamage(damage, source, target, move) {
+			if (target.getMoveHitData(move).typeMod < 0) {
+				this.debug('Tinted Lens boost');
+				return this.chainModify(2);
+			}
+		},
+		onBasePowerPriority: 23,
+		onBasePower(basePower, pokemon, target, move) {
+			if (move.pixilateBoosted) return this.chainModify([5325, 4096]);
+		},
+		name: "Sylveon",
+		rating: 4,
+		num: 182,
+	},
+	searabit: {
+		onTryHit(target, source, move) {
+			if (target !== source && (move.type === 'Water' || move.type==='Glass')) {
+				if (!this.boost({ spa: 1 })) {
+					this.add('-immune', target, '[from] ability: Storm Drain');
+				}
+				return null;
+			}
+		},
+		onTakeItem(item, pokemon, source) {
+			if (!this.activeMove) throw new Error("Battle.activeMove is null");
+			if (!pokemon.hp || pokemon.item === 'stickybarb') return;
+			if ((source && source !== pokemon) || this.activeMove.id === 'knockoff') {
+				this.add('-activate', pokemon, 'ability: Sticky Hold');
+				return false;
+			}
+		},
+		onBasePowerPriority: 21,
+		onBasePower(basePower, attacker, defender, move) {
+				if (move.type === 'Rock' || move.type === 'Ground' || move.type === 'Steel') {
+					this.debug('Sand Force boost');
+					return this.chainModify([5325, 4096]);
+				}
+		},
+		onAfterMove(source, target, move) {
+			if (move.type === 'Water') {
+				this.boost({ spa: 1 }, source, source);
+			}
+			if (move.type === "Ground") {
+				this.heal(source.maxhp / 4, source, source)
+			}
+		},
+		onImmunity(type, pokemon) {
+			if (type === 'sandstorm') return false;
+		},
+		isBreakable: true,
+		name: "Sea Rabit",
+		rating: 4,
+		num: 182,
+	},
 	//-------------player abilites
 	bomber: {
 		name: 'Bomber',
@@ -578,4 +794,5 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		rating: 3,
 		num: 5,
 	},
+	
 };

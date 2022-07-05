@@ -6,17 +6,17 @@
 		1. translations/chinese
 		2. Pet特效 ( Steel Terrain, Acid Rain, Mercy Aura, Ball Aura )
 		3. 精灵球
+		4. TeamDB: 小分级 & 旧时代
+		5. Forums: 自动发Sus帖
+		6. PokeMMO分级合法性数据
 	P1
-		1. ps-china-forums.ts
-		2. 修ModLog
-		3. 专属BGM
-		4. TeamDB for Everyone
-		5. Pet联盟
-		6. 更新GitHub Projects
+		1. 修ModLog
+		2. 华丽大赛
+		3. Pet联盟
+		4. 更新GitHub Projects
 	P0
-		1. CDL ( 撤队长GMod权限, 撤队伍头像, 使用率统计 )
-		2. 发奥林匹克宠物
-		3. 论坛Awards
+		1. GMod /ip 不显示隐藏房间
+		2. 自动定向加分选择加给谁
 */
 
 import * as OS from "os";
@@ -236,7 +236,7 @@ export class PetUtils {
 
 	static popup(user: User | null, msg: string) {
 		if (!user) return;
-		user.popup(`|html|<div style="text-align: center">${msg}</div>`);
+		user.popup(`|html|<div class="ps-china-popup" style="text-align: center">${msg}</div>`);
 	}
 }
 
@@ -549,13 +549,13 @@ class Pet {
 Dex.moves.all().forEach(move => {
 	Pet.moveIcons[move.name] = `background: url(${TYPEICONS}/${move.type}.png) no-repeat 5%, ` +
 		`url(${CATICONS}/${move.category}.png) no-repeat 95%;`;
-})
+});
 const typeIconImage = (t: string) => PetUtils.image(`background: url(${TYPEICONS}/${t}.png); width: 32px; height: 14px`);
 Dex.species.all().forEach(species => {
 	const img = typeIconImage(species.types[0]) + (species.types[1] ? typeIconImage(species.types[1]) : '');
 	Pet.typeIcons[species.name] = img;
 	species.cosmeticFormes?.forEach(forme => Pet.typeIcons[forme] = img);
-})
+});
 
 class PetBattle {
 

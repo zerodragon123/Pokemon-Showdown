@@ -334,6 +334,27 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		isZ: true,
 		contestType: "Cool",
 	},
+	alakazamdance: {
+		num: 349,
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		name: "Alakazam Dance",
+		pp: 1,
+		priority: 0,
+		flags: { snatch: 1, dance: 1 },
+		boosts: {
+			spa: 1,
+			def:1,
+			spd: 1,
+			accuracy:1,
+		},
+		secondary: null,
+		target: "self",
+		type: "Bug",
+		isZ: true,
+		contestType: "Cool",
+	},
 	trickroom: {
 		inherit: true,
 		condition: {
@@ -468,6 +489,37 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		type: "Ghost",
 		zMove: { effect: 'curse' },
 		contestType: "Tough",
+	},
+	brilliantredace: {
+		num: 174,
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		name: "Brilliant Red Ace",
+		pp: 10,
+		priority: 0,
+		flags: { authentic: 1 },
+		onPrepareHit(target, source) {
+			this.add('-anim', source, 'Stockpile', target);
+		},
+		onTryHit(target, source, move) {
+			
+			this.attrLastMove('[still]');
+		},
+		onHit(target, source, move) {
+			let x = target.boosts;
+			x.accuracy = -1;
+			target.setBoost(x);
+		},
+		boosts: {
+			atk: 1,
+			def: 2,
+			spd: 2,
+		},
+		secondary: null,
+		target: "self",
+		type: "Normal",
+		zMove: { effect: 'Stockpile' },
 	},
 	starmieboost: {
 		num: 702,
@@ -1771,6 +1823,25 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		},
 		desc: 'random pokemon of your team get Eject Station',
 		shortDesc: 'random pokemon of your team get Eject Station',
+	},
+	getsatorinowheelchair: {
+		num: 1002,
+		name: 'Get Satori No Wheelchair',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			selectpokemon(pokemon, ' Get Item');
+
+		},
+		desc: 'random pokemon of your team get Satori No Wheelchair',
+		shortDesc: 'random pokemon of your team get Satori No Wheelchair',
 	},
 	//----------movemoves
 
@@ -5248,7 +5319,7 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		flags: {},
 		onHit(pokemon) {
 			if (pokemon.side.team.length < 6) {
-				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.hammer, this.prng, pokemon.side.team[0].level))!);
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Hammer, this.prng, pokemon.side.team[0].level))!);
 				this.add('html', `<div class="broadcast-green"><strong>hammer has joined in your team</strong></div>`);
 				chooseroom(pokemon, this.prng);
 			} else {
@@ -5272,7 +5343,7 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		flags: {},
 		onHit(pokemon) {
 			if (pokemon.side.team.length < 6) {
-				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.emzzf, this.prng, pokemon.side.team[0].level))!);
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Emzzf, this.prng, pokemon.side.team[0].level))!);
 				this.add('html', `<div class="broadcast-green"><strong>emzzf has joined in your team</strong></div>`);
 				chooseroom(pokemon, this.prng);
 			} else {
@@ -5709,6 +5780,54 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 				chooseroom(pokemon, this.prng);
 			} else {
 				selectpokemon(pokemon, '','Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getdratini: {
+		num: 1000,
+		name: 'Get Dratini',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Dratini, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Dratini has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getyungoos: {
+		num: 1000,
+		name: 'Get Yungoos',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Yungoos, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Yungoos has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
 			}
 
 		},
@@ -7071,6 +7190,106 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		onHit(pokemon) {
 			RougeUtils.addRelics(this.toID(pokemon.side.name), 'trueshotaura');
 			this.add('html', `<div class="broadcast-green"><strong>you get the Trueshot Aura</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainpsychoanalysis: {
+		num: 1002,
+		name: 'Gain Psychoanalysis',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'psychoanalysis');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Psychoanalysis</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainfuturescope: {
+		num: 1002,
+		name: 'Gain Future Scope',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'futurescope');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Future Scope</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainfuturecamera: {
+		num: 1002,
+		name: 'Gain Future Camera',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'futurecamera');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Future Camera</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainstatuspush: {
+		num: 1002,
+		name: 'Gain Status Push',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'statuspush');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Status Push</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainlifestream: {
+		num: 1002,
+		name: 'Gain Lifestream',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'lifestream');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Lifestream</strong></div>`);
 			chooseroom(pokemon, this.prng);
 		},
 		desc: '',
@@ -9455,11 +9674,16 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 			if (lastmove) {
 				if (!RougeUtils.initMonsAndEvos.includes(target.name)) {
 					let replace = lastmove.replace('Get', '').trim() as keyof typeof Pokemonpool;
-					target = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
-					this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
-					chooseroom(pokemon, this.prng);
+					if (Pokemonpool[replace]) {
+						pokemon.side.team[0] = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
+						this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
+						chooseroom(pokemon, this.prng);
+					} else {
+						this.add('html', `<div class="broadcast-green"><strong>出了点问题，请联系管理员</strong></div>`);
+					}
 				} else {
 					this.add('html', `<div class="broadcast-green"><strong>不能换初始精灵can't replace initial pokemon</strong></div>`);
+					chooseroom(pokemon, this.prng);
 				}
 			}
 				
@@ -9486,11 +9710,16 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 			if (lastmove) {
 				if (!RougeUtils.initMonsAndEvos.includes(target.name)) {
 					let replace = lastmove.replace('Get', '').trim() as keyof typeof Pokemonpool;
-					target = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
-					this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
-					chooseroom(pokemon, this.prng);
+					if (Pokemonpool[replace]) {
+						pokemon.side.team[1] = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
+						this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
+						chooseroom(pokemon, this.prng);
+					} else {
+						this.add('html', `<div class="broadcast-green"><strong>出了点问题，请联系管理员</strong></div>`);
+					}
 				} else {
 					this.add('html', `<div class="broadcast-green"><strong>不能换初始精灵can't replace initial pokemon</strong></div>`);
+					chooseroom(pokemon, this.prng);
 				}
 			}
 
@@ -9499,7 +9728,7 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 
 		},
 	},
-	replacepokemon: {
+	replacepokemon3: {
 		num: 1000,
 		name: 'Replace Pokemon 3',
 		type: 'Normal',
@@ -9517,11 +9746,16 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 			if (lastmove) {
 				if (!RougeUtils.initMonsAndEvos.includes(target.name)) {
 					let replace = lastmove.replace('Get', '').trim() as keyof typeof Pokemonpool;
-					target = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
-					this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
-					chooseroom(pokemon, this.prng);
+					if (Pokemonpool[replace]) {
+						pokemon.side.team[2] = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
+						this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
+						chooseroom(pokemon, this.prng);
+					} else {
+						this.add('html', `<div class="broadcast-green"><strong>出了点问题，请联系管理员</strong></div>`);
+					}
 				} else {
 					this.add('html', `<div class="broadcast-green"><strong>不能换初始精灵can't replace initial pokemon</strong></div>`);
+					chooseroom(pokemon, this.prng);
 				}
 			}
 
@@ -9548,11 +9782,16 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 			if (lastmove) {
 				if (!RougeUtils.initMonsAndEvos.includes(target.name)) {
 					let replace = lastmove.replace('Get', '').trim() as keyof typeof Pokemonpool;
-					target = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
-					this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
-					chooseroom(pokemon, this.prng);
+					if (Pokemonpool[replace]) {
+						pokemon.side.team[3] = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
+						this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
+						chooseroom(pokemon, this.prng);
+					} else {
+						this.add('html', `<div class="broadcast-green"><strong>出了点问题，请联系管理员</strong></div>`);
+					}
 				} else {
 					this.add('html', `<div class="broadcast-green"><strong>不能换初始精灵can't replace initial pokemon</strong></div>`);
+					chooseroom(pokemon, this.prng);
 				}
 			}
 
@@ -9579,11 +9818,16 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 			if (lastmove) {
 				if (!RougeUtils.initMonsAndEvos.includes(target.name)) {
 					let replace = lastmove.replace('Get', '').trim() as keyof typeof Pokemonpool;
-					target = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
-					this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
-					chooseroom(pokemon, this.prng);
+					if (Pokemonpool[replace]) {
+						pokemon.side.team[4] = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
+						this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
+						chooseroom(pokemon, this.prng);
+					} else {
+						this.add('html', `<div class="broadcast-green"><strong>出了点问题，请联系管理员</strong></div>`);
+					}
 				} else {
 					this.add('html', `<div class="broadcast-green"><strong>不能换初始精灵can't replace initial pokemon</strong></div>`);
+					chooseroom(pokemon, this.prng);
 				}
 			}
 
@@ -9610,11 +9854,16 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 			if (lastmove) {
 				if (!RougeUtils.initMonsAndEvos.includes(target.name)) {
 					let replace = lastmove.replace('Get', '').trim() as keyof typeof Pokemonpool;
-					target = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
-					this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
-					chooseroom(pokemon, this.prng);
+					if (Pokemonpool[replace]) {
+						pokemon.side.team[5] = Teams.unpack(unpack(Pokemonpool[replace], this.prng, pokemon.side.team[0].level))![0];
+						this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has replaced ${replace}</strong></div>`);
+						chooseroom(pokemon, this.prng);
+					} else {
+						this.add('html', `<div class="broadcast-green"><strong>出了点问题，请联系管理员</strong></div>`);
+					}
 				} else {
 					this.add('html', `<div class="broadcast-green"><strong>不能换初始精灵can't replace initial pokemon</strong></div>`);
+					chooseroom(pokemon, this.prng);
 				}
 			}
 

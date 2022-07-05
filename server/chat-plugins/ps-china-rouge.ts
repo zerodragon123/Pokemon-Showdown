@@ -8,14 +8,14 @@ import { RougeUtils } from "../../data/mods/rouge/rulesets";
 export class Rouge {
 	
 	
-	static specialInitMons = ['Pidgey']
+	static specialInitMons = ['Pidgey', 'Quagsire','Umbreon']
 	static initButtons = [
 		[1, 5, 8, 11, 14, 17, 20, 23],
 		[2, 6, 9, 12, 15, 18, 21, 24],
 		[3, 7, 10, 13, 16, 19, 22, 25],
 		[4]
 	].map(x => x.map(x => PetUtils.button(`/rouge start ${x}`, '', PetUtils.iconStyle(RougeUtils.initMons[x - 1]))).join('')).join('<br>');
-	static specialInitButtons = [PetUtils.button(`/rouge start ${26}`, '', PetUtils.iconStyle(Rouge.specialInitMons[0]))].join('');
+	static specialInitButtons = [PetUtils.button(`/rouge start ${26}`, '', PetUtils.iconStyle(Rouge.specialInitMons[0])), PetUtils.button(`/rouge start ${27}`, '', PetUtils.iconStyle(Rouge.specialInitMons[1])), PetUtils.button(`/rouge start ${28}`, '', PetUtils.iconStyle(Rouge.specialInitMons[2]))].join('');
 	static leadbButtons = [2, 3, 4, 5, 6].map(x => PetUtils.button(`/rouge chooselead ${x}`, `${x}`)).join('');
 	static prng: PRNG = new PRNG();
 	static createBattle(
@@ -102,7 +102,7 @@ export const commands: Chat.ChatCommands = {
 			if (rougeProps && rougeProps.length > 2 && !isRebegin) {
 				let wave = (4 + Number(rougeProps[1]) * 6) / 10;
 				if (wave !== 13 && wave !== 19) {
-					botTeam = unpack(sample(Enemies[Math.floor(wave)], Math.min(Math.floor((1 + wave) * 0.6), 6), Rouge.prng), Rouge.prng);
+					botTeam = unpack(sample(Enemies[Math.floor(wave)], Math.min(Math.max(1, Math.floor((1 + wave) * 0.6)), 6), Rouge.prng), Rouge.prng);
 				} else {
 					botTeam = Rouge.prng.sample(Championteams[Math.ceil(wave / 13 )- 1]);
 				}
@@ -137,7 +137,9 @@ export const commands: Chat.ChatCommands = {
 					case 23: userTeam = unpack(Pokemonpool.Scorbunny, Rouge.prng); break;
 					case 24: userTeam = unpack(Pokemonpool.Sobble, Rouge.prng); break;
 					case 25: userTeam = unpack(Pokemonpool.Grookey, Rouge.prng); break;
-					case 26: userTeam = unpack(Pokemonpool.cscl, Rouge.prng); break;
+					case 26: userTeam = unpack(Pokemonpool.Cscl, Rouge.prng); break;
+					case 27: userTeam = unpack(Pokemonpool["Daiwa Scarlet"], Rouge.prng); break;
+					case 28: userTeam = unpack(Pokemonpool.Wind777, Rouge.prng); break;
 					default: return user.sendTo(room.roomid, `|html|<b>该角色暂未公布</b><br>`);
 				}
 				RougeUtils.setInitial(user.id, role);

@@ -538,4 +538,40 @@ export const Items: { [k: string]: ModdedItemData } = {
 		num: 1119,
 		gen: 8,
 	},
+	Satorinowheelchair: {
+		name: "Satori No Wheelchair",
+		spritenum: 249,
+		fling: {
+			basePower: 30,
+		},
+		onModifyDamage(damage, source, target, move) {
+			return this.chainModify([6144, 4096]);
+		},
+		onModifySpe(spe, pokemon) {
+			if (this.field.getPseudoWeather('trickroom'))
+				return this.chainModify([8192, 4096]);
+			return this.chainModify([2048, 4096]);
+
+		},
+		num: 270,
+		gen: 4,
+	},
+	oldsouldew: {
+		name: "Old Soul Dew",
+		spritenum: 459,
+		fling: {
+			basePower: 30,
+		},
+		onModifySpAPriority: 1,
+		onModifySpA(spa, pokemon) {
+			return this.chainModify(1.5);
+
+		},
+		onModifySpDPriority: 1,
+		onModifySpD(spd, pokemon) {
+			return this.chainModify(1.5);
+		},
+		num: 225,
+		gen: 3,
+	},
 };

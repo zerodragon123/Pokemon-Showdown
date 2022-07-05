@@ -6,7 +6,8 @@ import { PetUtils } from "./ps-china-pet-mode";
 const FORUMS_URL = 'http://47.94.147.145';
 const TOPIC_KEYS = ['中国队', '报名', '公开赛', '地域赛', '联赛', '大联盟', '大满贯', '锦标赛', '季赛', 'PL', 'ShinxCup', 'Suspect'];
 const INTRO_FOLDER = 'config/ps-china/intro';
-const INTRO_MSG_TYPES = ['PS China Guide', 'PS China BGM', 'PS China Intro'];
+const INTRO_MSG_TYPES = ['PS China Guide', 'PS China Intro', 'PS China BGM'];
+const NEWS_EDIT_CD = 60000;
 
 export const loginMsgs: {[msgType: string]: string} = {};
 INTRO_MSG_TYPES.forEach(msgType => loadMsgType(msgType));
@@ -49,60 +50,54 @@ function updatePSChinaGuide() {
 	loginMsgs['PS China Guide'] = loginMsgs['PS China Guide'].replace('{}', newsStr);
 }
 
+let lastEditTime = -1;
 let currentEditor = '';
 let currentCursor = -1;
 let newsTable: string[][] = [];
 
+function requireWriteAccess(userid: string): boolean {
+	if (currentEditor !== userid && !!Users.get(currentEditor) && Date.now() < lastEditTime + NEWS_EDIT_CD) {
+		return false;
+	}
+	currentEditor = userid;
+	lastEditTime = Date.now();
+	return true;
+}
+
 function showNewsTable(roomid: string): string {
-	let buf = '';
-	buf += `<p><b>新闻列表:</b></p>`;
-	buf += PetUtils.table(
-		[],
-		[],
-		newsTable
-		.map((row, i) => row.map((text, j) => {
-			if (text.startsWith('http')) text = `<a href="${text}">${text}</a>`;
-			if (currentCursor === i * 2 + j) {
-				let buf = '';
-				buf += `<form data-submitsend="/msgroom ${roomid}, /pschinaforums news edit ${i * 2 + j},{cn-forums-news-text}">`;
-				buf += `<input name="cn-forums-news-text" value="${escapeHTML(text)}"/> `;
-				buf += `<button class="button" type="submit">确认</button>`;
-				buf += `</form>`;
-				return buf;
-			} else {
-				return `${text} ${PetUtils.button(`/pschinaforums news edit ${i * 2 + j}`, '编辑')}`;
-			}
-		}))
-		.map(([title, url], i) => [PetUtils.button(`/pschinaforums news edit ${i * 2},-`, '-', 'width: 30px'), title, url])
-		.concat([[PetUtils.button(`/pschinaforums news edit ${newsTable.length * 2}`, '+', 'width: 30px'), '', '']]),
-		'100%',
-		'left',
-		'left',
-		true
-	);
-	buf += `<p>${PetUtils.boolButtons('/pschinaforums news update', '/pschinaforums news clear')}</p>`;
-	return buf;
+	const news = newsTable
+	.map((row, i) => row.map((text, j) => {
+		if (text.startsWith('http')) text = `<a href="${text}">${text}</a>`;
+		if (currentCursor === i * 2 + j) {
+			let buf = '';
+			buf += `<form data-submitsend="/msgroom ${roomid}, /pschinaforums news edit ${i * 2 + j},{cn-forums-news-text}">`;
+			buf += `<input name="cn-forums-news-text" value="${escapeHTML(text)}"/> `;
+			buf += `<button class="button" type="submit">确认</button>`;
+			buf += `</form>`;
+			return buf;
+		} else {
+			return `${text} ${PetUtils.button(`/pschinaforums news edit ${i * 2 + j}`, '编辑')}`;
+		}
+	}))
+	.map(([title, url], i) => [PetUtils.button(`/pschinaforums news edit ${i * 2},-`, '-', 'width: 30px'), title, url])
+	.concat([[PetUtils.button(`/pschinaforums news edit ${newsTable.length * 2}`, '+', 'width: 30px'), '', '']]);
+	const buttons = [
+		PetUtils.button('/pschinaforums news load', '从论坛读取'),
+		PetUtils.button('/pschinaforums news update', '保存'),
+		PetUtils.button('/pschinaforums news clear', '取消'),
+	];
+	return `<p><b>新闻列表:</b></p>${PetUtils.table([], [], news, '100%', 'left', 'left', true)}<p>${buttons.join('')}</p>`;
 }
 
 export const commands: Chat.ChatCommands = {
 	pschinaforums: {
 		news: {
-			'': 'load',
-			async load(target, room, user) {
-				this.requireRoom();
-				this.checkCan('lock');
-				if (currentEditor !== user.id) {
-					PetUtils.popup(Users.get(currentEditor), `您正在编辑的新闻列表被 ${user.name} 重置了。`);
-					newsTable = [];
-					currentEditor = user.id;
-				}
-				await loadPSChinaNews();
-				this.parse('/pschinaforums news edit -1');
-			},
+			'': 'edit',
 			edit(target, room, user) {
 				this.requireRoom();
-				if (currentEditor !== user.id) {
-					return this.errorReply(`${Users.get(currentEditor)?.name || currentEditor} 正在编辑新闻列表。`);
+				this.checkCan('lock');
+				if (!requireWriteAccess(user.id)) {
+					return this.errorReply(`${Users.get(currentEditor)?.name} 正在编辑新闻列表。`);
 				}
 				const [cursorStr, text] = target.split(',');
 				const cursor = ((parseInt(cursorStr) + 1) || 0) - 1;
@@ -121,9 +116,21 @@ export const commands: Chat.ChatCommands = {
 				}
 				this.sendReply(`|uhtml|cn-forums|${showNewsTable(room!.roomid)}`);
 			},
+			async load(target, room, user) {
+				this.requireRoom();
+				this.checkCan('lock');
+				if (!requireWriteAccess(user.id)) {
+					return this.errorReply(`${Users.get(currentEditor)?.name} 正在编辑新闻列表。`);
+				}
+				await loadPSChinaNews();
+				this.parse('/pschinaforums news edit');
+			},
 			update(target, room, user) {
 				this.requireRoom();
-				if (currentEditor !== user.id) return this.errorReply(`请先读取和编辑新闻列表。`);
+				this.checkCan('lock');
+				if (!requireWriteAccess(user.id)) {
+					return this.errorReply(`${Users.get(currentEditor)?.name} 正在编辑新闻列表。`);
+				}
 				updatePSChinaGuide();
 				currentEditor = '';
 				this.sendReply('新闻列表更新成功!');

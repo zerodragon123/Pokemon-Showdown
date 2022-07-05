@@ -937,22 +937,93 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 
 		onFieldStart(battle, source, effect) {
 			if (effect?.effectType === 'Ability') {
-				this.add('-fieldstart', 'Healing Area', '[from] ability: ' + effect, '[of] ' + source);
+				this.add('-fieldstart', 'Trueshot Area', '[from] ability: ' + effect, '[of] ' + source);
 			} else {
-				this.add('-fieldstart', 'Healing Area');
+				this.add('-fieldstart', 'Trueshot Area');
 			}
-			this.add('-message', 'Healing Area is radiated.');
+			this.add('-message', 'Trueshot Area is radiated.');
 		},
 
 
 		onFieldResidualOrder: 1,
 		onFieldResidual() {
-			this.add('-weather', 'Healing Area', '[upkeep]');
+			this.add('-weather', 'Trueshot Area', '[upkeep]');
 			this.eachEvent('Weather');
 		},
 		onFieldEnd() {
-			this.add('-fieldend', 'Healing Area');
-			this.add('-message', 'The Healing Area subsided.');
+			this.add('-fieldend', 'Trueshot Area');
+			this.add('-message', 'The Trueshot Area subsided.');
+		},
+	},
+	psychoanalysis: {
+		name: 'Psychoanalysis',
+		effectType: 'Weather',
+		duration: 0,
+
+		onModifyMovePriority: 100,
+		onModifyMove(move, pokemon, target) {
+
+			if (move.category !== 'Status' && move.type ==='Psychic' && pokemon.side === this.p2) {
+				
+					if (!move.secondaries) move.secondaries = [];
+				move.secondaries.push({ chance: 50, volatileStatus: 'confusion', });
+				}
+		},
+		onAfterMove(source, target, move) {
+			if (source && source.side === this.p2 && source.hp > 0 && source.types.includes('Psychic')) {
+				this.heal(source.maxhp * 0.1, source, source);
+			}
+		},
+		onFieldStart(battle, source, effect) {
+			if (effect?.effectType === 'Ability') {
+				this.add('-fieldstart', 'Psychoanalysis', '[from] ability: ' + effect, '[of] ' + source);
+			} else {
+				this.add('-fieldstart', 'Psychoanalysis');
+			}
+			this.add('-message', 'Psychoanalysis is radiated.');
+		},
+
+
+		onFieldResidualOrder: 1,
+		onFieldResidual() {
+			this.add('-weather', 'Psychoanalysis', '[upkeep]');
+			this.eachEvent('Weather');
+		},
+		onFieldEnd() {
+			this.add('-fieldend', 'Psychoanalysis');
+			this.add('-message', 'The Psychoanalysis subsided.');
+		},
+	},
+	statuspush: {
+		name: 'Status Push',
+		effectType: 'Weather',
+		duration: 0,
+
+		onAfterMoveSecondary(target, source, move) {
+			if (move.category !== "Status" && target && target.side === this.p1) {
+				if (this.prng.next(5) === 0) {
+					target.setStatus(this.sample(['brn', 'par', 'slp', 'frz', 'psn']), target);
+				}
+			}
+		},
+		onFieldStart(battle, source, effect) {
+			if (effect?.effectType === 'Ability') {
+				this.add('-fieldstart', 'Status Push', '[from] ability: ' + effect, '[of] ' + source);
+			} else {
+				this.add('-fieldstart', 'Status Push');
+			}
+			this.add('-message', 'Status Push is radiated.');
+		},
+
+
+		onFieldResidualOrder: 1,
+		onFieldResidual() {
+			this.add('-weather', 'Status Push', '[upkeep]');
+			this.eachEvent('Weather');
+		},
+		onFieldEnd() {
+			this.add('-fieldend', 'Status Push');
+			this.add('-message', 'The Status Push subsided.');
 		},
 	},
 };

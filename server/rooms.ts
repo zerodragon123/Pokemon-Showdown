@@ -1650,7 +1650,7 @@ export class GlobalRoomState {
 		if (!toID(room.format).includes('petmode') && !toID(room.format).includes('rougemod')) {
 			const reportButtons = ['Sky Pillar', 'Shinx']
 			.map(roomTitle => `<button class="button" name="send" value="/reportto ${toID(roomTitle)}">${roomTitle}</button>`);
-			room.add(`|html|<b>将对战链接公开到:</b> ${reportButtons.join('')}`).update();
+			room.add(`|uhtml|report-battle|<b>将对战链接公开到:</b> ${reportButtons.join('')}`).update();
 		}
 	}
 

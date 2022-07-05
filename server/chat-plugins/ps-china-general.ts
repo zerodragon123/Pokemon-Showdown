@@ -77,18 +77,33 @@ export const commands: Chat.ChatCommands = {
 	},
 
 	reportto(target, room, user) {
-		target = toID(target);
-		if (!target || !room || !room.battle) return this.parse('reporttohelp');
+		if (!target || !room || !room.battle) return this.parse('/reporttohelp');
 		this.checkCan('modchat', null, room);
-		this.parse(`/j ${target}`);
-		let buf = ``;
-		buf += `<a href='${room.roomid}'>`;
-		buf += `${room.game.title}: `;
-		buf += `<username class="username">${room.getPlayer(0).name}</username>`;
-		buf += ` v.s. `;
-		buf += `<username class="username">${room.getPlayer(1).name}</username>`;
-		buf += `</a>`;
-		Rooms.get(target)?.add(`|uhtml|${room.roomid}|${buf}`).update();
+		const targetRoom = Rooms.get(toID(target));
+		if (!targetRoom) return this.errorReply(`未找到房间 ${target}`);
+		if (target.endsWith('!')) {
+			let buf = `<a href='${room.roomid}'>`;
+			buf += `${room.game.title}: `;
+			buf += `<username class="username">${room.getPlayer(0).name}</username>`;
+			buf += ` v.s. `;
+			buf += `<username class="username">${room.getPlayer(1).name}</username>`;
+			buf += `</a>`;
+			targetRoom.add(`|uhtml|${room.roomid}|${buf}`).update();
+			buf = `<username class="username">${user.name}</username> `;
+			buf += `<b>已将对战链接公开到 <a href="/${targetRoom.roomid}">${targetRoom.title}</a> 房间</b> `;
+			buf += PetUtils.button(`/reportto ${targetRoom.roomid}!`, '更新');
+			buf += PetUtils.button(`/reportto ${targetRoom.roomid}~`, '撤回');
+			room.add(`|uhtmlchange|report-battle|${buf}`).update();
+		} else if (target.endsWith('~')) {
+			targetRoom.add(`|uhtmlchange|${room.roomid}|`).update();
+			const reportButtons = ['Sky Pillar', 'Shinx']
+			.map(roomTitle => `<button class="button" name="send" value="/reportto ${toID(roomTitle)}">${roomTitle}</button>`);
+			room.add(`|uhtmlchange|report-battle|<b>将对战链接公开到:</b> ${reportButtons.join('')}`).update();
+		} else {
+			let buf = `<b>确认将对战链接公开到 <a href="/${targetRoom.roomid}">${targetRoom.title}</a> 房间?</b> `;
+			buf += PetUtils.boolButtons(`/reportto ${targetRoom.roomid}!`, `/reportto ${targetRoom.roomid}~`);
+			this.sendReply(`|uhtmlchange|report-battle|${buf}`);
+		}
 	},
 	reporttohelp: [
 		`/reportto [room] - 将对战链接发送到room房间 (只能在对战房间使用)`,
@@ -121,11 +136,11 @@ export const commands: Chat.ChatCommands = {
 		const [pokemonString, formatString] = target.split(',');
 		this.runBroadcast();
 
-		const format = Dex.formats.get(formatString || 'gen8freeforall');
-		if (!format.exists) return this.parse('randomsethelp');
+		const format = Dex.formats.get(formatString || room?.battle?.format || 'gen8freeforall');
+		if (!format.exists) return this.parse('/randomsethelp');
 
 		const species = Dex.species.get(pokemonString);
-		if (!species.exists) return this.parse('randomsethelp');
+		if (!species.exists) return this.parse('/randomsethelp');
 		
 		const set = Teams.getGenerator(format.id).randomSet(species.id);
 		const prettyifiedSet = Utils.escapeHTML(Teams.export([set])).replace(/<br \/>$/, '');

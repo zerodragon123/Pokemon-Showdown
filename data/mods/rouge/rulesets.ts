@@ -182,7 +182,7 @@ export class RougeUtils {
 		if (userProperty?.rouge) {
 			let rougeProps = userProperty['rouge'].split("&");
 			if (rougeProps[5]) {
-				let life = parseInt(rougeProps[5]);
+				let life = Number(rougeProps[5]);
 				return life;
 			} else {
 				return 0;
@@ -196,7 +196,7 @@ export class RougeUtils {
 		if (userProperty?.rouge) {
 			let rougeProps = userProperty['rouge'].split("&");
 			if (rougeProps[5]) {
-				let life = parseInt(rougeProps[5]);
+				let life = Number(rougeProps[5]);
 				if (rougeProps[4] && rougeProps[4] === 'championroom') {
 					life -= 2;
 				} else {
@@ -218,12 +218,12 @@ export class RougeUtils {
 			return false;
 		}
 	}
-	static addLives(userid: ID): boolean {
+	static addLives(userid: ID, life: number=1): boolean {
 		let userProperty = this.getUser(userid);
 		if (userProperty?.rouge) {
 			let rougeProps = userProperty['rouge'].split("&");
 			if (rougeProps[5]) {
-				rougeProps[5] = String(Number(rougeProps[5]) + 1);
+				rougeProps[5] = String(Number(rougeProps[5]) + life);
 				userProperty['rouge'] = rougeProps.join('&');
 				this.saveUser(userid, userProperty);
 				return true;
@@ -233,6 +233,19 @@ export class RougeUtils {
 		} else {
 			return false;
 		}
+	}
+	static setItem(pokemon: Pokemon, item: string | Item, source?: Pokemon, effect?: Effect) {
+		if (!pokemon.hp ) return false;
+		if (pokemon.itemState.knockedOff) return false;
+		if (typeof item === 'string') item = pokemon.battle.dex.items.get(item);
+
+		
+		pokemon.item = item.id;
+		pokemon.itemState = { id: item.id, target: pokemon };
+		if (item.id) {
+			pokemon.battle.singleEvent('Start', item, pokemon.itemState, pokemon, source, effect);
+		}
+		return true;
 	}
 }
 
@@ -348,8 +361,8 @@ const relicsEffects = {
 	'sleightofhand': (battle: Battle) => {
 		for (let pokemon of battle.p1.pokemon.filter(pokemon => pokemon.ability !=='shopman')) {
 			if (battle.random(3) === 0) {
-				const newitem = battle.sample(['Toxic Orb', 'Flame Orb', 'Sticky Barb', 'Lagging Tail', 'Ring Target', 'Iron Ball','Black Sludge'])
-				const item = pokemon.setItem(newitem);
+				const newitem = battle.sample(['Toxic Orb', 'Flame Orb', 'Sticky Barb', 'Lagging Tail', 'Ring Target', 'Iron Ball', 'Black Sludge'])
+				const item = RougeUtils.setItem(pokemon,newitem);
 				if(item)
 					battle.add('message', `${pokemon}'s item is replaced ${newitem} by you`);
 			}
@@ -407,6 +420,67 @@ const relicsEffects = {
 	'trueshotaura': (battle: Battle) => {
 		battle.field.addPseudoWeather("Trueshot Aura");
 		battle.add('message', 'Trueshot Aura start');
+	},
+	'psychoanalysis': (battle: Battle) => {
+		battle.field.addPseudoWeather("Psychoanalysis");
+		battle.add('message', 'Psychoanalysis start');
+	},
+	'futurescope': (battle: Battle) => {
+		if (!battle.p1.addSlotCondition(battle.p1.active[0], 'futuremove')) return false;
+		Object.assign(battle.p1.slotConditions[battle.p1.active[0].position]['futuremove'], {
+			move: 'futurescope',
+			source: battle.p2.active[0],
+			moveData: {
+				id: 'futurescope',
+				name: "Future Scope",
+				accuracy: 100,
+				basePower: 0,
+				category: "Special",
+				priority: 0,
+				flags: {},
+				effectType: 'Move',
+				isFutureMove: true,
+				type: 'Steel',
+				secondary: {
+					chance: 100,
+					boosts: {
+						atk: -1,
+						def:-1,
+						spa:-1,
+						spd: -1,
+					},
+				},
+			},
+		});
+		battle.add('message', "you chose Future Scope as its destiny!");
+	},
+	'futurecamera': (battle: Battle) => {
+		if (!battle.p1.addSlotCondition(battle.p1.active[0], 'futuremove')) return false;
+		Object.assign(battle.p1.slotConditions[battle.p1.active[0].position]['futuremove'], {
+			move: 'doomdesire',
+			source: battle.p2.active[0],
+			moveData: {
+				id: 'doomdesire',
+				name: "Doom Desire",
+				accuracy: 100,
+				basePower: 140,
+				category: "Special",
+				priority: 0,
+				flags: {},
+				effectType: 'Move',
+				isFutureMove: true,
+				type: 'Steel',
+			},
+		});
+		battle.add('-start', battle.p2.active[0], 'Doom Desire');
+		
+	},
+	'statuspush': (battle: Battle) => {
+		battle.field.addPseudoWeather("Status Push");
+		battle.add('message', 'Status Push start');
+	},
+	'lifestream': (battle: Battle) => {
+		RougeUtils.addLives(battle.toID(battle.p2.name), 0.25);
 	},
 };
 
@@ -647,15 +721,20 @@ export const Rulesets: { [k: string]: FormatData } = {
 					championreward(this.p2.active[0], pokemon.item as 'moveroom' | 'abilityroom' |'eliteroom')
 				}
 			} else {
-				switch (checkWin(pokemon, this.sides)) {
-					case this.p2:
-						
-						break;
-					case this.p1:
-						if (!RougeUtils.reduceLives(this.toID(this.p2.name))) {
-							RougeUtils.updateUserTeam(this.toID(this.p2.name), '');
-						}
-						break;
+				if (pokemon.side === this.p2) {
+					switch (checkWin(pokemon, this.sides)) {
+						case this.p2:
+
+							break;
+						case this.p1:
+							if (!RougeUtils.reduceLives(this.toID(this.p2.name))) {
+								RougeUtils.updateUserTeam(this.toID(this.p2.name), '');
+								this.add('html', '<div class="broadcast-green">你战败后眼前一黑，醒来后就回到了家里。</div>');
+							} else {
+								this.add('html', '<button class="button" name="send" value="/rouge next">Try again</button>');
+							}
+							break;
+					}
 				}
 			}
 			// if (!this.p1.pokemonLeft) {
