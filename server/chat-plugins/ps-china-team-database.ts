@@ -165,7 +165,7 @@ export const commands: Chat.ChatCommands = {
 			this.requireRoom();
 			let buf = `<b>欢迎使用 PS China [Gen 8] OU 队伍数据库</b>`;
 			buf += `<form data-submitsend="/msgroom ${room!.roomid}, /teamdb search {p1},{p2},{p3},{p4},{p5},{p6};{s4},{s5}">`;
-			buf += SAMPLE_TEAM.map((x, i) => `<p>位置 ${i + 1} <input name="p${i + 1}" placeholder="${x}"/></p>`).join('');
+			buf += SAMPLE_TEAM.map((x, i) => `<p>位置 ${i + 1} <input name="p${i + 1}" value="${x}"/></p>`).join('');
 			buf += `<p>模糊匹配: <input name="s4" type="checkbox" value="-"/>4&emsp;`;
 			buf += `<input name="s5" type="checkbox" value="-" checked/>5</p>`;
 			buf += `<button class="button" type="submit">搜索</button></form></details>`;

@@ -39,7 +39,7 @@ const PSChinaCommands = {
 	},
 	'其他': {
 		'<@> 查找并公开replay': '/restorereplay',
-		'<@> 更新 PS China Guide': '/pschinaforums loadnews',
+		'<@> 更新 PS China Guide': '/pschinaforums news',
 		'将对战链接发送到房间': '/reportto',
 		'查看随机对战配置': '/randomset',
 		'<&> 天梯decay': '/laddertour decay',

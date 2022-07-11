@@ -1,5 +1,7 @@
 import { FS } from "../../lib";
 import { NetRequest } from "../../lib/net";
+import { escapeHTML } from "../../lib/utils";
+import { PetUtils } from "./ps-china-pet-mode";
 
 const FORUMS_URL = 'http://47.94.147.145';
 const TOPIC_KEYS = ['中国队', '报名', '公开赛', '地域赛', '联赛', '大联盟', '大满贯', '锦标赛', '季赛', 'PL', 'ShinxCup', 'Suspect'];
@@ -33,27 +35,106 @@ async function getRecentTopics(): Promise<{[index: string]: string}> {
 	return topics;
 }
 
-async function loadPSChinaNews(update: boolean = false): Promise<string[]> {
-	const tags = Object.entries(await getRecentTopics())
-	.filter(([num, title]) => TOPIC_KEYS.some(key => title.includes(key)))
-	.map(([num, title]) => `<p><a href="${FORUMS_URL}/topic/${num}">${title}</a></p>`);
-	if (update) updatePSChinaGuide(tags);
-	return tags;
+async function loadPSChinaNews(update: boolean = false): Promise<number> {
+	newsTable = Object.entries(await getRecentTopics())
+	.filter(([index, title]) => TOPIC_KEYS.some(key => title.includes(key)))
+	.map(([index, title]) => [title, `${FORUMS_URL}/topic/${index}`]);
+	if (update) updatePSChinaGuide();
+	return newsTable.length;
 }
 
-function updatePSChinaGuide(tags: string[]) {
+function updatePSChinaGuide() {
+	const newsStr = newsTable.map(([title, url]) => `<p><a href="${url}">${title}</a></p>`).join('');
 	loadMsgType('PS China Guide');
-	loginMsgs['PS China Guide'] = loginMsgs['PS China Guide'].replace('{}', tags.join(''));
+	loginMsgs['PS China Guide'] = loginMsgs['PS China Guide'].replace('{}', newsStr);
+}
+
+let currentEditor = '';
+let currentCursor = -1;
+let newsTable: string[][] = [];
+
+function showNewsTable(roomid: string): string {
+	let buf = '';
+	buf += `<p><b>新闻列表:</b></p>`;
+	buf += PetUtils.table(
+		[],
+		[],
+		newsTable
+		.map((row, i) => row.map((text, j) => {
+			if (text.startsWith('http')) text = `<a href="${text}">${text}</a>`;
+			if (currentCursor === i * 2 + j) {
+				let buf = '';
+				buf += `<form data-submitsend="/msgroom ${roomid}, /pschinaforums news edit ${i * 2 + j},{cn-forums-news-text}">`;
+				buf += `<input name="cn-forums-news-text" value="${escapeHTML(text)}"/> `;
+				buf += `<button class="button" type="submit">确认</button>`;
+				buf += `</form>`;
+				return buf;
+			} else {
+				return `${text} ${PetUtils.button(`/pschinaforums news edit ${i * 2 + j}`, '编辑')}`;
+			}
+		}))
+		.map(([title, url], i) => [PetUtils.button(`/pschinaforums news edit ${i * 2},-`, '-', 'width: 30px'), title, url])
+		.concat([[PetUtils.button(`/pschinaforums news edit ${newsTable.length * 2}`, '+', 'width: 30px'), '', '']]),
+		'100%',
+		'left',
+		'left',
+		true
+	);
+	buf += `<p>${PetUtils.boolButtons('/pschinaforums news update', '/pschinaforums news clear')}</p>`;
+	return buf;
 }
 
 export const commands: Chat.ChatCommands = {
 	pschinaforums: {
-		'ln': 'loadnews',
-		async loadnews(target, room, user) {
-			this.checkCan('lock');
-			const tags = await loadPSChinaNews();
-			updatePSChinaGuide(tags);
-			this.sendReplyBox(`<details><summary><b>已读取${tags.length}个最新活动</b></summary>${tags.join('')}</details>`);
+		news: {
+			'': 'load',
+			async load(target, room, user) {
+				this.requireRoom();
+				this.checkCan('lock');
+				if (currentEditor !== user.id) {
+					PetUtils.popup(Users.get(currentEditor), `您正在编辑的新闻列表被 ${user.name} 重置了。`);
+					newsTable = [];
+					currentEditor = user.id;
+				}
+				await loadPSChinaNews();
+				this.parse('/pschinaforums news edit -1');
+			},
+			edit(target, room, user) {
+				this.requireRoom();
+				if (currentEditor !== user.id) {
+					return this.errorReply(`${Users.get(currentEditor)?.name || currentEditor} 正在编辑新闻列表。`);
+				}
+				const [cursorStr, text] = target.split(',');
+				const cursor = ((parseInt(cursorStr) + 1) || 0) - 1;
+				const rowIndex = Math.floor(cursor / 2);
+				if (text === '-') {
+					newsTable.splice(rowIndex, 1);
+					currentCursor = -1;
+				} else if (rowIndex == newsTable.length) {
+					newsTable.push(['(请编辑标题)', '(请编辑链接)']);
+					currentCursor = -1;
+				} else if (cursor >= 0 && cursor === currentCursor) {
+					newsTable[rowIndex][cursor % 2] = text;
+					currentCursor = -1;
+				} else {
+					currentCursor = cursor;
+				}
+				this.sendReply(`|uhtml|cn-forums|${showNewsTable(room!.roomid)}`);
+			},
+			update(target, room, user) {
+				this.requireRoom();
+				if (currentEditor !== user.id) return this.errorReply(`请先读取和编辑新闻列表。`);
+				updatePSChinaGuide();
+				currentEditor = '';
+				this.sendReply('新闻列表更新成功!');
+				this.stafflog(`${user.name} 更新了新闻列表。`)
+				this.parse('/pschinaforums news clear');
+			},
+			clear(target, room, user) {
+				this.requireRoom();
+				if (currentEditor === user.id) currentEditor = '';
+				this.sendReply('|uhtmlchange|cn-forums|');
+			}
 		}
 	}
 }

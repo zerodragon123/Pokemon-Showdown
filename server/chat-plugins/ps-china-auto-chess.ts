@@ -59,6 +59,7 @@ class AutoChess {
 	private territory: number[][];
 	private moveStyle: 'greedy' | 'random';
 	private startCountDown: number;
+	private mapSize: number[];
 	private winner: number;
 	private turns: number;
 	private info: string[];
@@ -72,6 +73,7 @@ class AutoChess {
 		this.playerNames = playerIds.map(userId => Users.get(userId)?.name || 'Unknown Player');
 		this.spectatorIds = new Set(playerIds);
 		this.map = mapConfigs[roomId] = mapConfigs[roomId] || new AutoChessMapConfig(roomId);
+		this.mapSize = this.map.getSize();
 		this.moveStyle = 'greedy';
 
 		this.territory = [];
@@ -153,10 +155,11 @@ class AutoChess {
 	display() {
 		const title = this.winner >= 0 ? `W${this.winner + 1}` : `T${this.startCountDown}`;
 
+		const [mapWidth, mapHeight] = this.mapSize;
 		this.buf = `|uhtml|auto-chess-game|`;
 
 		// Title Zone
-		this.buf += `<div style="width: ${MAP_WIDTH}px; background: url(${LATTICE_IMG_FOLDER_URL}/${title}.png) center no-repeat">`;
+		this.buf += `<div style="width: ${mapWidth}px; background: url(${LATTICE_IMG_FOLDER_URL}/${title}.png) center no-repeat">`;
 		this.buf += `<div style="height: 80px">`;
 		this.buf += `<img src="${this.playerIconUrls[0]}" style="transform: scaleX(-1)"/>`;
 		this.buf += `<div style="width: ${this.status[0].length * 40}px; display: inline-block; vertical-align: top">`;
@@ -166,11 +169,11 @@ class AutoChess {
 		this.buf += `</div>`;
 		this.buf += `<div>`;
 		this.buf += `<p style="width: 80px; text-align: center; display: inline-block"><b>${this.playerNames[0]}</b></p>`;
-		this.buf += `<div style="width: ${MAP_WIDTH - 2 * 80}px; height: 10px; display: inline-block"></div>`;
+		this.buf += `<div style="width: ${mapWidth - 2 * 80}px; height: 10px; display: inline-block"></div>`;
 		this.buf += `<p style="width: 80px; text-align: center; display: inline-block"><b>${this.playerNames[1]}</b></p>`;
 		this.buf += `</div>`;
 		this.buf += `<div style="height: 80px">`;
-		this.buf += `<div style="width: ${MAP_WIDTH - 80 - this.status[1].length * 40}px; display: inline-block"></div>`;
+		this.buf += `<div style="width: ${mapWidth - 80 - this.status[1].length * 40}px; display: inline-block"></div>`;
 		this.buf += `<div style="width: ${this.status[1].length * 40}px; display: inline-block">`;
 		this.buf += this.status[1].map(poke => `<psicon pokemon="${toID(poke.set.species)}">`).join('');
 		this.buf += this.status[1].map(poke => `<img src="${LATTICE_IMG_FOLDER_URL}/HP${Math.ceil(poke.hp)}.png">`).join('');
@@ -180,7 +183,7 @@ class AutoChess {
 		this.buf += `</div>`;
 
 		// Battle Zone
-		this.buf += `<div style="width: ${MAP_WIDTH}px; height: ${MAP_HEIGHT}px; position: relative">`;
+		this.buf += `<div style="width: ${mapWidth}px; height: ${mapHeight}px; position: relative">`;
 		this.buf += this.map.showImg();
 		const displayPos: number[][][] = [];
 		this.status.forEach((playerStatus, playerIndex) => {
@@ -645,6 +648,22 @@ class AutoChessMapConfig {
 			pieceCount[Math.floor(num / LATTICE_TYPES.length)]++;
 		}));
 		return pieceCount.shift() > 0 && pieceCount.every(x => x === 1);
+	}
+
+	getSize() {
+		let width = 0;
+		let height = 0;
+		this.lattices.forEach((row, rowIndex) => {
+			let lastIndex;
+			for (lastIndex = row.length - 1; row[lastIndex] < 0; lastIndex--);
+			if (lastIndex >= 0) {
+				const rowWidth = LATTICE_WIDTH * (lastIndex + 1 + 0.5 * (rowIndex % 2));
+				width = Math.max(width, rowWidth);
+				height = LATTICE_HEIGHT * (1 + 0.75 * rowIndex);
+			}
+		});
+		width = Math.max(width, 80 + 40 * 6);
+		return [width, height];
 	}
 
 	setLattice(targetLatticeNum: number, targetPieceNum: number, targetRow: number, targetCol: number): boolean {
