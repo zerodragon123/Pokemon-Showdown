@@ -4223,15 +4223,16 @@ export const Formats: FormatList = [
 		banlist: ['Unreleased', 'Unobtainable', 'Past', 'Future', 'LGPE', 'CAP', 'Custom'],
 	},
 	{
-		name: "[Gen 7] Pokeone",
+		name: "[Gen 7] PokeOne",
 
 		rated: true,
 		mod: 'gen7',
 		ruleset: ['Standard'],
-		banlist: ['Uber', 'Arena Trap', 'Power Construct', 'Shadow Tag', 'Baton Pass', 'Greninja-Ash', 'Magearna', 'Tapu Fini', 'Tapu koko', 'Tapu bulu', 'Tapu lele',
+		banlist: [
+			'Uber', 'Arena Trap', 'Power Construct', 'Shadow Tag', 'Baton Pass', 'Greninja-Ash', 'Magearna', 'Tapu Fini', 'Tapu koko', 'Tapu bulu', 'Tapu lele',
 			'Manaphy', 'Victini', 'Kartana', 'Blacephalon', 'Xurkitree', 'Celesteela', 'Nihilego', 'Buzzwole', 'Stakataka', 'Weavile', 'Gastrodon', 'Aegislash', 'Volcanion',
 			'Hoopa', 'Ribombee', 'Toxapex', 'Silvally', 'Type: Null', 'Zeraora', `King's Rock`, `Kyurem-Black`, `Kyurem`, 'fusion Bolt', 'Blue Flare', 'Bolt Strike', 'Glaciate',
-			'Fusion Flare', 'Quick Claw', 'Shaymin', 'Bright Powder', 'Lax Incense'
+			'Fusion Flare', 'Quick Claw', 'Shaymin'
 		],
 		onValidateSet(set) {
 			if (Dex.items.get(set.item).megaStone || Dex.items.get(set.item).zMove)
@@ -4242,8 +4243,10 @@ export const Formats: FormatList = [
 			}
 
 		},
-		unbanlist: ['Normal Gem', 'Bug Gem', 'Dark Gem', 'Dragon Gem', 'Electric Gem', 'Fairy Gem', 'Fighting Gem', 'Fire Gem', 'Flying Gem', 'Ghost Gem', 'Grass Gem', 'Ground Gem',
-			'Ice Gem', 'Poison Gem', 'Psychic Gem', 'Rock Gem', 'Steel Gem', 'Water Gem', 'Landorus']
+		unbanlist: [
+			'Normal Gem', 'Bug Gem', 'Dark Gem', 'Dragon Gem', 'Electric Gem', 'Fairy Gem', 'Fighting Gem', 'Fire Gem', 'Flying Gem', 'Ghost Gem', 'Grass Gem', 'Ground Gem',
+			'Ice Gem', 'Poison Gem', 'Psychic Gem', 'Rock Gem', 'Steel Gem', 'Water Gem', 'Landorus'
+		]
 	},
 	////////////////////   奈亚子杯
 	{
