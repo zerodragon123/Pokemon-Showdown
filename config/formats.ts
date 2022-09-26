@@ -4274,7 +4274,7 @@ export const Formats: FormatList = [
 	},
 	////////////////////   每月特殊分级
 	{
-		section: "PSChina Special Of The Mouth",
+		section: "PSChina Special Of The Month",
 		column: 1,
 	},
 	{
@@ -4361,7 +4361,6 @@ export const Formats: FormatList = [
 
 		mod: 'gen8',
 		gameType: 'doubles',
-		searchShow: false,
 		ruleset: ['Flat Rules', '!! Adjust Level = 50', 'VGC Timer', '+Unobtainable',	'+Past', 'Sketch Gen 8 Moves'],
 		onValidateSet(set) {
 			// These Pokemon are still unobtainable
