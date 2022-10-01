@@ -90,7 +90,10 @@ export const commands: Chat.ChatCommands = {
 			let rougeProps = RougeUtils.loadRougeProps(user.id);
 			let isRebegin = !(rougeProps && rougeProps.length > 1) || rougeProps[1] !== rougeProps[2]
 			if (!target && isRebegin) {
-				return user.sendTo(room.roomid, `|uhtml|rouge|<b>请选择开局精灵:</b><br/>${Rouge.initButtons}<br/><b>特殊开局:</b><br/>${Rouge.specialInitButtons}`);
+				let beginstr = `|uhtml|rouge|<b>请选择开局精灵:</b><br/>${Rouge.initButtons}<br/>`;
+				if (RougeUtils.checkPassRecord(user.id))
+					beginstr += `<b>特殊开局: </b><br/ > ${Rouge.specialInitButtons}`;
+				return user.sendTo(room.roomid, beginstr);
 			}
 
 			const bot = Users.get(BOTID);

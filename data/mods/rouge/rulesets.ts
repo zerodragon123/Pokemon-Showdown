@@ -247,6 +247,24 @@ export class RougeUtils {
 		}
 		return true;
 	}
+	static checkPassRecord(userid: ID): boolean {
+		let userProperty = this.getUser(userid);
+		if (userProperty?.rouge) {
+			let rougeProps = userProperty['passrecord'];
+			if (rougeProps?.void) {
+				for (let i of rougeProps?.void) {
+					if (!i)
+						return false;
+				}
+				return true;
+			}
+			 else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
 }
 
 const relicsEffects = {
