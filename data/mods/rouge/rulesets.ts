@@ -36,7 +36,7 @@ export class RougeUtils {
 	}
 
 	static saveUser(userid: ID, userProperty: rougeUserProperty) {
-		FS(`${USERPATH}/${userid}.json`).safeWriteSync(JSON.stringify(userProperty));
+		FS(`${USERPATH}/${userid}.json`).writeUpdate(() => JSON.stringify(userProperty), { throttle: 10 });
 	}
 
 	static loadRougeProps(userid: ID): string[] | undefined {
