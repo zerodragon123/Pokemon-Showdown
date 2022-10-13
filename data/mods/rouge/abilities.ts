@@ -220,6 +220,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 			const types = ['Grass', "Dark", 'Water', "Ice", "Psychic", "Electric", "Fire", "Fairy"];
 			for (let type of types) {
 				pokemon.addType(type);
+				this.add('-start', pokemon, 'typeadd', type, '[from] move: Forest\'s Curse');
 			}
 			pokemon.maxhp = Math.floor( pokemon.maxhp * 1.5);
 			pokemon.hp = Math.floor(pokemon.hp * 1.5)
