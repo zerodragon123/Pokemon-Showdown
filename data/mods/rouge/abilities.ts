@@ -779,7 +779,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		
 		onDamagePriority: -30,
 		onDamage(damage, target, source, effect) {
-			if (damage >= target.hp && effect && effect.effectType === 'Move' && !target.m.renewaled) {
+			if (damage >= target.hp && effect && effect.effectType === 'Move' && !target.m.renewaled && source.item !=='seismiclever') {
 				this.add('-ability', target, 'Renewal');
 				this.damage(target.hp - 1, target, source, effect);
 				this.heal(target.maxhp, target, target);
