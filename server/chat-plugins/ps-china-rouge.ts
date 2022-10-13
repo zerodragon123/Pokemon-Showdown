@@ -179,6 +179,9 @@ export const commands: Chat.ChatCommands = {
 		chooselead(target, room, user) {
 			if (!user.registered) return PetUtils.popup(user, "请先注册账号!");
 			if (!room) return PetUtils.popup(user, "请在房间里使用Rouge系统");
+			if (Rouge.inBattle(user.id)) {
+				return user.popup(`|html|<div style="text-align: center">请先完成对战再改首发</div>`);
+			}
 			let num = Number(target) - 1
 			if (num && Number.isInteger(num) && num <= 5 && num >= 1) {
 				let x = RougeUtils.changeLead(user.id, num);
