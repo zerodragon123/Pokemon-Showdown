@@ -4281,9 +4281,8 @@ export const Formats: FormatList = [
 	},
 	{
 		name: "[Gen 8] Stat Gift",
-		desc: `1号位精灵hp种族翻倍，2号位精灵atk种族翻倍，3号位精灵def种族翻倍，4号位精灵spa种族翻倍，5号位精灵spd种族翻倍，6号位精灵spe种族翻倍,最高255.\n` +
-				`Each Pok&eacute;mon will double its stat depending on its position in the team,The upper limit is 255`
-		,
+		desc: `1号位精灵hp种族翻倍, 2号位精灵atk种族翻倍, 3号位精灵def种族翻倍, 4号位精灵spa种族翻倍, 5号位精灵spd种族翻倍, 6号位精灵spe种族翻倍,最高255.\n` +
+				`Each Pok&eacute;mon will double its stat depending on its position in the team,The upper limit is 255`,
 		mod: 'gen8',
 		ruleset: ['Standard', 'Dynamax Clause','Overflow Stat Mod'],
 		banlist: ['Uber', 'AG', 'Arena Trap', 'Moody', 'Power Construct', 'Sand Veil', 'Shadow Tag', 'Snow Cloak', 'King\'s Rock', 'Baton Pass'],
@@ -4292,11 +4291,10 @@ export const Formats: FormatList = [
 		},
 		onModifySpecies(species, target, source) {
 			if (source || !target?.side) return;
-			
+
 			const stat = Dex.stats.ids()[target.side.team.indexOf(target.set)];
 			const newSpecies = this.dex.deepClone(species);
-			
-			
+
 			newSpecies.bst -= newSpecies.baseStats[stat];
 			newSpecies.baseStats[stat] = this.clampIntRange(newSpecies.baseStats[stat]*2, 1, 255) ;
 			newSpecies.bst += newSpecies.baseStats[stat];

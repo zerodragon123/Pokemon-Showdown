@@ -5,9 +5,9 @@ import { Pokemonpool } from "../../config/rouge/pokemonpool";
 import { Championteams } from "../../config/rouge/Championteams";
 import { Enemies } from "../../config/rouge/Enemies";
 import { RougeUtils } from "../../data/mods/rouge/rulesets";
+
 export class Rouge {
-	
-	
+
 	static specialInitMons = ['Pidgey', 'Quagsire','Umbreon']
 	static initButtons = [
 		[1, 5, 8, 11, 14, 17, 20, 23],
