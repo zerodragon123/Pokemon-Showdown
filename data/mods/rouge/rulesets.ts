@@ -36,7 +36,7 @@ export class RougeUtils {
 	}
 
 	static saveUser(userid: ID, userProperty: rougeUserProperty) {
-		FS(`${USERPATH}/${userid}.json`).writeUpdate(() => JSON.stringify(userProperty), { throttle: 10 });
+		FS(`${USERPATH}/${userid}.json`).safeWriteSync( JSON.stringify(userProperty));
 	}
 
 	static loadRougeProps(userid: ID): string[] | undefined {
@@ -564,8 +564,7 @@ export const Rulesets: { [k: string]: FormatData } = {
 				const rand = this.prng.next(3);
 				this.p1.pokemon.push(new Pokemon(Teams.unpack('Reward|Shop||shopman|' + (rand === 0 ? 'Evo A Pokemon,' : rand === 1 ? this.prng.next(3)===0? 'Evo All,' : 'Refresh Reward,' : 'skip,') + sample(reward, 3, this.prng, reward2).join(',') + '|Careful|252,4,,,252,|||||')![0], this.p2));
 				this.p1.pokemon.push(new Pokemon(Teams.unpack('Shopowner|Magikarp||shopman|splash|Hardy||M|0,0,0,0,0,0||5|')![0], this.p1));
-			}	
-
+			}
 			this.p1.pokemonLeft += 6;
 			this.p1.emitRequest = (update: AnyObject) => {
 				this.send('sideupdate', `${this.p1.id}\n|request|${JSON.stringify(update)}`);

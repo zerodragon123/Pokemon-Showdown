@@ -32,6 +32,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 				pokemon.maybeTrapped = true;
 			}
 		},
+		isPermanent: true,
 		name: "Shop Man",
 		rating: 4,
 		num: 98,
@@ -426,7 +427,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 			return priority + 0.5;
 		},
 		onEmergencyExit(target) {
-			if (!this.canSwitch(target.side) || target.forceSwitchFlag || target.switchFlag) return;
+			if (!this.canSwitch(target.side) || target.forceSwitchFlag || target.switchFlag || target.side.pokemonLeft<=7) return;
 			for (const side of this.sides) {
 				for (const active of side.active) {
 					active.switchFlag = false;

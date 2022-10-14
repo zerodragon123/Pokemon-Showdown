@@ -5,6 +5,7 @@ import { Pokemonpool } from "../../config/rouge/pokemonpool";
 import { Championteams } from "../../config/rouge/Championteams";
 import { Enemies } from "../../config/rouge/Enemies";
 import { RougeUtils } from "../../data/mods/rouge/rulesets";
+
 export class Rouge {
 	
 	
@@ -57,7 +58,7 @@ export class Rouge {
 		return [...user.inRooms].find(x => toID(x).indexOf('rougemod') >= 0 && battleWithBot(x));
 	}
 }
-
+export let rooms: { [uid: string]: GameRoom | undefined } = {};
 export const commands: Chat.ChatCommands = {
 
 	rouge: {
@@ -149,7 +150,24 @@ export const commands: Chat.ChatCommands = {
 				botTeam = unpack(Rouge.prng.sample(Enemies[0]), Rouge.prng);
 				RougeUtils.updateUserTeam(user.id, userTeam, true);
 			}
-			Rouge.createBattle(user, bot, userTeam, botTeam, 'gen8rougemod @@@pschinarougemode', undefined);
+
+			if (rooms[user.id]) {
+				rooms[user.id]?.destroy();
+				rooms[user.id] = undefined;
+			}
+			let roombattle = Rouge.createBattle(user, bot, userTeam, botTeam, 'gen8rougemod @@@pschinarougemode', undefined);
+			if (roombattle)
+				rooms[user.id]=roombattle;
+			//let ll=-1;
+			//if (rooms)
+			//	ll = rooms[user.id].findIndex(x => x.battle?.ended);
+			//if (ll>-1) {
+			//	rooms[user.id][ll].destroy();
+			//	rooms[user.id].splice(ll, 1);
+			//}
+			//let roombattle = Rouge.createBattle(user, bot, userTeam, botTeam, 'gen8rougemod @@@pschinarougemode', undefined);
+			//if (roombattle)
+			//	rooms[user.id].push(roombattle);
 		},
 
 		clearcache(target, room, user) {
