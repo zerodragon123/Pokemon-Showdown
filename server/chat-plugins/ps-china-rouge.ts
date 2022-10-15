@@ -22,8 +22,11 @@ export class Rouge {
 		user: User, bot: User, userTeam: string, botTeam: string, format: string, hidden: boolean | undefined,
 		delayedStart: boolean | 'multi' | undefined = false
 	): GameRoom | undefined {
-		//A.getInstance().aa = Users;
-		return Rooms.createBattle({
+		if (rougeBattleRooms[user.id]) {
+			rougeBattleRooms[user.id]?.destroy();
+			delete rougeBattleRooms[user.id];
+		}
+		rougeBattleRooms[user.id] = Rooms.createBattle({
 			format: format,
 			p1: {
 				user: bot,
@@ -45,6 +48,7 @@ export class Rouge {
 			challengeType: 'unrated',
 			delayedStart: delayedStart,
 		});
+		return rougeBattleRooms[user.id];
 	}
 	static inBattle(userid: string): string | undefined {
 		const battleWithBot = (roomid: string) => {
@@ -57,7 +61,7 @@ export class Rouge {
 		return [...user.inRooms].find(x => toID(x).indexOf('rougemod') >= 0 && battleWithBot(x));
 	}
 }
-export let rooms: { [uid: string]: GameRoom | undefined } = {};
+const rougeBattleRooms: { [userid: string]: GameRoom | undefined } = {};
 export const commands: Chat.ChatCommands = {
 
 	rouge: {
@@ -150,13 +154,7 @@ export const commands: Chat.ChatCommands = {
 				RougeUtils.updateUserTeam(user.id, userTeam, true);
 			}
 
-			if (rooms[user.id]) {
-				rooms[user.id]?.destroy();
-				rooms[user.id] = undefined;
-			}
-			let roombattle = Rouge.createBattle(user, bot, userTeam, botTeam, 'gen8rougemod @@@pschinarougemode', undefined);
-			if (roombattle)
-				rooms[user.id]=roombattle;
+			Rouge.createBattle(user, bot, userTeam, botTeam, 'gen8rougemod @@@pschinarougemode', undefined);
 			//let ll=-1;
 			//if (rooms)
 			//	ll = rooms[user.id].findIndex(x => x.battle?.ended);

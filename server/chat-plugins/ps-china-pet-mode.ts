@@ -15,7 +15,6 @@
 		3. Pet联盟
 		4. 更新GitHub Projects
 	P0
-		0. 对战结束后删除房间，取消道馆和Boss的CD时间
 		1. GMod /ip 不显示隐藏房间
 		2. 自动定向加分选择加给谁
 */
@@ -74,7 +73,7 @@ const EGGSPRITE = `${SERVER_URL}/avatars/static/egg.png`;
 
 const HYPERCONFIG = JSON.parse(FS('config/pet-mode/hyper-config.json').readIfExistsSync() || '{}');
 const LAWNCD = HYPERCONFIG['LAWNCD'] || 2000;
-const GYMCD = HYPERCONFIG['GYMCD'] || 300000;
+const GYMCD = HYPERCONFIG['GYMCD'] || 10000;
 const BALLCD = HYPERCONFIG['BALLCD'] || 300000;
 const LAWNLIMIT = HYPERCONFIG['LAWNLIMIT'] || 2000;
 const BOSSLIMIT = HYPERCONFIG['BOSSLIMIT'] || 3;
@@ -558,6 +557,7 @@ Dex.species.all().forEach(species => {
 	species.cosmeticFormes?.forEach(forme => Pet.typeIcons[forme] = img);
 });
 
+const petBattleRooms: { [userid: string]: GameRoom | undefined } = {};
 class PetBattle {
 
 	static legends: { [roomid: string]: string } = {};
@@ -667,7 +667,11 @@ class PetBattle {
 		user: User, bot: User, userTeam: string, botTeam: string, format: string, hidden: boolean,
 		delayedStart: boolean | 'multi' | undefined = false
 	): GameRoom | undefined {
-		return Rooms.createBattle({
+		if (petBattleRooms[user.id]) {
+			petBattleRooms[user.id]?.destroy();
+			delete petBattleRooms[user.id];
+		}
+		petBattleRooms[user.id] = Rooms.createBattle({
 			format: format,
 			p1: {
 				user: bot,
@@ -689,6 +693,7 @@ class PetBattle {
 			challengeType: 'unrated',
 			delayedStart: delayedStart,
 		});
+		return petBattleRooms[user.id];
 	}
 
 }
