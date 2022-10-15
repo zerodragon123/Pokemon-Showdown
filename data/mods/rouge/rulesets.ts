@@ -255,8 +255,8 @@ export class RougeUtils {
 		if (userProperty?.rouge) {
 			let rougeProps = userProperty['passrecord'];
 			if (rougeProps?.void) {
-				for (let i of rougeProps?.void) {
-					if (!i)
+				for (let i = 0; i < 25;i++) {
+					if (!rougeProps.void[i])
 						return false;
 				}
 				return true;
