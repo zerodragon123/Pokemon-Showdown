@@ -503,6 +503,10 @@ const relicsEffects = {
 	'lifestream': (battle: Battle) => {
 		RougeUtils.addLives(battle.toID(battle.p2.name), 0.25);
 	},
+	'stope': (battle: Battle) => {
+		battle.field.addPseudoWeather("stope");
+		battle.add('message', 'Stope start');
+	},
 };
 
 
