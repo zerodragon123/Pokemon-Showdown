@@ -32,6 +32,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 				pokemon.maybeTrapped = true;
 			}
 		},
+		isPermanent: true,
 		name: "Shop Man",
 		rating: 4,
 		num: 98,
@@ -220,6 +221,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 			const types = ['Grass', "Dark", 'Water', "Ice", "Psychic", "Electric", "Fire", "Fairy"];
 			for (let type of types) {
 				pokemon.addType(type);
+				this.add('-start', pokemon, 'typeadd', type, '[from] move: Forest\'s Curse');
 			}
 			pokemon.maxhp = Math.floor( pokemon.maxhp * 1.5);
 			pokemon.hp = Math.floor(pokemon.hp * 1.5)
@@ -425,7 +427,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 			return priority + 0.5;
 		},
 		onEmergencyExit(target) {
-			if (!this.canSwitch(target.side) || target.forceSwitchFlag || target.switchFlag) return;
+			if (!this.canSwitch(target.side) || target.forceSwitchFlag || target.switchFlag || target.side.pokemonLeft<=7) return;
 			for (const side of this.sides) {
 				for (const active of side.active) {
 					active.switchFlag = false;
@@ -779,7 +781,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		
 		onDamagePriority: -30,
 		onDamage(damage, target, source, effect) {
-			if (damage >= target.hp && effect && effect.effectType === 'Move' && !target.m.renewaled) {
+			if (damage >= target.hp && effect && effect.effectType === 'Move' && !target.m.renewaled && source.item !=='seismiclever') {
 				this.add('-ability', target, 'Renewal');
 				this.damage(target.hp - 1, target, source, effect);
 				this.heal(target.maxhp, target, target);
