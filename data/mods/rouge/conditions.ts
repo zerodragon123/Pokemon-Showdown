@@ -1045,17 +1045,18 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 						case 2: this.heal(target.baseMaxhp / 6, target);
 						case 3: {
 							if (this.field.isWeather('sandstorm'))
-								if (target.foes()[0].m.sanddamage)
-									target.foes()[0].m.sanddamage *= 2;
+								if (target.foes().length >= 1)
+									if (target.foes()[0].m.sanddamage)
+										target.foes()[0].m.sanddamage *= 2;
+									else
+										target.foes()[0].m.sanddamage = 2;
 								else
-									target.foes()[0].m.sanddamage = 2;
-							else
-								this.field.setWeather('sandstorm');
+									this.field.setWeather('sandstorm');
 						} break;
 						case 4: break;
 					}
 				}
-				
+
 			}
 		},
 

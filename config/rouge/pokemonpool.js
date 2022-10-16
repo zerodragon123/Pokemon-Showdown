@@ -2877,7 +2877,7 @@ exports.Pokemonpool = {
 		"species": "Escavalier",
 		"item": ['Aguav Berry', 'Assault Vest', 'Choice Band', 'Expert Belt', 'Figy Berry', 'Life Orb', 'Iapapa Berry', 'Leftovers', 'Mago Berry', 'Rocky Helmet', 'Wiki Berry', 'Quick Claw'],
 		"ability": ['Swarm','Shell Armor','Overcoat'],
-		"moves": ['Megahorn', 'Iron Head', 'X-Scissor', 'Giga Impac', 'Metal Burst', 'Swords Dance', 'Close Combat', 'Drill Run', 'Poison Jab', 'Razor Shell', 'Knock Off', 'Energy Ball'],		
+		"moves": ['Megahorn', 'Iron Head', 'X-Scissor', 'Giga Impact', 'Metal Burst', 'Swords Dance', 'Close Combat', 'Drill Run', 'Poison Jab', 'Razor Shell', 'Knock Off', 'Energy Ball'],		
 		'nature': '',
 		'gender': '',
 		'evs': '0,0,0,0,0,0',
