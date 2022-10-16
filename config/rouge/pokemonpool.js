@@ -1229,7 +1229,7 @@ exports.Pokemonpool = {
 	"Heatran": {
 		"name": 'Heatran',
 		"species": "",
-		"item": ['Aguav Berry', 'Assault Vest', 'Choice Scarf', 'Choice Specs', 'Expert Belt', 'Figy Berry', 'Focus Sash', 'Iapapa Berry', 'Leftovers', 'Life Orb', 'Mago Berry', 'Expert Belt', 'Wiki Berry', 'Sitrus Berry', 'Steelium Z', 'Air Baloon', 'Firium Z', 'Power herb'],
+		"item": ['Aguav Berry', 'Assault Vest', 'Choice Scarf', 'Choice Specs', 'Expert Belt', 'Figy Berry', 'Focus Sash', 'Iapapa Berry', 'Leftovers', 'Life Orb', 'Mago Berry', 'Expert Belt', 'Wiki Berry', 'Sitrus Berry', 'Steelium Z', 'Air Balloon', 'Firium Z', 'Power herb'],
 		"ability": ['Flash Fire', 'Flame Body'],
 		"moves": ['Ancient Power', 'Dark Pulse', 'Dragon Pulse', 'Earth Power', 'Eruption', 'Explosion', 'Fire Blast', 'Flame Charge', 'Flamethrower', 'Flash Cannon', 'Heavy Slam', 'Hidden Power Ice', 'Magma Storm', 'Lava Plume', 'Overheat', 'Scorching Sands', 'Steel Beam', 'Stone Edge', 'Solar Beam', 'Meteor Beam', 'Substitute', 'Self-Destruct', 'Taunt', 'Will-O-Wisp'],
 		'nature': '',
