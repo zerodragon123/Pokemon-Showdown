@@ -747,11 +747,8 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 						stats = x;
 					}
 				}
-				let statTable: StatsExceptHPTable = { atk: 0, def: 0, spa: 0, spd: 0, spe:0 };
-				statTable[stats] = -1;
-				this.boost(statTable, target, source, null, true, false)
-				statTable[stats] = 1;
-				this.boost(statTable)
+				this.boost({[stats]: -1}, target, source, null, true, false);
+				this.boost({[stats]: 1});
 			}
 		},
 		name: "Magic Beam",
