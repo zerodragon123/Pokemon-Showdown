@@ -180,6 +180,10 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			if (move.category !== 'Status'&&!move.isZ && (!move.multihit || move.multihit === 1) && pokemon.side === this.p2)
 				move.multihit = 5;
 		},
+		onDeductPP(target, source) {
+			if (source.side === this.p2 && this.activeMove?.multihit === 5)
+				return 1;
+		},
 		onFieldStart(battle, source, effect) {
 			if (effect?.effectType === 'Ability') {
 				this.add('-fieldstart', 'Guerrilla', '[from] ability: ' + effect, '[of] ' + source);
@@ -188,7 +192,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			}
 			this.add('-message', 'Guerrilla is radiated.');
 		},
-
+		
 		onFieldResidualOrder: 1,
 		onFieldEnd() {
 			this.add('-fieldend', 'Guerrilla');
@@ -356,7 +360,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 
 		onWeatherModifyDamage(relayVar: number, source: Pokemon, target: Pokemon, move) {
 			if (source.side === this.p2) {
-				if (move.type === 'Electric' && this.prng.next(5)===1) {
+				if (move.type === 'Electric' && this.prng.next(3)===1) {
 					if (!target.status) target.setStatus('par', source, move, true);
 				}
 				return this.chainModify(1.2);
@@ -645,7 +649,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 		},
 		onDeductPP(target, source) {
 			if (source.side === this.p2 && this.activeMove?.type === 'Ghost')
-				return 3;
+				return 2;
 		},
 		onFieldStart(battle, source, effect) {
 			if (effect?.effectType === 'Ability') {
@@ -777,15 +781,16 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			if (['endeavor', 'fling', 'iceball', 'rollout'].includes(move.id)) return;
 			if (move.flags['charge']) return;
 			if (move.category !== 'Status' && !move.isZ && (!move.multihit || move.multihit === 1) && pokemon.side === this.p2) {
-				if (move.self) {
-					if (!move.secondaries) move.secondaries = [];
-					move.secondaries.push({ chance: 100, self: { volatileStatus: 'mustrecharge' } });
-				}
-				else
-					move.self = { volatileStatus: 'mustrecharge', };
+				
 				move.basePower *= 3;                                         
 			}
 
+		},
+		onAfterMoveSelfPriority:20,
+		onAfterMoveSelf(source, target, move) {
+			if (move.category !== 'Status' && !move.isZ && (!move.multihit || move.multihit === 1) && source.side === this.p2) {
+				source.addVolatile('mustrecharge');
+			}
 		},
 		onFieldStart(battle, source, effect) {
 			if (effect?.effectType === 'Ability') {
@@ -844,8 +849,9 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 
 
 		onAfterMoveSecondary(target, source, move) {
-			if (source.side === this.p2 && move.category !== "Status" && target && target.hp > 0 ) {
-				this.damage(target.maxhp*0.1, target, source);
+			if (source.side === this.p2 && move.category !== "Status" && target && target.hp > 0) {
+				const typeMod = this.clampIntRange(target.runEffectiveness(this.dex.getActiveMove('dazzlinggleam')), -6, 6);
+				this.damage(target.maxhp * 0.1 * typeMod, target, source);
 			}
 		},
 		onFieldStart(battle, source, effect) {
@@ -906,7 +912,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 
 		onSwitchOut(pokemon) {
 			if (pokemon.side === this.p2)
-				pokemon.heal(pokemon.baseMaxhp / 10);
+				pokemon.heal(pokemon.baseMaxhp *0.15);
 		},
 		
 		onFieldStart(battle, source, effect) {

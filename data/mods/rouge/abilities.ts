@@ -697,9 +697,6 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 			pokemon.removeVolatile('choicelock');
 			
 		},
-		onDisableMove() {
-
-		},
 		name: "Hyperactivity",
 		rating: 3,
 		num: 111,
