@@ -137,7 +137,7 @@ function restoreAbility(set: PokemonSet, s: string): PokemonSet {
 	if (['0', '1', 'H', 'S'].includes(set.ability) && !newAbility[set.ability] ) set.ability='0';
 	return set;
 }
-export function sample<T>(items: T[], number: number, prng: PRNG = new PRNG(), otheritems:T[]=[]) {
+export function sample<T>(items: T[], number: number, prng: PRNG = new PRNG(), otheritems:T[]=[]):T[] {
 	if (items.length === 0) {
 		return [];
 	}
@@ -6108,6 +6108,30 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 			if (pokemon.side.team.length < 6) {
 				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Escavalier, this.prng, pokemon.side.team[0].level))!);
 				this.add('html', `<div class="broadcast-green"><strong>Escavalier has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getkangaskhan: {
+		num: 1000,
+		name: 'Get Kangaskhan',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Kangaskhan, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Kangaskhan has joined in your team</strong></div>`);
 				chooseroom(pokemon, this.prng);
 			} else {
 				selectpokemon(pokemon, '', 'Replace Pokemon ');

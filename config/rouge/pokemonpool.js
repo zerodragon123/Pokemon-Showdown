@@ -6,7 +6,7 @@ exports.Pokemonpool = {
 		"item": '',
 		"ability": "shopman",
 		"moves": [],
-		"pokemonroom": ['Get Munchlax', 'Get Tauros', 'Get Ferroseed', 'Get Indeedee', 'Get Growlithe', 'Get Slowbro', 'Get Lapras', 'Get Dreepy', 'Get Beldum', 'Get Onix', 'Get Slakoth', 'Get Solosis', 'Get Pincurchin', 'Get Yanmega', 'Get Pinsir', 'Get Sneasel', 'Get Houndour', 'Get Seadra', 'Get Shinx', 'Get Riolu', 'Get Fletchinder', 'Get Roselia', 'Get Larvitar', 'Get Slowpoke', 'Get Dhelmise', 'Get Gastly', 'Get Torkoal', 'Get Spearow', 'Get Golisopod', 'Get Skarmory', 'Get Absol', 'Get Tyrunt', 'Get Drilbur', 'Get Clefairy', 'Get Shellder', 'Get Heracross', 'Get Swinub', 'Get Dugtrio-Alola', 'Get Silicobra', 'Get Togepi', 'Get Vulpix-Alola', 'Get Scyther', 'Get Krabby', 'Get Binacle', 'Get Shuppet', 'Get Druddigon', 'Get Misdreavus', 'Get Ekans', 'Get Wailmer', 'Get Cosmog', 'Get Emzzf', 'Get Psyduck', 'Get White Devil', 'Get Gible', 'Get Arctovish', 'Get Glastrier', 'Get Virizion', 'Get Miracle Singer', 'Get Nihilego', 'Get Meloetta-Pirouette', 'Get Legend-Unown', 'Get Swablu', 'Get Arctozolt', 'Get Beedrill', 'Get Shroomish', 'Get Cubone', 'Get Dratini', 'Get Yungoos', 'Get Ralts', 'Get Silvally', 'Get Slowpoke-Galar', 'Get Hoopa', 'Get Escavalier'],
+		"pokemonroom": ['Get Munchlax', 'Get Tauros', 'Get Ferroseed', 'Get Indeedee', 'Get Growlithe', 'Get Slowbro', 'Get Lapras', 'Get Dreepy', 'Get Beldum', 'Get Onix', 'Get Slakoth', 'Get Solosis', 'Get Pincurchin', 'Get Yanmega', 'Get Pinsir', 'Get Sneasel', 'Get Houndour', 'Get Seadra', 'Get Shinx', 'Get Riolu', 'Get Fletchinder', 'Get Roselia', 'Get Larvitar', 'Get Slowpoke', 'Get Dhelmise', 'Get Gastly', 'Get Torkoal', 'Get Spearow', 'Get Golisopod', 'Get Skarmory', 'Get Absol', 'Get Tyrunt', 'Get Drilbur', 'Get Clefairy', 'Get Shellder', 'Get Heracross', 'Get Swinub', 'Get Dugtrio-Alola', 'Get Silicobra', 'Get Togepi', 'Get Vulpix-Alola', 'Get Scyther', 'Get Krabby', 'Get Binacle', 'Get Shuppet', 'Get Druddigon', 'Get Misdreavus', 'Get Ekans', 'Get Wailmer', 'Get Cosmog', 'Get Emzzf', 'Get Psyduck', 'Get White Devil', 'Get Gible', 'Get Arctovish', 'Get Glastrier', 'Get Virizion', 'Get Miracle Singer', 'Get Nihilego', 'Get Meloetta-Pirouette', 'Get Legend-Unown', 'Get Swablu', 'Get Arctozolt', 'Get Beedrill', 'Get Shroomish', 'Get Cubone', 'Get Dratini', 'Get Yungoos', 'Get Ralts', 'Get Silvally', 'Get Slowpoke-Galar', 'Get Hoopa', 'Get Escavalier', 'Get Kangaskhan'],
 		"pokemonroom2": ['Get Thundurus', 'Get Angod', 'Get Tapu Bulu', 'Get Tapu Fini', 'Get Mawile', 'Get Flygon-mega', 'Get Zygarde-10%', 'Get Nidoking', 'Get Nidoqueen', 'Get Diancie', 'Get Shuckle-Mega', 'Get Tapu Koko', 'Get Tapu Lele', 'Get Heatran', 'Get Hammer', 'Get Blacephalon', 'Get Urshifu', 'Get Zarude', 'Get Melmetal', 'Get Latios', 'Get Latias', 'Get Hoopa-Unbound', 'Get Genesect', 'Get Regigigas'],
 		'commonroom': ['Evo All', 'All Evs Add 24', 'Rand One Mon All Evs Add 72', 'Rand One Mon Two Evs Fill', 'Retransmission PokemonSet', 'Retransmission Moves Pool', 'Choose One Mon Three Evs Half', 'Choose One Mon All Evs Add 48', 'Choose One Mon Get Specific Item', 'Add life'],
 		'commonroom2': ['All Hp Evs Add 160', 'All Atk Evs Add 160', 'All Def Evs Add 160', 'All Spa Evs Add 160', 'All Spd Evs Add 160', 'All Spe Evs Add 160', 'Choose One Mon Atk Spe fill', 'Choose One Mon Spa Spe fill', 'Choose One Mon Hp Another fill'],
@@ -1763,7 +1763,7 @@ exports.Pokemonpool = {
 		'nature': '',
 		'gender': '',
 		'evs': '0,0,0,0,0,0',
-		'ivs': '31,31,31,31,31,31',
+		'ivs': '15,15,15,15,15,15',
 		'level': 10,
 	},
 	"Emzzf": {
@@ -2884,6 +2884,17 @@ exports.Pokemonpool = {
 		'ivs': '31,31,31,31,31,31',
 		'level': 10,
 	},
-
+	"Kangaskhan": {		
+		"name": 'Kangaskhan',
+		"species": "",
+		"item": ['Aguav Berry', 'Assault Vest', 'Choice Scarf', 'Choice band', 'Expert Belt', 'Figy Berry', 'Focus Sash', 'Iapapa Berry', 'Leftovers', 'Life Orb', 'Mago Berry', 'Rocky Helmet', 'Wiki Berry', 'Sitrus Berry', 'Normalium Z', 'kangaskhanite', 'kangaskhanite'],
+		"ability": ['early bird', 'scrappy', 'inner focus'],
+		"moves": ['Slash', 'Fire punch', 'sucker punch', 'ice punch', 'thunder punch', 'Outrage', 'Dragon claw', 'Earthquake',  'FocusBlast', 'thunder','thunderbolt','double-edge', 'fake out', 'wish', 'yawn', 'power up punch', 'work up', 'surf', 'mega punch', 'mega kick', 'shadow ball'],
+		'nature': '',
+		'gender': '',
+		'evs': '0, 0, 0, 0, 0, 0',		
+		'ivs': '31,31,31,31,31,31',
+		'level': 10,
+	},
 }
 

@@ -4,7 +4,7 @@ import { championreward, sample } from "./moves";
 import { Pokemonpool } from "../../../config/rouge/pokemonpool";
 
 
-type rougePassRecord = {'cave': number[], 'void': number[] };
+type rougePassRecord = { 'cave': number[], 'void': number[] };
 type rougeUserProperty = {
 	'rouge'?: string,
 	'rougeinit'?: number,
@@ -36,14 +36,14 @@ export class RougeUtils {
 	}
 
 	static saveUser(userid: ID, userProperty: rougeUserProperty) {
-		FS(`${USERPATH}/${userid}.json`).safeWriteSync( JSON.stringify(userProperty));
+		FS(`${USERPATH}/${userid}.json`).safeWriteSync(JSON.stringify(userProperty));
 	}
 
 	static loadRougeProps(userid: ID): string[] | undefined {
 		return this.getUser(userid)?.rouge?.split("&");
 	}
 
-	static updateUserTeam(userid: ID, userTeam: string, reset: boolean=false) {
+	static updateUserTeam(userid: ID, userTeam: string, reset: boolean = false) {
 		let userProperty = this.getUser(userid) || {};
 		if (userTeam) {
 			let rougePropsStr = userProperty['rouge'];
@@ -221,7 +221,7 @@ export class RougeUtils {
 			return false;
 		}
 	}
-	static addLives(userid: ID, life: number=1): boolean {
+	static addLives(userid: ID, life: number = 1): boolean {
 		let userProperty = this.getUser(userid);
 		if (userProperty?.rouge) {
 			let rougeProps = userProperty['rouge'].split("&");
@@ -238,11 +238,11 @@ export class RougeUtils {
 		}
 	}
 	static setItem(pokemon: Pokemon, item: string | Item, source?: Pokemon, effect?: Effect) {
-		if (!pokemon.hp ) return false;
+		if (!pokemon.hp) return false;
 		if (pokemon.itemState.knockedOff) return false;
 		if (typeof item === 'string') item = pokemon.battle.dex.items.get(item);
 
-		
+
 		pokemon.item = item.id;
 		pokemon.itemState = { id: item.id, target: pokemon };
 		if (item.id) {
@@ -255,13 +255,13 @@ export class RougeUtils {
 		if (userProperty?.rouge) {
 			let rougeProps = userProperty['passrecord'];
 			if (rougeProps?.void) {
-				for (let i = 0; i < 25;i++) {
+				for (let i = 0; i < 25; i++) {
 					if (!rougeProps.void[i])
 						return false;
 				}
 				return true;
 			}
-			 else {
+			else {
 				return false;
 			}
 		} else {
@@ -273,7 +273,7 @@ export class RougeUtils {
 const relicsEffects = {
 	'artirain': (battle: Battle) => {
 		battle.field.setWeather('raindance', battle.p2.active[0]);
-		battle.add('message','your Artirain makes it rain');
+		battle.add('message', 'your Artirain makes it rain');
 	},
 	'artihail': (battle: Battle) => {
 		battle.field.setWeather('hail', battle.p2.active[0]);
@@ -380,15 +380,15 @@ const relicsEffects = {
 		battle.add('message', 'The enemy was tried');
 	},
 	'sleightofhand': (battle: Battle) => {
-		for (let pokemon of battle.p1.pokemon.filter(pokemon => pokemon.ability !=='shopman')) {
-			if (battle.random(3) === 0) {
+		for (let pokemon of battle.p1.pokemon.filter(pokemon => pokemon.ability !== 'shopman')) {
+			if (battle.random(4) === 0) {
 				const newitem = battle.sample(['Toxic Orb', 'Flame Orb', 'Sticky Barb', 'Lagging Tail', 'Ring Target', 'Iron Ball', 'Black Sludge'])
-				const item = RougeUtils.setItem(pokemon,newitem);
-				if(item)
+				const item = RougeUtils.setItem(pokemon, newitem);
+				if (item)
 					battle.add('message', `${pokemon}'s item is replaced ${newitem} by you`);
 			}
 		}
-		
+
 	},
 	'infestation': (battle: Battle) => {
 		battle.field.addPseudoWeather("infestation");
@@ -466,8 +466,8 @@ const relicsEffects = {
 					chance: 100,
 					boosts: {
 						atk: -1,
-						def:-1,
-						spa:-1,
+						def: -1,
+						spa: -1,
 						spd: -1,
 					},
 				},
@@ -494,7 +494,7 @@ const relicsEffects = {
 			},
 		});
 		battle.add('-start', battle.p2.active[0], 'Doom Desire');
-		
+
 	},
 	'statuspush': (battle: Battle) => {
 		battle.field.addPseudoWeather("Status Push");
@@ -512,7 +512,7 @@ const relicsEffects = {
 
 function checkWin(pokemonOnFaint: Pokemon, sides: Side[]): Side | undefined {
 	const aliveSides = sides.filter(side => {
-		return side.pokemon.filter(pokemon => !pokemon.fainted && pokemon.name != 'Reward' ).length > (pokemonOnFaint.side.id === side.id ? 1 : 0);
+		return side.pokemon.filter(pokemon => !pokemon.fainted && pokemon.name != 'Reward').length > (pokemonOnFaint.side.id === side.id ? 1 : 0);
 	});
 	if (aliveSides.length === 1) return aliveSides[0];
 }
@@ -555,8 +555,8 @@ export const Rulesets: { [k: string]: FormatData } = {
 					}
 				}
 			}
-			if (room === 'championroom'){
-				if (RougeUtils.getNextWave(this.toID(this.p2.name))!==19)
+			if (room === 'championroom') {
+				if (RougeUtils.getNextWave(this.toID(this.p2.name)) !== 19)
 					this.p1.pokemon.push(new Pokemon(Teams.unpack('Reward|Shop||shopman|' + reward.join(',') + '|Careful|252,4,,,252,|||||')![0], this.p2));
 				else
 					this.p1.pokemon.push(new Pokemon(Teams.unpack('Reward|Shop||shopman|' + reward2.join(',') + '|Careful|252,4,,,252,|||||')![0], this.p2));
@@ -566,7 +566,7 @@ export const Rulesets: { [k: string]: FormatData } = {
 				this.p1.pokemon.push(new Pokemon(Teams.unpack('Shopowner|Magikarp||shopman|splash|Hardy||M|0,0,0,0,0,0||5|')![0], this.p1));
 			} else {
 				const rand = this.prng.next(3);
-				this.p1.pokemon.push(new Pokemon(Teams.unpack('Reward|Shop||shopman|' + (rand === 0 ? 'Evo A Pokemon,' : rand === 1 ? this.prng.next(3)===0? 'Evo All,' : 'Refresh Reward,' : 'skip,') + sample(reward, 3, this.prng, reward2).join(',') + '|Careful|252,4,,,252,|||||')![0], this.p2));
+				this.p1.pokemon.push(new Pokemon(Teams.unpack('Reward|Shop||shopman|' + (rand === 0 ? 'Evo A Pokemon,' : rand === 1 ? this.prng.next(3) === 0 ? 'Evo All,' : 'Refresh Reward,' : 'skip,') + sample(reward, 3, this.prng, reward2).join(',') + '|Careful|252,4,,,252,|||||')![0], this.p2));
 				this.p1.pokemon.push(new Pokemon(Teams.unpack('Shopowner|Magikarp||shopman|splash|Hardy||M|0,0,0,0,0,0||5|')![0], this.p1));
 			}
 			this.p1.pokemonLeft += 6;
@@ -620,26 +620,31 @@ export const Rulesets: { [k: string]: FormatData } = {
 						const move = Dex.moves.get(moveid);
 						return move.flags['heal'] && !move.damage;
 					}
+					const isStatusMove = (moveid: string) => {
+						const move = Dex.moves.get(moveid);
+						return move.category === 'Status';
+					}
 					const mega = activePoke.canMegaEvo ? 'mega' : '';
-					const boostSwicth = eval(Object.values(activePoke.boosts).join('+'))+12 < this.random(12)+1;
+					const boostlv = eval(Object.values(activePoke.boosts).join('+'));
+					const boostSwicth = boostlv + 13 < this.random(12) + 1;
 					const abilitySwitch = activePoke.hasAbility(['truant', 'normalize']);
 					const itemSwitch = activePoke.hasItem(['choicescarf', 'choiceband', 'choicespecs']) &&
 						activePoke.lastMove && !checkImmune(activePoke.lastMove.id);
 					// Switch
 					if (update.forceSwitch || abilitySwitch || itemSwitch || boostSwicth) {
 						const alive = this.p1.pokemon.filter(
-							x => !x.isActive && !x.fainted && x.name != 'Reward' && x.name !='Shopowner'
+							x => !x.isActive && !x.fainted && x.name != 'Reward' && x.name != 'Shopowner'
 						).map(x => x.name);
 						if (alive.length > 0) {
 							this.p1.chooseSwitch(this.prng.sample(alive));
-						} else if (activePoke.fainted){
+						} else if (activePoke.fainted) {
 							// 店长出场
-							const Shopowner =this.p1.pokemon.findIndex(x => {
+							const Shopowner = this.p1.pokemon.findIndex(x => {
 								return !x.fainted && x.name == 'Shopowner';
 							})
-							if (Shopowner!==-1)
+							if (Shopowner !== -1)
 								// this.p1.autoChoose();
-								this.p1.chooseSwitch(String(Shopowner+1));
+								this.p1.chooseSwitch(String(Shopowner + 1));
 						}
 						if (this.allChoicesDone()) {
 							this.commitDecisions();
@@ -684,7 +689,10 @@ export const Rulesets: { [k: string]: FormatData } = {
 						const movesHasPP = activePoke.getMoves().filter(movedata => !!movedata.pp).map(movedata => movedata.move);
 						const movesNotHeal = movesHasPP.filter(move => !isHealMove(move));
 						const movesNotImmune = movesNotHeal.filter(move => checkImmune(move));
-						if (movesNotImmune.length > 0) {
+						const movesNotStatus = movesNotImmune.filter(move => !isStatusMove(move));
+						if ((activePoke.boosts.atk >= 6 || activePoke.boosts.spa >= 6 || boostlv >= this.random(12) + 2) && movesNotStatus.length > 0) {
+							this.p1.chooseMove(this.sample(movesNotStatus), 0, mega);
+						}else if (movesNotImmune.length > 0) {
 							this.p1.chooseMove(this.sample(movesNotImmune), 0, mega);
 						} else if (movesNotHeal.length) {
 							this.p1.chooseMove(this.sample(movesNotHeal), 0, mega);
@@ -719,12 +727,12 @@ export const Rulesets: { [k: string]: FormatData } = {
 					pokemon.addVolatile('halo');
 			}
 		},
-		onAnyFaintPriority:100,
+		onAnyFaintPriority: 100,
 		onFaint(pokemon) {
 			if (pokemon.name == 'Shopowner') {
 				if (this.p2.active[0].name != 'Reward')
 					this.add('html', '<div class="broadcast-green">你把老板杀死了，老板生气了惩罚你跳过了奖励环节</div>');
-			if (!pokemon.item) {
+				if (!pokemon.item) {
 					let nextwave = RougeUtils.getNextWave(this.toID(this.p2.name)) || 1;
 					RougeUtils.updateUserTeam(
 						this.toID(this.p2.name),
@@ -742,7 +750,7 @@ export const Rulesets: { [k: string]: FormatData } = {
 					this.add('html', '<button class="button" name="send" value="/rouge next">Next Wave</button>');
 					this.win(this.p2)
 				} else {
-					championreward(this.p2.active[0], pokemon.item as 'moveroom' | 'abilityroom' |'eliteroom')
+					championreward(this.p2.active[0], pokemon.item as 'moveroom' | 'abilityroom' | 'eliteroom')
 				}
 			} else {
 				if (pokemon.side === this.p2) {
