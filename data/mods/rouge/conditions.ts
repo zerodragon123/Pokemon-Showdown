@@ -851,7 +851,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 		onAfterMoveSecondary(target, source, move) {
 			if (source.side === this.p2 && move.category !== "Status" && target && target.hp > 0) {
 				const typeMod = this.clampIntRange(target.runEffectiveness(this.dex.getActiveMove('dazzlinggleam')), -6, 6);
-				this.damage(target.maxhp * 0.1 * typeMod, target, source);
+				this.damage(target.maxhp * 0.1 * Math.pow(2, typeMod), target, source);
 			}
 		},
 		onFieldStart(battle, source, effect) {
