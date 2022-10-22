@@ -788,7 +788,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 		},
 		onAfterMoveSelfPriority:20,
 		onAfterMoveSelf(source, target, move) {
-			if (move.category !== 'Status' && !move.isZ && (!move.multihit || move.multihit === 1) && source.side === this.p2) {
+			if (move.category !== 'Status' && !move.isZ && (!move.multihit || move.multihit === 1) && source.side === this.p2 && source.isActive) {
 				source.addVolatile('mustrecharge');
 			}
 		},
