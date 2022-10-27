@@ -293,6 +293,32 @@ export function championreward(pokemon: Pokemon, type: 'itemroom' | 'moveroom' |
 	
 };
 export const Moves: { [k: string]: ModdedMoveData } = {
+	sketch: {
+		inherit: true,
+		onHit(target, source) {
+			const disallowedMoves = ['chatter', 'sketch', 'struggle'];
+			const move = target.lastMove;
+			if (source.transformed || !move || source.moves.includes(move.id)) return false;
+			if (disallowedMoves.includes(move.id) || move.isZ || move.isMax) return false;
+			const sketchIndex = source.moves.indexOf('sketch');
+			if (sketchIndex < 0) return false;
+			const sketchedMove = {
+				move: move.name,
+				id: move.id,
+				pp: move.pp,
+				maxpp: move.pp,
+				target: move.target,
+				disabled: false,
+				used: false,
+			};
+			source.moveSlots[sketchIndex] = sketchedMove;
+			source.baseMoveSlots[sketchIndex] = sketchedMove;
+			this.add('-activate', source, 'move: Sketch', move.name);
+			let pokemon = source.side.team.find(x => x == source.set);
+			if (pokemon)
+				pokemon.moves[sketchIndex] = move.name;
+		},
+	},
 	hackmonspass: {
 		num: 349,
 		accuracy: true,
@@ -1861,6 +1887,44 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		},
 		desc: 'random pokemon of your team get Satori No Wheelchair',
 		shortDesc: 'random pokemon of your team get Satori No Wheelchair',
+	},
+	getsmoketrigger: {
+		num: 1002,
+		name: 'Get Smoke Trigger',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			selectpokemon(pokemon, ' Get Item');
+
+		},
+		desc: 'random pokemon of your team get Smoke Trigger',
+		shortDesc: 'random pokemon of your team get Smoke Trigger',
+	},
+	getcustapelement: {
+		num: 1002,
+		name: 'Get Custap Element',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			selectpokemon(pokemon, ' Get Item');
+
+		},
+		desc: 'random pokemon of your team get Custap Element',
+		shortDesc: 'random pokemon of your team get Custap Element',
 	},
 	//----------movemoves
 
@@ -3759,6 +3823,23 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		flags: {},
 		onHit(pokemon) {
 			selectpokemon(pokemon, ' Get Specific Item');
+
+		},
+	},
+	promoteapokemon: {
+		num: 1000,
+		name: 'Promote A Pokemon',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: 10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			selectpokemon(pokemon, ' Promote');
 
 		},
 	},
@@ -6701,6 +6782,78 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		desc: '',
 		shortDesc: '',
 	},
+	becomehaven: {
+		num: 1002,
+		name: 'Become Haven',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			selectpokemon(pokemon, ' Transform Ability');
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	becomeovercharge: {
+		num: 1002,
+		name: 'Become Overcharge',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			selectpokemon(pokemon, ' Transform Ability');
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	becomeadaptability: {
+		num: 1002,
+		name: 'Become Adaptability',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			selectpokemon(pokemon, ' Transform Ability');
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	becomebornofexplosion: {
+		num: 1002,
+		name: 'Become Born Of Explosion',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			selectpokemon(pokemon, ' Transform Ability');
+		},
+		desc: '',
+		shortDesc: '',
+	},
 	//----------------elitemoves---------
 	gainartirain: {
 		num: 1002,
@@ -7617,6 +7770,106 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		onHit(pokemon) {
 			RougeUtils.addRelics(this.toID(pokemon.side.name), 'stope');
 			this.add('html', `<div class="broadcast-green"><strong>you get the Stope</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainchampionbelt: {
+		num: 1002,
+		name: 'Gain Champion Belt',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'championbelt');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Champion Belt</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainholographicprojection: {
+		num: 1002,
+		name: 'Gain Holographic Projection',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'holographicprojection');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Holographic Projection</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainpacklight: {
+		num: 1002,
+		name: 'Gain Pack Light',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'packlight');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Pack Light</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainreplication: {
+		num: 1002,
+		name: 'Gain Replication',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'replication');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Replication</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainenchantments: {
+		num: 1002,
+		name: 'Gain Enchantments',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'enchantments');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Enchantments</strong></div>`);
 			chooseroom(pokemon, this.prng);
 		},
 		desc: '',
@@ -9978,6 +10231,132 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 				}
 				target.item = item;
 				this.add('html', `<div class="broadcast-green"><strong>your ${target.name} has got ${item}</strong></div>`);
+			}
+			chooseroom(pokemon, this.prng);
+
+		},
+	},
+	selectpokemon1promote: {
+		num: 1000,
+		name: 'Select Pokemon 1 Promote',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: 10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			let oldpoke = pokemon.side.team[0];
+			switch (oldpoke.species) {
+				case 'aaa': ; break
+			}
+			chooseroom(pokemon, this.prng);
+
+		},
+	},
+	selectpokemon2promote: {
+		num: 1000,
+		name: 'Select Pokemon 2 Promote',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: 10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			let oldpoke = pokemon.side.team[1];
+			switch (oldpoke.species) {
+				case 'aaa': ; break
+			}
+			chooseroom(pokemon, this.prng);
+
+		},
+	},
+	selectpokemon3promote: {
+		num: 1000,
+		name: 'Select Pokemon 3 Promote',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: 10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			let oldpoke = pokemon.side.team[2];
+			switch (oldpoke.species) {
+				case 'aaa': ; break
+			}
+			chooseroom(pokemon, this.prng);
+
+		},
+	},
+	selectpokemon4promote: {
+		num: 1000,
+		name: 'Select Pokemon 4 Promote',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: 10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			let oldpoke = pokemon.side.team[3];
+			switch (oldpoke.species) {
+				case 'aaa': ; break
+			}
+			chooseroom(pokemon, this.prng);
+
+		},
+	},
+	selectpokemon5promote: {
+		num: 1000,
+		name: 'Select Pokemon 5 Promote',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: 10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			let oldpoke = pokemon.side.team[4];
+			switch (oldpoke.species) {
+				case 'aaa': ; break
+			}
+			chooseroom(pokemon, this.prng);
+
+		},
+	},
+	selectpokemon6promote: {
+		num: 1000,
+		name: 'Select Pokemon 6 Promote',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: 10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			let oldpoke = pokemon.side.team[5];
+			switch (oldpoke.species) {
+				case 'aaa': ; break
 			}
 			chooseroom(pokemon, this.prng);
 

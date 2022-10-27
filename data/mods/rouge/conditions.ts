@@ -788,7 +788,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 		},
 		onAfterMoveSelfPriority:20,
 		onAfterMoveSelf(source, target, move) {
-			if (move.category !== 'Status' && !move.isZ && (!move.multihit || move.multihit === 1) && source.side === this.p2) {
+			if (move.category !== 'Status' && !move.isZ && (!move.multihit || move.multihit === 1) && source.side === this.p2 && source.isActive) {
 				source.addVolatile('mustrecharge');
 			}
 		},
@@ -1085,4 +1085,114 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			this.add('-message', 'The Stope subsided.');
 		},
 	},
+	championbelt: {
+		name: 'Champion Belt',
+		effectType: 'Weather',
+		duration: 0,
+
+		onModifyAtkPriority: -102,
+		onModifyAtk(atk, pokemon) {
+			if (pokemon.side === this.p2)
+				return this.chainModify(1.25);
+		},
+		onModifySpAPriority: -102,
+		onModifySpA(spa, pokemon) {
+			if (pokemon.side === this.p2)
+				return this.chainModify(1.25);
+		},
+		onFieldStart(battle, source, effect) {
+			if (effect?.effectType === 'Ability') {
+				this.add('-fieldstart', 'Champion Belt', '[from] ability: ' + effect, '[of] ' + source);
+			} else {
+				this.add('-fieldstart', 'Champion Belt');
+			}
+			this.add('-message', 'Champion Belt is radiated.');
+		},
+
+		onFieldResidualOrder: 1,
+		onFieldResidual() {
+			this.add('-weather', 'Champion Belt', '[upkeep]');
+			this.eachEvent('Weather');
+		},
+		onFieldEnd() {
+			this.add('-fieldend', 'Champion Belt');
+			this.add('-message', 'The Champion Belt subsided.');
+		},
+	},
+	packlight: {
+		name: 'Pack Light',
+		effectType: 'Weather',
+		duration: 0,
+
+
+		onStart() {
+			if (this.p2.active[0] && this.p2.active[0].useItem()) {
+				this.p2.active[0].addVolatile('unburden');
+			}
+		},
+		onSwitchIn(pokemon) {
+			if (pokemon && pokemon.side === this.p2 && this.p2.active[0].useItem()) {
+				pokemon.addVolatile('unburden');
+			}
+		},
+		onTakeItem(item, pokemon) {
+			if (pokemon && pokemon.side === this.p2)
+				pokemon.addVolatile('unburden');
+		},
+		onFieldStart(battle, source, effect) {
+			if (effect?.effectType === 'Ability') {
+				this.add('-fieldstart', 'Pack Light', '[from] ability: ' + effect, '[of] ' + source);
+			} else {
+				this.add('-fieldstart', 'Pack Light');
+			}
+			this.add('-message', 'Pack Light is radiated.');
+		},
+
+		onFieldResidualOrder: 1,
+		onFieldResidual() {
+			this.add('-weather', 'Pack Light', '[upkeep]');
+			this.eachEvent('Weather');
+		},
+		onFieldEnd() {
+			this.add('-fieldend', 'Pack Light');
+			this.add('-message', 'The Champion Belt subsided.');
+		},
+	},
+	enchantments: {
+		name: 'Enchantments',
+		effectType: 'Weather',
+		duration: 0,
+
+		onStart() {
+			if (this.p2.active[0]) {
+				this.p2.active[0].storedStats.atk += this.p2.active[0].storedStats.spa * 0.25;
+				this.p2.active[0].storedStats.spa += this.p2.active[0].storedStats.atk * 0.25;
+			}
+		},
+		onSwitchIn(pokemon) {
+			if (pokemon && pokemon.side === this.p2) {
+				pokemon.storedStats.atk += pokemon.storedStats.spa * 0.25;
+				pokemon.storedStats.spa += pokemon.storedStats.atk * 0.25;
+			}
+		},
+		onFieldStart(battle, source, effect) {
+			if (effect?.effectType === 'Ability') {
+				this.add('-fieldstart', 'Enchantments', '[from] ability: ' + effect, '[of] ' + source);
+			} else {
+				this.add('-fieldstart', 'Enchantments');
+			}
+			this.add('-message', 'Enchantments is radiated.');
+		},
+
+		onFieldResidualOrder: 1,
+		onFieldResidual() {
+			this.add('-weather', 'Enchantments', '[upkeep]');
+			this.eachEvent('Weather');
+		},
+		onFieldEnd() {
+			this.add('-fieldend', 'Enchantments');
+			this.add('-message', 'The Enchantments subsided.');
+		},
+	},
+
 };

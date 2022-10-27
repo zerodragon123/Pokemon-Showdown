@@ -16,9 +16,9 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 	},
 	shopman: {
 		onDamage(damage, target, source, effect) {
-			
-				return false;
-			
+
+			return false;
+
 		},
 		onFoeTrapPokemon(pokemon) {
 			if (!pokemon.hasAbility('shadowtag') && pokemon.isAdjacent(this.effectState.target)) {
@@ -92,7 +92,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 	richloli: {
 		name: "Rich Loli",
 
-		
+
 		onModifyAccuracyPriority: -2,
 		onModifyAccuracy(accuracy) {
 			if (typeof accuracy !== 'number') return;
@@ -113,7 +113,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		num: 235,
 	},
 	ununown: {
-		
+
 		onAllyEffectiveness(typeMod, target, type, move) {
 			if (this.prng.next(2)) {
 				if (
@@ -146,11 +146,11 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 	},
 	maliciouspluck: {
 		onModifyPriority(priority, pokemon, target, move) {
-			if (move.name === 'Pluck' || move.name === 'Drill Peck' || move.name === 'Peck' || move.name === 'Mirror Move' || move.name === 'Fearow Drill Peck' || move.name ==='Bolt Beak') return priority + 1;
+			if (move.name === 'Pluck' || move.name === 'Drill Peck' || move.name === 'Peck' || move.name === 'Mirror Move' || move.name === 'Fearow Drill Peck' || move.name === 'Bolt Beak') return priority + 1;
 		},
-		onAfterHit(target, source,move) {
+		onAfterHit(target, source, move) {
 			if (source.hp) {
-				if (move.name === 'Pluck' || move.name === 'Drill Peck' || move.name === 'Peck' || move.name === 'Mirror Move' || move.name === 'Fearow Drill Peck' || move.name ==='Bolt Beak') {
+				if (move.name === 'Pluck' || move.name === 'Drill Peck' || move.name === 'Peck' || move.name === 'Mirror Move' || move.name === 'Fearow Drill Peck' || move.name === 'Bolt Beak') {
 					const item = target.takeItem();
 					if (item) {
 						this.add('-enditem', target, item.name, '[from] ablity: maliciouspluck', '[of] ' + source);
@@ -183,8 +183,8 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		},
 		onAfterMove(source, target, move) {
 			if (move.category === 'Status') {
-				this.boost({ spe:1 }, source, source, null, true);
-			}else {
+				this.boost({ spe: 1 }, source, source, null, true);
+			} else {
 				this.boost({ atk: 1 }, source, source, null, true);
 			}
 		},
@@ -223,9 +223,9 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 				pokemon.addType(type);
 				this.add('-start', pokemon, 'typeadd', type, '[from] move: Forest\'s Curse');
 			}
-			pokemon.maxhp = Math.floor( pokemon.maxhp * 1.5);
+			pokemon.maxhp = Math.floor(pokemon.maxhp * 1.5);
 			pokemon.hp = Math.floor(pokemon.hp * 1.5)
-			
+
 		},
 		onEnd(pokemon) {
 			pokemon.hp = pokemon.getUndynamaxedHP();
@@ -255,7 +255,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		name: "Core",
 		rating: 4,
 		num: 91,
-		
+
 	},
 	whitedevil: {
 		name: "White Devil",
@@ -422,12 +422,12 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		num: 62,
 	},
 	shuoer: {
-		
+
 		onModifyPriority(priority, pokemon, target, move) {
 			return priority + 0.5;
 		},
 		onEmergencyExit(target) {
-			if (!this.canSwitch(target.side) || target.forceSwitchFlag || target.switchFlag || target.side.pokemonLeft<=7) return;
+			if (!this.canSwitch(target.side) || target.forceSwitchFlag || target.switchFlag || target.side.pokemonLeft <= 7) return;
 			for (const side of this.sides) {
 				for (const active of side.active) {
 					active.switchFlag = false;
@@ -443,9 +443,9 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 	spheal: {
 		onModifyAtkPriority: 5,
 		onModifyAtk(atk, pokemon) {
-			
+
 			return this.chainModify(2);
-			
+
 		},
 		onModifySpAPriority: 5,
 		onModifySpA(spa, pokemon) {
@@ -493,11 +493,11 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 	},
 	powerpill: {
 		onChargeMove(pokemon, target, move) {
-				this.debug('power herb - remove charge turn for ' + move.id);
-				this.attrLastMove('[still]');
-				this.addMove('-anim', pokemon, move.name, target);
-				return false; // skip charge turn
-			
+			this.debug('power herb - remove charge turn for ' + move.id);
+			this.attrLastMove('[still]');
+			this.addMove('-anim', pokemon, move.name, target);
+			return false; // skip charge turn
+
 		},
 		name: "Power Pill",
 		rating: 3,
@@ -543,7 +543,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 	},
 	searabit: {
 		onTryHit(target, source, move) {
-			if (target !== source && (move.type === 'Water' || move.type==='Glass')) {
+			if (target !== source && (move.type === 'Water' || move.type === 'Glass')) {
 				if (!this.boost({ spa: 1 })) {
 					this.add('-immune', target, '[from] ability: Storm Drain');
 				}
@@ -560,10 +560,10 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		},
 		onBasePowerPriority: 21,
 		onBasePower(basePower, attacker, defender, move) {
-				if (move.type === 'Rock' || move.type === 'Ground' || move.type === 'Steel') {
-					this.debug('Sand Force boost');
-					return this.chainModify([5325, 4096]);
-				}
+			if (move.type === 'Rock' || move.type === 'Ground' || move.type === 'Steel') {
+				this.debug('Sand Force boost');
+				return this.chainModify([5325, 4096]);
+			}
 		},
 		onAfterMove(source, target, move) {
 			if (move.type === 'Water') {
@@ -597,7 +597,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		onStart(pokemon) {
 			for (let move of pokemon.moveSlots) {
 				move.maxpp = 1;
-				move.pp=1
+				move.pp = 1
 			}
 		}
 	},
@@ -607,9 +607,9 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		num: 89,
 		onTryHit(target, source, move) {
 			if (target !== source && move.type === 'Fighting') {
-				
+
 				this.add('-immune', target, '[from] ability: Hide');
-				
+
 				return null;
 			}
 		},
@@ -619,7 +619,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 				return this.chainModify([3, 2]);
 			}
 		},
-		
+
 	},
 	diffuser: {
 		onBasePowerPriority: 21,
@@ -646,9 +646,9 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 	hardshell: {
 		onSourceModifyDamage(damage, source, target, move) {
 			switch (target.getMoveHitData(move).typeMod) {
-				
-				
-				case 0:return this.chainModify(0.9);
+
+
+				case 0: return this.chainModify(0.9);
 				case 1: return this.chainModify(0.8);
 				case 2: return this.chainModify(0.6);
 				default:
@@ -664,7 +664,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		name: "Giant Killer",
 
 		onModifyDamage(damage, source, target, move) {
-			if (target.getWeight()>=150)
+			if (target.getWeight() >= 150)
 				return this.chainModify([5324, 4096]);
 		},
 
@@ -692,10 +692,10 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		num: 29,
 	},
 	hyperactivity: {
-		
+
 		onResidual(pokemon) {
 			pokemon.removeVolatile('choicelock');
-			
+
 		},
 		name: "Hyperactivity",
 		rating: 3,
@@ -744,14 +744,14 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 						stats = x;
 					}
 				}
-				this.boost({[stats]: -1}, target, source, null, true, false);
-				this.boost({[stats]: 1});
+				this.boost({ [stats]: -1 }, target, source, null, true, false);
+				this.boost({ [stats]: 1 });
 			}
 		},
 		name: "Magic Beam",
 		rating: 3,
 		num: 111,
-	},	
+	},
 	poisonaround: {
 		onStart(pokemon) {
 			let activated = false;
@@ -772,10 +772,10 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		num: 22,
 	},
 	renewal: {
-		
+
 		onDamagePriority: -30,
 		onDamage(damage, target, source, effect) {
-			if (damage >= target.hp && effect && effect.effectType === 'Move' && !target.m.renewaled && source.item !=='seismiclever') {
+			if (damage >= target.hp && effect && effect.effectType === 'Move' && !target.m.renewaled && source.item !== 'seismiclever') {
 				this.add('-ability', target, 'Renewal');
 				this.damage(target.hp - 1, target, source, effect);
 				this.heal(target.maxhp, target, target);
@@ -784,11 +784,62 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 				return false;
 			}
 		},
-		
+
 		isBreakable: true,
 		name: "Renewal",
 		rating: 3,
 		num: 5,
 	},
-	
+	haven: {
+
+		onTryHeal(damage, target, source, effect) {
+			return this.chainModify(1.5);
+		},
+		name: "Haven",
+		rating: 3,
+		num: 5,
+	},
+	overcharge: {
+
+		onBasePowerPriority: 21,
+		onBasePower(basePower, attacker, defender, move) {
+			if (move.flags['charge']) {
+				return this.chainModify(2);
+			}
+		},
+		onChargeMove(pokemon, target, move) {
+			if (this.random(5) === 0) {
+				this.debug('power herb - remove charge turn for ' + move.id);
+				this.attrLastMove('[still]');
+				this.addMove('-anim', pokemon, move.name, target);
+				return false; // skip charge turn
+			}
+		},
+		name: "Overcharge",
+		rating: 3,
+		num: 5,
+	},
+	bornofexplosion: {
+		onModifyMove(move, pokemon, target){
+			if (move.selfdestruct) {
+				move.selfdestruct = undefined;
+				move.onAfterMove = (source, target, move) => {
+					if (source.hp > source.maxhp * 0.2) {
+						this.damage(source.hp - source.maxhp*0.2,source,source);
+					}
+				}
+			}
+		},
+		onDamage(damage, target, source, effect) {
+			if (effect.id === 'recoil' || effect.id === 'lifeorb') {
+				if (!this.activeMove) throw new Error("Battle.activeMove is null");
+				if (this.activeMove.id !== 'struggle')
+					if (target.hp - damage > target.maxhp * 0.2)
+						return Math.max(target.hp - target.maxhp * 0.2,0);
+			}
+		},
+		name: "Born Of Explosion",
+		rating: 3,
+		num: 5,
+	}
 };

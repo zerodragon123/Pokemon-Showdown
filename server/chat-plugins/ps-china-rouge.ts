@@ -234,7 +234,16 @@ export const commands: Chat.ChatCommands = {
 		clear(target, room, user) {
 			if (!room) return PetUtils.popup(user, "请在房间里使用Rouge系统");
 			user.sendTo(room.roomid, `|uhtmlchange|rouge|`);
-		}
+		},
+		fullpassrecord(target, room, user) {
+			if (!room) return PetUtils.popup(user, "请在房间里使用Rouge系统");
+			this.checkCan('lock');
+			let rougeUser = RougeUtils.getUser(user.id);
+			if (rougeUser) {
+				rougeUser.passrecord = { 'cave': Array(25).fill(1), 'void': Array(25).fill(1) };
+				RougeUtils.saveUser(user.id, rougeUser);
+			}
+		},
 	},
 
 }
