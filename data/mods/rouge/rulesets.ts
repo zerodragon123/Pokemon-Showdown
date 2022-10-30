@@ -573,6 +573,10 @@ const relicsEffects = {
 			battle.add('message', 'your team is full');
 		}
 	},
+	'enchantment': (battle: Battle) => {
+		battle.field.addPseudoWeather("enchantment");
+		battle.add('message', 'Enchantment start');
+	},
 };
 
 
