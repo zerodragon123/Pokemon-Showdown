@@ -1194,5 +1194,70 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			this.add('-message', 'The Enchantments subsided.');
 		},
 	},
+	flameshield: {
+		name: 'Flame Shield',
+		effectType: 'Weather',
+		duration: 0,
 
+		onDamagePriority:-102,
+		onDamage(damage, target, source, effect) {
+			if (effect.id === 'recoil' || effect.id === 'lifeorb' || effect.id === 'rockyhelmet') {
+				if (!this.activeMove) throw new Error("Battle.activeMove is null");
+				if (this.activeMove.id !== 'struggle') {
+					if (target && target.side === this.p2) {
+						return damage / 2;
+					} else if (target && target.side === this.p1) {
+						return damage * 2;
+					}
+				}
+			}
+		},
+		onFieldStart(battle, source, effect) {
+			if (effect?.effectType === 'Ability') {
+				this.add('-fieldstart', 'Flame Shield', '[from] ability: ' + effect, '[of] ' + source);
+			} else {
+				this.add('-fieldstart', 'Flame Shield');
+			}
+			this.add('-message', 'Flame Shield is radiated.');
+		},
+
+		onFieldResidualOrder: 1,
+		onFieldResidual() {
+			this.add('-weather', 'Flame Shield', '[upkeep]');
+			this.eachEvent('Weather');
+		},
+		onFieldEnd() {
+			this.add('-fieldend', 'Flame Shield');
+			this.add('-message', 'The Flame Shield subsided.');
+		},
+	},
+	physicalsuppression: {
+		name: 'Physical Suppression',
+		effectType: 'Weather',
+		duration: 0,
+
+		onBoost(boots, target, source, effect) {
+			if (!boots.atk) {
+				boots = {};
+			}
+		},
+		onFieldStart(battle, source, effect) {
+			if (effect?.effectType === 'Ability') {
+				this.add('-fieldstart', 'Physical Suppression', '[from] ability: ' + effect, '[of] ' + source);
+			} else {
+				this.add('-fieldstart', 'Physical Suppression');
+			}
+			this.add('-message', 'Physical Suppression is radiated.');
+		},
+
+		onFieldResidualOrder: 1,
+		onFieldResidual() {
+			this.add('-weather', 'Physical Suppression', '[upkeep]');
+			this.eachEvent('Weather');
+		},
+		onFieldEnd() {
+			this.add('-fieldend', 'Physical Suppression');
+			this.add('-message', 'The Physical Suppression subsided.');
+		},
+	},
 };

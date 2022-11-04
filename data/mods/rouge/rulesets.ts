@@ -26,7 +26,7 @@ export class RougeUtils {
 	];
 	static initMonsAndEvos = Dex.species.all().filter(x => RougeUtils.initMons.includes(x.name) || RougeUtils.initMons.includes(x.prevo) || (x.prevo && RougeUtils.initMons.includes(Dex.species.get(x.prevo)?.prevo))).map(x => x.name);
 	static unlock = {
-		body: ['Gain Champion Belt', 'Become Haven', 'Become Overcharge', 'Promote A Pokemon', 'Get Smoke Trigger', 'Become Adaptability', 'Gain Holographic Projection', 'Get Thruster', 'Become Born Of Explosion', 'Gain Pack Light', 'Gain Replication', 'Gain Enchantments','Get Custap Element'],
+		body: ['Gain Champion Belt', 'Become Haven', 'Become Overcharge', 'Promote A Pokemon', 'Get Smoke Trigger', 'Become Adaptability', 'Gain Holographic Projection', 'Get Thruster', 'Become Born Of Explosion', 'Gain Pack Light', 'Gain Replication', 'Gain Enchantments', 'Get Custap Element', 'Gain Flame Shield', 'Gain Heroic Sword', 'Gain Physical Suppression'],
 		index: {
 			"pokemonroom": [],
 			"pokemonroom2": [],
@@ -38,8 +38,8 @@ export class RougeUtils {
 			'moveroom2': [],
 			'abilityroom': [1,2,5],
 			'abilityroom2': [8],
-			'eliteroom': [0,9,11],
-			'eliteroom2': [6,10],
+			'eliteroom': [0,9,11,13,14],
+			'eliteroom2': [6,10,15],
 			'championroom': [],
 			'championroom2':[],
 		}
@@ -577,6 +577,35 @@ const relicsEffects = {
 		battle.field.addPseudoWeather("enchantment");
 		battle.add('message', 'Enchantment start');
 	},
+	'flameshield': (battle: Battle) => {
+		battle.field.addPseudoWeather("flameshield");
+		battle.add('message', 'Flame Shield start');
+	},
+	'heroicsword': (battle: Battle) => {
+		if (!battle.p1.addSlotCondition(battle.p1.active[0], 'futuremove')) return false;
+		Object.assign(battle.p1.slotConditions[battle.p2.active[0].position]['futuremove'], {
+			move: 'heroicsword',
+			source: battle.p2.active[0],
+			moveData: {
+				id: 'heroicsword',
+				name: "Heroic Sword",
+				accuracy: true,
+				basePower: 0,
+				category: "Special",
+				priority: 0,
+				flags: {  heal: 1 },
+				effectType: 'Move',
+				isFutureMove: true,
+				type: 'Steel',
+				heal: [3, 4],
+			},
+		});
+		battle.add('message', "you chose Heroic Sword as its destiny!");
+	},
+	'physicalsuppression': (battle: Battle) => {
+		battle.field.addPseudoWeather("physicalsuppression");
+		battle.add('message', 'Physical Suppression start');
+	},
 };
 
 
@@ -700,9 +729,10 @@ export const Rulesets: { [k: string]: FormatData } = {
 						const move = Dex.moves.get(moveid);
 						return move.flags['heal'] && !move.damage;
 					}
+					// isStatusMove will not filter 1pp moves, cause it's  exclusive move of champion pokemon
 					const isStatusMove = (moveid: string) => {
 						const move = Dex.moves.get(moveid);
-						return move.category === 'Status';
+						return move.category === 'Status' || move.pp===1;
 					}
 					const mega = activePoke.canMegaEvo ? 'mega' : '';
 					const boostlv = eval(Object.values(activePoke.boosts).join('+'));
@@ -770,7 +800,7 @@ export const Rulesets: { [k: string]: FormatData } = {
 						const movesNotHeal = movesHasPP.filter(move => !isHealMove(move));
 						const movesNotImmune = movesNotHeal.filter(move => checkImmune(move));
 						const movesNotStatus = movesNotImmune.filter(move => !isStatusMove(move));
-						if ((activePoke.boosts.atk >= 6 || activePoke.boosts.spa >= 6 || boostlv >= this.random(12) + 2) && movesNotStatus.length > 0) {
+						if ((activePoke.boosts.atk >= 6 || activePoke.boosts.spa >= 6 || boostlv >= this.random(12) + 2 || this.field.getPseudoWeather('physicalsuppression')) && movesNotStatus.length > 0) {
 							this.p1.chooseMove(this.sample(movesNotStatus), 0, mega);
 						}else if (movesNotImmune.length > 0) {
 							this.p1.chooseMove(this.sample(movesNotImmune), 0, mega);
