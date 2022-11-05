@@ -541,7 +541,7 @@ const relicsEffects = {
 		battle.field.addPseudoWeather("championbelt");
 		battle.add('message', 'Champion Belt start');
 		let pokemon = battle.sample(battle.p1.pokemon);
-		pokemon.m.innate === 'elite';
+		pokemon.m.innate = 'elite';
 		if (pokemon.isActive) {
 			pokemon.addVolatile('elite');
 		}
@@ -573,17 +573,17 @@ const relicsEffects = {
 			battle.add('message', 'your team is full');
 		}
 	},
-	'enchantment': (battle: Battle) => {
-		battle.field.addPseudoWeather("enchantment");
-		battle.add('message', 'Enchantment start');
+	'enchantments': (battle: Battle) => {
+		battle.field.addPseudoWeather("enchantments");
+		battle.add('message', 'Enchantments start');
 	},
 	'flameshield': (battle: Battle) => {
 		battle.field.addPseudoWeather("flameshield");
 		battle.add('message', 'Flame Shield start');
 	},
 	'heroicsword': (battle: Battle) => {
-		if (!battle.p1.addSlotCondition(battle.p1.active[0], 'futuremove')) return false;
-		Object.assign(battle.p1.slotConditions[battle.p2.active[0].position]['futuremove'], {
+		if (!battle.p2.addSlotCondition(battle.p2.active[0], 'futuremove')) return false;
+		Object.assign(battle.p2.slotConditions[battle.p2.active[0].position]['futuremove'], {
 			move: 'heroicsword',
 			source: battle.p2.active[0],
 			moveData: {
@@ -637,8 +637,8 @@ export const Rulesets: { [k: string]: FormatData } = {
 			if (!user) return;
 			let room = RougeUtils.getRoom(user) || 'pokemonroom';
 			// @ts-ignore
-			let reward = Pokemonpool.Shop[room] as string[];
-			let reward2 = Pokemonpool.Shop[(room + '2') as keyof typeof Pokemonpool.Shop] as string[];
+			let reward = (Pokemonpool.Shop[room] as string[]).concat();
+			let reward2 = (Pokemonpool.Shop[(room + '2') as keyof typeof Pokemonpool.Shop] as string[]).concat();
 			for (let i of RougeUtils.unlock.index[room as keyof typeof RougeUtils.unlock.index]) {
 				if (user?.passrecord?.void[i])
 					reward.push(RougeUtils.unlock.body[i])
@@ -648,8 +648,6 @@ export const Rulesets: { [k: string]: FormatData } = {
 					reward2.push(RougeUtils.unlock.body[i])
 			}
 			if (room === 'eliteroom') {
-				reward = reward.concat();
-				reward2 = reward2.concat();
 				this.prng.sample(this.p1.pokemon).m.innate = 'elite';
 				let relics = RougeUtils.getRelics(user);
 				for (let x of relics) {
