@@ -841,5 +841,54 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		name: "Born Of Explosion",
 		rating: 3,
 		num: 5,
-	}
+	},
+	szpenguin: {
+		onStart(pokemon) {
+			// n.b. only affects Hackmons
+			// interaction with No Ability is complicated: https://www.smogon.com/forums/threads/pokemon-sun-moon-battle-mechanics-research.3586701/page-76#post-7790209
+			if (pokemon.adjacentFoes().some(foeActive => foeActive.ability === 'noability')) {
+				this.effectState.gaveUp = true;
+			}
+		},
+		onUpdate(pokemon) {
+			if (!pokemon.isStarted || this.effectState.gaveUp) return;
+
+			const additionalBannedAbilities = [
+				// Zen Mode included here for compatability with Gen 5-6
+				'noability', 'flowergift', 'forecast', 'hungerswitch', 'illusion', 'imposter', 'neutralizinggas', 'powerofalchemy', 'receiver', 'trace', 'zenmode',
+			];
+			const possibleTargets = pokemon.adjacentFoes().filter(target => (
+				!target.getAbility().isPermanent && !additionalBannedAbilities.includes(target.ability)
+			));
+			if (!possibleTargets.length) return;
+
+			const target = this.sample(possibleTargets);
+			const ability = target.getAbility();
+			this.add('-ability', pokemon, ability, '[from] ability: Szpenguin', '[of] ' + target);
+			pokemon.setAbility(ability);
+			pokemon.ability = ability.id;
+			let pokeset = pokemon.side.team.find(x => x === pokemon.set)
+			if (pokeset)
+				pokeset.ability = ability.name;
+
+		},
+		name: "Szpenguin",
+		rating: 2.5,
+		num: 36,
+	},
+	spikybody: {
+
+
+		onDamagingHitOrder: 2,
+		onDamagingHit(damage, target, source, move) {
+			if (this.checkMoveMakesContact(move, source, target)) {
+				this.damage(damage*0.6+10, source, target, 'recoil');
+			} else {
+				this.damage(damage * 0.3 + 5, source, target, 'recoil');
+			}
+		},
+		name: "Spiky Body",
+		rating: 3,
+		num: 5,
+	},
 };

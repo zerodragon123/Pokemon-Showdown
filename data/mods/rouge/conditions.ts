@@ -776,7 +776,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 		duration: 0,
 		
 		
-		onModifyMovePriority: 100,
+		onModifyMovePriority: 101,
 		onModifyMove(move, pokemon, target) {
 			if (['endeavor', 'fling', 'iceball', 'rollout'].includes(move.id)) return;
 			if (move.flags['charge']) return;
@@ -1257,6 +1257,40 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 		onFieldEnd() {
 			this.add('-fieldend', 'Physical Suppression');
 			this.add('-message', 'The Physical Suppression subsided.');
+		},
+	},
+	contraryblade: {
+		name: 'Contrary Blade',
+		effectType: 'Weather',
+		duration: 0,
+		onModifyMovePriority: 102,
+		onModifyMove(move, pokemon, target) {
+			if (move.category !== 'Status' && pokemon.side === this.p2) {
+				if (move.category === 'Special') {
+					move.category = 'Physical';
+				} else if (move.category === 'Physical') {
+					move.category = 'Special';
+				}
+				
+			}
+		},
+		onFieldStart(battle, source, effect) {
+			if (effect?.effectType === 'Ability') {
+				this.add('-fieldstart', 'Contrary Blade', '[from] ability: ' + effect, '[of] ' + source);
+			} else {
+				this.add('-fieldstart', 'Contrary Blade');
+			}
+			this.add('-message', 'Contrary Blade is radiated.');
+		},
+
+		onFieldResidualOrder: 1,
+		onFieldResidual() {
+			this.add('-weather', 'Contrary Blade', '[upkeep]');
+			this.eachEvent('Weather');
+		},
+		onFieldEnd() {
+			this.add('-fieldend', 'Contrary Blade');
+			this.add('-message', 'The Contrary Blade subsided.');
 		},
 	},
 };

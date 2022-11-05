@@ -6854,6 +6854,42 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		desc: '',
 		shortDesc: '',
 	},
+	becomeszpenguin: {
+		num: 1002,
+		name: 'Become Szpenguin',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			selectpokemon(pokemon, ' Transform Ability');
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	becomespikybody: {
+		num: 1002,
+		name: 'Become Spiky Body',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			selectpokemon(pokemon, ' Transform Ability');
+		},
+		desc: '',
+		shortDesc: '',
+	},
 	//----------------elitemoves---------
 	gainartirain: {
 		num: 1002,
@@ -7930,6 +7966,26 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		onHit(pokemon) {
 			RougeUtils.addRelics(this.toID(pokemon.side.name), 'physicalsuppression');
 			this.add('html', `<div class="broadcast-green"><strong>you get the Physical Suppression</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gaincontraryblade: {
+		num: 1002,
+		name: 'Gain Contrary Blade',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'contraryblade');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Contrary Blade</strong></div>`);
 			chooseroom(pokemon, this.prng);
 		},
 		desc: '',

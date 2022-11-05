@@ -26,7 +26,7 @@ export class RougeUtils {
 	];
 	static initMonsAndEvos = Dex.species.all().filter(x => RougeUtils.initMons.includes(x.name) || RougeUtils.initMons.includes(x.prevo) || (x.prevo && RougeUtils.initMons.includes(Dex.species.get(x.prevo)?.prevo))).map(x => x.name);
 	static unlock = {
-		body: ['Gain Champion Belt', 'Become Haven', 'Become Overcharge', 'Promote A Pokemon', 'Get Smoke Trigger', 'Become Adaptability', 'Gain Holographic Projection', 'Get Thruster', 'Become Born Of Explosion', 'Gain Pack Light', 'Gain Replication', 'Gain Enchantments', 'Get Custap Element', 'Gain Flame Shield', 'Gain Heroic Sword', 'Gain Physical Suppression'],
+		body: ['Gain Champion Belt', 'Become Haven', 'Become Overcharge', 'Promote A Pokemon', 'Get Smoke Trigger', 'Become Adaptability', 'Gain Holographic Projection', 'Get Thruster', 'Become Born Of Explosion', 'Gain Pack Light', 'Gain Replication', 'Gain Enchantments', 'Get Custap Element', 'Gain Flame Shield', 'Gain Heroic Sword', 'Gain Physical Suppression', 'Become Szpenguin', 'Gain Contrary Blade', 'Become Spiky Body'],
 		index: {
 			"pokemonroom": [],
 			"pokemonroom2": [],
@@ -36,9 +36,9 @@ export class RougeUtils {
 			'itemroom2': [7,12],
 			'moveroom': [],
 			'moveroom2': [],
-			'abilityroom': [1,2,5],
-			'abilityroom2': [8],
-			'eliteroom': [0,9,11,13,14],
+			'abilityroom': [1,2,5,18],
+			'abilityroom2': [8,16],
+			'eliteroom': [0,9,11,13,14,17],
 			'eliteroom2': [6,10,15],
 			'championroom': [],
 			'championroom2':[],
@@ -605,6 +605,10 @@ const relicsEffects = {
 	'physicalsuppression': (battle: Battle) => {
 		battle.field.addPseudoWeather("physicalsuppression");
 		battle.add('message', 'Physical Suppression start');
+	},
+	'contraryblade': (battle: Battle) => {
+		battle.field.addPseudoWeather("contraryblade");
+		battle.add('message', 'Contrary Blade start');
 	},
 };
 
