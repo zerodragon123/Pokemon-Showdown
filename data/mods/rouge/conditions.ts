@@ -1293,4 +1293,34 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			this.add('-message', 'The Contrary Blade subsided.');
 		},
 	},
+	melodyofsiren: {
+		name: 'Melody Of Siren',
+		effectType: 'Weather',
+		duration: 0,
+
+		onWeatherModifyDamage(damage, source, target, move) {
+			if (target.cureStatus()) {
+				this.chainModify(1.5);
+			}
+
+		},
+		onFieldStart(battle, source, effect) {
+			if (effect?.effectType === 'Ability') {
+				this.add('-fieldstart', 'Melody Of Siren', '[from] ability: ' + effect, '[of] ' + source);
+			} else {
+				this.add('-fieldstart', 'Melody Of Siren');
+			}
+			this.add('-message', 'Melody Of Siren is radiated.');
+		},
+
+		onFieldResidualOrder: 1,
+		onFieldResidual() {
+			this.add('-weather', 'Melody Of Siren', '[upkeep]');
+			this.eachEvent('Weather');
+		},
+		onFieldEnd() {
+			this.add('-fieldend', 'Melody Of Siren');
+			this.add('-message', 'The Melody Of Siren subsided.');
+		},
+	},
 };

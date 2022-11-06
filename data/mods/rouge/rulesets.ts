@@ -26,19 +26,20 @@ export class RougeUtils {
 	];
 	static initMonsAndEvos = Dex.species.all().filter(x => RougeUtils.initMons.includes(x.name) || RougeUtils.initMons.includes(x.prevo) || (x.prevo && RougeUtils.initMons.includes(Dex.species.get(x.prevo)?.prevo))).map(x => x.name);
 	static unlock = {
-		body: ['Gain Champion Belt', 'Become Haven', 'Become Overcharge', 'Promote A Pokemon', 'Get Smoke Trigger', 'Become Adaptability', 'Gain Holographic Projection', 'Get Thruster', 'Become Born Of Explosion', 'Gain Pack Light', 'Gain Replication', 'Gain Enchantments', 'Get Custap Element', 'Gain Flame Shield', 'Gain Heroic Sword', 'Gain Physical Suppression', 'Become Szpenguin', 'Gain Contrary Blade', 'Become Spiky Body'],
+		caveBody: ['Get Duraludon', 'Get Wingull', 'Get Electabuzz', 'Get Necrozma', 'Get Skrelp', 'Get Vullaby', 'Get Mew',],
+		voidBody: ['Gain Champion Belt', 'Become Haven', 'Become Overcharge', 'Promote A Pokemon', 'Get Smoke Trigger', 'Become Adaptability', 'Gain Holographic Projection', 'Get Thruster', 'Become Born Of Explosion', 'Gain Pack Light', 'Gain Replication', 'Gain Enchantments', 'Get Custap Element', 'Gain Flame Shield', 'Gain Heroic Sword', 'Gain Physical Suppression', 'Become Szpenguin', 'Gain Contrary Blade', 'Become Spiky Body', 'Learn Fake Shot', 'Gain Melody Of Siren', 'Get Micro Master', 'Learn Mew Ball', 'Learn Parry','Learn Sketch'],
 		index: {
-			"pokemonroom": [],
-			"pokemonroom2": [],
+			"pokemonroom": [0,1.2,4,5],
+			"pokemonroom2": [3,6],
 			'commonroom': [],
 			'commonroom2': [3],
-			'itemroom': [4],
+			'itemroom': [4,21],
 			'itemroom2': [7,12],
-			'moveroom': [],
-			'moveroom2': [],
+			'moveroom': [22,23],
+			'moveroom2': [19,24],
 			'abilityroom': [1,2,5,18],
 			'abilityroom2': [8,16],
-			'eliteroom': [0,9,11,13,14,17],
+			'eliteroom': [0,9,11,13,14,17,20],
 			'eliteroom2': [6,10,15],
 			'championroom': [],
 			'championroom2':[],
@@ -230,7 +231,9 @@ export class RougeUtils {
 			let rougeProps = userProperty['rouge'].split("&");
 			if (rougeProps[5]) {
 				let life = Number(rougeProps[5]);
-				if (rougeProps[4] && rougeProps[4] === 'championroom') {
+				if (parseInt(rougeProps[2]) === 1) {
+					life-=0.5
+				} else if (rougeProps[4] && rougeProps[4] === 'championroom') {
 					life -= 2;
 				} else {
 					life--;
@@ -610,6 +613,10 @@ const relicsEffects = {
 		battle.field.addPseudoWeather("contraryblade");
 		battle.add('message', 'Contrary Blade start');
 	},
+	'melodyofsiren': (battle: Battle) => {
+		battle.field.addPseudoWeather("melodyofsiren");
+		battle.add('message', 'Melody Of Siren start');
+	},
 };
 
 
@@ -643,13 +650,24 @@ export const Rulesets: { [k: string]: FormatData } = {
 			// @ts-ignore
 			let reward = (Pokemonpool.Shop[room] as string[]).concat();
 			let reward2 = (Pokemonpool.Shop[(room + '2') as keyof typeof Pokemonpool.Shop] as string[]).concat();
-			for (let i of RougeUtils.unlock.index[room as keyof typeof RougeUtils.unlock.index]) {
-				if (user?.passrecord?.void[i])
-					reward.push(RougeUtils.unlock.body[i])
-			}
-			for (let i of RougeUtils.unlock.index[room + '2' as keyof typeof RougeUtils.unlock.index]) {
-				if (user?.passrecord?.void[i])
-					reward2.push(RougeUtils.unlock.body[i])
+			if (room === 'pokemonroom') {
+				for (let i of RougeUtils.unlock.index[room as keyof typeof RougeUtils.unlock.index]) {
+					if (user?.passrecord?.void[i])
+						reward.push(RougeUtils.unlock.caveBody[i])
+				}
+				for (let i of RougeUtils.unlock.index[room + '2' as keyof typeof RougeUtils.unlock.index]) {
+					if (user?.passrecord?.void[i])
+						reward2.push(RougeUtils.unlock.caveBody[i])
+				}
+			} else {
+				for (let i of RougeUtils.unlock.index[room as keyof typeof RougeUtils.unlock.index]) {
+					if (user?.passrecord?.void[i])
+						reward.push(RougeUtils.unlock.voidBody[i])
+				}
+				for (let i of RougeUtils.unlock.index[room + '2' as keyof typeof RougeUtils.unlock.index]) {
+					if (user?.passrecord?.void[i])
+						reward2.push(RougeUtils.unlock.voidBody[i])
+				}
 			}
 			if (room === 'eliteroom') {
 				this.prng.sample(this.p1.pokemon).m.innate = 'elite';

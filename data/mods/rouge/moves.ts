@@ -1275,6 +1275,132 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		target: "normal",
 		type: "Water",
 	},
+	fakeshot: {
+		num: 252,
+		accuracy: 100,
+		basePower: 40,
+		category: "Physical",
+		name: "Fake Shot",
+		pp: 10,
+		priority: 1,
+		flags: { contact: 1, protect: 1, mirror: 1 },
+		onTry(source) {
+			if (source.activeMoveActions > 1) {
+				this.hint("Fake Shot only works on your first turn out.");
+				return false;
+			}
+		},
+		onTryMove() {
+			this.attrLastMove('[still]');
+		},
+		onPrepareHit(target, source) {
+			this.add('-anim', source, 'Fake Out', target);
+		},
+		secondaries: [
+			{
+				chance: 100,
+				volatileStatus: 'flinch',
+			},
+			{
+				chance: 50,
+				boosts: { atk:-1 },
+			},
+			{
+				chance: 50,
+				boosts: { spa: -1 },
+			},
+		],
+		
+		selfSwitch: true,
+		target: "normal",
+		type: "Normal",
+		contestType: "Cute",
+	},
+	mewball: {
+		num: 796,
+		accuracy: 100,
+		basePower: 100,
+		category: "Special",
+		name: "Mew Ball",
+		pp: 5,
+		forceSTAB: true,
+		priority: 0,
+		flags: { protect: 1, mirror: 1 },
+		onAfterMove(source, target, move) {
+			this.heal(source.maxhp * 0.3, source, source);
+		},
+		onModifyMove(move) {
+			let type = this.sample(this.dex.types.all()).name
+			move.type = type
+			this.add('message','This Mew Ball is '+type+' type')
+		},
+		onTryMove() {
+			this.attrLastMove('[still]');
+		},
+		onPrepareHit(target, source) {
+			this.add('-anim', source, 'Judgment', target);
+		},
+		secondary: null,
+		target: "normal",
+		type: "Normal",
+	},
+	parry: {
+		num: 596,
+		accuracy: true,
+		basePower: 0,
+		category: "Status",
+		name: "Parry",
+		pp: 10,
+		priority: 4,
+		flags: {},
+		stallingMove: true,
+		volatileStatus: 'parry',
+		onPrepareHit(pokemon) {
+			return !!this.queue.willAct() && this.runEvent('StallMove', pokemon);
+		},
+		onHit(pokemon) {
+			pokemon.addVolatile('stall');
+		},
+		condition: {
+			duration: 1,
+			onStart(target) {
+				this.add('-singleturn', target, 'move: Protect');
+			},
+			onTryHitPriority: 3,
+			onTryHit(target, source, move) {
+				if (!move.flags['protect']) {
+					if (['gmaxoneblow', 'gmaxrapidflow'].includes(move.id)) return;
+					if (move.isZ || move.isMax) target.getMoveHitData(move).zBrokeProtect = true;
+					return;
+				}
+				if (move.smartTarget) {
+					move.smartTarget = false;
+				} else {
+					this.add('-activate', target, 'move: Protect');
+				}
+				const lockedmove = source.getVolatile('lockedmove');
+				if (lockedmove) {
+					// Outrage counter is reset
+					if (source.volatiles['lockedmove'].duration === 2) {
+						delete source.volatiles['lockedmove'];
+					}
+				}
+				if (this.checkMoveMakesContact(move, source, target)) {
+					this.damage(source.baseMaxhp / 8, source, target);
+				}
+				return this.NOT_FAIL;
+			},
+			onHit(target, source, move) {
+				if (move.isZOrMaxPowered) {
+					this.damage(source.baseMaxhp / 8, source, target, 'recoil');
+				}
+			},
+		},
+		secondary: null,
+		target: "self",
+		type: "Grass",
+		zMove: { boost: { def: 1 } },
+	},
 	//--------shop's  moves
 	getsuperband: {
 		num: 1000,
@@ -1925,6 +2051,25 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		},
 		desc: 'random pokemon of your team get Custap Element',
 		shortDesc: 'random pokemon of your team get Custap Element',
+	},
+	getmicromaster: {
+		num: 1002,
+		name: 'Get Micro Master',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			selectpokemon(pokemon, ' Get Item');
+
+		},
+		desc: 'random pokemon of your team get Micro Master',
+		shortDesc: 'random pokemon of your team get Micro Master',
 	},
 	//----------movemoves
 
@@ -3332,6 +3477,118 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 	learnbellydrum: {
 		num: 1000,
 		name: 'Learn Belly Drum',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon, source, move) {
+			selectpokemon(pokemon, ' Learn Move');
+			pokemon.moveSlots.push({
+				move: move.name,
+				id: this.toID('move.name'),
+				pp: 0,
+				maxpp: 1,
+				target: 'self',
+				disabled: true,
+				used: false,
+				virtual: true,
+			})
+
+		},
+
+	},
+	learnfakeshot: {
+		num: 1000,
+		name: 'Learn Fake Shot',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon, source, move) {
+			selectpokemon(pokemon, ' Learn Move');
+			pokemon.moveSlots.push({
+				move: move.name,
+				id: this.toID('move.name'),
+				pp: 0,
+				maxpp: 1,
+				target: 'self',
+				disabled: true,
+				used: false,
+				virtual: true,
+			})
+
+		},
+
+	},
+	learnmewball: {
+		num: 1000,
+		name: 'Learn Mew Ball',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon, source, move) {
+			selectpokemon(pokemon, ' Learn Move');
+			pokemon.moveSlots.push({
+				move: move.name,
+				id: this.toID('move.name'),
+				pp: 0,
+				maxpp: 1,
+				target: 'self',
+				disabled: true,
+				used: false,
+				virtual: true,
+			})
+
+		},
+
+	},
+	learnparry: {
+		num: 1000,
+		name: 'Learn Parry',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon, source, move) {
+			selectpokemon(pokemon, ' Learn Move');
+			pokemon.moveSlots.push({
+				move: move.name,
+				id: this.toID('move.name'),
+				pp: 0,
+				maxpp: 1,
+				target: 'self',
+				disabled: true,
+				used: false,
+				virtual: true,
+			})
+
+		},
+
+	},
+	learnsketch: {
+		num: 1000,
+		name: 'Learn Sketch',
 		type: 'Normal',
 		accuracy: true,
 		basePower: 0,
@@ -6221,6 +6478,198 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		},
 
 	},
+	getduraludon: {
+		num: 1000,
+		name: 'Get Duraludon',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Duraludon, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Duraludon has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getwingull: {
+		num: 1000,
+		name: 'Get Wingull',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Wingull, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Wingull has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getelectabuzz: {
+		num: 1000,
+		name: 'Get Electabuzz',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Electabuzz, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Electabuzz has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getnecrozma: {
+		num: 1000,
+		name: 'Get Necrozma',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Necrozma, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Necrozma has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getskrelp: {
+		num: 1000,
+		name: 'Get Skrelp',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Skrelp, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Skrelp has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getvullaby: {
+		num: 1000,
+		name: 'Get Vullaby',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Vullaby, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Vullaby has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getmew: {
+		num: 1000,
+		name: 'Get Mew',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Mew, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Mew has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getdeerling: {
+		num: 1000,
+		name: 'Get Deerling',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Deerling, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Deerling has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
 	//-------------abilitymoves------------
 
 	becomebomber: {
@@ -7986,6 +8435,26 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		onHit(pokemon) {
 			RougeUtils.addRelics(this.toID(pokemon.side.name), 'contraryblade');
 			this.add('html', `<div class="broadcast-green"><strong>you get the Contrary Blade</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainmelodyofsiren: {
+		num: 1002,
+		name: 'Gain Melody Of Siren',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'melodyofsiren');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Melody Of Siren</strong></div>`);
 			chooseroom(pokemon, this.prng);
 		},
 		desc: '',

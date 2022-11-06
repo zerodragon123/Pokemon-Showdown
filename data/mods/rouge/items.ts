@@ -648,4 +648,20 @@ export const Items: { [k: string]: ModdedItemData } = {
 		num: 210,
 		gen: 4,
 	},
+	micromaster: {
+		name: "Micro Master",
+		spritenum: 86,
+		onModifyAtkPriority: 1,
+		onModifyAtk(atk, pokemon) {
+			if (pokemon.lastMove?.category === 'Special') 
+				return this.chainModify(2);
+		},
+		onModifySpAPriority: 1,
+		onModifySpA(spa, pokemon) {
+			if (pokemon.lastMove?.category === 'Physical')
+				return this.chainModify(2);
+		},
+		num: 210,
+		gen: 4,
+	},
 };

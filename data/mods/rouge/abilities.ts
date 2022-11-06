@@ -417,6 +417,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 				return dmg;
 			}
 		},
+		isPermanent: true,
 		name: "Static Damage",
 		rating: 3,
 		num: 62,
