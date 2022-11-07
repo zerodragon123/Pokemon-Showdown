@@ -786,12 +786,12 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			}
 
 		},
-		
-		onAfterMove(source, target, move) {
+		onAfterHit(source, target, move) {
 			if (move.category !== 'Status' && !move.isZ && (!move.multihit || move.multihit === 1) && source.side === this.p2 && source.isActive) {
 				source.addVolatile('mustrecharge');
 			}
 		},
+		
 		
 		onFieldStart(battle, source, effect) {
 			if (effect?.effectType === 'Ability') {
