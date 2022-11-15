@@ -3173,7 +3173,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Reshiram": {
-		"name": '',
+		"name": 'Reshiram',
 		"species": "",
 		"item": ['Life Orb', 'Leftovers', 'Choice Scarf', 'Choice Specs', 'Assault Vest', 'Charcoal', 'Firium Z', 'Expert Belt', 'Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Turboblaze'],
@@ -3185,7 +3185,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Kyurem-White": {
-		"name": '',
+		"name": 'Kyurem-White',
 		"species": "",
 		"item": ['Choice Scarf', 'Life Orb', 'Choice Specs', 'Assault Vest', 'Leftovers', 'Power Herb', 'Icium Z', 'Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Turboblaze'],
@@ -3197,7 +3197,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Kyurem": {
-		"name": '',
+		"name": 'Kyurem',
 		"species": "",
 		"item": ['Choice Specs', 'Choice Scarf', 'Leftovers', 'Icium Z', 'Never-Melt Ice', 'Metronome', 'Icium Z', 'Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Pressure'],
@@ -3209,7 +3209,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Zekrom": {
-		"name": '',
+		"name": 'Zekrom',
 		"species": "",
 		"item": ['Leftovers', 'Life Orb', 'Lum Berry', 'Dragonium Z', 'Choice Band', 'Air Balloon', 'Electrium Z', 'Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Teravolt'],
@@ -3221,7 +3221,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Necrozma-Dusk-Mane": {
-		"name": '',
+		"name": 'Necrozma-Dusk-Mane',
 		"species": "",
 		"item": ['Ultranecrozium Z', 'Ultranecrozium Z', 'Ultranecrozium Z','Rocky Helmet', 'Weakness Policy', 'Leftovers', 'Solganium Z','Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Prism Armor', '', ''],
@@ -3233,7 +3233,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Kyurem-Black": {
-		"name": '',
+		"name": 'Kyurem-Black',
 		"species": "",
 		"item": ['Life Orb', 'Icium Z', 'Expert Belt', 'Leftovers', 'Choice Band', 'Dragonium Z', 'Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Teravolt'],
@@ -3245,7 +3245,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Xerneas": {
-		"name": '',
+		"name": 'Xerneas',
 		"species": "",
 		"item": ['Choice Scarf', 'Power Herb', 'Choice Specs','Fairium Z', 'Leftovers', 'Aguav Berry', 'Choice Band', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Fairy Aura'],
@@ -3257,7 +3257,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Necrozma-Dawn-Wings": {
-		"name": '',
+		"name": 'Necrozma-Dawn-Wings',
 		"species": "",
 		"item": ['Ultranecrozium Z', 'Ultranecrozium Z', 'Ultranecrozium Z', 'Lunalium Z', 'Weakness Policy', 'Leftovers', 'Assault Vest', 'Choice Scarf', 'Power Herb', 'Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Prism Armor'],
@@ -3269,7 +3269,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Yveltal": {
-		"name": '',
+		"name": 'Yveltal',
 		"species": "",
 		"item": ['Life Orb', 'Leftovers', 'Black Glasses', 'Choice Band', 'Assault Vest', 'Darkinium Z', 'Flyinium Z','Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Dark Aura'],
@@ -3281,7 +3281,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Eternatus": {
-		"name": '',
+		"name": 'Eternatus',
 		"species": "",
 		"item": ['Black Sludge', 'Life Orb', 'Dragonium Z', 'Power Herb', 'Choice Specs', 'Assault Vest', 'Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Pressure'],
@@ -3293,7 +3293,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Zacian": {
-		"name": '',
+		"name": 'Zacian',
 		"species": "",
 		"item": ['Rusted Sword', 'Rusted Sword', 'Choice Band', 'Choice Scarf', 'Life Orb', 'Groundium Z', 'Choice Specs', 'Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Intrepid Sword'],
@@ -3305,7 +3305,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Zamazenta": {
-		"name": '',
+		"name": 'Zamazenta',
 		"species": "",
 		"item": ['Choice Band', 'Assault Vest', 'Choice Scarf', 'Leftovers', 'Life Orb', 'Rusted Shield', 'Rusted Shield', 'Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Dauntless Shield'],
@@ -3317,7 +3317,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Calyrex-Shadow": {
-		"name": '',
+		"name": 'Calyrex-Shadow',
 		"species": "",
 		"item": ['Focus Sash', 'Choice Scarf', 'Choice Specs', 'Life Orb', 'Leftovers', 'Ghostium Z'],
 		"ability": ['As One (Spectrier)'],
@@ -3329,7 +3329,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Calyrex-Ice": {
-		"name": '',
+		"name": 'Calyrex-Ice',
 		"species": "",
 		"item": ['Weakness Policy', 'Leftovers', 'Choice Band', 'Life Orb', 'Assault Vest', 'Icium Z', 'Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['As One (Glastrier)'],
@@ -3341,7 +3341,7 @@ exports.Pokemonpool = {
 		'level': 10,
 	},
 	"Lugia": {
-		"name": '',
+		"name": 'Lugia',
 		"species": "",
 		"item": ['Leftovers', 'Rocky Helmet', 'Aguav Berry', 'Flyinium Z', 'Life Orb', 'Aguav Berry', 'Mago Berry', 'Wiki Berry', 'Sitrus Berry'],
 		"ability": ['Multiscale', 'Pressure'],
