@@ -786,7 +786,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			}
 
 		},
-		onAfterMove(source, target, move) {
+		onAfterHit(source, target, move) {
 			if (move.category !== 'Status' && !move.isZ && (!move.multihit || move.multihit === 1) && source.side === this.p2 && source.isActive) {
 				source.addVolatile('mustrecharge');
 			}
@@ -1299,7 +1299,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 		duration: 0,
 
 		onWeatherModifyDamage(damage, source, target, move) {
-			if (target.cureStatus()) {
+			if (target && target.side === this.p1&& target.cureStatus()) {
 				this.chainModify(1.5);
 			}
 

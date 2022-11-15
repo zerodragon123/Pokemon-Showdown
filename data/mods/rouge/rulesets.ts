@@ -543,7 +543,7 @@ const relicsEffects = {
 	'championbelt': (battle: Battle) => {
 		battle.field.addPseudoWeather("championbelt");
 		battle.add('message', 'Champion Belt start');
-		let pokemon = battle.sample(battle.p1.pokemon);
+		let pokemon = battle.sample(battle.p1.pokemon.filter(x => battle.toID(x.ability) !== 'shopman'));
 		pokemon.m.innate = 'elite';
 		if (pokemon.isActive) {
 			pokemon.addVolatile('elite');
@@ -588,7 +588,7 @@ const relicsEffects = {
 		if (!battle.p2.addSlotCondition(battle.p2.active[0], 'futuremove')) return false;
 		Object.assign(battle.p2.slotConditions[battle.p2.active[0].position]['futuremove'], {
 			move: 'heroicsword',
-			source: battle.p2.active[0],
+			source: battle.p1.active[0],
 			moveData: {
 				id: 'heroicsword',
 				name: "Heroic Sword",
