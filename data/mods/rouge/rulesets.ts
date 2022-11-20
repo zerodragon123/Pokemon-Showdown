@@ -521,7 +521,7 @@ export const Rulesets: { [k: string]: FormatData } = {
 	pschinarougemode: {
 		effectType: 'Rule',
 		name: 'PS China Rouge Mode',
-		ruleset: ['Dynamax Clause'],
+		ruleset: ['Dynamax Clause', 'Terastal Clause'],
 		timer: {
 			starting: 600,
 			addPerTurn: 30,
