@@ -2930,6 +2930,13 @@ export const Formats: FormatList = [
 		ruleset: ['Flat Rules', 'Dynamax Clause', '!! Adjust Level = 50', 'Min Source Gen = 8', 'VGC Timer'],
 	},
 	{
+		name: "[Gen 9] VGC (Test)",
+
+		mod: 'gen9',
+		gameType: 'doubles',
+		ruleset: ['Flat Rules', '!! Adjust Level = 50', 'Min Source Gen = 8', 'VGC Timer'],
+	},
+	{
 		name: "[Gen 8] VGC 2021",
 
 		mod: 'gen8',
@@ -4496,6 +4503,10 @@ export const Formats: FormatList = [
 			'Species Clause', 'Sleep Clause Mod', 'Adjust Level = 50', 'Team Preview',
 			'HP Percentage Mod', 'Cancel Mod', 'Endless Battle Clause',
 		],
+
+		onBattleStart() {
+			this.gen = 8;
+		}
 	},
 	{
 		name: "[Gen 5] PokeMMO Test",
@@ -4508,6 +4519,26 @@ export const Formats: FormatList = [
 			'Obtainable Abilities', 'Obtainable Formes', 'EV Limit = Auto',
 		],
 		banlist: ['Unreleased', 'Unobtainable', 'Past', 'Future', 'LGPE', 'CAP', 'Custom'],
+
+		onBattleStart() {
+			this.gen = 8;
+		}
+	},
+	{
+		name: "[Gen 5] PokeMMO Doubles",
+
+		rated: true,
+		mod: 'mmo',
+		ruleset: [
+			'Species Clause', 'Sleep Clause Mod', 'Adjust Level = 50', 'Team Preview',
+			'HP Percentage Mod', 'Cancel Mod', 'Endless Battle Clause',
+			'Obtainable Abilities', 'Obtainable Formes', 'EV Limit = Auto',
+		],
+		gameType: 'doubles',
+
+		onBattleStart() {
+			this.gen = 8;
+		}
 	},
 	{
 		name: "[Gen 7] PokeOne",
