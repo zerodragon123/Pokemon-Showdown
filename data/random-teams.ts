@@ -185,6 +185,7 @@ export class RandomTeams {
 				].some(moveid => movePool.includes(moveid))
 			),
 			Ghost: (movePool, moves, abilities, types, counter) => {
+				if (moves.has('nightshade')) return false;
 				if (!counter.get('Ghost') && !types.has('Dark')) return true;
 				if (movePool.includes('poltergeist')) return true;
 				return movePool.includes('spectralthief') && !counter.get('Dark');
@@ -533,7 +534,7 @@ export class RandomTeams {
 		// Picks `n` random pokemon--no repeats, even among formes
 		// Also need to either normalize for formes or select formes at random
 		// Unreleased are okay but no CAP
-		const last = [0, 151, 251, 386, 493, 649, 721, 807, 890][this.gen];
+		const last = [0, 151, 251, 386, 493, 649, 721, 807, 898, 1010][this.gen];
 
 		if (n <= 0 || n > last) throw new Error(`n must be a number between 1 and ${last} (got ${n})`);
 		if (requiredType && !this.dex.types.get(requiredType).exists) {
@@ -1165,7 +1166,7 @@ export class RandomTeams {
 			if (movePool.includes('leechseed') || (movePool.includes('toxic') && !moves.has('wish'))) return {cull: true};
 			if (isDoubles && (
 				['bellydrum', 'fakeout', 'shellsmash', 'spore'].some(m => movePool.includes(m)) ||
-				moves.has('tailwind') || moves.has('waterspout')
+				moves.has('tailwind') || moves.has('waterspout') || counter.get('recovery')
 			)) return {cull: true};
 			return {cull: false};
 		case 'rapidspin':
@@ -1249,6 +1250,8 @@ export class RandomTeams {
 				(counter.get('Special') < 4 && !moves.has('uturn')) ||
 				(species.types.length > 1 && counter.get('stab') < 3)
 			)};
+		case 'muddywater':
+			return {cull: moves.has('liquidation')};
 		case 'scald':
 			// Special case for Clawitzer
 			return {cull: moves.has('waterpulse')};
@@ -1473,7 +1476,7 @@ export class RandomTeams {
 	): boolean {
 		if ([
 			'Flare Boost', 'Hydration', 'Ice Body', 'Immunity', 'Innards Out', 'Insomnia', 'Misty Surge',
-			'Quick Feet', 'Rain Dish', 'Snow Cloak', 'Steadfast', 'Steam Engine',
+			'Perish Body', 'Quick Feet', 'Rain Dish', 'Snow Cloak', 'Steadfast', 'Steam Engine',
 		].includes(ability)) return true;
 
 		switch (ability) {
@@ -1789,7 +1792,9 @@ export class RandomTeams {
 				species.baseStats.spe >= 60 && species.baseStats.spe <= 100 && this.randomChance(1, 2)
 			) ? 'Choice Scarf' : 'Choice Specs';
 		}
-		if (counter.damagingMoves.size >= 4 && defensiveStatTotal >= 280) return 'Assault Vest';
+		// This one is intentionally below the Choice item checks.
+		if ((defensiveStatTotal < 250 && ability === 'Regenerator') || species.name === 'Pheromosa') return 'Life Orb';
+		if (counter.damagingMoves.size >= 4 && defensiveStatTotal >= 275) return 'Assault Vest';
 		if (
 			counter.damagingMoves.size >= 3 &&
 			species.baseStats.spe >= 60 &&
@@ -2400,6 +2405,7 @@ export class RandomTeams {
 		const tierCount: {[k: string]: number} = {};
 		const typeCount: {[k: string]: number} = {};
 		const typeComboCount: {[k: string]: number} = {};
+		const typeWeaknesses: {[k: string]: number} = {};
 		const teamDetails: RandomTeamsTypes.TeamDetails = {};
 
 		const pokemonPool = this.getPokemonPool(type, pokemon, isMonotype);
@@ -2471,13 +2477,26 @@ export class RandomTeams {
 			}
 
 			if (!isMonotype && !this.forceMonotype) {
-				// TODO: fix type weaknesses
 				let skip = false;
 
+				// Limit two of any type
 				for (const typeName of types) {
 					if (typeCount[typeName] >= 2 * limitFactor) {
 						skip = true;
 						break;
+					}
+				}
+				if (skip) continue;
+
+				// Limit three weak to any type
+				for (const typeName of this.dex.types.names()) {
+					// it's weak to the type
+					if (this.dex.getEffectiveness(typeName, species) > 0) {
+						if (!typeWeaknesses[typeName]) typeWeaknesses[typeName] = 0;
+						if (typeWeaknesses[typeName] >= 3 * limitFactor) {
+							skip = true;
+							break;
+						}
 					}
 				}
 				if (skip) continue;
@@ -2525,6 +2544,14 @@ export class RandomTeams {
 				typeComboCount[typeCombo]++;
 			} else {
 				typeComboCount[typeCombo] = 1;
+			}
+
+			// Increment weakness counter
+			for (const typeName of this.dex.types.names()) {
+				// it's weak to the type
+				if (this.dex.getEffectiveness(typeName, species) > 0) {
+					typeWeaknesses[typeName]++;
+				}
 			}
 
 			// Track what the team has
@@ -2685,7 +2712,7 @@ export class RandomTeams {
 	randomFactoryTeam(side: PlayerOptions, depth = 0): RandomTeamsTypes.RandomFactorySet[] {
 		this.enforceNoDirectCustomBanlistChanges();
 
-		const forceResult = (depth >= 4);
+		const forceResult = (depth >= 12);
 		// Leaving Monotype code in comments in case it's used in the future
 		// const isMonotype = !!this.forceMonotype || this.dex.formats.getRuleTable(this.format).has('sametypeclause');
 

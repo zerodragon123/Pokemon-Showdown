@@ -56,7 +56,7 @@ export const Scripts: ModdedBattleScriptsData = {
 			) {
 				stat *= 2;
 			} else if (this.species.name === 'Ditto' && this.item === 'metalpowder' && ['def', 'spd'].includes(statName)) {
-				stat *= 1.5;
+				stat = Math.floor(stat * 1.5);
 			}
 
 			return stat;
@@ -447,7 +447,7 @@ export const Scripts: ModdedBattleScriptsData = {
 				}
 			}
 
-			// Apply random factor is damage is greater than 1, except for Flail and Reversal
+			// Apply random factor if damage is greater than 1, except for Flail and Reversal
 			if (!move.noDamageVariance && damage > 1) {
 				damage *= this.battle.random(217, 256);
 				damage = Math.floor(damage / 255);

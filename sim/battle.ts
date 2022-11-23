@@ -1435,6 +1435,24 @@ export class Battle {
 			pokemon.removeVolatile('dynamax');
 		}
 
+		// Gen 1 partial trapping ends when either Pokemon or a switch in faints to residual damage
+		if (this.gen === 1) {
+			for (const pokemon of this.getAllActive()) {
+				if (pokemon.volatiles['partialtrappinglock']) {
+					const target = pokemon.volatiles['partialtrappinglock'].locked;
+					if (target.hp <= 0 || !target.volatiles['partiallytrapped']) {
+						delete pokemon.volatiles['partialtrappinglock'];
+					}
+				}
+				if (pokemon.volatiles['partiallytrapped']) {
+					const source = pokemon.volatiles['partiallytrapped'].source;
+					if (source.hp <= 0 || !source.volatiles['partialtrappinglock']) {
+						delete pokemon.volatiles['partiallytrapped'];
+					}
+				}
+			}
+		}
+
 		const trappedBySide: boolean[] = [];
 		const stalenessBySide: ('internal' | 'external' | undefined)[] = [];
 		for (const side of this.sides) {
@@ -1463,6 +1481,7 @@ export class Battle {
 				this.runEvent('DisableMove', pokemon);
 				if (!pokemon.ateBerry) pokemon.disableMove('belch');
 				if (!pokemon.getItem().isBerry) pokemon.disableMove('stuffcheeks');
+				if (pokemon.volatiles['gigatonhammer']) pokemon.disableMove('gigatonhammer');
 
 				// If it was an illusion, it's not any more
 				if (pokemon.getLastAttackedBy() && this.gen >= 7) pokemon.knownType = true;
@@ -2249,13 +2268,15 @@ export class Battle {
 		// when used without an explicit target.
 
 		move = this.dex.moves.get(move);
-		if (move.target === 'adjacentAlly') {
+		if (['self', 'all', 'allySide', 'allyTeam', 'adjacentAllyOrSelf'].includes(move.target)) {
+			return pokemon;
+		} else if (move.target === 'adjacentAlly') {
+			if (this.gameType === 'singles') return null;
 			const adjacentAllies = pokemon.adjacentAllies();
 			return adjacentAllies.length ? this.sample(adjacentAllies) : null;
 		}
-		if (['self', 'all', 'allySide', 'allyTeam', 'adjacentAllyOrSelf'].includes(move.target)) {
-			return pokemon;
-		}
+		if (this.gameType === 'singles') return pokemon.side.foe.active[0];
+
 		if (this.activePerHalf > 2) {
 			if (move.target === 'adjacentFoe' || move.target === 'normal' || move.target === 'randomNormal') {
 				// even if a move can target an ally, auto-resolution will never make it target an ally
@@ -2485,6 +2506,9 @@ export class Battle {
 			action.pokemon.addVolatile('dynamax');
 			action.pokemon.side.dynamaxUsed = true;
 			if (action.pokemon.side.allySide) action.pokemon.side.allySide.dynamaxUsed = true;
+			break;
+		case 'terastallize':
+			this.actions.terastallize(action.pokemon);
 			break;
 		case 'beforeTurnMove':
 			if (!action.pokemon.isActive) return false;

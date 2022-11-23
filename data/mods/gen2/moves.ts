@@ -415,7 +415,6 @@ export const Moves: {[k: string]: ModdedMoveData} = {
 	},
 	mimic: {
 		inherit: true,
-		accuracy: true,
 		ignoreAccuracy: undefined,
 		ignoreEvasion: undefined,
 		noSketch: true,
@@ -956,7 +955,7 @@ export const Moves: {[k: string]: ModdedMoveData} = {
 		secondary: {
 			chance: 20,
 			onHit(target, source, move) {
-				if (!target.hasType('Normal') && move.statusRoll) {
+				if (move.statusRoll) {
 					target.trySetStatus(move.statusRoll, source);
 				}
 			},
