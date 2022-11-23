@@ -4267,7 +4267,142 @@ export const Formats: FormatList = [
 		battle: {trunc: Math.trunc},
 		ruleset: ['HP Percentage Mod', 'Cancel Mod', 'Desync Clause Mod', 'Max Team Size = 24', 'Max Move Count = 24', 'Max Level = 9999', 'Default Level = 100'],
 	},
-];
+	// PS China
+	///////////////////////////////////////////////////////////////////
+
+	{
+		section: "PSChina Special",
+		column: 1,
+	},
+	{
+		name: "[Gen 8] PS 国服积分",
+		desc: `用于国服论坛积分显示, 天梯对战不计分。`,
+
+		mod: 'gen8',
+		team: 'random',
+		challengeShow: false,
+		rated: false,
+		ruleset: ['PotD', 'Obtainable', 'Sleep Clause Mod', 'HP Percentage Mod', 'Cancel Mod'],
+		onBegin() {
+			this.add('html', `<div class="broadcast-red"><strong>本分级仅用于国服论坛积分显示, 天梯对战不计分。具体积分规则见<a href="http://chinapsim.org./topic/63/">国服积分说明帖</a>.</strong></div>`);
+		},
+	},
+	{
+		name: "[Gen 9] Rouge Mod",
+		desc: `出发, 去往未知洞穴里探险`,
+
+		challengeShow: false,
+		tournamentShow: false,
+
+		mod: 'rouge',
+		ruleset: ['Dynamax Clause'],
+	},
+	{
+		name: "[Gen 8] Pet Mode 宠物模式",
+		desc: `与自己培养的宝可梦并肩作战吧！`,
+
+		mod: 'pet',
+		team: 'randomPetMode',
+		ruleset: ['PS China Pet Mode'],
+	},
+	{
+		name: "[Gen 8] Pet Mode Balanced 宠物平衡模式",
+		desc: `与自己培养的宝可梦一起享受公平的对战吧！`,
+
+		mod: 'pet',
+		team: 'randomPetModeBalanced',
+		ruleset: ['PS China Pet Mode Balanced'],
+	},
+	{
+		name: "[Gen 8] National Dex (Gym Aura Mod 道馆场地模式)",
+		desc: `双方共携带≥4个对应属性的精灵开启对应属性的道馆场地, 不可以使用突击背心`,
+
+		mod: 'pet',
+		ruleset: ['PS China Gym Aura Mode'],
+	},
+	{
+		name: "[Gen 8] Pet Mode Boss Battle",
+		desc: `去挑战强大的霸主宝可梦吧！`,
+
+		searchShow: false,
+		challengeShow: false,
+		// tournamentShow: false,
+
+		mod: 'petboss',
+		gameType: 'multi',
+		team: 'randomPetModeBossBattle',
+		ruleset: ['PS China Pet Mode Boss'],
+	},
+	{
+		name: "[Gen 8] Multi OU",
+		desc: `4-Player 2v2 Doubles OU`,
+		mod: 'gen8',
+		tournamentShow: false,
+		rated: true,
+		gameType: 'multi',
+		ruleset: ['Standard Doubles', 'Dynamax Clause', 'Picked Team Size = 3'],
+		banlist: ['DUber', 'Power Construct'],
+	},
+	{
+		name: "[Gen 8] OU (4P)",
+		desc: `4-Player 1v1v1v1 OU`,
+		mod: 'gen8',
+		tournamentShow: false,
+		rated: false,
+		gameType: 'freeforall',
+		ruleset: ['OU'],
+
+		onTeamPreview() {
+			this.sides.slice(2).forEach(side => {
+				this.add(
+					'html',
+					`<strong style="color:#445566;display:block;">${side.name}'s team:</strong><em style="color:#445566;display:block;">${side.pokemon.map(x => x.name).join(' / ')}</em>`
+				);
+			})
+		},
+	},
+	{
+		name: "[Gen 8] Shinx OU 2v2",
+		desc: `4-Player 2v2 OU for Shinx`,
+		mod: 'gen8',
+		tournamentShow: false,
+		rated: false,
+		gameType: 'multi',
+		timer: { starting: 300, addPerTurn: 45, maxPerTurn: 300, maxFirstTurn: 300, grace: 300 },
+		ruleset: ['Obtainable', 'Team Preview', 'Gravity Sleep Clause', 'Species Clause', 'Nickname Clause', 'OHKO Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod', 'Dynamax Clause'],
+		banlist: ['Jirachi', 'Kartana', 'Melmetal', 'swagger', 'Uber', 'AG', 'Arena Trap', 'Moody', 'Power Construct', 'Sand Veil', 'Shadow Tag', 'Snow Cloak',
+			'Bright Powder', 'King\'s Rock', 'Lax Incense', 'Baton Pass',],
+		onModifyMove(move, pokemon, target) {
+			if (move.id === 'defog') {
+				move.onHit = (target, source, move) => {
+					let success = false;
+					if (!target.volatiles['substitute'] || move.infiltrates) success = !!this.boost({ evasion: -1 });
+					const removeTarget = [
+						'reflect', 'lightscreen', 'auroraveil', 'safeguard', 'mist', 'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'gmaxsteelsurge',
+					];
+					const removeAll = [
+						'spikes', 'toxicspikes', 'stealthrock', 'stickyweb', 'gmaxsteelsurge',
+					];
+					for (const targetCondition of removeTarget) {
+						if (target.side.removeSideCondition(targetCondition)) {
+							if (!removeAll.includes(targetCondition)) continue;
+							this.add('-sideend', target.side, this.dex.conditions.get(targetCondition).name, '[from] move: Defog', '[of] ' + source);
+							success = true;
+						}
+					}
+					for (const side of this.sides.filter(x => x != target.side)) {
+						for (const sideCondition of removeAll) {
+							if (side.removeSideCondition(sideCondition)) {
+								this.add('-sideend', source.side, this.dex.conditions.get(sideCondition).name, '[from] move: Defog', '[of] ' + source);
+								success = true;
+							}
+						}
+					}
+					this.field.clearTerrain();
+					return success;
+				}
+			}
+		},
 
 	},
 	{
@@ -4278,7 +4413,7 @@ export const Formats: FormatList = [
 		rated: false,
 		gameType: 'multi',
 		timer: { starting: 300, addPerTurn: 45, maxPerTurn: 300, maxFirstTurn: 300, grace: 300 },
-		ruleset: ['Obtainable', 'Team Preview', 'Gravity Sleep Clause','Species Clause', 'Nickname Clause', 'OHKO Clause', 'Moody Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod'],
+		ruleset: ['Obtainable', 'Team Preview', 'Gravity Sleep Clause', 'Species Clause', 'Nickname Clause', 'OHKO Clause', 'Moody Clause', 'Evasion Moves Clause', 'Endless Battle Clause', 'HP Percentage Mod', 'Cancel Mod'],
 		banlist: ['Jirachi', 'Magearna', 'Snorlax', 'swagger', 'Uber', 'Arena Trap', 'Power Construct', 'Shadow Tag', 'Baton Pass'],
 		onModifyMove(move, pokemon, target) {
 			if (move.id === 'defog') {
@@ -4319,7 +4454,7 @@ export const Formats: FormatList = [
 
 		mod: 'gen8',
 		ruleset: ['Standard', 'Dynamax Clause'],
-		banlist: ['Uber', 'AG', 'Arena Trap', 'Moody', 'Power Construct', 'Shadow Tag', 'Baton Pass', 'Zoom Lens', 'Wide Lens', 'Victory Star', 'Compound Eyes', 'Wonder Skin','No Guard'],
+		banlist: ['Uber', 'AG', 'Arena Trap', 'Moody', 'Power Construct', 'Shadow Tag', 'Baton Pass', 'Zoom Lens', 'Wide Lens', 'Victory Star', 'Compound Eyes', 'Wonder Skin', 'No Guard'],
 		onModifyMove(move, pokemon, target) {
 			if ((typeof move.accuracy) === "number") {
 				move.accuracy = move.accuracy as number * 0.7;
@@ -4367,10 +4502,6 @@ export const Formats: FormatList = [
 			'Species Clause', 'Sleep Clause Mod', 'Adjust Level = 50', 'Team Preview',
 			'HP Percentage Mod', 'Cancel Mod', 'Endless Battle Clause',
 		],
-
-		onBattleStart() {
-			this.gen = 8;
-		}
 	},
 	{
 		name: "[Gen 5] PokeMMO Test",
@@ -4383,26 +4514,6 @@ export const Formats: FormatList = [
 			'Obtainable Abilities', 'Obtainable Formes', 'EV Limit = Auto',
 		],
 		banlist: ['Unreleased', 'Unobtainable', 'Past', 'Future', 'LGPE', 'CAP', 'Custom'],
-
-		onBattleStart() {
-			this.gen = 8;
-		}
-	},
-	{
-		name: "[Gen 5] PokeMMO Doubles",
-
-		rated: true,
-		mod: 'mmo',
-		ruleset: [
-			'Species Clause', 'Sleep Clause Mod', 'Adjust Level = 50', 'Team Preview',
-			'HP Percentage Mod', 'Cancel Mod', 'Endless Battle Clause',
-			'Obtainable Abilities', 'Obtainable Formes', 'EV Limit = Auto',
-		],
-		gameType: 'doubles',
-
-		onBattleStart() {
-			this.gen = 8;
-		}
 	},
 	{
 		name: "[Gen 7] PokeOne",
@@ -4462,9 +4573,9 @@ export const Formats: FormatList = [
 	{
 		name: "[Gen 8] Stat Gift",
 		desc: `1号位精灵hp种族翻倍, 2号位精灵atk种族翻倍, 3号位精灵def种族翻倍, 4号位精灵spa种族翻倍, 5号位精灵spd种族翻倍, 6号位精灵spe种族翻倍,最高255.\n` +
-				`Each Pok&eacute;mon will double its stat depending on its position in the team,The upper limit is 255`,
+			`Each Pok&eacute;mon will double its stat depending on its position in the team,The upper limit is 255`,
 		mod: 'gen8',
-		ruleset: ['Standard', 'Dynamax Clause','Overflow Stat Mod'],
+		ruleset: ['Standard', 'Dynamax Clause', 'Overflow Stat Mod'],
 		banlist: ['Uber', 'AG', 'Arena Trap', 'Moody', 'Power Construct', 'Sand Veil', 'Shadow Tag', 'Snow Cloak', 'King\'s Rock', 'Baton Pass'],
 		onBegin() {
 			this.add('rule', 'Stat Gift模式规则: http://47.94.147.145/topic/2477/%E5%9B%BD%E6%9C%8D%E4%B8%93%E5%B1%9Eom%E5%88%86%E7%BA%A7/8');
@@ -4476,7 +4587,7 @@ export const Formats: FormatList = [
 			const newSpecies = this.dex.deepClone(species);
 
 			newSpecies.bst -= newSpecies.baseStats[stat];
-			newSpecies.baseStats[stat] = this.clampIntRange(newSpecies.baseStats[stat]*2, 1, 255) ;
+			newSpecies.baseStats[stat] = this.clampIntRange(newSpecies.baseStats[stat] * 2, 1, 255);
 			newSpecies.bst += newSpecies.baseStats[stat];
 			return newSpecies;
 		},
@@ -4492,11 +4603,11 @@ export const Formats: FormatList = [
 		ruleset: ['Standard', 'Dynamax Clause'],
 		banlist: ['Uber', 'AG', 'Arena Trap', 'Moody', 'Power Construct', 'Sand Veil', 'Shadow Tag', 'Snow Cloak', 'King\'s Rock', 'Baton Pass'],
 		onBegin() {
-			const len=[];
+			const len = [];
 			const allPokemon = this.getAllPokemon();
 			for (let side of this.sides) {
 				len.push(side.pokemon.length)
-				side.pokemon=[]
+				side.pokemon = []
 			}
 			let indexes = [...new Array(this.sides.length).keys()]
 			for (const pokemon of allPokemon) {
@@ -4552,3 +4663,4 @@ export const Formats: FormatList = [
 		},
 	},
 ];
+

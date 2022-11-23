@@ -1364,7 +1364,8 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		flags: {},
 		stallingMove: true,
 		volatileStatus: 'parry',
-		onPrepareHit(pokemon) {
+		onPrepareHit(pokemon,source) {
+			this.add('-anim', source, 'Protect', pokemon);
 			return !!this.queue.willAct() && this.runEvent('StallMove', pokemon);
 		},
 		onHit(pokemon) {
@@ -1405,10 +1406,43 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 				}
 			},
 		},
+		onTryMove() {
+			this.attrLastMove('[still]');
+		},
+		
 		secondary: null,
 		target: "self",
 		type: "Grass",
 		zMove: { boost: { def: 1 } },
+	},
+	speedimpact: {
+		num: 486,
+		accuracy: 100,
+		basePower: 0,
+		basePowerCallback(pokemon, target) {
+			let ratio = Math.round(pokemon.getStat('spe') / target.getStat('spe'));
+			if (!isFinite(ratio)) ratio = 0;
+			const bp = [50, 80, 100, 130, 160, 200][Math.min(ratio, 5)];
+			this.debug('BP: ' + bp);
+			return bp;
+		},
+		category: "Physical",
+		name: "Speed Impact",
+		pp: 10,
+		priority: 0,
+		flags: { contact: 1, protect: 1, mirror: 1 },
+		secondary: null,
+		target: "normal",
+		type: "Fighting",
+		zMove: { basePower: 160 },
+		maxMove: { basePower: 130 },
+		contestType: "Cool",
+		onTryMove() {
+			this.attrLastMove('[still]');
+		},
+		onPrepareHit(target, source) {
+			this.add('-anim', source, 'Giga Impact', target);
+		},
 	},
 	//--------shop's  moves
 	getsuperband: {
@@ -3623,6 +3657,62 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		},
 
 	},
+	learnpopulationbomb: {
+		num: 1000,
+		name: 'Learn Population Bomb',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon, source, move) {
+			selectpokemon(pokemon, ' Learn Move');
+			pokemon.moveSlots.push({
+				move: move.name,
+				id: this.toID('move.name'),
+				pp: 0,
+				maxpp: 1,
+				target: 'self',
+				disabled: true,
+				used: false,
+				virtual: true,
+			})
+
+		},
+
+	},
+	learnspeedimpact: {
+		num: 1000,
+		name: 'Learn Speed Impact',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon, source, move) {
+			selectpokemon(pokemon, ' Learn Move');
+			pokemon.moveSlots.push({
+				move: move.name,
+				id: this.toID('move.name'),
+				pp: 0,
+				maxpp: 1,
+				target: 'self',
+				disabled: true,
+				used: false,
+				virtual: true,
+			})
+
+		},
+
+	},
 	//------------- commonmoves--------------
 	evoapokemon: {
 		num: 1000,
@@ -4543,9 +4633,9 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		},
 
 	},
-	getyanmega: {
+	getyanma: {
 		num: 1000,
-		name: 'Get Yanmega',
+		name: 'Get Yanma',
 		type: 'Normal',
 		accuracy: true,
 		basePower: 0,
@@ -4557,8 +4647,8 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		flags: {},
 		onHit(pokemon) {
 			if (pokemon.side.team.length < 6) {
-				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Yanmega, this.prng, pokemon.side.team[0].level))!);
-				this.add('html', `<div class="broadcast-green"><strong>Yanmega has joined in your team</strong></div>`);
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Yanma, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Yanma has joined in your team</strong></div>`);
 				chooseroom(pokemon, this.prng);
 			} else {
 				selectpokemon(pokemon, '','Replace Pokemon ');
@@ -6679,6 +6769,222 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		},
 
 	},
+	getlillipup: {
+		num: 1000,
+		name: 'Get Lillipup',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Lillipup, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Lillipup has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getcaterpie: {
+		num: 1000,
+		name: 'Get Caterpie',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Caterpie, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Caterpie has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getironmoth: {
+		num: 1000,
+		name: 'Get Iron Moth',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool["Iron Moth"], this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Iron Moth has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getslitherwing: {
+		num: 1000,
+		name: 'Get Slither Wing',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool["Slither Wing"], this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Slither Wing has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getbellsprout: {
+		num: 1000,
+		name: 'Get Bellsprout',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Bellsprout, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Bellsprout has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getmareep: {
+		num: 1000,
+		name: 'Get Mareep',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Mareep, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Deerling has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	gettympole: {
+		num: 1000,
+		name: 'Get Tympole',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Tympole, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Tympole has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	gettentacool: {
+		num: 1000,
+		name: 'Get Tentacool',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Tentacool, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Tentacool has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getscraggy: {
+		num: 1000,
+		name: 'Get Scraggy',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Scraggy, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Scraggy has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
 	//-------------abilitymoves------------
 
 	becomebomber: {
@@ -8464,6 +8770,26 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		onHit(pokemon) {
 			RougeUtils.addRelics(this.toID(pokemon.side.name), 'melodyofsiren');
 			this.add('html', `<div class="broadcast-green"><strong>you get the Melody Of Siren</strong></div>`);
+			chooseroom(pokemon, this.prng);
+		},
+		desc: '',
+		shortDesc: '',
+	},
+	gainconjuringshow: {
+		num: 1002,
+		name: 'Gain Conjuring Show',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'conjuringshow');
+			this.add('html', `<div class="broadcast-green"><strong>you get the Conjuring Show</strong></div>`);
 			chooseroom(pokemon, this.prng);
 		},
 		desc: '',

@@ -157,7 +157,7 @@ export const commands: Chat.ChatCommands = {
 				RougeUtils.updateUserTeam(user.id, userTeam, true);
 			}
 
-			Rouge.createBattle(user, bot, userTeam, botTeam, 'gen8rougemod @@@pschinarougemode', undefined);
+			Rouge.createBattle(user, bot, userTeam, botTeam, 'gen9rougemod @@@pschinarougemode', undefined);
 			//let ll=-1;
 			//if (rooms)
 			//	ll = rooms[user.id].findIndex(x => x.battle?.ended);
@@ -216,14 +216,14 @@ export const commands: Chat.ChatCommands = {
 		showpassrecord(target, room, user) {
 			if (!user.registered) return PetUtils.popup(user, "请先注册账号!");
 			if (!room) return PetUtils.popup(user, "请在房间里使用Rouge系统");
-			let userRecord = RougeUtils.getPassRecord(user.id) || { 'cave': Array(25).fill(0), 'void': Array(25).fill(0) };
+			let userRecord = RougeUtils.getPassRecord(user.id) || { 'cave': Array(RougeUtils.initMons.length).fill(0), 'void': Array(RougeUtils.initMons.length).fill(0) };
 
 			let buf = '';
 			buf += '<details><summary><b>您的成就</b></summary>';
 			buf += PetUtils.table(
 				RougeUtils.initMons,
 				['Cave', 'Void'],
-				[...new Array(25).keys()].map(i => [userRecord['cave'][i], userRecord['void'][i]]),
+				[...new Array(RougeUtils.initMons.length).keys()].map(i => [userRecord['cave'][i], userRecord['void'][i]]),
 				'200px',
 				'center',
 				'center',
@@ -243,7 +243,7 @@ export const commands: Chat.ChatCommands = {
 			this.checkCan('lock');
 			let rougeUser = RougeUtils.getUser(user.id);
 			if (rougeUser) {
-				rougeUser.passrecord = { 'cave': Array(25).fill(1), 'void': Array(25).fill(1) };
+				rougeUser.passrecord = { 'cave': Array(RougeUtils.initMons.length).fill(1), 'void': Array(RougeUtils.initMons.length).fill(1) };
 				RougeUtils.saveUser(user.id, rougeUser);
 			}
 		},

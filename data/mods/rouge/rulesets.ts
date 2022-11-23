@@ -27,20 +27,20 @@ export class RougeUtils {
 	];
 	static initMonsAndEvos = Dex.species.all().filter(x => RougeUtils.initMons.includes(x.name) || RougeUtils.initMons.includes(x.prevo) || (x.prevo && RougeUtils.initMons.includes(Dex.species.get(x.prevo)?.prevo))).map(x => x.name);
 	static unlock = {
-		caveBody: ['Get Duraludon', 'Get Wingull', 'Get Electabuzz', 'Get Necrozma', 'Get Skrelp', 'Get Vullaby', 'Get Mew',],
-		voidBody: ['Gain Champion Belt', 'Become Haven', 'Become Overcharge', 'Promote A Pokemon', 'Get Smoke Trigger', 'Become Adaptability', 'Gain Holographic Projection', 'Get Thruster', 'Become Born Of Explosion', 'Gain Pack Light', 'Gain Replication', 'Gain Enchantments', 'Get Custap Element', 'Gain Flame Shield', 'Gain Heroic Sword', 'Gain Physical Suppression', 'Become Szpenguin', 'Gain Contrary Blade', 'Become Spiky Body', 'Learn Fake Shot', 'Gain Melody Of Siren', 'Get Micro Master', 'Learn Mew Ball', 'Learn Parry','Learn Sketch'],
+		caveBody: ['Get Duraludon', 'Get Wingull', 'Get Electabuzz', 'Get Necrozma', 'Get Skrelp', 'Get Vullaby', 'Get Mew', 'Get Yanma', 'Get Lillipup', 'Get Caterpie', 'Get Iron Moth', 'Get Slither Wing', 'Get Bellsprout', 'Get Mareep', 'Get Tympole', 'Get Tentacool', 'Get Scraggy',],
+		voidBody: ['Gain Champion Belt', 'Become Haven', 'Become Overcharge', 'Promote A Pokemon', 'Get Smoke Trigger', 'Become Adaptability', 'Gain Holographic Projection', 'Get Thruster', 'Become Born Of Explosion', 'Gain Pack Light', 'Gain Replication', 'Gain Enchantments', 'Get Custap Element', 'Gain Flame Shield', 'Gain Heroic Sword', 'Gain Physical Suppression', 'Become Szpenguin', 'Gain Contrary Blade', 'Become Spiky Body', 'Learn Fake Shot', 'Gain Melody Of Siren', 'Get Micro Master', 'Learn Mew Ball', 'Learn Parry', 'Learn Sketch', 'Learn Population Bomb', 'Learn Speed Impact', 'Gain Conjuring Show'],
 		index: {
-			"pokemonroom": [0,1.2,4,5],
-			"pokemonroom2": [3,6],
+			"pokemonroom": [0,1.2,4,5,7,8,9,12,13,14,15,16],
+			"pokemonroom2": [3,6,10,11],
 			'commonroom': [],
 			'commonroom2': [3],
 			'itemroom': [4,21],
 			'itemroom2': [7,12],
-			'moveroom': [22,23],
+			'moveroom': [22,23,25,26],
 			'moveroom2': [19,24],
 			'abilityroom': [1,2,5,18],
 			'abilityroom2': [8,16],
-			'eliteroom': [0,9,11,13,14,17,20],
+			'eliteroom': [0,9,11,13,14,17,20,27],
 			'eliteroom2': [6,10,15],
 			'championroom': [],
 			'championroom2':[],
@@ -619,6 +619,10 @@ const relicsEffects = {
 	'melodyofsiren': (battle: Battle) => {
 		battle.field.addPseudoWeather("melodyofsiren");
 		battle.add('message', 'Melody Of Siren start');
+	},
+	'conjuringshow': (battle: Battle) => {
+		battle.field.addPseudoWeather("conjuringshow");
+		battle.add('message', 'Conjuring Show start');
 	},
 };
 

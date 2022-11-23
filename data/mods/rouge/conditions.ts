@@ -1323,4 +1323,41 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			this.add('-message', 'The Melody Of Siren subsided.');
 		},
 	},
+	conjuringshow: {
+		name: 'Conjuring Show',
+		effectType: 'Weather',
+		duration: 0,
+
+		onModifyAccuracy(accuracy, target, source, move) {
+			if (typeof accuracy !== 'number') return;
+			if (target && target.side === this.p2)
+				return this.chainModify([3686, 4096]);
+			else if (target.side === this.p1)
+				return this.chainModify([4080, 4096]);
+		},
+		onWeatherModifyDamage(damage, source, target, move) {
+			if (target && target.side === this.p1 && target.cureStatus()) {
+				this.chainModify(1.5);
+			}
+
+		},
+		onFieldStart(battle, source, effect) {
+			if (effect?.effectType === 'Ability') {
+				this.add('-fieldstart', 'Conjuring Show', '[from] ability: ' + effect, '[of] ' + source);
+			} else {
+				this.add('-fieldstart', 'Conjuring Show');
+			}
+			this.add('-message', 'Conjuring Show is radiated.');
+		},
+
+		onFieldResidualOrder: 1,
+		onFieldResidual() {
+			this.add('-weather', 'Conjuring Show', '[upkeep]');
+			this.eachEvent('Weather');
+		},
+		onFieldEnd() {
+			this.add('-fieldend', 'Conjuring Show');
+			this.add('-message', 'The Conjuring Show subsided.');
+		},
+	},
 };
