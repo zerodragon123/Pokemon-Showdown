@@ -198,7 +198,10 @@ export class RougeUtils {
 			let passNum = userProperty['rougeinit'] - 1;
 			if (passNum < this.initMons.length) {
 				let passRecord = userProperty['passrecord'] || { 'cave': Array(this.initMons.length).fill(0), 'void': Array(this.initMons.length).fill(0) };
-				passRecord[passOption][passNum]++;
+				if (passRecord[passOption][passNum])
+					passRecord[passOption][passNum]++;
+				else
+					passRecord[passOption][passNum]=1;
 				userProperty['passrecord'] = passRecord;
 				this.saveUser(userid, userProperty);
 				return true;
