@@ -441,6 +441,19 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		rating: 3,
 		num: 62,
 	},
+	emergencyexit: {
+		inherit: true,
+		onEmergencyExit(target) {
+			if (!this.canSwitch(target.side) || target.forceSwitchFlag || target.switchFlag || target.side.pokemonLeft <= 7) return;
+			for (const side of this.sides) {
+				for (const active of side.active) {
+					active.switchFlag = false;
+				}
+			}
+			target.switchFlag = true;
+			this.add('-activate', target, 'ability: Emergency Exit');
+		},
+	},
 	spheal: {
 		onModifyAtkPriority: 5,
 		onModifyAtk(atk, pokemon) {

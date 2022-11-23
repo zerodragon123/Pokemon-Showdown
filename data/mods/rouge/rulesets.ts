@@ -22,7 +22,8 @@ export class RougeUtils {
 		'Tepig', 'Oshawott', 'Snivy',
 		'Fennekin', 'Froakie', 'Chespin',
 		'Litten', 'Popplio', 'Rowlet',
-		'Scorbunny', 'Sobble', 'Grookey'
+		'Scorbunny', 'Sobble', 'Grookey',
+		'Fuecoco','Quaxly','Sprigatito'
 	];
 	static initMonsAndEvos = Dex.species.all().filter(x => RougeUtils.initMons.includes(x.name) || RougeUtils.initMons.includes(x.prevo) || (x.prevo && RougeUtils.initMons.includes(Dex.species.get(x.prevo)?.prevo))).map(x => x.name);
 	static unlock = {
@@ -195,8 +196,8 @@ export class RougeUtils {
 		let userProperty = this.getUser(userid);
 		if (userProperty?.rougeinit) {
 			let passNum = userProperty['rougeinit'] - 1;
-			if (passNum < 25) {
-				let passRecord = userProperty['passrecord'] || { 'cave': Array(25).fill(0), 'void': Array(25).fill(0) };
+			if (passNum < this.initMons.length) {
+				let passRecord = userProperty['passrecord'] || { 'cave': Array(this.initMons.length).fill(0), 'void': Array(this.initMons.length).fill(0) };
 				passRecord[passOption][passNum]++;
 				userProperty['passrecord'] = passRecord;
 				this.saveUser(userid, userProperty);
@@ -288,7 +289,7 @@ export class RougeUtils {
 		if (userProperty?.rouge) {
 			let rougeProps = userProperty['passrecord'];
 			if (rougeProps?.void) {
-				for (let i = 0; i < 25; i++) {
+				for (let i = 0; i < this.initMons.length; i++) {
 					if (!rougeProps.void[i])
 						return false;
 				}
@@ -551,12 +552,14 @@ const relicsEffects = {
 
 	},
 	'holographicprojection': (battle: Battle) => {
-		let pokemon = battle.sample(battle.p1.pokemon.filter(x => battle.toID(x.ability) !== 'shopman'));
-		let newpoke = new Pokemon(pokemon.set, battle.p2)
-		battle.p2.pokemon.push(newpoke);
-		battle.p2.pokemonLeft++;
-		newpoke.position = battle.p2.pokemon.length - 1;
-		battle.add('message', 'Holographic Projection action');
+		if (RougeUtils.getRoom(battle.toID(battle.p2.name)) !== 'championroom') {
+			let pokemon = battle.sample(battle.p1.pokemon.filter(x => battle.toID(x.ability) !== 'shopman'));
+			let newpoke = new Pokemon(pokemon.set, battle.p2)
+			battle.p2.pokemon.push(newpoke);
+			battle.p2.pokemonLeft++;
+			newpoke.position = battle.p2.pokemon.length - 1;
+			battle.add('message', 'Holographic Projection action');
+		}
 	},
 	'packlight': (battle: Battle) => {
 		battle.field.addPseudoWeather("packlight");
@@ -631,7 +634,7 @@ export const Rulesets: { [k: string]: FormatData } = {
 	pschinarougemode: {
 		effectType: 'Rule',
 		name: 'PS China Rouge Mode',
-		ruleset: ['Dynamax Clause'],
+		ruleset: ['Dynamax Clause', 'Terastal Clause'],
 		timer: {
 			starting: 600,
 			addPerTurn: 30,
