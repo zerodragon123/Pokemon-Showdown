@@ -523,12 +523,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			}
 			this.add('-message', 'Iceberg began to fall.');
 		},
-		onModifyDefPriority: 10,
-		onModifyDef(def, pokemon) {
-			if (pokemon.hasType('Ice') ) {
-				return this.modify(def, 1.5);
-			}
-		},
+		
 		onFieldResidualOrder: 1,
 		onFieldResidual() {
 			this.add('-weather', 'Iceberg', '[upkeep]');
@@ -541,7 +536,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 					this.add('-message', 'The Iceberg heal the Pokemon.');
 				}
 				if (!target.hasType('Ice') && target.side === this.p1) {
-					this.damage(target.baseMaxhp / 16);
+					this.damage(target.baseMaxhp / 8);
 					this.add('-message', 'The Iceberg hurt the Pokemon.');
 				}
 			}
@@ -786,6 +781,7 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			}
 
 		},
+		
 		onAfterHit(source, target, move) {
 			if (move.category !== 'Status' && !move.isZ && (!move.multihit || move.multihit === 1) && source.side === this.p2 && source.isActive) {
 				source.addVolatile('mustrecharge');

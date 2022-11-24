@@ -6985,6 +6985,54 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		},
 
 	},
+	getnacli: {
+		num: 1000,
+		name: 'Get Nacli',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Nacli, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Nacli has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
+	getmankey: {
+		num: 1000,
+		name: 'Get Mankey',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon) {
+			if (pokemon.side.team.length < 6) {
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Mankey, this.prng, pokemon.side.team[0].level))!);
+				this.add('html', `<div class="broadcast-green"><strong>Mankey has joined in your team</strong></div>`);
+				chooseroom(pokemon, this.prng);
+			} else {
+				selectpokemon(pokemon, '', 'Replace Pokemon ');
+			}
+
+		},
+
+	},
 	//-------------abilitymoves------------
 
 	becomebomber: {
@@ -7675,9 +7723,9 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		desc: '',
 		shortDesc: '',
 	},
-	gainartihail: {
+	gainartisnow: {
 		num: 1002,
-		name: 'Gain Artihail',
+		name: 'Gain Artisnow',
 		type: 'Normal',
 		accuracy: true,
 		basePower: 0,
@@ -7688,8 +7736,8 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		target: 'self',
 		flags: {},
 		onHit(pokemon) {
-			RougeUtils.addRelics(this.toID(pokemon.side.name), 'artihail');
-			this.add('html', `<div class="broadcast-green"><strong>you get the artihail</strong></div>`);
+			RougeUtils.addRelics(this.toID(pokemon.side.name), 'artisnow');
+			this.add('html', `<div class="broadcast-green"><strong>you get the artisnow</strong></div>`);
 			chooseroom(pokemon, this.prng);
 		},
 		desc: '',
