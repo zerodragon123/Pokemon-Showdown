@@ -595,6 +595,30 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		rating: 4,
 		num: 182,
 	},
+	hamile: {
+		name: 'Hamile',
+		rating: 3,
+		num: 89,
+		onModifyAtkPriority: 5,
+		onModifyAtk(atk) {
+			return this.chainModify([5324, 4096]);
+		},
+		onModifyMovePriority: 1,
+		onModifyMove(move) {
+			if (move.category === "Physical") {
+				if (!move.secondaries) move.secondaries = [];
+				move.secondaries.push({
+					chance: 25,
+					boosts: { def:-1 },
+				});
+				move.secondaries.push({
+					chance: 25,
+					status:'par',
+				});
+			}
+		},
+		
+	},
 	//-------------player abilites
 	bomber: {
 		name: 'Bomber',

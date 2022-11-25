@@ -1331,12 +1331,6 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			else if (target.side === this.p1)
 				return this.chainModify([4080, 4096]);
 		},
-		onWeatherModifyDamage(damage, source, target, move) {
-			if (target && target.side === this.p1 && target.cureStatus()) {
-				this.chainModify(1.5);
-			}
-
-		},
 		onFieldStart(battle, source, effect) {
 			if (effect?.effectType === 'Ability') {
 				this.add('-fieldstart', 'Conjuring Show', '[from] ability: ' + effect, '[of] ' + source);

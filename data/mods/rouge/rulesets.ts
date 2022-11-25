@@ -27,11 +27,11 @@ export class RougeUtils {
 	];
 	static initMonsAndEvos = Dex.species.all().filter(x => RougeUtils.initMons.includes(x.name) || RougeUtils.initMons.includes(x.prevo) || (x.prevo && RougeUtils.initMons.includes(Dex.species.get(x.prevo)?.prevo))).map(x => x.name);
 	static unlock = {
-		caveBody: ['Get Duraludon', 'Get Wingull', 'Get Electabuzz', 'Get Necrozma', 'Get Skrelp', 'Get Vullaby', 'Get Mew', 'Get Yanma', 'Get Lillipup', 'Get Caterpie', 'Get Iron Moth', 'Get Slither Wing', 'Get Bellsprout', 'Get Mareep', 'Get Tympole', 'Get Tentacool', 'Get Scraggy', 'Get Nacli', 'Get Mankey',],
+		caveBody: ['Get Duraludon', 'Get Wingull', 'Get Electabuzz', 'Get Necrozma', 'Get Skrelp', 'Get Vullaby', 'Get Mew', 'Get Yanma', 'Get Lillipup', 'Get Caterpie', 'Get Iron Moth', 'Get Slither Wing', 'Get Bellsprout', 'Get Mareep', 'Get Tympole', 'Get Tentacool', 'Get Scraggy', 'Get Nacli', 'Get Mankey', 'Get Capsakid', 'Get Frigibax', 'Tinkatink', 'Get Tandemaus', 'Get Pawniard', 'Get Iron Valiant', 'Get Terrakion',],
 		voidBody: ['Gain Champion Belt', 'Become Haven', 'Become Overcharge', 'Promote A Pokemon', 'Get Smoke Trigger', 'Become Adaptability', 'Gain Holographic Projection', 'Get Thruster', 'Become Born Of Explosion', 'Gain Pack Light', 'Gain Replication', 'Gain Enchantments', 'Get Custap Element', 'Gain Flame Shield', 'Gain Heroic Sword', 'Gain Physical Suppression', 'Become Szpenguin', 'Gain Contrary Blade', 'Become Spiky Body', 'Learn Fake Shot', 'Gain Melody Of Siren', 'Get Micro Master', 'Learn Mew Ball', 'Learn Parry', 'Learn Sketch', 'Learn Population Bomb', 'Learn Speed Impact', 'Gain Conjuring Show'],
 		index: {
-			"pokemonroom": [0,1.2,4,5,7,8,9,12,13,14,15,16,17,18],
-			"pokemonroom2": [3,6,10,11],
+			"pokemonroom": [0,1.2,4,5,7,8,9,12,13,14,15,16,17,18,19,20,21,22,23],
+			"pokemonroom2": [3,6,10,11,24,25],
 			'commonroom': [],
 			'commonroom2': [3],
 			'itemroom': [4,21],
@@ -565,6 +565,7 @@ const relicsEffects = {
 			battle.p2.pokemon.push(newpoke);
 			battle.p2.pokemonLeft++;
 			newpoke.position = battle.p2.pokemon.length - 1;
+			newpoke.canTerastallize = null;
 			battle.add('message', 'Holographic Projection action');
 		}
 	},
@@ -581,6 +582,7 @@ const relicsEffects = {
 			newpokemon.maxhp = Math.floor(newpokemon.maxhp * 0.5);
 			newpokemon.hp = Math.floor(newpokemon.hp * 0.5);
 			newpokemon.position = battle.p2.pokemon.length - 1;
+			newpokemon.canTerastallize = null;
 			battle.add('message', 'Replication action');
 		} else {
 			battle.add('message', 'your team is full');

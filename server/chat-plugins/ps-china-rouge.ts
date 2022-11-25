@@ -15,7 +15,7 @@ export class Rouge {
 		[3, 7, 10, 13, 16, 19, 22, 25,28],
 		[4]
 	].map(x => x.map(x => PetUtils.button(`/rouge start ${x}`, '', PetUtils.iconStyle(RougeUtils.initMons[x - 1]))).join('')).join('<br>');
-	static specialInitButtons = [PetUtils.button(`/rouge start ${26}`, '', PetUtils.iconStyle(Rouge.specialInitMons[0])), PetUtils.button(`/rouge start ${27}`, '', PetUtils.iconStyle(Rouge.specialInitMons[1])), PetUtils.button(`/rouge start ${28}`, '', PetUtils.iconStyle(Rouge.specialInitMons[2]))].join('');
+	static specialInitButtons = [PetUtils.button(`/rouge start ${RougeUtils.initMons.length + 1}`, '', PetUtils.iconStyle(Rouge.specialInitMons[0])), PetUtils.button(`/rouge start ${RougeUtils.initMons.length + 2}`, '', PetUtils.iconStyle(Rouge.specialInitMons[1])), PetUtils.button(`/rouge start ${RougeUtils.initMons.length+3}`, '', PetUtils.iconStyle(Rouge.specialInitMons[2]))].join('');
 	static leadbButtons = [2, 3, 4, 5, 6].map(x => PetUtils.button(`/rouge chooselead ${x}`, `${x}`)).join('');
 	static prng: PRNG = new PRNG();
 	static createBattle(
