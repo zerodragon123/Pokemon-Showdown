@@ -7213,7 +7213,7 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		flags: {},
 		onHit(pokemon) {
 			if (pokemon.side.team.length < 6) {
-				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool.Roaring Moon, this.prng, pokemon.side.team[0].level))!);
+				pokemon.side.team = pokemon.side.team.concat(Teams.unpack(unpack(Pokemonpool["Roaring Moon"], this.prng, pokemon.side.team[0].level))!);
 				this.add('html', `<div class="broadcast-green"><strong>Roaring Moon has joined in your team</strong></div>`);
 				chooseroom(pokemon, this.prng);
 			} else {
