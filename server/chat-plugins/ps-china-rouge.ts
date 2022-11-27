@@ -5,6 +5,7 @@ import { Pokemonpool } from "../../config/rouge/pokemonpool";
 import { Championteams } from "../../config/rouge/Championteams";
 import { Enemies } from "../../config/rouge/Enemies";
 import { RougeUtils } from "../../data/mods/rouge/rulesets";
+import { createTry } from "typescript";
 
 export class Rouge {
 
@@ -23,8 +24,13 @@ export class Rouge {
 		delayedStart: boolean | 'multi' | undefined = false
 	): GameRoom | undefined {
 		if (rougeBattleRooms[user.id]) {
-			rougeBattleRooms[user.id]?.destroy();
-			delete rougeBattleRooms[user.id];
+			try {
+				rougeBattleRooms[user.id]?.destroy();
+			} catch {
+
+			} finally {
+				delete rougeBattleRooms[user.id];
+			}
 		}
 		rougeBattleRooms[user.id] = Rooms.createBattle({
 			format: format,

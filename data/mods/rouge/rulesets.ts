@@ -27,7 +27,7 @@ export class RougeUtils {
 	];
 	static initMonsAndEvos = Dex.species.all().filter(x => RougeUtils.initMons.includes(x.name) || RougeUtils.initMons.includes(x.prevo) || (x.prevo && RougeUtils.initMons.includes(Dex.species.get(x.prevo)?.prevo))).map(x => x.name);
 	static unlock = {
-		caveBody: ['Get Duraludon', 'Get Wingull', 'Get Electabuzz', 'Get Necrozma', 'Get Skrelp', 'Get Vullaby', 'Get Mew', 'Get Yanma', 'Get Lillipup', 'Get Caterpie', 'Get Iron Moth', 'Get Slither Wing', 'Get Bellsprout', 'Get Mareep', 'Get Tympole', 'Get Tentacool', 'Get Scraggy', 'Get Nacli', 'Get Mankey', 'Get Capsakid', 'Get Frigibax', 'Tinkatink', 'Get Tandemaus', 'Get Pawniard', 'Get Iron Valiant', 'Get Terrakion',],
+		caveBody: ['Get Duraludon', 'Get Wingull', 'Get Electabuzz', 'Get Necrozma', 'Get Skrelp', 'Get Vullaby', 'Get Mew', 'Get Yanma', 'Get Lillipup', 'Get Caterpie', 'Get Iron Moth', 'Get Slither Wing', 'Get Bellsprout', 'Get Mareep', 'Get Tympole', 'Get Tentacool', 'Get Scraggy', 'Get Nacli', 'Get Mankey', 'Get Capsakid', 'Get Frigibax', 'Get Tinkatink', 'Get Tandemaus', 'Get Pawniard', 'Get Iron Valiant', 'Get Terrakion',],
 		voidBody: ['Gain Champion Belt', 'Become Haven', 'Become Overcharge', 'Promote A Pokemon', 'Get Smoke Trigger', 'Become Adaptability', 'Gain Holographic Projection', 'Get Thruster', 'Become Born Of Explosion', 'Gain Pack Light', 'Gain Replication', 'Gain Enchantments', 'Get Custap Element', 'Gain Flame Shield', 'Gain Heroic Sword', 'Gain Physical Suppression', 'Become Szpenguin', 'Gain Contrary Blade', 'Become Spiky Body', 'Learn Fake Shot', 'Gain Melody Of Siren', 'Get Micro Master', 'Learn Mew Ball', 'Learn Parry', 'Learn Sketch', 'Learn Population Bomb', 'Learn Speed Impact', 'Gain Conjuring Show'],
 		index: {
 			"pokemonroom": [0,1.2,4,5,7,8,9,12,13,14,15,16,17,18,19,20,21,22,23],
@@ -710,8 +710,16 @@ export const Rulesets: { [k: string]: FormatData } = {
 				this.p1.pokemon.push(new Pokemon(Teams.unpack('Shopowner|Magikarp|eliteroom|shopman|splash|Hardy||M|0,0,0,0,0,0|S|5|')![0], this.p1));
 				this.p1.pokemon.push(new Pokemon(Teams.unpack('Shopowner|Magikarp||shopman|splash|Hardy||M|0,0,0,0,0,0||5|')![0], this.p1));
 			} else {
-				const rand = this.prng.next(3);
-				this.p1.pokemon.push(new Pokemon(Teams.unpack('Reward|Shop||shopman|' + (rand === 0 ? 'Evo A Pokemon,' : rand === 1 ? this.prng.next(3) === 0 ? 'Evo All,' : 'Refresh Reward,' : 'skip,') + sample(reward, 3, this.prng, reward2).join(',') + '|Careful|252,4,,,252,|||||')![0], this.p2));
+				const rand = this.prng.next(9);
+				let firstreward = 'skip,';
+				if (rand < 4)
+					firstreward = 'Evo A Pokemon,';
+				else if (rand < 8)
+					firstreward = 'Refresh Reward,';
+				else
+					'Evo All,';
+
+				this.p1.pokemon.push(new Pokemon(Teams.unpack('Reward|Shop||shopman|' + firstreward + sample(reward, 3, this.prng, reward2).join(',') + '|Careful|252,4,,,252,|||||')![0], this.p2));
 				this.p1.pokemon.push(new Pokemon(Teams.unpack('Shopowner|Magikarp||shopman|splash|Hardy||M|0,0,0,0,0,0||5|')![0], this.p1));
 			}
 			this.p1.pokemonLeft += 6;

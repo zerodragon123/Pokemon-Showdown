@@ -111,6 +111,21 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 				this.damage(target.baseMaxhp / 16);
 		},
 	},
+	snow: {
+		inherit: true,
+		onFieldStart(field, source, effect) {
+			if (effect?.effectType === 'Rule' && source.side === this.p2) {
+				this.effectState.duration = 0;
+			}
+			if (effect?.effectType === 'Ability') {
+				if (this.gen <= 5) this.effectState.duration = 0;
+				this.add('-weather', 'Snow', '[from] ability: ' + effect.name, '[of] ' + source);
+			} else {
+				this.add('-weather', 'Snow');
+			}
+		},
+		
+	},
 	guardianshield: {
 		name: 'Guardian Shield',
 		duration: 0,
@@ -781,8 +796,8 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			}
 
 		},
-		
-		onAfterHit(source, target, move) {
+
+		onAfterMoveSecondarySelf(source, target, move) {
 			if (move.category !== 'Status' && !move.isZ && (!move.multihit || move.multihit === 1) && source.side === this.p2 && source.isActive) {
 				source.addVolatile('mustrecharge');
 			}

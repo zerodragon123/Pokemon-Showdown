@@ -1441,6 +1441,11 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		onPrepareHit(target, source) {
 			this.add('-anim', source, 'Giga Impact', target);
 		},
+		onModifyMove(move, pokemon) {
+			if (pokemon.terastallized && pokemon.getStat('atk', false, true) > pokemon.getStat('spa', false, true)) {
+				move.category = 'Physical';
+			}
+		},
 	},
 	//--------shop's  moves
 	getsuperband: {
@@ -11433,6 +11438,7 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 				case 'dragalge': newpoke = Teams.unpack(unpack(Pokemonpool.Eternatus, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'glastrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Ice"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'spectrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Shadow"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
+				case 'herdier':
 				case 'stoutland': newpoke = Teams.unpack(unpack(Pokemonpool.Zacian, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'arcanine':
 				case 'growlithe': newpoke = Teams.unpack(unpack(Pokemonpool.Zamazenta, this.prng, oldpoke.level, oldpoke.evs))![0]; break
@@ -11500,6 +11506,7 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 				case 'dragalge': newpoke = Teams.unpack(unpack(Pokemonpool.Eternatus, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'glastrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Ice"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'spectrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Shadow"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
+				case 'herdier':
 				case 'stoutland': newpoke = Teams.unpack(unpack(Pokemonpool.Zacian, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'arcanine':
 				case 'growlithe': newpoke = Teams.unpack(unpack(Pokemonpool.Zamazenta, this.prng, oldpoke.level, oldpoke.evs))![0]; break
@@ -11567,6 +11574,7 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 				case 'dragalge': newpoke = Teams.unpack(unpack(Pokemonpool.Eternatus, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'glastrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Ice"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'spectrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Shadow"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
+				case 'herdier':
 				case 'stoutland': newpoke = Teams.unpack(unpack(Pokemonpool.Zacian, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'arcanine':
 				case 'growlithe': newpoke = Teams.unpack(unpack(Pokemonpool.Zamazenta, this.prng, oldpoke.level, oldpoke.evs))![0]; break
@@ -11634,6 +11642,7 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 				case 'dragalge': newpoke = Teams.unpack(unpack(Pokemonpool.Eternatus, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'glastrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Ice"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'spectrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Shadow"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
+				case 'herdier':
 				case 'stoutland': newpoke = Teams.unpack(unpack(Pokemonpool.Zacian, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'arcanine':
 				case 'growlithe': newpoke = Teams.unpack(unpack(Pokemonpool.Zamazenta, this.prng, oldpoke.level, oldpoke.evs))![0]; break
@@ -11701,6 +11710,7 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 				case 'dragalge': newpoke = Teams.unpack(unpack(Pokemonpool.Eternatus, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'glastrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Ice"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'spectrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Shadow"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
+				case 'herdier':
 				case 'stoutland': newpoke = Teams.unpack(unpack(Pokemonpool.Zacian, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'arcanine':
 				case 'growlithe': newpoke = Teams.unpack(unpack(Pokemonpool.Zamazenta, this.prng, oldpoke.level, oldpoke.evs))![0]; break
@@ -11768,6 +11778,7 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 				case 'dragalge': newpoke = Teams.unpack(unpack(Pokemonpool.Eternatus, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'glastrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Ice"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'spectrier': newpoke = Teams.unpack(unpack(Pokemonpool["Calyrex-Shadow"], this.prng, oldpoke.level, oldpoke.evs))![0]; break
+				case 'herdier':
 				case 'stoutland': newpoke = Teams.unpack(unpack(Pokemonpool.Zacian, this.prng, oldpoke.level, oldpoke.evs))![0]; break
 				case 'arcanine':
 				case 'growlithe': newpoke = Teams.unpack(unpack(Pokemonpool.Zamazenta, this.prng, oldpoke.level, oldpoke.evs))![0]; break
