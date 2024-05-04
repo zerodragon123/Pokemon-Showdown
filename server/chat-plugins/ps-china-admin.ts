@@ -135,7 +135,7 @@ export class AdminUtils {
 		buf += `<div class="ladder pad">`;
 		buf += `<h3>PS China 积分榜 2024</h3>`;
 		buf += `<p><button class="button" name="send" value="/j view-scoreladder"><i class="fa fa-refresh"></i> 刷新</button></p>`;
-		buf += AdminUtils.table([], ['', '用户名', '赛年积分', '累计积分'], scoreLadder);
+		// buf += AdminUtils.table([], ['', '用户名', '赛年积分', '累计积分'], scoreLadder);
 		buf += `</div>`;
 		return buf;
 	}
@@ -232,21 +232,21 @@ export class AdminUtils {
 		}
 		return cnt;
 	}
-	static table(
-		rowNames: (string | number)[], colNames: (string | number)[], content: (string | number)[][],
-	): string {
-		const tr = (s: string) => `<tr>${s}</tr>`;
-		const th = (s: string | number) => `<th>${s}</th>`;
-		const td = (s: string | number) => `<td>${s}</td>`;
-		const tableBody = content.map(row => row.map(td));
-		if (rowNames.length === content.length) {
-			rowNames.forEach((rowName, i) => tableBody[i].unshift(th(rowName)));
-			colNames.unshift('');
-		}
-		if (colNames.length === tableBody[0].length) tableBody.unshift(colNames.map(th));
-		const tableBodyStr = tableBody.map((row, i) => tr(row.join(''))).join('');
-		return `<table>${tableBodyStr}</table>`;
-	}
+	// static table(
+	// 	rowNames: (string | number)[], colNames: (string | number)[], content: (string | number)[][],
+	// ): string {
+	// 	const tr = (s: string) => `<tr>${s}</tr>`;
+	// 	const th = (s: string | number) => `<th>${s}</th>`;
+	// 	const td = (s: string | number) => `<td>${s}</td>`;
+	// 	const tableBody = content.map(row => row.map(td));
+	// 	if (rowNames.length === content.length) {
+	// 		rowNames.forEach((rowName, i) => tableBody[i].unshift(th(rowName)));
+	// 		colNames.unshift('');
+	// 	}
+	// 	if (colNames.length === tableBody[0].length) tableBody.unshift(colNames.map(th));
+	// 	const tableBodyStr = tableBody.map((row, i) => tr(row.join(''))).join('');
+	// 	return `<table>${tableBodyStr}</table>`;
+	// }
 }
 
 scoreLadderBuffer = AdminUtils.getScoreLadderBuffer();

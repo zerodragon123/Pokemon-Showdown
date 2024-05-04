@@ -701,7 +701,7 @@ export const Items: { [k: string]: ModdedItemData } = {
 		},
 		onEat(pokemon) {
 			for(let i in pokemon.set.evs){
-				pokemon.set.evs[i as keyof typeof pokemon.set.evs]=Math.min( pokemon.set.evs[i as keyof typeof pokemon.set.evs]+16,252);
+				pokemon.set.evs[i as keyof typeof pokemon.set.evs]=Math.min( pokemon.set.evs[i as keyof typeof pokemon.set.evs]+20,252);
 			}
 			
 		},

@@ -733,7 +733,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		rating: 3,
 		num: 89,
 		onTryHit(target, source, move) {
-			if (target !== source && move.type === 'Fighting') {
+			if (target !== source && move.type === 'Fighting' && source.ability !== 'Scrappy') {
 
 				this.add('-immune', target, '[from] ability: Hide');
 
@@ -857,6 +857,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 	magicbeam: {
 		onAfterMoveSecondarySelf(source, target, move) {
 			if (move.category !== 'Status' && move.flags['heal'] && move.hit===1) {
+				
 				let x: StatIDExceptHP;
 				let stats: StatIDExceptHP = 'atk';
 				let max = 0;
@@ -1042,7 +1043,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 		},
 		
 		onFaint(target, source, effect) {
-			if(target.name in RougeUtils.initMonsAndEvos || target.side.team.length <=1){
+			if(RougeUtils.initMonsAndEvos.includes(target.name ) || target.side.team.length <=1){
 				this.lose(target.side);
 			}
 			else{

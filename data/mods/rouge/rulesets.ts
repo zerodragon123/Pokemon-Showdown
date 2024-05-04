@@ -1,6 +1,6 @@
 import { FS } from "../../../lib";
 import { Teams, Pokemon } from "../../../sim";
-import { championreward, sample } from "./moves";
+import { championreward, evolution, sample } from "./moves";
 import { PokemonPool } from "../../../config/rouge/pokemon-pool";
 import RandomTeams from "./random-teams";
 
@@ -182,6 +182,25 @@ export class RougeUtils {
 				team[0] = team[num];
 				team[num] = t;
 				rougeProps[0] = team.join("]");
+				userProperty['rouge'] = rougeProps.join("&");
+				this.saveUser(userid, userProperty);
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+	static setBanEvoable(userid: ID, num: number): boolean {
+		if (!num) return false;
+		let userProperty = this.getUser(userid);
+		if (userProperty?.rouge) {
+			let rougeProps = userProperty['rouge'].split("&");
+			let team = Teams.unpack(rougeProps[0]!);
+			if (team && team[num]) {
+				team[num].happiness=undefined
+				rougeProps[0] = Teams.pack(team);
 				userProperty['rouge'] = rougeProps.join("&");
 				this.saveUser(userid, userProperty);
 				return true;
@@ -655,6 +674,11 @@ export const relicsEffects = {
 	},
 	'contraryblade': (battle: Battle) => {
 		battle.field.addPseudoWeather("contraryblade");
+		for(const pokemon of battle.p2.pokemon){
+			if(pokemon.species.bst<=350){
+				pokemon.m.innate = 'weakness';
+			}
+		}
 		battle.add('message', 'Contrary Blade start');
 	},
 	'melodyofsiren': (battle: Battle) => {
@@ -800,7 +824,7 @@ export const Rulesets: { [k: string]: ModdedFormatData } = {
 				}
 			}
 			if (room === 'championroom') {
-				if (RougeUtils.getNextWave(user) !== 19)
+				if (RougeUtils.getNextWave(user) === 14)
 					this.p1.pokemon.push(new Pokemon(Teams.unpack('Reward|Shop||shopman|' + reward.join(',') + '|Careful|252,4,,,252,|||||')![0], this.p2));
 				else
 					this.p1.pokemon.push(new Pokemon(Teams.unpack('Reward|Shop||shopman|' + reward2.join(',') + '|Careful|252,4,,,252,|||||')![0], this.p2));
@@ -809,14 +833,15 @@ export const Rulesets: { [k: string]: ModdedFormatData } = {
 				this.p1.pokemon.push(new Pokemon(Teams.unpack('Shopowner|Magikarp|eliteroom|shopman|splash|Hardy||M|0,0,0,0,0,0|S|5|')![0], this.p1));
 				this.p1.pokemon.push(new Pokemon(Teams.unpack('Shopowner|Magikarp||shopman|splash|Hardy||M|0,0,0,0,0,0||5|')![0], this.p1));
 			} else {
-				const rand = this.prng.next(9);
-				let firstreward = 'skip,';
-				if (rand < 4)
-					firstreward = 'Evo A Pokemon,';
-				else if (rand < 8)
-					firstreward = 'Refresh Reward,';
-				else
-					firstreward = 'Evo All,';
+				//const rand = this.prng.next(9);
+				// let firstreward = 'skip,';
+				let firstreward = 'Refresh Reward,';
+				// if (rand < 4)
+				// 	firstreward = 'Evo A Pokemon,';
+				// else if (rand < 8)
+				// 	firstreward = 'Refresh Reward,';
+				// else
+				// 	firstreward = 'Evo All,';
 
 				this.p1.pokemon.push(new Pokemon(Teams.unpack('Reward|Shop||shopman|' + firstreward + sample(reward, 3, this.prng, reward2).join(',') + '|Careful|252,4,,,252,|||||')![0], this.p2));
 				this.p1.pokemon.push(new Pokemon(Teams.unpack('Shopowner|Magikarp||shopman|splash|Hardy||M|0,0,0,0,0,0||5|')![0], this.p1));
@@ -995,6 +1020,10 @@ export const Rulesets: { [k: string]: ModdedFormatData } = {
 				if (pokemon.side === this.p2)
 					pokemon.addVolatile('halo');
 			}
+			if (pokemon.m.innate === 'weakness'){
+				if (pokemon.side === this.p2)
+					pokemon.addVolatile('Inweakness');
+			}
 		},
 		onAnyFaintPriority: 100,
 		onFaint(pokemon) {
@@ -1014,6 +1043,11 @@ export const Rulesets: { [k: string]: ModdedFormatData } = {
 							if (x.evs.spa < 252) x.evs.spa += 4;
 							if (x.evs.spd < 252) x.evs.spd += 4;
 							if (x.evs.spe < 252) x.evs.spe += 4;
+							if(x.happiness!=undefined){
+								x.happiness-=10;
+								if(x.happiness<=0)
+									evolution(x,this)
+							} 
 							return x;
 						}))
 					);
@@ -1037,6 +1071,11 @@ export const Rulesets: { [k: string]: ModdedFormatData } = {
 								this.add('html', '<button class="button" name="send" value="/rouge next">Try again</button>');
 							}
 							break;
+					}
+				}else if(pokemon.side === this.p1){
+					const active=this.p2.active[0]
+					if(active &&active.set.happiness){
+						active.set.happiness-=5
 					}
 				}
 			}
