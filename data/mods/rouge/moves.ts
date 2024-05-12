@@ -132,8 +132,28 @@ export function evolution(x:PokemonSet,battle:Battle){
 	let lastname = x.species || x.name;
 	let species=Dex.species.get(x.species)
 	let evo = Dex.species.get(x.species).evos;
+	
 	if (evo.length !== 0) {
-		if (Dex.toID(x.name) === Dex.toID(x.species) || x.species.includes('-')) {
+
+		if(species.name=='Kirlia'&&x.item=='Galladite'){
+			x.species='Gallade';
+			x.name=x.species;
+		}else if(species.name=='Kirlia'&&x.item=='Gardevoirite'){
+			x.species='Gardevoir';
+			x.name=x.species;
+		}else if(species.name=='Scyther'&&x.item=='Scizorite'){
+			x.species='Scizor';
+			x.name=x.species;
+		}else if(species.name=='Slowpoke-Galar'&&x.item=='Slowbronite'){
+			x.species='Slowbro-Galar';
+			x.name=x.species;
+		}else if(species.name=='Slowpoke'&&x.item=='Slowbronite'){
+			x.species='Slowbro';
+			x.name=x.species;
+		}else if(species.name=='Pikachu'&&x.item=='Aloraichium Z'){
+			x.species='Raichu-Alola';
+			x.name=x.species;
+		}else if (Dex.toID(x.name) === Dex.toID(x.species) || x.species.includes('-')) {
 			x.species = battle.prng.sample(evo);
 			x.name = x.species;
 		} else {
@@ -1729,7 +1749,8 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 		category: "Status",
 		isNonstandard: "Past",
 		name: "Divine",
-		pp: 10,
+		pp: 5,
+		noPPBoosts:true,
 		priority: 0,
 		flags: {recharge: 1,charge: 1, nonsky: 1},
 		self: {
@@ -2809,6 +2830,63 @@ export const Moves: { [k: string]: ModdedMoveData } = {
 	learndragonhammer: {
 		num: 1000,
 		name: 'Learn Dragon Hammer',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon, source, move) {
+			selectpokemon(pokemon, ' Learn Move');
+			setMoveName(pokemon,move.name);
+
+		},
+
+	},
+	learnglaiverush: {
+		num: 1000,
+		name: 'Learn Glaive Rush',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon, source, move) {
+			selectpokemon(pokemon, ' Learn Move');
+			setMoveName(pokemon,move.name);
+
+		},
+
+	},
+	learnwickedblow: {
+		num: 1000,
+		name: 'Learn Wicked Blow',
+		type: 'Normal',
+		accuracy: true,
+		basePower: 0,
+		category: 'Status',
+		pp: 1,
+		isZ: true,
+		priority: -10,
+		target: 'self',
+		flags: {},
+		onHit(pokemon, source, move) {
+			selectpokemon(pokemon, ' Learn Move');
+			setMoveName(pokemon,move.name);
+
+		},
+
+	},
+	learnfishiousrend: {
+		num: 1000,
+		name: 'Learn Fishious Rend',
 		type: 'Normal',
 		accuracy: true,
 		basePower: 0,

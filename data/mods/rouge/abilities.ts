@@ -937,7 +937,7 @@ export const Abilities: { [k: string]: ModdedAbilityData } = {
 			}
 		},
 		onChargeMove(pokemon, target, move) {
-			if (this.random(5) === 0) {
+			if (this.randomChance(2,5)) {
 				this.debug('power herb - remove charge turn for ' + move.id);
 				this.attrLastMove('[still]');
 				this.addMove('-anim', pokemon, move.name, target);

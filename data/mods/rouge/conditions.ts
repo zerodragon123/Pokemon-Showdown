@@ -38,32 +38,41 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 			pokemon.storedStats.spe = Math.floor(pokemon.storedStats.spe * 1.2);
 		},
 	},
-	inweakness: {
-		name: 'Inweakness',
+	reweakness: {
+		name: 'Reweakness',
 		noCopy: true,
 		duration: 0,
 		onStart(pokemon) {
-			
-			const ratio = 1.5;
-			this.add('-activate', pokemon, 'move: Inweakness');
-			this.add('-start', pokemon, 'Inweakness');
-			pokemon.maxhp = Math.floor(pokemon.maxhp * ratio);
-			pokemon.hp = Math.floor(pokemon.hp * ratio);
-			this.add('-heal', pokemon, pokemon.getHealth, '[silent]');
-			pokemon.storedStats.atk = Math.floor(pokemon.storedStats.atk * 1.5);
-			pokemon.storedStats.spa = Math.floor(pokemon.storedStats.spa * 1.5);
-			pokemon.storedStats.def = Math.floor(pokemon.storedStats.def * 1.5);
-			pokemon.storedStats.spd = Math.floor(pokemon.storedStats.spd * 1.5);
-			pokemon.storedStats.spe = Math.floor(pokemon.storedStats.spe * 1.5);
+			if(pokemon.species.bst<=350){
+				const ratio = 1.5;
+				this.add('-activate', pokemon, 'move: Inweakness');
+				this.add('-start', pokemon, 'Inweakness');
+				pokemon.maxhp = Math.floor(pokemon.maxhp * ratio);
+				pokemon.hp = Math.floor(pokemon.hp * ratio);
+				this.add('-heal', pokemon, pokemon.getHealth, '[silent]');
+				pokemon.storedStats.atk = Math.floor(pokemon.storedStats.atk * 1.5);
+				pokemon.storedStats.spa = Math.floor(pokemon.storedStats.spa * 1.5);
+				pokemon.storedStats.def = Math.floor(pokemon.storedStats.def * 1.5);
+				pokemon.storedStats.spd = Math.floor(pokemon.storedStats.spd * 1.5);
+				pokemon.storedStats.spe = Math.floor(pokemon.storedStats.spe * 1.5);
+			}else if(pokemon.species.bst>600){
+				pokemon.storedStats.atk = Math.floor(pokemon.storedStats.atk * 0.75);
+				pokemon.storedStats.spa = Math.floor(pokemon.storedStats.spa * 0.75);
+				pokemon.storedStats.def = Math.floor(pokemon.storedStats.def * 0.75);
+				pokemon.storedStats.spd = Math.floor(pokemon.storedStats.spd * 0.75);
+				pokemon.storedStats.spe = Math.floor(pokemon.storedStats.spe * 0.75);
+			}
 		},
 		onBeforeSwitchOut(pokemon) {
-			pokemon.removeVolatile('Inweakness');
+			pokemon.removeVolatile('Reweakness');
 		},
 		onEnd(pokemon) {
-			this.add('-end', pokemon, 'Inweakness');
-			pokemon.hp = Math.ceil(pokemon.hp * pokemon.baseMaxhp / pokemon.maxhp)
-			pokemon.maxhp = pokemon.baseMaxhp;
-			this.add('-heal', pokemon, pokemon.getHealth, '[silent]');
+			this.add('-end', pokemon, 'Reweakness');
+			if(pokemon.species.bst<=350){
+				pokemon.hp = Math.ceil(pokemon.hp * pokemon.baseMaxhp / pokemon.maxhp)
+				pokemon.maxhp = pokemon.baseMaxhp;
+				this.add('-heal', pokemon, pokemon.getHealth, '[silent]');
+			}
 		},
 
 	},
@@ -1413,12 +1422,13 @@ export const Conditions: {[k: string]: ModdedConditionData} = {
 		onModifyMovePriority: 102,
 		onModifyMove(move, pokemon, target) {
 			if (move.category !== 'Status' && pokemon.side === this.p2) {
-				if (move.category === 'Special') {
-					move.category = 'Physical';
-				} else if (move.category === 'Physical') {
-					move.category = 'Special';
+				if(pokemon.species.bst<=350 || pokemon.species.bst>600){
+					if (move.category === 'Special') {
+						move.category = 'Physical';
+					} else if (move.category === 'Physical') {
+						move.category = 'Special';
+					}
 				}
-				
 			}
 		},
 
